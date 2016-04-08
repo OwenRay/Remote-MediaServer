@@ -1,0 +1,6 @@
+{
+  "port": 8080,
+  "moviesFolder": "/Users/owenray/",
+
+  "videoFileTypes": ["mkv", "mp4", "3gp", "avi", "mov"]
+}
