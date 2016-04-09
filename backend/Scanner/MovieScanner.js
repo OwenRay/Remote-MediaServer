@@ -11,9 +11,6 @@ class MovieScanner
 
     scan(directory)
     {
-        /*guessit.parseName("doctor_who_2005.6x03.the_curse_of_the_black_spot.720p_hdtv_x264-fov.mkv").then(function (data) {
-            console.log(data);
-        });*/
         recursive(Settings.moviesFolder, [this.willInclude], this.onListed);
 
     }
@@ -41,6 +38,19 @@ class MovieScanner
         }
         console.log(err, "have listed:");
         console.log(files);
+        var offset = 0;
+        function loadNext()
+        {
+            if(!files[offset])
+                return;
+
+            guessit.parseName(files[offset]).then(function (data) {
+                console.log(data);
+                offset++;
+                loadNext()
+            });
+        }
+        loadNext();
     }
 }
 
