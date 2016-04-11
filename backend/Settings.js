@@ -37,9 +37,10 @@ try {
     for (var key in newSettings) {
         Settings[key] = newSettings[key];
     }
-}catch (e){
-    
+}catch (e){ 
 }
+
+fs.writeFile("settings.json", JSON.stringify(Settings, null, '\t'));
 
 
 
