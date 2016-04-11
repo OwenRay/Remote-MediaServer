@@ -1,0 +1,11 @@
+{{outlet}}
+{{#paper-toolbar}}
+    <div class="md-toolbar-tools">
+        {{#paper-sidenav-toggle as |toggle|}}
+            {{#paper-button target=toggle action="toggleMenu" icon-button=true}}{{paper-icon "menu"}}{{/paper-button}}
+        {{/paper-sidenav-toggle}}
+        <span class="md-breadcrumb-page">{{model.title}}</span>
+    </div>
+{{/paper-toolbar}}
+
+<video src="{{videoUrl}}" autoplay controls></video>

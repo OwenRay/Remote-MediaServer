@@ -3,7 +3,7 @@ var FileRequestHandler = require('./backend/requestHandlers/FileRequestHandler')
 var ApiRequestHandler = require('./backend/requestHandlers/ApiRequestHandler');
 var PlayRequestHandler = require('./backend/requestHandlers/PlayRequestHandler');
 var Settings = require("./backend/Settings");
-var MovieScanner = require("./backend/Scanner/MovieScanner.js");
+var MovieScanner = require("./backend/scanner/MovieScanner.js");
 
 new MovieScanner().scan();
 

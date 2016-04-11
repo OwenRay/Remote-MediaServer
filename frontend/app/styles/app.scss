@@ -1,0 +1,41 @@
+@import 'color-palette';
+
+$primary: "blue-grey" !default;
+$accent: "red" !default;
+$warn: "red" !default;
+$background: "blue-grey" !default;
+$link: "light-blue" !default;
+
+$dark: true !default;
+$default-color: '900' !default;
+
+$foreground: "foreground-light" !default;
+$foreground-shadow: "blue-grey" !default;
+
+$base-background-color: map-get($color-blue-grey, '900') !default;
+$base-color: rgba(255, 255, 255, 1) !default;
+
+@import 'ember-paper';
+
+body{
+  background:black;
+
+  >.ember-view
+  {
+    height:100%;
+    >section{
+      height:100%;
+    }
+  }
+}
+
+md-sidenav
+{
+  background:#607d8b;
+  //border-right:solid 1px #0D3349;
+}
+
+video{
+  width:100%;
+  height:100%;
+}

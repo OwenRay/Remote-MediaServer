@@ -1,0 +1,25 @@
+
+{{#paper-toolbar}}
+    <div class="md-toolbar-tools">
+        {{#paper-sidenav-toggle as |toggle|}}
+            {{#paper-button target=toggle action="toggleMenu" icon-button=true}}{{paper-icon "menu"}}{{/paper-button}}
+        {{/paper-sidenav-toggle}}
+        <span class="md-breadcrumb-page">Movies</span>
+    </div>
+{{/paper-toolbar}}
+
+{{#paper-content class="md-padding"}}
+    {{#paper-list}}
+        {{#each model as |item|}}
+            {{#paper-item class="md-3-line" action=(action "itemClick" item)}}
+                <div class="md-list-item-text">
+                    <h3>{{item.title}}</h3>
+                    <h4>{{item.year}}</h4>
+                </div>
+            {{/paper-item}}
+            {{!-- {{#paper-button icon-button=true}}
+                {{paper-icon "play-circle-filled"}}
+            {{/paper-button}} --}}
+        {{/each}}
+    {{/paper-list}}
+{{/paper-content}}
