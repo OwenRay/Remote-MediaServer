@@ -39,3 +39,17 @@ video{
   width:100%;
   height:100%;
 }
+
+
+.backdrop
+{
+  display:flex;
+  flex:1;
+  flex-flow: row;
+  background-size:cover;
+}
+
+.semi-transparent
+{
+  background-color: rgba(38, 49, 55, .7) !important;
+}

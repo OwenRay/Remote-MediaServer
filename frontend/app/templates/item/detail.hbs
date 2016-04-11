@@ -6,7 +6,10 @@
         {{/paper-sidenav-toggle}}
         <span class="md-breadcrumb-page">{{model.title}}</span>
     </div>
-{{/paper-toolbar}}
-
-<img src={{model.poster_path}}/>
-<p>{{model.overview}}</p>
+{{/paper-toolbar}}plex 
+<div style={{model.backdrop-img-style}} class="backdrop">
+{{#paper-content class="md-padding semi-transparent" }}
+    <img src={{{model.poster-img}}}/>
+    <p>{{model.overview}}</p>
+{{/paper-content}}
+</div>

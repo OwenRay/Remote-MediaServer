@@ -4,7 +4,7 @@ export default Ember.Controller.extend({
     actions:{
         itemClick(item)
         {
-            this.transitionToRoute("item.view", item)
+            this.transitionToRoute("item.detail", item)
         }
     }
 });

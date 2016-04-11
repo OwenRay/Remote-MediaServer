@@ -105,7 +105,7 @@ class MovieScanner
                             res = res.results[0];
                             if (res) {
                                 for (var key in res) {
-                                    item.attributes[key] = res[key];
+                                    item.attributes[key.replace("_", "-")] = res[key];
                                 }
                                 item.attributes.gotExtendedInfo = true;
                                 console.log("extended");
