@@ -8,21 +8,21 @@ var Settings = require("../Settings");
 var path = require('path');
 var Database = require("../Database");
 var MovieDB = require('moviedb')('0699a1db883cf76d71187d9b24c8dd8e');
+var FFProbe = require('../FFProbe');
 
 class MovieScanner
 {
 
     scan(directory)
     {
+        console.log("start scanner");
         recursive(Settings.moviesFolder, [this.willInclude], this.onListed.bind(this));
-
     }
 
     willInclude(file, fileRef)
     {
         if(fileRef.isDirectory())
             return false;
-
         var f = file.split(".");
         var type =  f[f.length-1];
         for(var c = 0; c<Settings.videoFileTypes.length; c++) {
@@ -37,8 +37,10 @@ class MovieScanner
     {
         if(err)
         {
+            console.log(err);
             return;
         }
+        console.log("gotAllFiles");
         var offset = -1;
         var loadNext = function ()
         {
@@ -60,13 +62,10 @@ class MovieScanner
             {
                 console.log("Fail");
                 guessit.parseName(folder.base + "-" + filePath.base).then(function (data) {
-                    console.log("hier", data);
                     if(!data.title)
                         return loadNext();
                     data.filepath = relativePath;
-                    console.log("b");
                     Database.setObject("media-item", data);
-                    console.log("suc6");
                     loadNext();
                 }, function()
                 {
@@ -90,12 +89,13 @@ class MovieScanner
     {
         console.log("checking for extended info...");
         var items = Database.getAll("media-item");
-        function loadNext()
+        var loadNext = function()
         {
             if(items.length==0)
                 return;
 
             var item = items.pop();
+            var delayed = this.checkFileInfo(item);
             if(!item.attributes.gotExtendedInfo)
             {
                 MovieDB.searchMovie(
@@ -118,10 +118,33 @@ class MovieScanner
                         setTimeout(loadNext, 300);
                     });
             }else{
-                loadNext();
+                if(delayed)
+                    setTimeout(loadNext, 300);
+                else
+                    loadNext();
             }
-        }
+        }.bind(this);
         loadNext();
+    }
+
+    checkFileInfo(obj)
+    {
+        if(obj.attributes.gotfileinfo)
+            return false;
+
+        var file = decodeURI(Settings.moviesFolder+obj.attributes.filepath);
+        FFProbe.getInfo(file)
+            .then(function(fileData)
+            {
+                if(!fileData||!fileData.format)
+                    return;
+                obj.attributes.fileduration = parseFloat(fileData.format.duration);
+                obj.attributes.filesize = parseInt(fileData.format.size);
+                obj.attributes.bitrate = fileData.format.bit_rate;
+                obj.attributes.gotfileinfo = true;
+                Database.update("media-item", obj);
+            });
+        return true;
     }
 }
 

@@ -1,23 +1,27 @@
-# INSTALL AND RUN ON osx/linux
-
-Prerequisites:
+# PREREQUISITES
 - npm
-- bower
-- ember-cli
-- wget
+- ffmpeg and ffprobe static binaries<br/>
+(the download of ffmpeg binaries will be automated in the future)
 
-$ ./install_and_run.sh
-set your media directory in settings.json
-exit and rerun
-$ ./install_and_run.sh
+# INSTALLATION
+To install execute:<br/>
+node setup.js<br/>
 
+# RUNNING
+To run execute:<br/>
+node main.js
 
-open http://localhost:4200
+A settings file will be created at first run<br/>
+Restart after modification
 
-# INSTALL AND RUN ON windows
+open http://localhost:8080
 
-Coming..
+# DEVELOPING
+##backend:
+just run the server like normal node main.js
+##frontend
+cd frontend (got into the frontend directory)<br/>
+ember server --proxy http://localhost:8080
 
 # KNOWN ISSUES
-
 Empty library will crash the server.

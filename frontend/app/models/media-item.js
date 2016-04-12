@@ -9,6 +9,7 @@ export default DS.Model.extend({
     "backdrop-path":DS.attr("string"),
     overview:DS.attr("string"),
     "vote-average":DS.attr("number"),
+    "fileduration":DS.attr("number"),
 
     "backdrop-img-style":Ember.computed("backdrop-path", function()
     {

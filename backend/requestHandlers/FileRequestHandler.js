@@ -19,7 +19,7 @@ class FileRequestHandler extends RequestHandler{
 
         this.response.setHeader('Content-Type', mime.lookup(url));
         
-        fs.readFile("./frontend"+url, "utf8", this.fileRead.bind(this));
+        fs.readFile("./frontend/dist"+url, "utf8", this.fileRead.bind(this));
     }
 
     fileRead(err, data)

@@ -47,13 +47,61 @@ video{
   flex:1;
   flex-flow: row;
   background-size:cover;
+  background-position: center center;
 }
 
 .semi-transparent
 {
-  background-color: rgba(38, 49, 55, .7) !important;
+  background-color:  rgba(38, 49, 55, .7) !important;
 }
 
 md-content{
-  width:100%;
+  flex:1;
+}
+
+video{
+  background:black;
+  position:absolute;
+  left:0px;
+  right:0px;
+  bottom:0px;
+  top:0px;
+}
+
+.controls {
+  display:flex;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  flex-flow: column;
+  .tracker {
+    margin:10px;
+    flex:1;
+    background: map-get($color-blue-grey, '400');
+    cursor: pointer;
+    height: 10px;
+    position: relative;
+    .buffer {
+      position: absolute;
+      top: 0px;
+      bottom: 0px;
+      background:rgba(0,0,0,.3);
+    }
+
+    .progress {
+      background: map-get($color-red, '400');
+      top: -2px;
+      bottom: -2px;
+      position: absolute;
+      > div {
+        position: absolute;
+        right: -1px;
+        top: -3px;
+        bottom: -3px;
+        background: inherit;
+        width: 2px;
+      }
+    }
+  }
 }

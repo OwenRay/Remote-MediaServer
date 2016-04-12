@@ -1,0 +1,5 @@
+<video src={{videoUrl}} autoplay></video>
+
+<div class="controls">
+    {{seek-bar offset=startOffset onSeek=(action "seek") progress=progress max=mediaItem.fileduration}}
+</div>

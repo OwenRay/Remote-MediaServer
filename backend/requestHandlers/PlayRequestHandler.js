@@ -3,6 +3,8 @@
  */
 "use strict";
 var spawn = require('child_process').spawn;
+var os = require('os');
+var fs = require("fs");
 var Settings = require("../Settings");
 var FFProbe = require("../FFProbe");
 
@@ -11,15 +13,26 @@ var RequestHandler = require("./RequestHandler");
 class PlayRequestHandler extends RequestHandler{
     handleRequest()
     {
-        console.log("test123");
-        this.file = decodeURI(Settings.moviesFolder+this.request.url.substr(4));
+        //this.file = decodeURI(Settings.moviesFolder+this.request.url.substr(4));
+        var parts = this.request.url.split("/")
+        parts.shift();
+        parts.shift();
+        this.offset = parts.pop();
+        this.file = Settings.moviesFolder+"/"+decodeURI(parts.join("/"));
+        console.log(this.file);
         FFProbe.getInfo(this.file).then(this.gotInfo.bind(this), this.onError.bind(this));
     }
 
     gotInfo(info)
     {
-        console.log(info);
+        if(!info||!info.format)
+        {
+            console.log("VIDEO ERROR!");
+            this.response.end();
+            return;
+        }
         this.response.setHeader('Content-Type', "video/mp4");
+        this.response.setHeader('Accept-Ranges', 'bytes');
         var vCodec = "libx264";
         var aCodec = "aac";
 
@@ -38,20 +51,38 @@ class PlayRequestHandler extends RequestHandler{
             {
                 aCodec = "copy";
             }
-            //if(stream.codec_name=="")
         }
+        //console.log()
+        var duration = Math.round((info.format.duration-this.offset)*1000);
+        console.log("setDuration", duration);
+        //OK... this is a hack to specify the video duration...
+        this.tmpFile = os.tmpdir()+Math.random()+".txt";
+        var metadata = ";FFMETADATA1\n"+
+                        "[CHAPTER]\n"+
+                        "TIMEBASE=1/1000\n"+
+                        //"START=0\n"+
+                        "END="+duration+"\n"+
+                        "title=chapter \#1\n";
+
+        fs.writeFileSync(this.tmpFile, metadata);
 
         var args = [
-            //"-r", "40",
-            "-re",
+            //"-re", // <-- should read the file at running speed... but a little to slow...
+            "-ss", this.offset,
             "-i", this.file,
+            "-i", this.tmpFile,
+            "-map_metadata", "1",
+
             "-f", "mp4",
             "-vcodec", vCodec,
-            "-movflags", "frag_keyframe+empty_moov",
+            "-movflags", "faststart+empty_moov",
             "-acodec", aCodec,
+            "-metadata:c:0", 'end=120000',
             "-strict", "-2",
             "-"
         ];
+
+        console.log(Settings.ffmpeg_binary+" "+args.join(" "));
         var proc = spawn(
             Settings.ffmpeg_binary,
             args);
@@ -79,6 +110,7 @@ class PlayRequestHandler extends RequestHandler{
     onClose(code)
     {
         console.log("Close:"+code);
+
         this.response.end();
     }
 }
