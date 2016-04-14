@@ -75,7 +75,7 @@ class PlayRequestHandler extends RequestHandler{
 
             "-f", "mp4",
             "-vcodec", vCodec,
-            "-movflags", "faststart+empty_moov",
+            "-movflags", "empty_moov",
             "-acodec", aCodec,
             "-metadata:c:0", 'end=120000',
             "-strict", "-2",
