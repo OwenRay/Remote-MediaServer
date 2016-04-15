@@ -31,14 +31,15 @@ var Settings = {
 try {
     var contents = fs.readFileSync("settings.json", "utf8");
     var newSettings = JSON.parse(contents);
+
     for (var key in newSettings) {
         Settings[key] = newSettings[key];
     }
-}catch (e){
+
+} catch (e) {
+
 }
 
-fs.writeFile("settings.json", JSON.stringify(Settings, null, '\t'));
-
-
+fs.writeFileSync("settings.json", JSON.stringify(Settings, null, '\t'));
 
 module.exports = Settings;

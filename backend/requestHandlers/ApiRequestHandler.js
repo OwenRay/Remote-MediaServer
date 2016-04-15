@@ -1,11 +1,8 @@
-/**
- * Created by owenray on 08-04-16.
- */
 "use strict";
+
 var path = require("path");
 var Database = require("../Database");
 var pluralize = require('pluralize');
-
 var RequestHandler = require("./RequestHandler");
 
 class ApiRequestHandler extends RequestHandler{
