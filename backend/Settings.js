@@ -28,7 +28,12 @@ var Settings = {
         "mpg",
         "mpeg",
         "m4v"
-    ]
+    ],
+
+    save:function()
+    {
+        fs.writeFile("settings.json", JSON.stringify(Settings, null, '  '));
+    }
 };
 
 try {
@@ -40,8 +45,10 @@ try {
 }catch (e){ 
 }
 
-fs.writeFile("settings.json", JSON.stringify(Settings, null, '\t'));
-
+if(!fs.existsSync("settings.json"))
+{
+    Settings.save();
+}
 
 
 module.exports = Settings;

@@ -21,8 +21,9 @@ export default Ember.Component.extend({
 
     updateProgress()
     {
-        if(this.isDestroyed)
+        if(this.isDestroyed) {
             return;
+        }
         if(this.videoObj.readyState === 4) {
             this.set("progress", this.videoObj.currentTime);
         }
