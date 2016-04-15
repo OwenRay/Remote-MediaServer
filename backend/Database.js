@@ -1,7 +1,5 @@
-/**
- * Created by owenray on 08-04-16.
- */
 "use strict";
+
 var fs = require("fs");
 
 class Database {
@@ -33,14 +31,14 @@ class Database {
         console.log("add:", type, o.id, o);
         this.save();
     }
-    
+
     update(type, obj)
     {
         if(!this.tables[type])
         {
             this.tables[type] = [];
         }
-        
+
         this.tables[type][obj.id] = obj;
         this.save();
     }

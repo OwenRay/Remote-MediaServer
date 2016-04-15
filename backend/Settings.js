@@ -1,12 +1,9 @@
-/**
- * Created by owenray on 08-04-16.
- */
-"use strict"
-var fs = require("fs");
+"use strict";
 
+var fs = require("fs");
 var Settings = {
     "port": 8080,
-    "moviesFolder": "/Users/owenray/",
+    "moviesFolder": process.env.HOME || process.env.USERPROFILE,
     "ffmpeg_binary": "ffmpeg",
     "ffprobe_binary": "ffprobe",
     "videoFileTypes": [
@@ -37,7 +34,7 @@ try {
     for (var key in newSettings) {
         Settings[key] = newSettings[key];
     }
-}catch (e){ 
+}catch (e){
 }
 
 fs.writeFile("settings.json", JSON.stringify(Settings, null, '\t'));

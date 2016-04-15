@@ -1,7 +1,5 @@
-/**
- * Created by owenray on 08-04-16.
- */
-"use strict"
+"use strict";
+
 var guessit = require("guessit-wrapper");
 var recursive = require('recursive-readdir');
 var Settings = require("../Settings");
@@ -50,7 +48,7 @@ class MovieScanner
                 return;
             }
             var relativePath = files[offset].substr(Settings.moviesFolder.length);
-            if(Database.findBy("media-item", "filepath", relativePath).length!=0) {
+            if(Database.findBy("media-item", "filepath", relativePath).length !== 0) {
                 return loadNext();
             }
 
@@ -91,7 +89,7 @@ class MovieScanner
         var items = Database.getAll("media-item");
         var loadNext = function()
         {
-            if(items.length==0)
+            if(items.length === 0)
                 return;
 
             var item = items.pop();

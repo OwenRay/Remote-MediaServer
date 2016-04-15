@@ -14,7 +14,7 @@ class PlayRequestHandler extends RequestHandler{
     handleRequest()
     {
         //this.file = decodeURI(Settings.moviesFolder+this.request.url.substr(4));
-        var parts = this.request.url.split("/")
+        var parts = this.request.url.split("/");
         parts.shift();
         parts.shift();
         this.offset = parts.pop();
