@@ -75,11 +75,11 @@ class Database {
 
     getAll(type)
     {
-		if(!this.tables[type]) {
-			this.tables[type] = [];
-		}
+        if(!this.tables[type]) {
+            this.tables[type] = [];
+        }
 
-		return this.tables[type].slice();
+        return this.tables[type].slice();
     }
 
     load()
