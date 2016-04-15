@@ -29,7 +29,7 @@ class SettingsApiHandler extends IApiHandler
                     var attrs = data.data.attributes;
                     for(var key in attrs)
                     {
-                        Settings[key] = attrs[key];
+                        Settings.setValue(key, attrs[key]);
                     }
                     Settings.save();
                 }catch(e){};
@@ -43,7 +43,7 @@ class SettingsApiHandler extends IApiHandler
 
     respond(response)
     {
-        var json = JSON.stringify({data:{id:1, type:"setting", attributes:Settings}});
+        var json = JSON.stringify({data:{id:1, type:"setting", attributes:Settings.getAll()}});
         response.end(json);
     }
 }

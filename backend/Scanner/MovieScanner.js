@@ -16,7 +16,8 @@ class MovieScanner
     scan(directory)
     {
         console.log("start scanner");
-        recursive(Settings.moviesFolder, [this.willInclude], this.onListed.bind(this));
+        this.types = Settings.getValue("videoFileTypes");
+        recursive(Settings.getValue("moviesFolder"), [this.willInclude.bind(this)], this.onListed.bind(this));
     }
 
     willInclude(file, fileRef)
@@ -25,8 +26,8 @@ class MovieScanner
             return false;
         var f = file.split(".");
         var type =  f[f.length-1];
-        for(var c = 0; c<Settings.videoFileTypes.length; c++) {
-            if (Settings.videoFileTypes[c] === type) {
+        for(var c = 0; c<this.types.length; c++) {
+            if (this.types[c] === type) {
                 return false;
             }
         }
@@ -49,7 +50,7 @@ class MovieScanner
                 this.checkForExtendedInfo();
                 return;
             }
-            var relativePath = files[offset].substr(Settings.moviesFolder.length);
+            var relativePath = files[offset].substr(Settings.getValue("moviesFolder").length);
             if(Database.findBy("media-item", "filepath", relativePath).length!=0) {
                 return loadNext();
             }
@@ -132,7 +133,7 @@ class MovieScanner
         if(obj.attributes.gotfileinfo)
             return false;
 
-        var file = decodeURI(Settings.moviesFolder+obj.attributes.filepath);
+        var file = decodeURI(Settings.getValue("moviesFolder")+obj.attributes.filepath);
         FFProbe.getInfo(file)
             .then(function(fileData)
             {

@@ -3,7 +3,7 @@
         {{#paper-toolbar}}
             <div class="md-toolbar-tools">
                 <div class="logo">
-                    <strong>Owen's Films</strong>
+                    <strong>{{settings.model.name}}</strong>
                 </div>
             </div>
         {{/paper-toolbar}}
@@ -11,6 +11,7 @@
         {{#paper-content}}
             {{#paper-list}}
                 {{#paper-item action="transitionTo" param="index"}}Movies{{/paper-item}}
+                {{#paper-item action="transitionTo" param="settings"}}Settings{{/paper-item}}
             {{/paper-list}}
         {{/paper-content}}
     {{/paper-sidenav}}
