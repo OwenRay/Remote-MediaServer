@@ -63,6 +63,7 @@ class MovieScanner
                     if(!data.title)
                         return loadNext();
                     data.filepath = relativePath;
+                    data.title = data.title.replace(folder.base + '-', '');
                     Database.setObject("media-item", data);
                     loadNext();
                 }, function()
@@ -72,7 +73,7 @@ class MovieScanner
                 });
             }
 
-            guessit.parseName(filePath.base).then(function (data) {
+            guessit.parseName(filePath.base.replace(/ /g, '.') + '&type=movie').then(function (data) {
                 if(!data.title)
                     return errorFunction();
                 data.filepath = relativePath;
@@ -101,6 +102,7 @@ class MovieScanner
                     function(err, res){
                         if(!err) {
                             res = res.results[0];
+                            // item.attributes.title = item.attributes.title.replace('Movies-', '');
                             if (res) {
                                 for (var key in res) {
                                     item.attributes[key.replace("_", "-")] = res[key];
