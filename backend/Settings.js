@@ -1,13 +1,11 @@
-/**
- * Created by owenray on 08-04-16.
- */
-"use strict"
+"use strict";
+
 var fs = require("fs");
 
 var settingsObj = {
     "port": 8080,
     "name": "My Media Server",
-    "moviesFolder": "/Users/owenray/",
+    "moviesFolder": process.env.HOME || process.env.USERPROFILE,
     "ffmpeg_binary": "ffmpeg",
     "ffprobe_binary": "ffprobe",
     "videoFileTypes": [
@@ -78,7 +76,7 @@ var Settings = {
 
     save()
     {
-        fs.writeFile("settings.json", JSON.stringify(settingsObj, null, '  '));
+        fs.writeFileSync("settings.json", JSON.stringify(settingsObj, null, '  '));
     },
 
     triggerObservers(variable)
