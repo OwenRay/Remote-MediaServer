@@ -6,8 +6,8 @@
 class RequestHandler {
     /**
      *
-     * @param {http.ClientRequest} request
-     * @param {http.ServerResponse} response
+     * @param {IncomingMessage} request
+     * @param {ServerResponse} response
      */
     constructor(request, response)
     {
@@ -21,5 +21,4 @@ class RequestHandler {
     }
 }
 
-//export RequestHandler;
 module.exports = RequestHandler;

@@ -3,11 +3,10 @@ import Ember from 'ember';
 export default Ember.Controller.extend({
     settings: Ember.inject.service('settings'),
 
-    actions:
-    {
-        transitionTo(route)
+    actions:{
+        save()
         {
-            this.transitionToRoute(route);
+            this.get("settings.model").save();
         }
     }
 });

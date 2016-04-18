@@ -12,8 +12,9 @@ var FFProbe =
         console.log("hier");
         var promise = new Promise();
 
+        console.log(fileName);
         var proc = spawn(
-                    Settings.ffprobe_binary,
+                    Settings.getValue("ffprobe_binary"),
                     [
                         "-v", "quiet",
                         "-show_format",

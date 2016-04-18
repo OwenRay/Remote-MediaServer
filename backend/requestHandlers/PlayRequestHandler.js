@@ -18,7 +18,7 @@ class PlayRequestHandler extends RequestHandler{
         parts.shift();
         parts.shift();
         this.offset = parts.pop();
-        this.file = Settings.moviesFolder+"/"+decodeURI(parts.join("/"));
+        this.file = Settings.getValue("moviesFolder")+"/"+decodeURI(parts.join("/"));
         console.log(this.file);
         FFProbe.getInfo(this.file).then(this.gotInfo.bind(this), this.onError.bind(this));
     }
@@ -82,9 +82,9 @@ class PlayRequestHandler extends RequestHandler{
             "-"
         ];
 
-        console.log(Settings.ffmpeg_binary+" "+args.join(" "));
+        console.log(Settings.getValue("ffmpeg_binary")+" "+args.join(" "));
         var proc = spawn(
-            Settings.ffmpeg_binary,
+            Settings.getValue("ffmpeg_binary"),
             args);
 
         proc.stdout.on('data', this.onData.bind(this));

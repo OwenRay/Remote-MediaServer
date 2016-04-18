@@ -1,8 +1,10 @@
 "use strict";
 
 var fs = require("fs");
-var Settings = {
+
+var settingsObj = {
     "port": 8080,
+    "name": "My Media Server",
     "moviesFolder": process.env.HOME || process.env.USERPROFILE,
     "ffmpeg_binary": "ffmpeg",
     "ffprobe_binary": "ffprobe",
@@ -25,21 +27,83 @@ var Settings = {
         "mpg",
         "mpeg",
         "m4v"
-    ]
+    ],
 };
 
-try {
-    var contents = fs.readFileSync("settings.json", "utf8");
-    var newSettings = JSON.parse(contents);
+var Settings = {
+    observers:[],
 
-    for (var key in newSettings) {
-        Settings[key] = newSettings[key];
+    createIfNotExists()
+    {
+        if(!fs.existsSync("settings.json"))
+        {
+            Settings.save();
+        }
+    },
+
+    getValue(key)
+    {
+        return settingsObj[key];
+    },
+
+    setValue(key, value)
+    {
+        var originalValue = settingsObj[key];
+        settingsObj[key] = value;
+        if(originalValue!=value)
+        {
+            this.triggerObservers(key);
+        }
+    },
+
+    getAll()
+    {
+        return settingsObj;
+    },
+
+    load()
+    {
+        try {
+            var contents = fs.readFileSync("settings.json", "utf8");
+            var newSettings = JSON.parse(contents);
+            for (var key in newSettings) {
+                settingsObj[key] = newSettings[key];
+            }
+        }catch (e){
+        }
+    },
+
+    save()
+    {
+        fs.writeFileSync("settings.json", JSON.stringify(settingsObj, null, '  '));
+    },
+
+    triggerObservers(variable)
+    {
+        console.log("trigger", variable);
+        if(!Settings.observers[variable])
+        {
+            return;
+        }
+        console.log("trigger", variable);
+        for(var c = 0; c<Settings.observers[variable].length; c++)
+        {
+            console.log("trigger", variable);
+            Settings.observers[variable][c](variable);
+        }
+    },
+
+    addObserver(variable, callback)
+    {
+        if(!Settings.observers[variable])
+        {
+            Settings.observers[variable] = [];
+        }
+        Settings.observers[variable].push(callback);
     }
+};
 
-} catch (e) {
-
-}
-
-fs.writeFileSync("settings.json", JSON.stringify(Settings, null, '\t'));
+Settings.load();
+Settings.createIfNotExists();
 
 module.exports = Settings;

@@ -1,0 +1,16 @@
+{{outlet}}
+
+{{#paper-toolbar}}
+    <div class="md-toolbar-tools">
+        {{#paper-sidenav-toggle as |toggle|}}
+            {{#paper-button target=toggle action="toggleMenu" icon-button=true}}{{paper-icon "menu"}}{{/paper-button}}
+        {{/paper-sidenav-toggle}}
+        <span class="md-breadcrumb-page">Settings</span>
+    </div>
+{{/paper-toolbar}}
+
+{{#paper-content class="md-padding"}}
+    {{paper-input label="Server name" value=settings.model.name icon="label"}}
+    {{paper-input label="Port" value=settings.model.port icon="computer"}}
+    {{#paper-button raised=true primary=true action="save"}}Save{{/paper-button}}
+{{/paper-content}}
