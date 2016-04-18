@@ -1,7 +1,5 @@
-/**
- * Created by owenray on 08-04-16.
- */
-"use strict"
+"use strict";
+
 var guessit = require("guessit-wrapper");
 var recursive = require('recursive-readdir');
 var Settings = require("../Settings");
@@ -92,7 +90,7 @@ class MovieScanner
         var items = Database.getAll("media-item");
         var loadNext = function()
         {
-            if(items.length==0)
+            if(items.length === 0)
                 return;
 
             var item = items.pop();

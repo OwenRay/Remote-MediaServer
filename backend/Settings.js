@@ -30,7 +30,6 @@ var settingsObj = {
     ],
 };
 
-
 var Settings = {
     observers:[],
 

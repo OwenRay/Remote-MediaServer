@@ -40,7 +40,7 @@ var FFProbe =
             }catch(e){
                 promise.reject(e);
             }
-        })
+        });
         return promise;
     }
 };
