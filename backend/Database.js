@@ -84,11 +84,12 @@ class Database {
 
     load()
     {
-        try{
-            var items = JSON.parse(fs.readFileSync("db", "utf8"));
-            for(var key in items)
-            {
-                this[key] = items[key];
+        try {
+            if (fs.existsSync('db')) {
+                var items = JSON.parse(fs.readFileSync("db", "utf8"));
+                for (var key in items) {
+                    this[key] = items[key];
+                }
             }
         }catch(e){
             console.log(e);
