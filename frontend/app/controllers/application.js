@@ -8,6 +8,11 @@ export default Ember.Controller.extend({
         transitionTo(route)
         {
             this.transitionToRoute(route);
+        },
+
+        gotoLibrary(library)
+        {
+            this.transitionToRoute("library", library);
         }
     }
 });

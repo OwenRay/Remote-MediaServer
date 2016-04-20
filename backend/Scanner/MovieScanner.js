@@ -12,6 +12,10 @@ var FFProbe = require('../FFProbe');
 
 class MovieScanner
 {
+    init()
+    {
+        Settings.addObserver("libraries", this.scan.bind(this));
+    }
 
     scan(directory)
     {

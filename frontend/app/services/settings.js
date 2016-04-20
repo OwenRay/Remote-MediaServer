@@ -10,5 +10,10 @@ export default Ember.Service.extend({
         {
             this.set("model", item);
         }.bind(this));
+    },
+
+    save()
+    {
+        this.get("model").save();
     }
 });

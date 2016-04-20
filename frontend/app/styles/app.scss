@@ -55,8 +55,11 @@ video{
   background-color:  rgba(38, 49, 55, .7) !important;
 }
 
-md-content{
-  flex:1;
+.ember-view > section, md-sidenav {
+  > md-content
+  {
+    flex:1;
+  }
 }
 
 video{
@@ -102,6 +105,31 @@ video{
         background: inherit;
         width: 2px;
       }
+    }
+  }
+}
+
+.directoryList
+{
+  border:solid 1px rgba(255,255,255, .2);
+  margin-top:-15px;
+  margin-bottom:20px;
+  font-size:.9em;
+  max-height:200px;
+  overflow:auto;
+  transition:height;
+  transition-duration: 5s;
+  md-list-item
+  {
+    &:nth-child(even){
+      background:rgba(255,255,255, .05);
+    }
+    &.md-clickable:hover{
+      background:rgba(255,255,255, .2);
+    }
+    min-height: 30px;
+    .md-list-item-inner {
+      min-height: 30px;
     }
   }
 }

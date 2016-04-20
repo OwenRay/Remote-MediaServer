@@ -5,11 +5,15 @@
 
 class IApiHandler
 {
+
     /**
      *
+     * @param {IncomingMessage} request
+     * @param {ServerResponse} response
+     * @param {url} url
      * @returns {boolean} handled or not?
      */
-    handle(request, response)
+    handle(request, response, url)
     {
        return false;
     }
