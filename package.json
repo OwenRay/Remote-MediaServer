@@ -3,12 +3,20 @@
   "description": "",
   "version": "0.0.1",
   "private": true,
+  "bin": {
+    "mmp": "./main.js"
+  },
+  "scripts": {
+    "prepublish": "cd frontend; ember build --env production",
+    "postinstall": "./postinstall.js"
+  },
   "dependencies": {
     "guessit-wrapper": "^1.0.0",
     "mime": "^1.3.4",
     "moviedb": "^0.2.3",
     "node-promise": "^0.5.12",
     "pluralize": "^1.2.1",
-    "recursive-readdir": "^2.0.0"
+    "recursive-readdir": "^2.0.0",
+    "unzip": "^0.1.11"
   }
 }
