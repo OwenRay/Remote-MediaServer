@@ -2,6 +2,9 @@ import Ember from 'ember';
 
 export default Ember.Component.extend({
     tagName:"md-content",
+    attributeBindings: ['flex'],
+    flex:true,
+    
     src:"",
     progress:0,
     videoObj:null,

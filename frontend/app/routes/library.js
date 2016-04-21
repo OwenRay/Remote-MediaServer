@@ -1,19 +1,19 @@
 import Ember from 'ember';
-import DS from "ember-data";
 
 export default Ember.Route.extend({
     settings: Ember.inject.service('settings'),
 
     model(params)
     {
-        return new Promise(function(resolve){
+        return new Ember.RSVP.Promise(function(resolve){
 
             var doResolve = function()
             {
+                var lib = this.get("settings.model.libraries")[params.offset];
                 resolve(
                     {
-                        info:this.get("settings.model.libraries")[params.offset],
-                        items:this.store.findAll("media-item")
+                        info:lib,
+                        items:this.store.query("media-item", {"libraryId":lib.uuid})
                     });
             }.bind(this);
 
@@ -22,8 +22,9 @@ export default Ember.Route.extend({
                 doResolve();
             }.bind(this);
 
-            if(this.get("settings.model"))
+            if(this.get("settings.model")) {
                 doResolve();
+            }
 
             this.addObserver("settings.model", doResolve);
         }.bind(this));

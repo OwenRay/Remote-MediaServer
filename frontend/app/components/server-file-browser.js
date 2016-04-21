@@ -14,11 +14,11 @@ export default Ember.Component.extend({
     },
     
     empty:Ember.computed("error", "directories", function(){
-        return !this.get("error")&&this.get("directories").length==0;
+        return !this.get("error")&&this.get("directories").length===0;
     }),
 
     showUp:Ember.computed("value", function(){
-        return this.get("value")&&this.get("value")!="/";
+        return this.get("value")&&this.get("value")!=="/";
     }),
 
     update()
@@ -53,7 +53,7 @@ export default Ember.Component.extend({
         up(dir)
         {
             var parts = this.get("value").split("/");
-            while(parts.length>0&&!parts.pop());
+            while(parts.length>0&&!parts.pop()){}
 
             this.set("value", parts.join("/"));
             console.log(dir);

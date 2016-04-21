@@ -3,13 +3,14 @@
  */
 "use strict"
 var fs = require("fs");
+var uuid = require('node-uuid');
 
 var settingsObj = {
     "port": 8080,
     "name": "My Media Server",
-    "moviesFolder": "/Users/owenray/",
     "ffmpeg_binary": "ffmpeg",
     "ffprobe_binary": "ffprobe",
+    "libraries": [],
     "videoFileTypes": [
         "mkv",
         "mp4",
@@ -51,8 +52,20 @@ var Settings = {
 
     setValue(key, value)
     {
+        if(key=="libraries")
+        {
+            for(var c = 0; c<value.length; c++)
+            {
+                if(!value[c].uuid)
+                {
+                    value[c].uuid = uuid.v4();
+                }
+            }
+        }
+
         var originalValue = settingsObj[key];
         settingsObj[key] = value;
+
         if(originalValue!=value)
         {
             this.triggerObservers(key);
@@ -83,15 +96,12 @@ var Settings = {
 
     triggerObservers(variable)
     {
-        console.log("trigger", variable);
         if(!Settings.observers[variable])
         {
             return;
         }
-        console.log("trigger", variable);
         for(var c = 0; c<Settings.observers[variable].length; c++)
         {
-            console.log("trigger", variable);
             Settings.observers[variable][c](variable);
         }
     },

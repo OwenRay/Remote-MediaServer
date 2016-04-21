@@ -3,7 +3,7 @@
         {{#paper-sidenav-toggle as |toggle|}}
             {{#paper-button target=toggle action="toggleMenu" icon-button=true}}{{paper-icon "menu"}}{{/paper-button}}
         {{/paper-sidenav-toggle}}
-        <span class="md-breadcrumb-page">{{model.info.name}}</span>
+        <span class="md-breadcrumb-page">{{model.info.name}} ({{model.items.length}})</span>
     </div>
 {{/paper-toolbar}}
 

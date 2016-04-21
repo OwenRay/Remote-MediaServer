@@ -3,6 +3,7 @@
  */
 "use strict";
 var fs = require("fs");
+var uuid = require("node-uuid");
 
 class Database {
 
@@ -14,7 +15,6 @@ class Database {
 
     setObject(type, obj)
     {
-        console.log("SET!!");
         if(!this.tables[type])
         {
             this.tables[type] = [];
@@ -27,10 +27,13 @@ class Database {
         if(!o.id) {
             o.id = this.ids[type]++;
         }
+        if(!obj.uuid)
+        {
+            obj.uuid = uuid.v4();
+        }
         o.type = type;
         o.attributes = obj;
         this.tables[type][o.id] = o;
-        console.log("add:", type, o.id, o);
         this.save();
     }
     
@@ -63,6 +66,38 @@ class Database {
             if(table[itemKey]&&table[itemKey].attributes[key]===value)
             {
                 items.push(table[itemKey]);
+            }
+        }
+        return items;
+    }
+
+    findByMatchFilters(type, filters)
+    {
+        var table = this.tables[type];
+        if(!table) {
+            return [];
+        }
+
+        var numFilters = 0;
+        for(var filterKey in filters)
+        {
+            numFilters++;
+        }
+
+        var items = [];
+        for(var itemKey in table)
+        {
+            var item = table[itemKey];
+            var match = 0;
+            for(var filterKey in filters)
+            {
+                if (item.attributes[filterKey] !== filters[filterKey]) {
+                    break;
+                }
+                match++;
+            }
+            if(match===numFilters) {
+                items.push(item);
             }
         }
         return items;
