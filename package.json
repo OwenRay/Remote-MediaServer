@@ -7,8 +7,8 @@
     "mmp": "./main.js"
   },
   "scripts": {
-    "prepublish": "cd frontend; ember build --env production",
-    "postinstall": "./postinstall.js"
+    "prepublish": "node scripts/prepublish.js",
+    "postinstall": "node scripts/postinstall.js"
   },
   "dependencies": {
     "guessit-wrapper": "^1.0.0",

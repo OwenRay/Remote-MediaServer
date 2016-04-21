@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 var fs = require("fs");
-var Settings = require("./backend/Settings");
+var Settings = require("../backend/Settings");
 var os = require("os");
 var http = require("http");
 var unzip = require("unzip");
