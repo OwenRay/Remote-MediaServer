@@ -13,13 +13,13 @@ class FileRequestHandler extends RequestHandler{
     {
         //this.response.end("ok");
         var url = this.request.url;
-
-        if(! url || url[url.length-1] === "/" || ! fs.existsSync("./frontend/dist" + url)) {
+        var dir = __dirname+"../../../frontend/dist/";
+        if(! url || url[url.length-1] === "/" || ! fs.existsSync(dir + url)) {
             url = "/index.html";
         }
 
         this.response.setHeader('Content-Type', mime.lookup(url));
-        fs.readFile("./frontend/dist" + url, "utf8", this.fileRead.bind(this));
+        fs.readFile(dir + url, "utf8", this.fileRead.bind(this));
     }
 
     fileRead(err, data)
