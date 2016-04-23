@@ -96,7 +96,7 @@ class MovieScanner
                 });
             }.bind(this);
 
-            guessit.parseName(filePath.base).then(function (data) {
+            guessit.parseName(filePath.base.replace(/ /g, '.') + '&type=movie').then(function (data) {
                 if(this.applyGuessitData(data, relativePath)) {
                     return loadNext();
                 }
