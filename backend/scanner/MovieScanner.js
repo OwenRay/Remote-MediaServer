@@ -22,11 +22,11 @@ class MovieScanner
     {
         if(this.scanning!=-1)
         {
-            console.log("Scan in progress");
+            // console.log("Scan in progress");
             return;
         }
 
-        console.log("start scanner");
+        // console.log("start scanner");
         this.scanNext();
     }
 
@@ -62,10 +62,10 @@ class MovieScanner
     {
         if(err)
         {
-            console.log(err);
+            // console.log(err);
             return;
         }
-        console.log("gotAllFiles");
+        // console.log("gotAllFiles");
         var offset = -1;
         var loadNext = function ()
         {
@@ -76,22 +76,24 @@ class MovieScanner
             }
             var relativePath = files[offset].substr(this.library.folder.length);
             if(Database.findBy("media-item", "filepath", relativePath).length!=0) {
-                return loadNext();
+                // return loadNext();
             }
 
             var filePath = path.parse(files[offset]);
             var folder = path.parse(filePath.dir);
 
-            console.log("find", folder.base + "-" + filePath.base);
+            // console.log('here', relativePath);
+            // console.log("find", folder.base + "-" + filePath.base);
             var errorFunction = function ()
             {
-                console.log("Fail");
+                // console.log("Fail");
                 guessit.parseName(folder.base + "-" + filePath.base.replace(/ /g, '.') + '&type=movie').then(function (data) {
+                    data.title = data.title.replace(folder.base + '-', '');
                     this.applyGuessitData(data, relativePath);
                     loadNext();
                 }.bind(this), function()
                 {
-                    console.log("andfail");
+                    // console.log("andfail");
                     loadNext();
                 });
             }.bind(this);
@@ -108,9 +110,8 @@ class MovieScanner
 
     applyGuessitData(data, relativePath)
     {
-        if(data.series  )
         if(!data.title) {
-            console.log("no title", data);
+            // console.log("no title", data);
             return false;
         }
 
@@ -123,7 +124,7 @@ class MovieScanner
 
     checkForExtendedInfo()
     {
-        console.log("checking for extended info...");
+        // console.log("checking for extended info...");
         var items = Database.getAll("media-item");
         var loadNext = function()
         {
@@ -146,12 +147,12 @@ class MovieScanner
                                     item.attributes[key.replace("_", "-")] = res[key];
                                 }
                                 item.attributes.gotExtendedInfo = true;
-                                console.log("extended");
+                                // console.log("extended");
                                 Database.update("media-item", item);
                             }
-                            console.log("got Extended attrs on", item.attributes.title);
+                            // console.log("got Extended attrs on", item.attributes.title);
                         }else{
-                            console.log(err);
+                            // console.log(err);
                         }
                         setTimeout(loadNext, 300);
                     });
