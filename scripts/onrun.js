@@ -18,7 +18,7 @@ if(!fs.existsSync(dir))
 //make sure all settings files are in the right directory
 process.chdir(dir);
 
-if(!fs.existsSync("/.remote/ffmpeg")&&!fs.existsSync("/.remote/ffmpeg.exe")) {
+if(!fs.existsSync(dir+"ffmpeg")&&!fs.existsSync(dir+"ffmpeg.exe")) {
     console.log("downloading ffmpeg");
     http.get("http://downloadffmpeg.s3-website-eu-west-1.amazonaws.com/ffmpeg_" + os.platform() + "_" + os.arch() + ".zip", function (response) {
         response.pipe(unzip.Extract({"path": "./"}));
