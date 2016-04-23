@@ -13,7 +13,7 @@ class FileRequestHandler extends RequestHandler{
     {
         //this.response.end("ok");
         var url = this.request.url;
-        var dir = __dirname+"../../../frontend/dist/";
+        var dir = __dirname+"/../../frontend/dist/";
         if(! url || url[url.length-1] === "/" || ! fs.existsSync(dir + url)) {
             url = "/index.html";
         }
