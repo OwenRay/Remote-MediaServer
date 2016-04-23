@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require("./scripts/onrun.js")
 var fs = require("fs");
 
 var dir = process.env.HOME || process.env.USERPROFILE;

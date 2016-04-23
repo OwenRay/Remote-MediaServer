@@ -7,8 +7,7 @@
     "mmp": "./main.js"
   },
   "scripts": {
-    "prepublish": "node scripts/prepublish.js",
-    "postinstall": "node scripts/postinstall.js"
+    "prepublish": "node scripts/prepublish.js"
   },
   "dependencies": {
     "guessit-wrapper": "^1.0.0",

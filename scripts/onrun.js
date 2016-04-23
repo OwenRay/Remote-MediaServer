@@ -16,13 +16,14 @@ if(!fs.existsSync(dir))
 }
 
 //make sure all settings files are in the right directory
-console.log("chdir", dir);
 process.chdir(dir);
 
-console.log("downloading ffmpeg");
-http.get("http://downloadffmpeg.s3-website-eu-west-1.amazonaws.com/ffmpeg_"+os.platform()+".zip", function(response) {
-  response.pipe(unzip.Extract({"path":"./"}));
-});
+if(!fs.existsSync("/.remote/ffmpeg")&&!fs.existsSync("/.remote/ffmpeg.exe")) {
+    console.log("downloading ffmpeg");
+    http.get("http://downloadffmpeg.s3-website-eu-west-1.amazonaws.com/ffmpeg_" + os.platform() + "_" + os.arch() + ".zip", function (response) {
+        response.pipe(unzip.Extract({"path": "./"}));
+    });
+}
 
 if(os.platform()=="win32")
 {
