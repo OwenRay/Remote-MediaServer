@@ -13,13 +13,13 @@ class FileRequestHandler extends RequestHandler{
     {
         //this.response.end("ok");
         var url = this.request.url;
-        console.log(url, url[url.length-1]);
-        if(!url||url[url.length-1]==="/")
-            url+="index.html";
+
+        if(! url || url[url.length-1] === "/" || ! fs.existsSync("./frontend/dist" + url)) {
+            url = "/index.html";
+        }
 
         this.response.setHeader('Content-Type', mime.lookup(url));
-        
-        fs.readFile("./frontend/dist"+url, "utf8", this.fileRead.bind(this));
+        fs.readFile("./frontend/dist" + url, "utf8", this.fileRead.bind(this));
     }
 
     fileRead(err, data)
@@ -30,6 +30,7 @@ class FileRequestHandler extends RequestHandler{
             this.response.end("File not found.");
             return;
         }
+
         this.response.end(data);
     }
 }

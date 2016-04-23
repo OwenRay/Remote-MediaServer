@@ -86,7 +86,7 @@ class MovieScanner
             var errorFunction = function ()
             {
                 console.log("Fail");
-                guessit.parseName(folder.base + "-" + filePath.base).then(function (data) {
+                guessit.parseName(folder.base + "-" + filePath.base.replace(/ /g, '.') + '&type=movie').then(function (data) {
                     this.applyGuessitData(data, relativePath);
                     loadNext();
                 }.bind(this), function()
@@ -113,7 +113,7 @@ class MovieScanner
             console.log("no title", data);
             return false;
         }
-        
+
         data.libraryId = this.library.uuid;
         data.mediaType = this.library.type;
         data.filepath = relativePath;
