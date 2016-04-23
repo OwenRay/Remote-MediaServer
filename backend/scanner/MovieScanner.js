@@ -1,4 +1,4 @@
-"use strict";
+"use strict"
 
 var guessit = require("guessit-wrapper");
 var recursive = require('recursive-readdir');
@@ -11,11 +11,37 @@ var FFProbe = require('../FFProbe');
 class MovieScanner
 {
 
-    scan(directory)
+    constructor()
     {
+        this.scanning = -1;
+        this.library = null;
+        Settings.addObserver("libraries", this.scan.bind(this));
+    }
+
+    scan()
+    {
+        if(this.scanning!=-1)
+        {
+            console.log("Scan in progress");
+            return;
+        }
+
         console.log("start scanner");
+        this.scanNext();
+    }
+
+    scanNext()
+    {
+        this.scanning++;
+        if(this.scanning>=Settings.getValue("libraries").length)
+        {
+            this.scanning = -1;
+            return;
+        }
+
         this.types = Settings.getValue("videoFileTypes");
-        recursive(Settings.getValue("moviesFolder"), [this.willInclude.bind(this)], this.onListed.bind(this));
+        this.library = Settings.getValue("libraries")[this.scanning];
+        recursive(this.library.folder, [this.willInclude.bind(this)], this.onListed.bind(this));
     }
 
     willInclude(file, fileRef)
@@ -48,7 +74,7 @@ class MovieScanner
                 this.checkForExtendedInfo();
                 return;
             }
-            var relativePath = files[offset].substr(Settings.getValue("moviesFolder").length);
+            var relativePath = files[offset].substr(this.library.folder.length);
             if(Database.findBy("media-item", "filepath", relativePath).length!=0) {
                 return loadNext();
             }
@@ -57,31 +83,42 @@ class MovieScanner
             var folder = path.parse(filePath.dir);
 
             console.log("find", folder.base + "-" + filePath.base);
-            function errorFunction()
+            var errorFunction = function ()
             {
                 console.log("Fail");
                 guessit.parseName(folder.base + "-" + filePath.base).then(function (data) {
-                    if(!data.title)
-                        return loadNext();
-                    data.filepath = relativePath;
-                    Database.setObject("media-item", data);
+                    this.applyGuessitData(data, relativePath);
                     loadNext();
-                }, function()
+                }.bind(this), function()
                 {
                     console.log("andfail");
                     loadNext();
                 });
-            }
+            }.bind(this);
 
             guessit.parseName(filePath.base).then(function (data) {
-                if(!data.title)
-                    return errorFunction();
-                data.filepath = relativePath;
-                Database.setObject("media-item", data);
-                loadNext();
-            }, errorFunction);
+                if(this.applyGuessitData(data, relativePath)) {
+                    return loadNext();
+                }
+                errorFunction();
+            }.bind(this), errorFunction);
         }.bind(this);
         loadNext();
+    }
+
+    applyGuessitData(data, relativePath)
+    {
+        if(data.series  )
+        if(!data.title) {
+            console.log("no title", data);
+            return false;
+        }
+        
+        data.libraryId = this.library.uuid;
+        data.mediaType = this.library.type;
+        data.filepath = relativePath;
+        Database.setObject("media-item", data);
+        return true;
     }
 
     checkForExtendedInfo()
@@ -90,8 +127,10 @@ class MovieScanner
         var items = Database.getAll("media-item");
         var loadNext = function()
         {
-            if(items.length === 0)
+            if(items.length === 0) {
+                this.scanNext();
                 return;
+            }
 
             var item = items.pop();
             var delayed = this.checkFileInfo(item);
@@ -131,7 +170,7 @@ class MovieScanner
         if(obj.attributes.gotfileinfo)
             return false;
 
-        var file = decodeURI(Settings.getValue("moviesFolder")+obj.attributes.filepath);
+        var file = decodeURI(this.library.folder+obj.attributes.filepath);
         FFProbe.getInfo(file)
             .then(function(fileData)
             {
@@ -147,4 +186,5 @@ class MovieScanner
     }
 }
 
-module.exports = MovieScanner;
+//MovieScanner is a singleton!
+module.exports = new MovieScanner();

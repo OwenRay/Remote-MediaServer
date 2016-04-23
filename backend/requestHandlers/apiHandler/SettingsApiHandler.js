@@ -32,7 +32,9 @@ class SettingsApiHandler extends IApiHandler
                         Settings.setValue(key, attrs[key]);
                     }
                     Settings.save();
-                }catch(e){};
+                }catch(e){
+                    console.log("Exception", e);
+                };
                 this.respond(response);
             }.bind(this));
         }else{

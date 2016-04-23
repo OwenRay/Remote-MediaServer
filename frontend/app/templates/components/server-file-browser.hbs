@@ -1,0 +1,28 @@
+{{paper-input label=label value=value icon="folder"}}
+{{#paper-list class="directoryList"}}
+    {{#if loading}}
+        {{paper-progress-linear}}
+    {{else}}
+        {{#if showUp}}
+            {{#paper-item action="up" param=directory}}
+                {{paper-icon "arrow-back" size="sm"}}
+                Directory up
+            {{/paper-item}}
+        {{/if}}
+        {{#each directories as |directory|}}
+            {{#paper-item action="directoryClick" param=directory}}
+                {{directory}}
+            {{/paper-item}}
+        {{/each}}
+        {{#if error}}
+            {{#paper-item class="error"}}
+                {{error}}
+            {{/paper-item}}
+        {{/if}}
+        {{#if empty}}
+            {{#paper-item}}
+                Directory empty
+            {{/paper-item}}
+        {{/if}}
+    {{/if}}
+{{/paper-list}}

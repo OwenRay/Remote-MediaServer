@@ -6,6 +6,7 @@ const Router = Ember.Router.extend({
 });
 
 Router.map(function() {
+  //this.route()
   this.route('item.view');
 
   this.route('item', function() {
@@ -13,6 +14,7 @@ Router.map(function() {
     this.route('detail', {path:"detail/:id"});
   });
   this.route('settings');
+  this.route('library', {path:"libary/:offset"});
 });
 
 export default Router;

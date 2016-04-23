@@ -9,7 +9,6 @@ var FFProbe =
 {
     getInfo(fileName)
     {
-        console.log("hier");
         var promise = new Promise();
 
         console.log(fileName);

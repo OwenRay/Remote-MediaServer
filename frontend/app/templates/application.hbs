@@ -10,8 +10,21 @@
 
         {{#paper-content}}
             {{#paper-list}}
-                {{#paper-item action="transitionTo" param="index"}}Movies{{/paper-item}}
-                {{#paper-item action="transitionTo" param="settings"}}Settings{{/paper-item}}
+                {{#paper-item action="transitionTo" param="index"}}
+                    {{paper-icon "home"}}
+                    Home
+                {{/paper-item}}
+                {{#each settings.model.libraries as |library index|}}
+                    {{#paper-item action="gotoLibrary" param=index}}
+                        {{paper-icon library.type}}
+                        {{library.name}}
+                    {{/paper-item}}
+                {{/each}}
+                {{paper-divider}}
+                {{#paper-item action="transitionTo" param="settings"}}
+                    {{paper-icon "settings"}}
+                    Settings
+                {{/paper-item}}
             {{/paper-list}}
         {{/paper-content}}
     {{/paper-sidenav}}

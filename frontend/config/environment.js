@@ -14,6 +14,8 @@ module.exports = function(environment) {
     },
 
     APP: {
+      host: "",
+      namespace: "api",
       // Here you can pass flags/options to your application instance
       // when it is created
     }
