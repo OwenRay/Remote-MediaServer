@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 var fs = require("fs");
-var Settings = require("../backend/Settings");
 var os = require("os");
 var http = require("http");
 var unzip = require("unzip");
@@ -27,7 +26,8 @@ if(!fs.existsSync(dir+"ffmpeg")&&!fs.existsSync(dir+"ffmpeg.exe")) {
 
 if(os.platform()=="win32")
 {
-  Settings.setValue("ffmpeg_binary", "ffmpeg.exe");
-  Settings.setValue("ffprobe_binary", "ffprobe.exe");
-  Settings.save();
+    var Settings = require("../backend/Settings");
+    Settings.setValue("ffmpeg_binary", "ffmpeg.exe");
+    Settings.setValue("ffprobe_binary", "ffprobe.exe");
+    Settings.save();
 }
