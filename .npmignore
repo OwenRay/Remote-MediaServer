@@ -8,5 +8,3 @@ ffmpeg
 ffprobe
 ffmpeg.exe
 ffprobe.exe
-frontend
-!frontend/dist

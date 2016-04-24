@@ -1,10 +1,10 @@
 {
-  "name": "media",
+  "name": "remote-mediaserver",
   "description": "",
   "version": "0.0.1",
   "private": true,
   "bin": {
-    "mmp": "./main.js"
+    "remote": "./main.js"
   },
   "scripts": {
     "prepublish": "node scripts/prepublish.js"

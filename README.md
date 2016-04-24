@@ -1,13 +1,19 @@
 # PREREQUISITES
 - npm
-- ffmpeg and ffprobe static binaries  
-(the download of ffmpeg binaries will be automated in the future)
 
-# INSTALLATION
+# USING
+###INSTALL
+npm install -g https://s3-eu-west-1.amazonaws.com/remote-mediaserver/remote-mediaserver-0.0.1.tgz
+###RUN
+remote
+open http://localhost:8080
+
+# DEVELOPMENT
+### Installing dependencies
 To install execute:  
 node setup.js  
 
-# RUNNING
+### testing
 To run execute:  
 node main.js
 
@@ -16,12 +22,6 @@ Restart after modification
 
 open http://localhost:8080
 
-# DEVELOPING
-##backend:
-just run the server like normal node main.js
-##frontend
+### frontend testing
 cd frontend (got into the frontend directory)  
 ember server --proxy http://localhost:8080
-
-# KNOWN ISSUES
-Empty library will crash the server.
