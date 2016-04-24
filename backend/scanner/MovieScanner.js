@@ -76,7 +76,7 @@ class MovieScanner
             }
             var relativePath = files[offset].substr(this.library.folder.length);
             if(Database.findBy("media-item", "filepath", relativePath).length!=0) {
-                // return loadNext();
+                return loadNext();
             }
 
             var filePath = path.parse(files[offset]);
