@@ -1,6 +1,6 @@
 "use strict"
 
-var guessit = require("guessit-wrapper");
+var guessit = require("./Guessit");
 var recursive = require('recursive-readdir');
 var Settings = require("../Settings");
 var path = require('path');
@@ -26,7 +26,7 @@ class MovieScanner
             return;
         }
 
-        // console.log("start scanner");
+        //console.log("start scanner");
         this.scanNext();
     }
 
@@ -87,8 +87,10 @@ class MovieScanner
             var errorFunction = function ()
             {
                 // console.log("Fail");
-                guessit.parseName(folder.base + "-" + filePath.base.replace(/ /g, '.') + '&type=movie').then(function (data) {
-                    data.title = data.title.replace(folder.base + '-', '');
+                guessit.parseName(folder.base.replace(/ /g, '.') + "-" + filePath.base.replace(/ /g, '.'), {type:"movie"}).then(function (data) {
+                    if(data.title) {
+                        data.title = data.title.replace(folder.base + '-', '');
+                    }
                     this.applyGuessitData(data, relativePath);
                     loadNext();
                 }.bind(this), function()
@@ -98,7 +100,7 @@ class MovieScanner
                 });
             }.bind(this);
 
-            guessit.parseName(filePath.base.replace(/ /g, '.') + '&type=movie').then(function (data) {
+            guessit.parseName(filePath.base.replace(/ /g, '.'), {type:"movie"}).then(function (data) {
                 if(this.applyGuessitData(data, relativePath)) {
                     return loadNext();
                 }
@@ -111,7 +113,7 @@ class MovieScanner
     applyGuessitData(data, relativePath)
     {
         if(!data.title) {
-            // console.log("no title", data);
+            //console.log("no title", data);
             return false;
         }
 

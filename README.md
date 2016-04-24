@@ -10,7 +10,6 @@ open http://localhost:8080
 
 # DEVELOPMENT
 ### Installing dependencies
-To install execute:  
 node setup.js  
 
 ### testing
