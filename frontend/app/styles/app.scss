@@ -1,54 +1,56 @@
-@import 'color-palette';
+// Example app.scss
+@import 'components/color';
 
-$primary: "blue-grey" !default;
-$accent: "red" !default;
-$warn: "red" !default;
-$background: "blue-grey" !default;
-$link: "light-blue" !default;
+// Custom color settings go here
+$primary-color: color("blue-grey", "darken-3");
+$primary-color-light: lighten($primary-color, 15%);
+$primary-color-dark: darken($primary-color, 15%);
+$card-bg-color: $primary-color;
 
-$dark: true !default;
-$default-color: '900' !default;
+$secondary-color: color("green", "darken-2");
+$secondary-color-light: lighten($secondary-color, 15%);
+$secondary-color-dark: darken($secondary-color, 15%);
 
-$foreground: "foreground-light" !default;
-$foreground-shadow: "blue-grey" !default;
+$sidenav-font-color: #FFFFFF;
+$sidenav-bg-color: color("blue-grey", "darken-2");
+//$sidenav-padding-right: 30px !default;
+//$sidenav-item-height: 64px !default;
 
-$base-background-color: map-get($color-blue-grey, '900') !default;
-$base-color: rgba(255, 255, 255, 1) !default;
+$collection-border-color: $primary-color-light !default;
+$collection-bg-color: $primary-color !default;
+$collection-active-bg-color: $primary-color-dark;
+$collection-active-color: white;
+$collection-hover-bg-color: $primary-color-light;
+$collection-link-color: white;
 
-@import 'ember-paper';
+$dropdown-bg-color: $primary-color !default;
+$dropdown-hover-bg-color: $primary-color-light !default;
+$dropdown-color: white !default;
+$input-success-color: white !default;
+$input-focus-color: white !default;
 
-body{
-  background:black;
+$tabs-underline-color: $secondary-color !default;
+$tabs-text-color: #fff !default;
+$tabs-bg-color: $primary-color-dark !default;
 
-  >.ember-view
-  {
-    height:100%;
-    >section{
-      height:100%;
-    }
+@import 'components/variables';
+@import 'materialize';
+@import 'ember-cli-materialize';
+@import "icons.scss";
+
+body, .modal-content{
+  background-color:$primary-color-dark;
+  color:white;
+}
+
+.modal .modal-footer{
+  background-color:$primary-color;
+  .modal-action {
+    color: white;
   }
 }
 
-md-sidenav
-{
-  background:#607d8b;
-  //border-right:solid 1px #0D3349;
-}
 
-video{
-  width:100%;
-  height:100%;
-}
-
-
-.backdrop
-{
-  display:flex;
-  flex:1;
-  flex-flow: row;
-  background-size:cover;
-  background-position: center center;
-}
 
 .semi-transparent
 {
@@ -62,13 +64,42 @@ video{
   }
 }
 
-video{
+
+.movie-detail-backdrop{
+  position:absolute;
+  top:0px;
+  bottom:0px;
+  left:0px;
+  right:0px;
+  background-size:cover;
+  background-position: center center;
+  opacity: .3;
+  z-index:-1;
+  $blur:10px;
+  -webkit-filter: blur($blur);
+  -moz-filter: blur($blur);
+  -o-filter: blur($blur);
+  -ms-filter: blur($blur);
+  filter: blur($blur);
+}
+
+video-container{
   background:black;
   position:absolute;
   left:0px;
   right:0px;
   bottom:0px;
-  top:0px;
+  top:66px;
+  overflow:hidden;
+  video{
+    height:100%;
+    width:100%;
+  }
+}
+
+.navbar{
+  background-color:transparentize($primary-color, .5);
+  color:red;
 }
 
 .controls {
@@ -78,22 +109,22 @@ video{
   left: 0px;
   right: 0px;
   flex-flow: column;
-  .tracker {
+  .seektracker {
     margin:10px;
     flex:1;
-    background: map-get($color-blue-grey, '400');
+    background: $primary-color-dark;
     cursor: pointer;
     height: 10px;
     position: relative;
-    .buffer {
+    .seekbuffer {
       position: absolute;
       top: 0px;
       bottom: 0px;
       background:rgba(0,0,0,.3);
     }
 
-    .progress {
-      background: map-get($color-red, '400');
+    .seekprogress {
+      background: $primary-color-light;
       top: -2px;
       bottom: -2px;
       position: absolute;
@@ -132,4 +163,10 @@ video{
       min-height: 30px;
     }
   }
+}
+
+#play{
+  position: relative;
+  top: -46px;
+  left: -78px;
 }

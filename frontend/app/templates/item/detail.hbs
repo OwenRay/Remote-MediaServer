@@ -1,4 +1,18 @@
-{{outlet}}
+<div style={{model.backdrop-img-style}} class="movie-detail-backdrop"></div>
+<div>
+    <main>
+        <div class="container">
+            <h1>{{model.title}}</h1>
+            <img src={{{model.poster-img}}}/>
+            {{md-btn id="play" icon='mdi-av-play-arrow'
+                action='play' buttonType='floating'
+                class='btn-large'}}
+            <p>{{model.overview}}</p>
+            {{!--{{#link-to "item.view" model}}Play{{/link-to}}--}}
+        </div>
+    </main>
+</div>
+{{!--
 {{#paper-toolbar}}
     <div class="md-toolbar-tools">
         {{#paper-sidenav-toggle as |toggle|}}
@@ -16,4 +30,4 @@
     <img src={{{model.poster-img}}}/>
     <p>{{model.overview}}</p>
 {{/paper-content}}
-</div>
+</div>--}}

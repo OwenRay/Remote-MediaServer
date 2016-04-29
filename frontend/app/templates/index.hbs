@@ -1,14 +1,9 @@
-
-{{#paper-toolbar}}
-    <div class="md-toolbar-tools">
-        {{#paper-sidenav-toggle as |toggle|}}
-            {{#paper-button target=toggle action="toggleMenu" icon-button=true}}{{paper-icon "menu"}}{{/paper-button}}
-        {{/paper-sidenav-toggle}}
-        <span class="md-breadcrumb-page">What to watch?</span>
+<main>
+    <div class="container">
+        {{#md-card id="basic-card"}}
+            {{#md-card-content}}
+                This will be the landingpage, enabling you to continue watching where you left of... some time in the future...
+            {{/md-card-content}}
+        {{/md-card}}
     </div>
-{{/paper-toolbar}}
-
-
-{{#paper-content class="md-padding"}}
-    This will be the landingpage, enabling you to continue watching where you left of... some time in the future...
-{{/paper-content}}
+</main>

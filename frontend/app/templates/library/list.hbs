@@ -1,0 +1,8 @@
+{{#md-collection content=model.items header=title as |item|}}
+    {{#link-to "item.detail" item class="collection-item"}}
+        <b>{{item.title}}</b>
+        {{#if item.year}}
+            ({{item.year}})
+        {{/if}}
+    {{/link-to}}
+{{/md-collection}}

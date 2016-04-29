@@ -14,8 +14,8 @@ export default Ember.Component.extend({
     didInsertElement()
     {
         this.set("bufferObj", this.$(".buffer"));
-        this.set("progressObj", this.$(".progress"));
-        this.set("trackerObj",  this.$(".tracker"));
+        this.set("progressObj", this.$(".seekprogress"));
+        this.set("trackerObj",  this.$(".seektracker"));
         this.$().mousedown(this.onClick.bind(this));
         this.addObserver("offset", this.onOffsetChange);
 
@@ -24,14 +24,14 @@ export default Ember.Component.extend({
 
     onOffsetChange()
     {
-        var left = this.get("offset")/this.get("max")*this.trackerObj.width();
-        this.bufferObj.css("left", left+"px");
-        this.progressObj.css("left", left+"px");
+        //var left = this.get("offset")/this.get("max")*this.trackerObj.width();
+        //this.bufferObj.css("left", left+"px");
+        //this.progressObj.css("left", left+"px");
     },
 
     onProgress()
     {
-        var progress = this.get("seekingProgress")?this.get("seekingProgress"):this.get("progress");
+        var progress = this.get("seekingProgress")?this.get("seekingProgress"):this.get("progress")+this.get("offset");
         this.progressObj.css("width", this.trackerObj.width()*(progress/this.get("max"))+"px");
     },
 
@@ -42,8 +42,8 @@ export default Ember.Component.extend({
         Ember.$("body")
             .mousemove(this.get("onMove").bind(this))
             .mouseup(this.get("stopSeeking").bind(this));
-        this.bufferObj.css("left", "0px");
-        this.progressObj.css("left", "0px");
+        //this.bufferObj.css("left", "0px");
+        //this.progressObj.css("left", "0px");
         this.onMove(e);
     },
 
