@@ -7,18 +7,28 @@ var os = require('os');
 var fs = require("fs");
 var Settings = require("../Settings");
 var FFProbe = require("../FFProbe");
+var Database = require("../Database");
 
 var RequestHandler = require("./RequestHandler");
 
 class PlayRequestHandler extends RequestHandler{
     handleRequest()
     {
-        //this.file = decodeURI(Settings.moviesFolder+this.request.url.substr(4));
         var parts = this.request.url.split("/");
-        parts.shift();
-        parts.shift();
         this.offset = parts.pop();
-        this.file = Settings.getValue("moviesFolder")+"/"+decodeURI(parts.join("/"));
+        //this.file = Settings.getValue("moviesFolder")+"/"+decodeURI(parts.join("/"));
+        var mediaItem = Database.getById("media-item", parts.pop());
+        var libraries = Settings.getValue("libraries");
+        var library;
+        for(var key in libraries)
+        {
+            if(libraries[key].uuid==mediaItem.attributes.libraryId);
+            {
+                library = libraries[key];
+            }
+        }
+        console.log(library);
+        this.file = library.folder+"/"+mediaItem.attributes.filepath;
         console.log(this.file);
         FFProbe.getInfo(this.file).then(this.gotInfo.bind(this), this.onError.bind(this));
     }
