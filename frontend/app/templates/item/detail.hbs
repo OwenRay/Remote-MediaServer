@@ -8,26 +8,6 @@
                 action='play' buttonType='floating'
                 class='btn-large'}}
             <p>{{model.overview}}</p>
-            {{!--{{#link-to "item.view" model}}Play{{/link-to}}--}}
         </div>
     </main>
 </div>
-{{!--
-{{#paper-toolbar}}
-    <div class="md-toolbar-tools">
-        {{#paper-sidenav-toggle as |toggle|}}
-            {{#paper-button target=toggle action="toggleMenu" icon-button=true}}{{paper-icon "menu"}}{{/paper-button}}
-        {{/paper-sidenav-toggle}}
-        <span class="md-breadcrumb-page">{{model.title}}</span>
-        <span flex></span>
-        {{#paper-button icon-button=true action="play"}}
-            {{paper-icon "play-circle-outline" size=2}}
-        {{/paper-button}}
-    </div>
-{{/paper-toolbar}}
-<div style={{model.backdrop-img-style}} class="backdrop">
-{{#paper-content class="md-padding semi-transparent"  }}
-    <img src={{{model.poster-img}}}/>
-    <p>{{model.overview}}</p>
-{{/paper-content}}
-</div>--}}

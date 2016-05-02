@@ -18,5 +18,9 @@ export default DS.Model.extend({
     "poster-img":Ember.computed("poster-path", function()
     {
         return "https://image.tmdb.org/t/p/w300/"+this.get("poster-path")+"";
+    }),
+    "poster-img-thumb-style":Ember.computed("poster-path", function()
+    {
+        return "background-image:url(https://image.tmdb.org/t/p/w150/"+this.get("poster-path")+")";
     })
 });

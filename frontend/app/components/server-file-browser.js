@@ -48,7 +48,7 @@ export default Ember.Component.extend({
         {
             var current = this.get("value");
 
-            while(current.length>0&&current[current.length-1]=="/")
+            while(current.length>0&&current[current.length-1]==="/")
             {
                 console.log(current);
                 current = current.substr(0, current.length-1);

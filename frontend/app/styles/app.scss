@@ -33,6 +33,8 @@ $tabs-underline-color: $secondary-color !default;
 $tabs-text-color: #fff !default;
 $tabs-bg-color: $primary-color-dark !default;
 
+$roboto-font-path: "../assets/";
+
 @import 'components/variables';
 @import 'materialize';
 @import 'ember-cli-materialize';
@@ -50,7 +52,81 @@ body, .modal-content{
   }
 }
 
+.impagewrapper{
+  border:none;
+  position:absolute;
+  left:0px;
+  top:56px;
+  margin:0px;
+  @media only screen and (min-width: 601px) {
+    top: 64px;
+  }
+  bottom:0px;
+  right:0px;
+  .collection-item{
+    height:40px;
+  }
+}
 
+.grid-item
+{
+  >a{
+    width:100%;
+    height:100%;
+    display:inline-block;
+  }
+
+  .btn-floating{
+    position:absolute;
+    right:10px;
+    top:-19px;
+    transition:all 0.3s;
+    transition-delay: 0.2s;
+    transform:scale(0,0) rotateX(90deg);
+  }
+
+  width:150px;
+  height:218px;
+  margin:15px;
+  position:relative;
+  overflow:hidden;
+  background-position:center center;
+  transition:all 0.3s;
+  background-size:100%;
+  .detail{
+    position:absolute;
+    bottom:-75px;
+    transition:all 0.3s;
+    background:$primary-color;
+    left:0px;
+    right:0px;
+    height:60px;
+    padding:10px;
+    line-height: 1.2;
+    .title{
+      display:inline-block;
+      width:130px;
+      white-space: nowrap;
+      overflow:hidden !important;
+      text-overflow: ellipsis;
+    }
+    .year{
+      font-weight: 200;
+    }
+  }
+  &:hover {
+    position:relative;
+    background-size:110%;
+    z-index:99999;
+    .detail {
+      bottom: 0px;
+    }
+    .btn-floating
+    {
+      transform:scale(1,1) rotateX(0deg);
+    }
+  }
+}
 
 .semi-transparent
 {

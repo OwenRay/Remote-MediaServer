@@ -148,6 +148,7 @@ class MovieScanner
                                 for (var key in res) {
                                     item.attributes[key.replace("_", "-")] = res[key];
                                 }
+                                item.attributes.year = res["release_date"].split("-")[0];
                                 item.attributes.gotExtendedInfo = true;
                                 // console.log("extended");
                                 Database.update("media-item", item);

@@ -17,15 +17,35 @@ class DatabaseApiHandler extends IApiHandler
         response.setHeader("Content-Type", "text/json");
 
         var data;
+        var query = querystring.parse(url.query);
+        var offset = 0;
+        var limit = 0;
+        if(query['page[limit]'])
+        {
+            limit = parseInt(query['page[limit]']);
+            delete query['page[limit]'];
+        }
+        if(query['page[offset]'])
+        {
+            offset = parseInt(query['page[offset]']);
+            delete query['page[offset]'];
+        }
+
         if (!isNaN(parseInt(urlParts[3]))) {
             data = Database.getById(singularType, parseInt(urlParts[3]));
-        } else if (url.query) {
-            var query = querystring.parse(url.query);
+        } else if (Object.keys(query).length>0) {
             data = Database.findByMatchFilters(singularType, query);
         }else{
             data = Database.getAll(singularType);
         }
-        var json = JSON.stringify({data:data});
+        var result = {data:data, meta:{}};
+        if(offset||limit)
+        {
+            result.meta.totalPages = Math.ceil(result.data.length/limit);
+            result.data = result.data.splice(offset, limit);
+        }
+
+        var json = JSON.stringify(result);
         response.end(json);
         return true;
     }

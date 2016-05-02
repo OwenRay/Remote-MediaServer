@@ -1,8 +1,21 @@
-{{#md-collection content=model.items header=title as |item|}}
-    {{#link-to "item.detail" item class="collection-item"}}
-        <b>{{item.title}}</b>
-        {{#if item.year}}
-            ({{item.year}})
+<div class="impagewrapper ember-view collection">
+{{#impagination-dataset
+    fetch=fetch
+    page-size=80
+    load-horizon=80
+    as |records|}}
+    {{#ember-collection items=records cell-layout=(fixed-grid-layout 165 233) as |record index|}}
+        {{#if record.content}}
+            <div class="grid-item" style={{{record.content.poster-img-thumb-style}}}>
+                {{#link-to "item.detail" record.content }}{{/link-to}}
+                <div class="detail">
+                    {{md-btn class="play" icon='mdi-av-play-arrow' action='play' actionArg=record.content bubble=false buttonType='floating' class='btn-small'}}
+                    <span class="title">{{record.content.title}}</span>
+                    <span class="year">{{record.content.year}}</span>
+                </div>
+            </div>
         {{/if}}
-    {{/link-to}}
-{{/md-collection}}
+    {{/ember-collection}}
+
+{{/impagination-dataset}}
+</div>

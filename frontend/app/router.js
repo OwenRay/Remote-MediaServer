@@ -15,7 +15,7 @@ Router.map(function() {
   });
   this.route('settings');
   this.route('library', function(){
-      this.route('list', {path:"list/:offset"});
+      this.route('list');
   });
 });
 
