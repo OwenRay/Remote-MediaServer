@@ -3,6 +3,10 @@ node_js:
   - "5.1"
 install:
   - npm install
+  - npm install -g ember
+  - npm install -g bower
+  - cd frontend && npm install
+  - cd frontend && bower install
 script:
   - mkdir dist && cd dist && npm pack ../ && cd ..
 deploy:
