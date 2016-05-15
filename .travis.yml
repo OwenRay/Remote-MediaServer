@@ -5,8 +5,8 @@ install:
   - npm install
   - npm install -g ember
   - npm install -g bower
-  - cd frontend && npm install
-  - cd frontend && bower install
+  - cd frontend && npm install && cd ../
+  - cd frontend && bower install && cd ../
 script:
   - mkdir dist && cd dist && npm pack ../ && cd ..
 deploy:
@@ -19,5 +19,6 @@ deploy:
   acl: public_read
   local_dir: dist
   region: eu-west-1
+  upload-dir: ${TRAVIS_BRANCH}
   on:
     branch: test
