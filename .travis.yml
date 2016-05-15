@@ -4,4 +4,14 @@ node_js:
 install:
   - npm install
 script:
-  - npm pack
+  - mkdir dist && cd dist && npm pack ../
+deploy:
+  provider: s3
+  access_key_id: "AKIAIXHOM3CXN3AYZBHA"
+  secret_access_key:
+    secure: U1wj2cBm675bBQGx4DsO4sW7W11vIn9tTNit72doN8657ilQ/7XRk3jrhLCt1XU31DCr0umSOuxIjGy2f9OSAI3iEOQJSkC2yxTnAzlKrEAZsVFyKxKhK3+x6InnctVL0+VTqSebdgy+kaHJUmYoSHwVtyQCtPhwvisYSIRSkEThcNqh2/1bPVNFPGKM3AEUuyagQ6LsLcmSocP/4+3j60AxP+KvKMeGWNdQs1ITn34SmLTdRvLZSMgey5lPtGSrRGEo6+lt2/L30/0XWLq2aL/Ra2TEiM8upXzYNgccdXM0+95MsTrL4DE/w1/qa/KijLwyUani8a6bSOkuSvdI8+pGNzvS8DpWz5ihO/63j36WYTNVgJ246pCkvMAg/cQmWAKvONRdzhpf3ZWNF4mOoVg+IeLCPRreanBWz4aV3WtStZoXKKdvfOMmqTgvUJboGwuQnOslJyuU2KoJFjKQ/r1kUiB8d3TbsEwIM9n0OsoHU3PXSyShkTo8xqf/W4o0CjPozRYmDkn91DRy9DohzxaIkSdWeVR4k9gLHinYoqSbDDbP01CFVxQLsxNIajmlUcSNzej/kEdNXPdO0MydKT+wdpfEmsCGThnPCnqGlD0zZXbHeBGlgK1rn7al9ZdNz2w9EZal4zdba/0voniMQd/dsM4nxiqQqmovw3RIpf0=
+  bucket: "S3 Bucket"
+  skip_cleanup: true
+  acl: public_read
+  local_dir: dist
+  
