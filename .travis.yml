@@ -14,4 +14,6 @@ deploy:
   skip_cleanup: true
   acl: public_read
   local_dir: dist
-  
+  on:
+    tags: true
+    branch: test
