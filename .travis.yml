@@ -10,9 +10,10 @@ deploy:
   access_key_id: "AKIAIXHOM3CXN3AYZBHA"
   secret_access_key:
     secure: "hUkawGWEvEDgK3GTByTRmSVgUdY5W4jHNcmv/cCnQtpUOJFgxKHlFAHDCqkMOVYqeljkdnSm+PesOGSPXFIYjlw2MbwSHpeosHgg4YKML4qpHAhF6Ta8JT/DPqjp0ov/hi5WdrCnQ8dH9lBqwZdJMXa6vWQ0uqLIN85N7h8Do4CzQS1jIPkIW0V17eqJbuodb7Zyjnq/xUUor4jpeCqq+WcnLhvRn/V0IV6h48Vc5Ny9exxolmmsF8vP+iHmcMqJaMJJR0jYpfz/HtsP0ngU4GxTZG/QQ0vfxkOdVqcoW2drRiE/dNXcyNXCBOs/2GO/ZFsyG8uIkckjs1zQ0I5PIMsV2E+btcMd67NisMF3vu5WRh/ZMMJxnqXIEX820YCMyVmWfXO5qD3btftrZByhbJLwuhZIKy6hjx1skhuc97K+DChmsBVLGTM88E5Ex7/7sjDG6BoiZpH940i4QTm6m42s1f4BemzX5dgcf9u2An0NgMjuCnfiaWJWnTEplP5FNo/HmNPWi4sFRRM9oNpqsnbJej1BUMqaXs7S+CxsAEC9HNuyjabtR57JEg/pj1hfa9eWLkLsC5/t1NRiALb5buzd98bllh8v5TOMN7hgkB3WDuyqxgXzXtvJdOypwmhYLHewy265SH/CNPQ7FV2R9S0aO86sVoDzGKLeMI9xp1U="
-  bucket: "S3 Bucket"
+  bucket: "remote-mediaserver"
   skip_cleanup: true
   acl: public_read
   local_dir: dist
+  region: eu-west-1
   on:
     branch: test
