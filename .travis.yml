@@ -4,7 +4,7 @@ node_js:
 install:
   - npm install
 script:
-  - mkdir dist && cd dist && npm pack ../
+  - mkdir dist && cd dist && npm pack ../ && cd ..
 deploy:
   provider: s3
   access_key_id: "AKIAIXHOM3CXN3AYZBHA"
