@@ -1,6 +1,6 @@
 Production | Development
 --- | ---
-[![Build Status](https://travis-ci.com/OwenRay/remote.svg?token=uLVecMrGXxYbztvo1nvC&branch=dev)](https://travis-ci.com/OwenRay/remote) | [![Build Status](https://travis-ci.com/OwenRay/remote.svg?token=uLVecMrGXxYbztvo1nvC&branch=master)](https://travis-ci.com/OwenRay/remote)
+[![Build Status](https://travis-ci.com/OwenRay/remote.svg?token=uLVecMrGXxYbztvo1nvC&branch=master)](https://travis-ci.com/OwenRay/remote) | [![Build Status](https://travis-ci.com/OwenRay/remote.svg?token=uLVecMrGXxYbztvo1nvC&branch=dev)](https://travis-ci.com/OwenRay/remote)
 
 # PREREQUISITES
 - npm
