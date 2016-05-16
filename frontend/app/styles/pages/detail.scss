@@ -1,0 +1,47 @@
+.movie-detail-backdrop {
+    position:absolute;
+    top:0px;
+    bottom:0px;
+    left:0px;
+    right:0px;
+    background-size:cover;
+    background-position: center center;
+    opacity: .3;
+    z-index:-1;
+    $blur:10px;
+    -webkit-filter: blur($blur);
+    -moz-filter: blur($blur);
+    -o-filter: blur($blur);
+    -ms-filter: blur($blur);
+    filter: blur($blur);
+}
+
+#play {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
+.detail {
+    .poster {
+        height: 500px;
+        width: 40%;
+        background-size: contain !important;
+        display: inline-block;
+        vertical-align: top;
+        position: relative;
+    }
+
+    .description {
+        width: calc(55% - 4px);
+        display: inline-block;
+        vertical-align: top;
+        margin-left: 20px;
+        margin-top: 0;
+
+        .header i {
+            font-size: 8px;
+            vertical-align: 1px;
+        }
+    }
+}

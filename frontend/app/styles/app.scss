@@ -40,6 +40,8 @@ $roboto-font-path: "../assets/";
 @import 'ember-cli-materialize';
 @import "icons.scss";
 
+@import "pages/detail";
+
 body, .modal-content{
   background-color:$primary-color-dark;
   color:white;
@@ -177,25 +179,6 @@ body, .modal-content{
   }
 }
 
-
-.movie-detail-backdrop{
-  position:absolute;
-  top:0px;
-  bottom:0px;
-  left:0px;
-  right:0px;
-  background-size:cover;
-  background-position: center center;
-  opacity: .3;
-  z-index:-1;
-  $blur:10px;
-  -webkit-filter: blur($blur);
-  -moz-filter: blur($blur);
-  -o-filter: blur($blur);
-  -ms-filter: blur($blur);
-  filter: blur($blur);
-}
-
 video-container{
   background:black;
   position:absolute;
@@ -276,10 +259,4 @@ video-container{
       min-height: 30px;
     }
   }
-}
-
-#play{
-  position: relative;
-  top: -46px;
-  left: -78px;
 }
