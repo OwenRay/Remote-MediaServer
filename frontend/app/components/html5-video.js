@@ -12,7 +12,7 @@ export default Ember.Component.extend({
     startOffset:0,
 
     videoUrl:Ember.computed("mediaItem", "startOffset", function(){
-        return "/ply/"+this.get("mediaItem.filepath")+"/"+this.get("startOffset");
+        return "/ply/"+this.get("mediaItem.id")+"/"+this.get("startOffset");
     }),
 
     didInsertElement()
