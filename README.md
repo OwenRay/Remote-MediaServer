@@ -1,11 +1,19 @@
+Production | Development
+--- | ---
+[![Build Status](https://travis-ci.com/OwenRay/remote.svg?token=uLVecMrGXxYbztvo1nvC&branch=dev)](https://travis-ci.com/OwenRay/remote) | [![Build Status](https://travis-ci.com/OwenRay/remote.svg?token=uLVecMrGXxYbztvo1nvC&branch=master)](https://travis-ci.com/OwenRay/remote)
+
 # PREREQUISITES
 - npm
 
 # USING
 ###INSTALL
-npm install -g https://s3-eu-west-1.amazonaws.com/remote-mediaserver/remote-mediaserver-0.0.1.tgz
+dev:  
+$ npm install -g https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/remote-mediaserver-0.0.1.tgz
+
+prod:  
+$ npm install -g https://s3-eu-west-1.amazonaws.com/remote-mediaserver/master/remote-mediaserver-0.0.1.tgz
 ###RUN
-remote
+$ remote  
 open http://localhost:8080
 
 # DEVELOPMENT
