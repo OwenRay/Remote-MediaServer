@@ -20,6 +20,7 @@ class DatabaseApiHandler extends IApiHandler
         var query = querystring.parse(url.query);
         var offset = 0;
         var limit = 0;
+        var sort =  null;
         if(query['page[limit]'])
         {
             limit = parseInt(query['page[limit]']);
@@ -30,6 +31,20 @@ class DatabaseApiHandler extends IApiHandler
             offset = parseInt(query['page[offset]']);
             delete query['page[offset]'];
         }
+        if(query["sort"])
+        {
+            sort = query["sort"];
+            delete query["sort"];
+        }
+
+        for(var key in query)
+        {
+            if(!query[key])
+            {
+                delete query[key];
+            }
+
+        }
 
         if (!isNaN(parseInt(urlParts[3]))) {
             data = Database.getById(singularType, parseInt(urlParts[3]));
@@ -38,6 +53,28 @@ class DatabaseApiHandler extends IApiHandler
         }else{
             data = Database.getAll(singularType);
         }
+
+        if(sort)
+        {
+            data = data.sort(function(a, b){
+                if(a.attributes[sort]===undefined) {
+                    console.log("undef", a.attributes[sort]);
+                    return 1;
+                }
+                if(b.attributes[sort]===undefined) {
+                    console.log("undef", b.attributes[sort]);
+                    return -1;
+                }
+                if(a.attributes[sort].localeCompare)
+                {
+                    console.log("hier");
+                    return a.attributes[sort].localeCompare(b.attributes[sort]);
+                }
+                console.log(a.attributes[sort], b.attributes[sort]);
+                return a.attributes[sort]-b.attributes[sort];
+            });
+        }
+
         var result = {data:data, meta:{}};
         if(offset||limit)
         {

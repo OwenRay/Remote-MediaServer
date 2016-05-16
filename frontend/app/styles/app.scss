@@ -52,6 +52,40 @@ body, .modal-content{
   }
 }
 
+.md-select .select-wrapper .caret
+{
+  color:white;
+}
+
+.quickOptions {
+  padding:0px 20px;
+  position:absolute;
+  top:0px;
+  right:0px;
+  left:0px;
+  height:96px;
+  z-index:99;
+  background-color:$primary-color-dark;
+  .md-select{
+    margin:0px;
+    width:150px;
+    float:left;
+    margin-right:20px;
+    margin-top:30px;
+    height:50px;
+    &:last-child{
+      margin-right:0px;
+    }
+    .red-text{
+      display:none;
+    }
+  }
+  transition: .3s all;
+  &.hidden{
+    top:-96px;
+  }
+}
+
 .impagewrapper{
   border:none;
   position:absolute;
@@ -65,6 +99,9 @@ body, .modal-content{
   right:0px;
   .collection-item{
     height:40px;
+  }
+  .scroller > div > div{
+    top:96px;
   }
 }
 

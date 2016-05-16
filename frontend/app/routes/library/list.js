@@ -14,7 +14,11 @@ export default Ember.Route.extend({
     },*/
     fetch(pageOffset, pageSize, stats)
     {
-        var queryParams = {page: {offset:pageOffset*pageSize, limit:pageSize}};
+        var queryParams = {
+                page: {offset:pageOffset*pageSize, limit:pageSize},
+                sort:this.get("controller.sort"),
+                libraryId:this.get("controller.library")
+            };
         if(this.get("controller.libraries"))
         {
             queryParams.libraries = this.get("controller.libraries");
@@ -41,8 +45,6 @@ export default Ember.Route.extend({
         play(item)
         {
             this.transitionTo("item.view", item);
-            return true;
-            console.log("play", item);
         }
     }
 });

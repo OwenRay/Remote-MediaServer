@@ -1,14 +1,1 @@
-<main>
-    <div class="container">
-{{!-- Will be moved to filters --
-    {{#md-collection content=settings.model.libraries as |library index|}}
-        {{#link-to 'library.list' index class="collection-item"}}
-            <i class="material-icons left">{{library.type}}</i>
-            {{library.name}}
-        {{/link-to}}
-    {{/md-collection}}
---}}
-
-        {{outlet}}
-    </div>
-</main>
+{{outlet}}

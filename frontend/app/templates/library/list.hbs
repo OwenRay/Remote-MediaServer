@@ -1,21 +1,39 @@
+{{#changing-background dataSet=dataSet}}{{/changing-background}}
 <div class="impagewrapper ember-view collection">
-{{#impagination-dataset
-    fetch=fetch
-    page-size=80
-    load-horizon=80
-    as |records|}}
-    {{#ember-collection items=records cell-layout=(fixed-grid-layout 165 233) as |record index|}}
-        {{#if record.content}}
-            <div class="grid-item" style={{{record.content.poster-img-thumb-style}}}>
-                {{#link-to "item.detail" record.content }}{{/link-to}}
-                <div class="detail">
-                    {{md-btn class="play" icon='mdi-av-play-arrow' action='play' actionArg=record.content bubble=false buttonType='floating' class='btn-small'}}
-                    <span class="title">{{record.content.title}}</span>
-                    <span class="year">{{record.content.year}}</span>
-                </div>
-            </div>
-        {{/if}}
-    {{/ember-collection}}
+    {{#impagination-dataset
+        on-observe=(action "observeDataset")
+        fetch=fetch
+        page-size=80
+        load-horizon=80
+        as |records|}}
 
-{{/impagination-dataset}}
+        {{#floating-bar class="quickOptions" toggleClass="hidden" selector=".scroller > div"}}
+            {{md-select content=libraryOptions
+                label='Library:'
+                value=library
+                optionLabelPath="content.name"
+                optionValuePath="content.uuid"
+                class="selectLib"}}
+            {{md-select content=sortTypes
+                label='Sort by:'
+                value=sort
+                optionLabelPath="content.label"
+                optionValuePath="content.value"
+                class="selectLib"}}
+        {{/floating-bar}}
+
+        {{#ember-collection class="scroller" items=records cell-layout=(fixed-grid-layout 165 233) as |record index|}}
+            {{#if record.content}}
+                <div class="grid-item" style={{{record.content.poster-img-thumb-style}}}>
+                    {{#link-to "item.detail" record.content }}{{/link-to}}
+                    <div class="detail">
+                        {{md-btn class="play" icon='mdi-av-play-arrow' action='play' actionArg=record.content bubble=false buttonType='floating' class='btn-small'}}
+                        <span class="title">{{record.content.title}}</span>
+                        <span class="year">{{record.content.year}}</span>
+                    </div>
+                </div>
+            {{/if}}
+        {{/ember-collection}}
+
+    {{/impagination-dataset}}
 </div>

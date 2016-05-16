@@ -137,7 +137,7 @@ class MovieScanner
 
             var item = items.pop();
             var delayed = this.checkFileInfo(item);
-            if(!item.attributes.gotExtendedInfo)
+                if(!item.attributes.gotExtendedInfo)
             {
                 MovieDB.searchMovie(
                     {query:item.attributes.title, year:item.attributes.year},
