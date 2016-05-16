@@ -15,6 +15,7 @@ process.chdir(dir);
 
 var MovieScanner = require("./backend/scanner/MovieScanner.js");
 var HttpServer = require("./backend/HttpServer");
+var a = "test";
 
 MovieScanner.scan();
 
