@@ -75,6 +75,34 @@ class Database {
         if(!table) {
             return [];
         }
+        var filterProps = {};
+
+        // loop over the filters and apply search arguments
+        // %test%       match test somwhere in the string
+        // test%        starts with test
+        // %test        ends with test
+        for(var key in filters)
+        {
+            var type = "normal";
+            var a = filters[key][0]=="%";
+            var b = filters[key][filters[key].length-1]=="%";
+            if(a&&b)
+            {
+                type = "search";
+                filters[key] = filters[key].substring(1, filters[key].length-1);
+                console.log(filters[key]);
+            }else if(a)
+            {
+                type = "endsWith";
+                filters[key] = filters[key].substring(1);
+            }else if(b)
+            {
+                type = "startsWith";
+                filters[key] = filters[key].substring(0, filters[key].length-1);
+            }
+            filterProps[key] = type;
+            filters[key] = filters[key].toLowerCase();
+        }
 
         var numFilters = 0;
         for(var filterKey in filters)
@@ -89,7 +117,14 @@ class Database {
             var match = 0;
             for(var filterKey in filters)
             {
-                if (item.attributes[filterKey] !== filters[filterKey]) {
+
+                if (!this.matches(
+                            item.attributes[filterKey].toLowerCase(),
+                            filters[filterKey],
+                            filterProps[filterKey]
+                        )
+                    )
+                {
                     break;
                 }
                 match++;
@@ -99,6 +134,22 @@ class Database {
             }
         }
         return items;
+    }
+
+    matches(value, filter, filterProp)
+    {
+        //console.log(filterProp);
+        switch(filterProp)
+        {
+            case "endsWith":
+                return value.indexOf(filter)+filter.length===value.length;
+            case "startsWith":
+                return value.indexOf(filter)===0;
+            case "search":
+                return value.indexOf(filter)>=0;
+            case "normal":
+                return value===filter;
+        }
     }
 
     getById(type, id)

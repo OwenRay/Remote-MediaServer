@@ -47,6 +47,10 @@ body, .modal-content{
   color:white;
 }
 
+html, body{
+  overflow-x: hidden;
+}
+
 .modal .modal-footer{
   background-color:$primary-color;
   .modal-action {
@@ -84,7 +88,18 @@ body, .modal-content{
   }
   transition: .3s all;
   &.hidden{
-    top:-96px;
+    top:-100px;
+  }
+
+  .search {
+    position: absolute;
+    left: 360px;
+    right: 20px;
+    bottom: 8px;
+    max-width: 300px;
+    @media (max-width: 512px) {
+      display: none;
+    }
   }
 }
 
@@ -260,3 +275,81 @@ video-container{
     }
   }
 }
+
+.quickOptions
+{
+  .btn-small {
+    position: absolute;
+    bottom: -4px;
+    right: 10px;
+  }
+}
+
+.filterClosed, .filterOpen
+{
+  top:0px;
+  bottom:0px;
+  right:0px;
+  left:0px;
+  //left:100%;
+  position:absolute;
+  z-index:100;
+  visibility: hidden;
+  .close{
+    background-color:transparentize($primary-color-dark, .3);
+    transition: all 0.3s;
+    opacity: 0;
+    position:absolute;
+    top:0px;
+    right:0px;
+    bottom:0px;
+    left:0px;
+  }
+  .content {
+    width: 90%;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    position: absolute;
+    background: $primary-color-dark;
+    margin-right: -100%;
+    max-width:300px;
+    transition: all 0.3s;
+    padding:30px;
+    border-left: solid 1px $primary-color;
+    .red-text
+    {
+      display:none;
+    }
+    .md-select
+    {
+      padding-bottom:10px;
+    }
+  }
+}
+
+.filterOpen
+{
+  visibility: visible;
+  //transition: visibility 0.3s;
+  //transition-delay: 0.3s;
+  .close {
+    opacity: 1;
+  }
+  .content {
+    margin-right:0px;
+  }
+}
+
+.search{
+  position:relative;
+  button{
+    position:absolute;
+    right:0px;
+    bottom:20px;
+    background:none;
+    border:none;
+    font-size: 21px;
+  }
+}
+

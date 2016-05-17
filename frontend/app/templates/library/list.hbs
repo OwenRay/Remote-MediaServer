@@ -8,18 +8,29 @@
         as |records|}}
 
         {{#floating-bar class="quickOptions" toggleClass="hidden" selector=".scroller > div"}}
+
+            {{md-btn
+                icon='mdi-content-filter-list'
+                action='filterClick'
+                buttonType='floating'
+                class='btn-small'}}
             {{md-select content=libraryOptions
                 label='Library:'
-                value=library
+                value=filters.libraryId
                 optionLabelPath="content.name"
                 optionValuePath="content.uuid"
                 class="selectLib"}}
             {{md-select content=sortTypes
                 label='Sort by:'
-                value=sort
+                value=filters.sort
                 optionLabelPath="content.label"
                 optionValuePath="content.value"
                 class="selectLib"}}
+
+            <div class="search">
+                {{input type="text" value=filters.title}}
+                <button class="mdi-action-search"></button>
+            </div>
         {{/floating-bar}}
 
         {{#ember-collection class="scroller" items=records cell-layout=(fixed-grid-layout 165 233) as |record index|}}
@@ -36,4 +47,11 @@
         {{/ember-collection}}
 
     {{/impagination-dataset}}
+</div>
+<div class={{filterClass}}>
+    <div class="close" {{action "filterClick"}}></div>
+    <div class="content">
+        {{md-input label="Title" value=filters.title icon="mdi-action-search white-text"}}
+        ... en meer filters;)
+    </div>
 </div>

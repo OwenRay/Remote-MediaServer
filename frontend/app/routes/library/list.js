@@ -3,6 +3,7 @@ import Ember from 'ember';
 export default Ember.Route.extend({
     queryParams: {'libraries':'libraries'},
     settings: Ember.inject.service('settings'),
+    filters: {},
 
     /*model(params)
     {
@@ -14,11 +15,18 @@ export default Ember.Route.extend({
     },*/
     fetch(pageOffset, pageSize, stats)
     {
-        var queryParams = {
-                page: {offset:pageOffset*pageSize, limit:pageSize},
-                sort:this.get("controller.sort"),
-                libraryId:this.get("controller.library")
-            };
+        var queryParams = {page:{offset:pageOffset*pageSize, limit:pageSize}};
+        var filters = this.get("controller.filters");
+        for(var key in filters)
+        {
+            queryParams[key] = filters[key];
+        }
+
+        if(queryParams.title)
+        {
+            queryParams.title = "%"+queryParams.title+"%";
+        }
+
         if(this.get("controller.libraries"))
         {
             queryParams.libraries = this.get("controller.libraries");

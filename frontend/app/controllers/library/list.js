@@ -1,18 +1,20 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-    queryParams: ['library', 'sort'],
+    queryParams: ['filters.libraryId', 'filters.sort', "filters.title"],
     settings: Ember.inject.service('settings'),
-    library:"",
-    sort:"title",
+    filters:{libraryId:"", sort:"title", title:""},
 
     impaginationReset:null,
     dataSet:null,
+    filterClass:"filterClosed",
 
     init()
     {
-        this.addObserver("library", this.onQueryChange);
-        this.addObserver("sort", this.onQueryChange);
+        for(var key in this.get("filters")) {
+            this.addObserver("filters."+key, this.onQueryChange);
+        }
+        //this.addObserver("sort", this.onQueryChange);
     },
 
     onQueryChange()
@@ -57,6 +59,14 @@ export default Ember.Controller.extend({
         {
             this.set("dataSet", dataset);
             this.set("impaginationReset", actions.reset.bind(dataset));
+        },
+
+        filterClick:function()
+        {
+            this.set(
+                    "filterClass",
+                    this.get("filterClass")=="filterClosed"?"filterOpen":"filterClosed"
+                );
         }
     }
 });
