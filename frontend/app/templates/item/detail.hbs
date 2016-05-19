@@ -3,10 +3,7 @@
     <main>
         <div class="container detail">
             <h1>{{model.title}}</h1>
-            <div class="poster" style="background: url({{{model.poster-img}}}) top center no-repeat">
-                {{md-btn id="play" icon='mdi-av-play-arrow'
-                action='play' buttonType='floating'
-                class='btn-large'}}
+            <div class="poster" style="background: url({{{model.poster-img}}}) top center no-repeat"  data-poster-image={{model.id}}>
             </div>
             <div class="description">
                 <div class="header">
@@ -16,6 +13,11 @@
                 </div>
                 <p>{{model.overview}}</p>
             </div>
+            {{md-btn id="play"
+                icon='mdi-av-play-arrow'
+                action='play'
+                buttonType='floating'
+                class='btn-large'}}
         </div>
     </main>
 </div>

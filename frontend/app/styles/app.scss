@@ -2,12 +2,63 @@
 @import 'components/color';
 
 // Custom color settings go here
-$primary-color: color("blue-grey", "darken-3");
-$primary-color-light: lighten($primary-color, 15%);
-$primary-color-dark: darken($primary-color, 15%);
+
+//#1
+$primary-color: #0E3D3E;
+$primary-color-light: #016163;
+$primary-color-dark: #0C1212;
+$secondary-color: #A6D004;
+
+//#6
+$primary-color: darken(#009B86, 10%);
+$primary-color-light: #F7FFBC;
+$primary-color-dark: darken(#5F1A16, 10%);
+$secondary-color: #F36E21;
+
+//#7
+$primary-color: #263248;
+$primary-color-light: #7E8AA2;
+$primary-color-dark: #000000;
+$secondary-color: #FF9800;
+
+//#8
+$primary-color: #1c1d36;
+$primary-color-light: #534c67;
+$primary-color-dark: #0a0c1a;
+$secondary-color: #b8a300;
+
+//#9
+$primary-color: #730F12;
+$primary-color-light: #AD4447;
+$primary-color-dark: #140001;
+$secondary-color: #105E0C;
+
+//#2
+$primary-color: #750C0D;
+$primary-color-light: #C1282D;
+$primary-color-dark: #124F75;
+$secondary-color: #FCEF55;
+
+//#3
+$primary-color:#E82C0C;
+$primary-color-light: #FF530D;
+$primary-color-dark:#000000;
+$secondary-color:#FF9900;
+
+//#4
+$primary-color:#007868;
+$primary-color-light: #E6FF9A;
+$primary-color-dark:#000000;
+$secondary-color:#E50000;
+
+//#5
+$primary-color:#323232;
+$primary-color-light: white;
+$primary-color-dark:#000000;
+$secondary-color:#FF001C;
+
 $card-bg-color: $primary-color;
 
-$secondary-color: color("green", "darken-2");
 $secondary-color-light: lighten($secondary-color, 15%);
 $secondary-color-dark: darken($secondary-color, 15%);
 
@@ -107,13 +158,11 @@ html, body{
   border:none;
   position:absolute;
   left:0px;
-  top:56px;
+  top:0px;
   margin:0px;
-  @media only screen and (min-width: 601px) {
-    top: 64px;
-  }
   bottom:0px;
   right:0px;
+  z-index:0;
   .collection-item{
     height:40px;
   }
@@ -125,6 +174,9 @@ html, body{
 .grid-item
 {
   >a{
+    position:absolute;
+    left:0px;
+    top:0px;
     width:100%;
     height:100%;
     display:inline-block;
@@ -144,8 +196,6 @@ html, body{
   margin:15px;
   position:relative;
   overflow:hidden;
-  background-position:center center;
-  transition:all 0.3s;
   background-size:100%;
   .detail{
     position:absolute;
@@ -168,10 +218,20 @@ html, body{
       font-weight: 200;
     }
   }
+  .poster{
+    transition:all 0.3s;
+    background-position:center center;
+    position:absolute;
+    top:0px;
+    left:0px;
+    width:inherit;
+    height:inherit;
+  }
   &:hover {
     position:relative;
-    background-size:110%;
-    z-index:99999;
+    .poster {
+      background-size: 110%;
+    }
     .detail {
       bottom: 0px;
     }
@@ -208,9 +268,23 @@ video-container{
   }
 }
 
-.navbar{
-  background-color:transparentize($primary-color, .5);
-  color:red;
+body{
+  /* Hide nav on certain pages */
+  &.item.detail,
+  &.item.view
+  {
+    nav{
+      margin-top:-64px;
+    }
+    .liquid-container{
+      transition: none;
+      top:0px;
+    }
+  }
+}
+
+nav{
+  transition:margin-top .5s;
 }
 
 .controls {
@@ -296,7 +370,6 @@ video-container{
   z-index:100;
   visibility: hidden;
   .close{
-    background-color:transparentize($primary-color-dark, .3);
     transition: all 0.3s;
     opacity: 0;
     position:absolute;
@@ -304,6 +377,7 @@ video-container{
     right:0px;
     bottom:0px;
     left:0px;
+    background:transparentize($primary-color-dark, .2);
   }
   .content {
     width: 90%;
@@ -353,3 +427,25 @@ video-container{
   }
 }
 
+.liquid-container
+{
+  transition:top .5s;
+  position: absolute;
+  top: 56px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  @media only screen and (min-width: 601px) {
+    top: 64px;
+  }
+}
+.liquid-child
+{
+  width:100%;
+  height:100%;
+}
+
+input:not([type]), input[type=text], input[type=password], input[type=email], input[type=url], input[type=time], input[type=date], input[type=datetime], input[type=datetime-local], input[type=tel], input[type=number], input[type=search], textarea.materialize-textarea
+{
+  transition: none;
+}

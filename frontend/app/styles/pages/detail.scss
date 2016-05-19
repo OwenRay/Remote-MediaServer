@@ -6,37 +6,39 @@
     right:0px;
     background-size:cover;
     background-position: center center;
-    opacity: .3;
+    //opacity: .3;
     z-index:-1;
     $blur:10px;
-    -webkit-filter: blur($blur);
+    /*-webkit-filter: blur($blur);
     -moz-filter: blur($blur);
     -o-filter: blur($blur);
     -ms-filter: blur($blur);
-    filter: blur($blur);
+    filter: blur($blur);*/
 }
 
-#play {
+#play{
+    right: 50px;
     position: absolute;
-    bottom: 20px;
-    right: 20px;
+    top: -30px;
 }
 
 .detail {
     .poster {
-        height: 500px;
-        width: 40%;
         background-size: contain !important;
         display: inline-block;
         vertical-align: top;
-        position: relative;
+        width:300px;
+        height:450px;
+        position:absolute;
+        left:50px;
+        bottom:50px;
+    }
+    h1{
+        margin-top:0px;
     }
 
     .description {
-        width: calc(55% - 4px);
-        display: inline-block;
         vertical-align: top;
-        margin-left: 20px;
         margin-top: 0;
 
         .header i {
@@ -44,4 +46,16 @@
             vertical-align: 1px;
         }
     }
+}
+.container.detail
+{
+    position:absolute;
+    bottom:0px;
+    right:0px;
+    left:0px;
+    width:auto;
+    padding:50px;
+    padding-left:400px;
+    box-sizing: content-box;
+    background:transparentize($primary-color-dark, .2);
 }

@@ -1,4 +1,4 @@
-{{#changing-background dataSet=dataSet}}{{/changing-background}}
+{{!--{{#changing-background dataSet=dataSet}}{{/changing-background}}--}}
 <div class="impagewrapper ember-view collection">
     {{#impagination-dataset
         on-observe=(action "observeDataset")
@@ -19,7 +19,7 @@
                 value=filters.libraryId
                 optionLabelPath="content.name"
                 optionValuePath="content.uuid"
-                class="selectLib"}}
+                class="selectLib    "}}
             {{md-select content=sortTypes
                 label='Sort by:'
                 value=filters.sort
@@ -35,7 +35,8 @@
 
         {{#ember-collection class="scroller" items=records cell-layout=(fixed-grid-layout 165 233) as |record index|}}
             {{#if record.content}}
-                <div class="grid-item" style={{{record.content.poster-img-thumb-style}}}>
+                <div class="grid-item" >
+                    <div class="poster" data-poster-image={{record.content.id}} style={{{record.content.poster-img-thumb-style}}}></div>
                     {{#link-to "item.detail" record.content }}{{/link-to}}
                     <div class="detail">
                         {{md-btn class="play" icon='mdi-av-play-arrow' action='play' actionArg=record.content bubble=false buttonType='floating' class='btn-small'}}
