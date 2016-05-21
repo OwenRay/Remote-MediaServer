@@ -46,17 +46,23 @@ export default Ember.Component.extend({
     actions:{
         directoryClick(dir)
         {
-            this.set("value", (this.get("value")?this.get("value"):"")+"/"+dir);
-            console.log(dir);
+            var current = this.get("value");
+
+            while(current.length>0&&current[current.length-1]==="/")
+            {
+                console.log(current);
+                current = current.substr(0, current.length-1);
+                console.log(current);
+            }
+            this.set("value", current+"/"+dir);
         },
 
-        up(dir)
+        up()
         {
             var parts = this.get("value").split("/");
             while(parts.length>0&&!parts.pop()){}
 
             this.set("value", parts.join("/"));
-            console.log(dir);
         }
     }
 });

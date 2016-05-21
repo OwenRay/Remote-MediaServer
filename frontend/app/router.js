@@ -14,7 +14,9 @@ Router.map(function() {
     this.route('detail', {path:"detail/:id"});
   });
   this.route('settings');
-  this.route('library', {path:"libary/:offset"});
+  this.route('library', function(){
+      this.route('list');
+  });
 });
 
 export default Router;

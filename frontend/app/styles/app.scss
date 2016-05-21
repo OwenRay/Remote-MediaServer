@@ -1,53 +1,245 @@
-@import 'color-palette';
+// Example app.scss
+@import 'components/color';
 
-$primary: "blue-grey" !default;
-$accent: "red" !default;
-$warn: "red" !default;
-$background: "blue-grey" !default;
-$link: "light-blue" !default;
+// Custom color settings go here
 
-$dark: true !default;
-$default-color: '900' !default;
+//#1
+$primary-color: #0E3D3E;
+$primary-color-light: #016163;
+$primary-color-dark: #0C1212;
+$secondary-color: #A6D004;
 
-$foreground: "foreground-light" !default;
-$foreground-shadow: "blue-grey" !default;
+//#6
+$primary-color: darken(#009B86, 10%);
+$primary-color-light: #F7FFBC;
+$primary-color-dark: darken(#5F1A16, 10%);
+$secondary-color: #F36E21;
 
-$base-background-color: map-get($color-blue-grey, '900') !default;
-$base-color: rgba(255, 255, 255, 1) !default;
+//#7
+$primary-color: #263248;
+$primary-color-light: #7E8AA2;
+$primary-color-dark: #000000;
+$secondary-color: #FF9800;
 
-@import 'ember-paper';
+//#8
+$primary-color: #1c1d36;
+$primary-color-light: #534c67;
+$primary-color-dark: #0a0c1a;
+$secondary-color: #b8a300;
 
-body{
-  background:black;
+//#9
+$primary-color: #730F12;
+$primary-color-light: #AD4447;
+$primary-color-dark: #140001;
+$secondary-color: #105E0C;
 
-  >.ember-view
-  {
-    height:100%;
-    >section{
-      height:100%;
+//#2
+$primary-color: #750C0D;
+$primary-color-light: #C1282D;
+$primary-color-dark: #124F75;
+$secondary-color: #FCEF55;
+
+//#3
+$primary-color:#E82C0C;
+$primary-color-light: #FF530D;
+$primary-color-dark:#000000;
+$secondary-color:#FF9900;
+
+//#4
+$primary-color:#007868;
+$primary-color-light: #E6FF9A;
+$primary-color-dark:#000000;
+$secondary-color:#E50000;
+
+//#5
+$primary-color:#323232;
+$primary-color-light: white;
+$primary-color-dark:#000000;
+$secondary-color:#FF001C;
+
+$card-bg-color: $primary-color;
+
+$secondary-color-light: lighten($secondary-color, 15%);
+$secondary-color-dark: darken($secondary-color, 15%);
+
+$sidenav-font-color: #FFFFFF;
+$sidenav-bg-color: color("blue-grey", "darken-2");
+//$sidenav-padding-right: 30px !default;
+//$sidenav-item-height: 64px !default;
+
+$collection-border-color: $primary-color-light !default;
+$collection-bg-color: $primary-color !default;
+$collection-active-bg-color: $primary-color-dark;
+$collection-active-color: white;
+$collection-hover-bg-color: $primary-color-light;
+$collection-link-color: white;
+
+$dropdown-bg-color: $primary-color !default;
+$dropdown-hover-bg-color: $primary-color-light !default;
+$dropdown-color: white !default;
+$input-success-color: white !default;
+$input-focus-color: white !default;
+
+$tabs-underline-color: $secondary-color !default;
+$tabs-text-color: #fff !default;
+$tabs-bg-color: $primary-color-dark !default;
+
+$roboto-font-path: "../assets/";
+
+@import 'components/variables';
+@import 'materialize';
+@import 'ember-cli-materialize';
+@import "icons.scss";
+
+@import "pages/detail";
+
+body, .modal-content{
+  background-color:$primary-color-dark;
+  color:white;
+}
+
+html, body{
+  overflow-x: hidden;
+}
+
+.modal .modal-footer{
+  background-color:$primary-color;
+  .modal-action {
+    color: white;
+  }
+}
+
+.md-select .select-wrapper .caret
+{
+  color:white;
+}
+
+.quickOptions {
+  padding:0px 20px;
+  position:absolute;
+  top:0px;
+  right:0px;
+  left:0px;
+  height:96px;
+  z-index:99;
+  background-color:$primary-color-dark;
+  .md-select{
+    margin:0px;
+    width:150px;
+    float:left;
+    margin-right:20px;
+    margin-top:30px;
+    height:50px;
+    &:last-child{
+      margin-right:0px;
+    }
+    .red-text{
+      display:none;
+    }
+  }
+  transition: .3s all;
+  &.hidden{
+    top:-100px;
+  }
+
+  .search {
+    position: absolute;
+    left: 360px;
+    right: 20px;
+    bottom: 8px;
+    max-width: 300px;
+    @media (max-width: 512px) {
+      display: none;
     }
   }
 }
 
-md-sidenav
-{
-  background:#607d8b;
-  //border-right:solid 1px #0D3349;
+.impagewrapper{
+  border:none;
+  position:absolute;
+  left:0px;
+  top:0px;
+  margin:0px;
+  bottom:0px;
+  right:0px;
+  z-index:0;
+  .collection-item{
+    height:40px;
+  }
+  .scroller > div > div{
+    top:96px;
+  }
 }
 
-video{
-  width:100%;
-  height:100%;
-}
-
-
-.backdrop
+.grid-item
 {
-  display:flex;
-  flex:1;
-  flex-flow: row;
-  background-size:cover;
-  background-position: center center;
+  >a{
+    position:absolute;
+    left:0px;
+    top:0px;
+    width:100%;
+    height:100%;
+    display:inline-block;
+  }
+
+  .btn-floating{
+    position:absolute;
+    right:10px;
+    top:-19px;
+    transition:all 0.3s;
+    transition-delay: 0.2s;
+    transform:scale(0,0) rotateX(90deg);
+  }
+
+  width:150px;
+  height:218px;
+  margin:15px;
+  position:relative;
+  overflow:hidden;
+  background-size:100%;
+  .detail{
+    position:absolute;
+    bottom:-75px;
+    transition:all 0.3s;
+    background:$primary-color;
+    left:0px;
+    right:0px;
+    height:60px;
+    padding:10px;
+    line-height: 1.2;
+    .title{
+      display:inline-block;
+      width:130px;
+      white-space: nowrap;
+      overflow:hidden !important;
+      text-overflow: ellipsis;
+    }
+    .year{
+      font-weight: 200;
+    }
+  }
+  .poster{
+    transition:all 0.3s;
+    background-position:center center;
+    position:absolute;
+    top:0px;
+    left:0px;
+    width:inherit;
+    height:inherit;
+  }
+  &:hover {
+    position:relative;
+    .poster {
+      background-size: 110%;
+    }
+    .detail {
+      bottom: 0px;
+    }
+    .btn-floating
+    {
+      transform:scale(1,1) rotateX(0deg);
+    }
+  }
 }
 
 .semi-transparent
@@ -62,13 +254,37 @@ video{
   }
 }
 
-video{
+video-container{
   background:black;
   position:absolute;
   left:0px;
   right:0px;
   bottom:0px;
-  top:0px;
+  top:66px;
+  overflow:hidden;
+  video{
+    height:100%;
+    width:100%;
+  }
+}
+
+body{
+  /* Hide nav on certain pages */
+  &.item.detail,
+  &.item.view
+  {
+    nav{
+      margin-top:-64px;
+    }
+    .liquid-container{
+      transition: none;
+      top:0px;
+    }
+  }
+}
+
+nav{
+  transition:margin-top .5s;
 }
 
 .controls {
@@ -78,22 +294,22 @@ video{
   left: 0px;
   right: 0px;
   flex-flow: column;
-  .tracker {
+  .seektracker {
     margin:10px;
     flex:1;
-    background: map-get($color-blue-grey, '400');
+    background: $primary-color-dark;
     cursor: pointer;
     height: 10px;
     position: relative;
-    .buffer {
+    .seekbuffer {
       position: absolute;
       top: 0px;
       bottom: 0px;
       background:rgba(0,0,0,.3);
     }
 
-    .progress {
-      background: map-get($color-red, '400');
+    .seekprogress {
+      background: $primary-color-light;
       top: -2px;
       bottom: -2px;
       position: absolute;
@@ -132,4 +348,104 @@ video{
       min-height: 30px;
     }
   }
+}
+
+.quickOptions
+{
+  .btn-small {
+    position: absolute;
+    bottom: -4px;
+    right: 10px;
+  }
+}
+
+.filterClosed, .filterOpen
+{
+  top:0px;
+  bottom:0px;
+  right:0px;
+  left:0px;
+  //left:100%;
+  position:absolute;
+  z-index:100;
+  visibility: hidden;
+  .close{
+    transition: all 0.3s;
+    opacity: 0;
+    position:absolute;
+    top:0px;
+    right:0px;
+    bottom:0px;
+    left:0px;
+    background:transparentize($primary-color-dark, .2);
+  }
+  .content {
+    width: 90%;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    position: absolute;
+    background: $primary-color-dark;
+    margin-right: -100%;
+    max-width:300px;
+    transition: all 0.3s;
+    padding:30px;
+    border-left: solid 1px $primary-color;
+    .red-text
+    {
+      display:none;
+    }
+    .md-select
+    {
+      padding-bottom:10px;
+    }
+  }
+}
+
+.filterOpen
+{
+  visibility: visible;
+  //transition: visibility 0.3s;
+  //transition-delay: 0.3s;
+  .close {
+    opacity: 1;
+  }
+  .content {
+    margin-right:0px;
+  }
+}
+
+.search{
+  position:relative;
+  button{
+    position:absolute;
+    right:0px;
+    bottom:20px;
+    background:none;
+    border:none;
+    font-size: 21px;
+  }
+}
+
+.liquid-container
+{
+  transition:top .5s;
+  position: absolute;
+  top: 56px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  @media only screen and (min-width: 601px) {
+    top: 64px;
+  }
+}
+.liquid-child
+{
+  width:100%;
+  height:100%;
+}
+
+input:not([type]), input[type=text], input[type=password], input[type=email], input[type=url], input[type=time], input[type=date], input[type=datetime], input[type=datetime-local], input[type=tel], input[type=number], input[type=search], textarea.materialize-textarea
+{
+  transition: none;
 }

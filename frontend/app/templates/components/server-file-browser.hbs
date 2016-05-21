@@ -1,28 +1,23 @@
-{{paper-input label=label value=value icon="folder"}}
-{{#paper-list class="directoryList"}}
+{{md-input label=label value=value icon="mdi-file-folder white-text"}}
+<div class="collection directoryList">
     {{#if loading}}
-        {{paper-progress-linear}}
+        {{md-loader}}
     {{else}}
         {{#if showUp}}
-            {{#paper-item action="up" param=directory}}
-                {{paper-icon "arrow-back" size="sm"}}
-                Directory up
-            {{/paper-item}}
+            <a {{action "up"}} class="collection-item">Directory up</a>
         {{/if}}
         {{#each directories as |directory|}}
-            {{#paper-item action="directoryClick" param=directory}}
-                {{directory}}
-            {{/paper-item}}
+            <a {{action "directoryClick" directory}} class="collection-item">{{directory}}</a>
         {{/each}}
         {{#if error}}
-            {{#paper-item class="error"}}
+            <div class="collection-item error">
                 {{error}}
-            {{/paper-item}}
+            </div>
         {{/if}}
         {{#if empty}}
-            {{#paper-item}}
+            <div class="collection-item">
                 Directory empty
-            {{/paper-item}}
+            </div>
         {{/if}}
     {{/if}}
-{{/paper-list}}
+</div>

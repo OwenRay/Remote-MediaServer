@@ -4,6 +4,15 @@ export default Ember.Controller.extend({
     settings: Ember.inject.service('settings'),
     selectedLibrary:null,
     creatingNewLibrary:null,
+    selectedTab:"server",
+    libraryTypes:Ember.A(
+        [
+            {value:"folder", label:"Unspecified"},
+            {value:"tv", label:"TV Shows"},
+            {value:"movie", label:"Movies"},
+            {value:"library_music", label:"Music"}
+        ]
+    ),
 
     actions:{
         save()
@@ -17,6 +26,11 @@ export default Ember.Controller.extend({
             }
             this.set("selectedLibrary", null);
             this.get("settings.model").save();
+        },
+
+        deselectLibrary()
+        {
+            this.set("selectedLibrary", null);
         },
 
         selectLibrary(item)

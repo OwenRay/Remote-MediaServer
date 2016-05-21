@@ -1,70 +1,85 @@
-{{outlet}}
+<main>
+    <div class="container">
+        {{#md-tabs selected=selectedTab}}
+            {{md-tab value='server' title="Server settings"}}
+            {{md-tab value='library' title="Media library"}}
+        {{/md-tabs}}
 
-{{#paper-toolbar}}
-    <div class="md-toolbar-tools">
-        {{#paper-sidenav-toggle as |toggle|}}
-            {{#paper-button target=toggle action="toggleMenu" icon-button=true}}{{paper-icon "menu"}}{{/paper-button}}
-        {{/paper-sidenav-toggle}}
-        <span class="md-breadcrumb-page">Settings</span>
+        {{#if (eq selectedTab "server")}}
+            {{#md-card title="Server settings"
+            titleClass="white-text"}}
+
+                {{#md-card-content}}
+                    {{md-input
+                        value=settings.model.name
+                        label='Server name'
+                        icon="mdi-action-label white-text"}}
+                    {{md-input
+                        value=settings.model.port
+                        label='Port'
+                        icon="mdi-action-label white-text"}}
+                {{/md-card-content}}
+
+                {{#md-card-action}}
+                    {{md-btn-submit
+                        action="save"
+                        icon='mdi-content-save'
+                        iconPosition='right'
+                        text='save'}}
+                {{/md-card-action}}
+
+            {{/md-card}}
+        {{/if}}
+
+        {{#if (eq selectedTab "library")}}
+            {{#md-card title="Library settings"
+            titleClass="white-text"}}
+
+                {{#md-card-content}}
+                    <md-content>
+                        {{#md-collection content=settings.model.libraries as |library|}}
+                            <a {{action "selectLibrary" library}} class="collection-item">{{library.name}}</a>
+                        {{/md-collection}}
+                    </md-content>
+
+                {{/md-card-content}}
+
+                {{#md-card-action}}
+                    {{md-btn-submit
+                        action="addLibrary"
+                        icon='mdi-content-add'
+                        iconPosition='right'
+                        text='Add library'}}
+                {{/md-card-action}}
+
+            {{/md-card}}
+        {{/if}}
+
+        {{#if selectedLibrary}}
+            {{#md-modal close='deselectLibrary'}}
+                <div class="modal-content">
+                    <h4>Add library</h4>
+                    {{md-select content=libraryTypes
+                        value=selectedLibrary.type
+                        label="Library type"
+                        prompt="Please choose..."
+                        optionLabelPath="content.label"
+                        optionValuePath="content.value" class="col s12"}}
+                    {{md-input label="Name" value=selectedLibrary.name icon="mdi-action-label white-text"}}
+                    {{#server-file-browser label="Library folder" value=selectedLibrary.folder}}{{/server-file-browser}}
+                </div>
+                <div class="modal-footer">
+                    <a class="modal-action modal-close waves-effect waves-green btn-flat agree-button" {{action 'save'}}>
+                        Save
+                    </a>
+                    <a class="modal-action modal-close waves-effect waves-red btn-flat cancel-button" {{action 'deselectLibrary'}}>
+                        Cancel
+                    </a>
+                </div>
+                <md-content>
+
+                </md-content>
+            {{/md-modal}}
+        {{/if}}
     </div>
-{{/paper-toolbar}}
-
-{{#paper-content}}
-    {{#paper-content class="md-padding"}}
-        {{#paper-content class="md-whiteframe-z3"}}
-            {{#paper-toolbar}}
-                <div class="md-toolbar-tools">
-                    Server settings
-                </div>
-            {{/paper-toolbar}}
-            {{#paper-content class="md-padding"}}
-                {{paper-input label="Server name" value=settings.model.name icon="label"}}
-                {{paper-input label="Port" value=settings.model.port icon="computer"}}
-                {{#paper-button raised=true primary=true action="save"}}Save{{/paper-button}}
-            {{/paper-content}}
-        {{/paper-content}}
-    {{/paper-content}}
-
-    {{#paper-content class="md-padding"}}
-        {{#paper-content class="md-whiteframe-z3"}}
-            {{#paper-toolbar}}
-                <div class="md-toolbar-tools">
-                    Media Libraries
-                    <span flex></span>
-                    {{#paper-button action="addLibrary"}}
-                        {{paper-icon "add" size=2}}
-                        Add library
-                    {{/paper-button}}
-                </div>
-            {{/paper-toolbar}}
-            {{#paper-content class="md-padding" flex-layout="row" flex=true}}
-                {{#paper-content flex=1}}
-                    {{#paper-list }}
-                        {{#each settings.model.libraries as |library|}}
-                            {{#paper-item param=library action="selectLibrary"  }}
-                                {{#if (eq selectedLibrary library true false)}}
-                                    {{paper-icon "edit"}}
-                                {{/if}}
-                                {{library.name}}
-
-                            {{/paper-item}}
-                        {{/each}}
-                    {{/paper-list}}
-                {{/paper-content}}
-                {{#if selectedLibrary}}
-                    {{#paper-content flex=1}}
-                        {{paper-input label="Name" value=selectedLibrary.name icon="label"}}
-                        {{#server-file-browser label="Library folder" value=selectedLibrary.folder}}{{/server-file-browser}}
-                        Library type:
-                        {{#paper-radio value="folder" selected=selectedLibrary.type}}Unspecified{{/paper-radio}}
-                        {{#paper-radio value="tv" selected=selectedLibrary.type}}TV Shows{{/paper-radio}}
-                        {{#paper-radio value="movie" selected=selectedLibrary.type}}Movies{{/paper-radio}}
-                        {{#paper-radio value="library-music" selected=selectedLibrary.type}}Music{{/paper-radio}}
-
-                        {{#paper-button raised=true primary=true action="save"}}Save{{/paper-button}}
-                    {{/paper-content}}
-                {{/if}}
-            {{/paper-content}}
-        {{/paper-content}}
-    {{/paper-content}}
-{{/paper-content}}
+</main>

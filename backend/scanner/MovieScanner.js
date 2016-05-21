@@ -137,7 +137,7 @@ class MovieScanner
 
             var item = items.pop();
             var delayed = this.checkFileInfo(item);
-            if(!item.attributes.gotExtendedInfo)
+                if(!item.attributes.gotExtendedInfo)
             {
                 MovieDB.searchMovie(
                     {query:item.attributes.title, year:item.attributes.year},
@@ -148,6 +148,7 @@ class MovieScanner
                                 for (var key in res) {
                                     item.attributes[key.replace("_", "-")] = res[key];
                                 }
+                                item.attributes.year = res["release_date"].split("-")[0];
                                 item.attributes.gotExtendedInfo = true;
                                 // console.log("extended");
                                 Database.update("media-item", item);
