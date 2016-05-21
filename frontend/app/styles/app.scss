@@ -260,11 +260,12 @@ video-container{
   left:0px;
   right:0px;
   bottom:0px;
-  top:66px;
+  top:0px;
   overflow:hidden;
   video{
     height:100%;
     width:100%;
+    background:transparent;
   }
 }
 
