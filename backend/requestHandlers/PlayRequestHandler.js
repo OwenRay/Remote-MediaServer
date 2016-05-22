@@ -66,7 +66,7 @@ class PlayRequestHandler extends RequestHandler{
         var duration = Math.round((info.format.duration-this.offset)*1000);
         console.log("setDuration", duration);
         //OK... this is a hack to specify the video duration...
-        this.tmpFile = os.tmpdir()+Math.random()+".txt";
+        this.tmpFile = os.tmpdir()+"/"+Math.random()+".txt";
         var metadata = ";FFMETADATA1\n"+
                         "[CHAPTER]\n"+
                         "TIMEBASE=1/1000\n"+
@@ -119,7 +119,8 @@ class PlayRequestHandler extends RequestHandler{
 
     onClose(code)
     {
-        console.log("Close:"+code);
+        console.log("Close:"+code, this.tmpFile);
+        fs.unlink(this.tmpFile);
 
         this.response.end();
     }
