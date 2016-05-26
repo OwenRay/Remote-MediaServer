@@ -9,6 +9,7 @@ $primary-color-light: #016163;
 $primary-color-dark: #0C1212;
 $secondary-color: #A6D004;
 
+
 //#6
 $primary-color: darken(#009B86, 10%);
 $primary-color-light: #F7FFBC;
@@ -26,7 +27,7 @@ $primary-color: #1c1d36;
 $primary-color-light: #534c67;
 $primary-color-dark: #0a0c1a;
 $secondary-color: #b8a300;
-
+/*
 //#9
 $primary-color: #730F12;
 $primary-color-light: #AD4447;
@@ -55,7 +56,7 @@ $secondary-color:#E50000;
 $primary-color:#323232;
 $primary-color-light: white;
 $primary-color-dark:#000000;
-$secondary-color:#FF001C;
+$secondary-color:#FF001C;*/
 
 $card-bg-color: $primary-color;
 
@@ -92,6 +93,7 @@ $roboto-font-path: "../assets/";
 @import "icons.scss";
 
 @import "pages/detail";
+@import "pages/view";
 
 body, .modal-content{
   background-color:$primary-color-dark;
@@ -254,20 +256,6 @@ html, body{
   }
 }
 
-video-container{
-  background:black;
-  position:absolute;
-  left:0px;
-  right:0px;
-  bottom:0px;
-  top:66px;
-  overflow:hidden;
-  video{
-    height:100%;
-    width:100%;
-  }
-}
-
 body{
   /* Hide nav on certain pages */
   &.item.detail,
@@ -285,44 +273,6 @@ body{
 
 nav{
   transition:margin-top .5s;
-}
-
-.controls {
-  display:flex;
-  position: absolute;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  flex-flow: column;
-  .seektracker {
-    margin:10px;
-    flex:1;
-    background: $primary-color-dark;
-    cursor: pointer;
-    height: 10px;
-    position: relative;
-    .seekbuffer {
-      position: absolute;
-      top: 0px;
-      bottom: 0px;
-      background:rgba(0,0,0,.3);
-    }
-
-    .seekprogress {
-      background: $primary-color-light;
-      top: -2px;
-      bottom: -2px;
-      position: absolute;
-      > div {
-        position: absolute;
-        right: -1px;
-        top: -3px;
-        bottom: -3px;
-        background: inherit;
-        width: 2px;
-      }
-    }
-  }
 }
 
 .directoryList

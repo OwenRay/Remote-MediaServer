@@ -4,22 +4,84 @@ export default Ember.Component.extend({
     tagName:"video-container",
     //attributeBindings: ['class'],
     //class:"video-container",
-
+    paused:false,
     src:"",
     progress:0,
     videoObj:null,
     mediaItem:null,
     startOffset:0,
+    navClass:"hidden",
+    volume:80,
+    volumeBeforeMute:80,
+    mute:false,
 
     videoUrl:Ember.computed("mediaItem", "startOffset", function(){
+        if(this.get("startOffset")===-1) {
+            return "";
+        }
+        console.log("daar");
         return "/ply/"+this.get("mediaItem.id")+"/"+this.get("startOffset");
     }),
 
     didInsertElement()
     {
-        this.set("videoObj", this.$("video")[0]);
-
+        var vid = this.$("video");
+        this.set("videoObj", vid[0]);
+        vid.dblclick(this.toggleFullscreen.bind(this));
+        vid.click(this.togglePause.bind(this));
+        vid.on("emptied", function(){
+            console.log("emptied");
+        });
+        vid.on("abort", function(){
+            console.log("aborted");
+        });
+        this.addObserver("volume", this.volumeDidChange);
+        this.volumeDidChange();
+        Ember.$("body")
+            .mousemove(this.onMouseMove.bind(this))
+            .keypress(this.onKeyPress.bind(this));
         this.updateProgress();
+    },
+
+    muteIcon:Ember.computed("mute", function(){
+        return this.get("mute")?"mdi-av-volume-off":"mdi-av-volume-up";
+    }),
+
+    volumeDidChange()
+    {
+        this.get("videoObj").volume = this.get("volume")/100;
+    },
+
+    onMouseMove()
+    {
+        this.set("navClass", "visible");
+        clearTimeout(this.get("hideTimeout"));
+        this.set("hideTimeout", setTimeout(this.hide.bind(this), 2000));
+    },
+
+    hide()
+    {
+        this.set("navClass", "hidden");
+        this.set("navigationVisible", false);
+    },
+
+    didDestroyElement()
+    {
+        clearTimeout(this.get("hideTimeout"));
+        Ember.$("body")
+            .unbind("mousemove")
+            .unbind("keypress");
+        this.get("videoObj").src = "";
+    },
+
+    togglePause()
+    {
+        this.set("paused", !this.get("videoObj").paused);
+        if(this.get("videoObj").paused)
+        {
+            return this.get("videoObj").play();
+        }
+        this.get("videoObj").pause();
     },
 
     updateProgress()
@@ -33,11 +95,87 @@ export default Ember.Component.extend({
         Ember.run.later(this, "updateProgress", 500);
     },
 
+    onKeyPress(e)
+    {
+        switch(e.keyCode)
+        {
+            case 32:
+            case 112:
+                this.togglePause();
+                break;
+            case 102:
+                this.toggleFullscreen();
+                break;
+
+        }
+        console.log(e.keyCode);
+    },
+
+    toggleFullscreen()
+    {
+        var elem = this.$()[0];
+        if (!document.fullscreenElement &&    // alternative standard method
+            !document.mozFullScreenElement &&
+            !document.webkitFullscreenElement &&
+            !document.msFullscreenElement )
+        {
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.webkitRequestFullscreen) {
+                console.log(elem.webkitRequestFullscreen());
+                elem.webkitRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+        }
+    },
+
     actions:{
+        togglePauseAction()
+        {
+            this.togglePause();
+        },
+
+        fullscreen()
+        {
+            this.toggleFullscreen();
+        },
+
         seek(position)
         {
             this.set("startOffset", position);
+            this.set("paused", false);
             this.set("progress", 0);
+        },
+
+        volumeChange(value)
+        {
+            this.set("volume", value);
+            this.set("mute", false);
+        },
+
+        toggleMute()
+        {
+            this.set("mute", !this.get("mute"));
+            if(this.get("mute"))
+            {
+                this.set("volumeBeforeMute", this.get("volume"));
+                this.set("volume", 0);
+            }else{
+               this.set('volume', this.get("volumeBeforeMute"));
+            }
         }
     }
 });

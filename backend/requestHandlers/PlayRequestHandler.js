@@ -42,7 +42,7 @@ class PlayRequestHandler extends RequestHandler{
             return;
         }
         this.response.setHeader('Content-Type', "video/mp4");
-        this.response.setHeader('Accept-Ranges', 'bytes');
+        this.response.setHeader('Accept-Ranges', 'none');
         var vCodec = "libx264";
         var aCodec = "aac";
 
@@ -91,15 +91,19 @@ class PlayRequestHandler extends RequestHandler{
             "-strict", "-2",
             "-"
         ];
-
         console.log(Settings.getValue("ffmpeg_binary")+" "+args.join(" "));
         var proc = spawn(
             Settings.getValue("ffmpeg_binary"),
             args);
+        this.proc = proc;
 
         proc.stdout.on('data', this.onData.bind(this));
         proc.stderr.on('data', this.onError.bind(this));
-        proc.on('close', this.onClose.bind(this));
+        proc.on('close', this.onClose.bind(this))
+        proc.on('drain', function(){
+            console.log("resume");
+            proc.stdout.resume();
+        });
         this.request.connection.on('close',function(){
             console.log("close!");
             proc.kill("SIGINT");
@@ -107,9 +111,11 @@ class PlayRequestHandler extends RequestHandler{
     }
 
 
-    onData(data)
-    {
-        this.response.write(data);
+    onData(data) {
+        this.proc.stdout.pause();
+        this.response.write(data, function () {
+            this.proc.stdout.resume();
+        }.bind(this));
     }
 
     onError(data)
@@ -122,7 +128,7 @@ class PlayRequestHandler extends RequestHandler{
         console.log("Close:"+code, this.tmpFile);
         fs.unlink(this.tmpFile);
 
-        this.response.end();
+        //this.response.end();
     }
 }
 
