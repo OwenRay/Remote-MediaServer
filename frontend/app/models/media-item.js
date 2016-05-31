@@ -10,6 +10,7 @@ export default DS.Model.extend({
     overview:DS.attr("string"),
     "vote-average":DS.attr("number"),
     "fileduration":DS.attr("number"),
+    "play-position":DS.belongsTo("play-position"),
 
     "backdrop-img-style":Ember.computed("backdrop-path", function()
     {
