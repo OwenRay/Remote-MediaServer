@@ -1,4 +1,21 @@
-{{#html5-video mediaItem=model}}{{/html5-video}}
+<div style="{{model.backdrop-img-style}}" class="movie-detail-backdrop"></div>
+{{#unless showDialog}}
+    {{#html5-video mediaItem=model startOffset=startOffset}}{{/html5-video}}
+{{else}}
+    {{#md-modal}}
+        <div class="modal-content">
+            <h4>Continue watching from {{time-format model.play-position.position}}?</h4>
+        </div>
+        <div class="modal-footer">
+            <a class="modal-action modal-close waves-effect waves-green btn-flat agree-button" {{action 'startFrom' model.play-position.position}}>
+                Yes
+            </a>
+            <a class="modal-action modal-close waves-effect waves-red btn-flat cancel-button" {{action 'startFrom' 0}}>
+                No, start over
+            </a>
+        </div>
+    {{/md-modal}}
+{{/unless}}
 
 {{!--
 {{outlet}}

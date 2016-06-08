@@ -33,6 +33,7 @@ class Database {
         o.attributes = obj;
         this.tables[type][o.id] = o;
         this.save();
+        return o;
     }
 
     update(type, obj)
@@ -44,6 +45,7 @@ class Database {
 
         this.tables[type][obj.id] = obj;
         this.save();
+        return obj;
     }
 
     fileExists(type, id)
