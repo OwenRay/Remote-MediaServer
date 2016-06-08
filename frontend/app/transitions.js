@@ -19,5 +19,5 @@ export default function(){
             {
                 "use":["toUp", {duration:500, "movingSide":"new"}]
             })
-    )
+    );
 }

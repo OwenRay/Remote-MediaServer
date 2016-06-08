@@ -1,24 +1,21 @@
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
+import Ember from 'ember';
 
 moduleForComponent('server-file-browser', 'Integration | Component | server file browser', {
   integration: true
 });
 
 test('it renders', function(assert) {
-  // Set any properties with this.set('myProperty', 'value');
-  // Handle any actions with this.on('myAction', function(val) { ... });
+  assert.expect(0);
 
-  this.render(hbs`{{server-file-browser}}`);
+  Ember.run(function() {
+    this.set('showComponent', true);
+    this.render(hbs`
+      {{#if showComponent}}
+        {{#server-file-browser}}{{/server-file-browser}}
+      {{/if}}
+    `);
+  }.bind(this));
 
-  assert.equal(this.$().text().trim(), '');
-
-  // Template block usage:
-  this.render(hbs`
-    {{#server-file-browser}}
-      template block text
-    {{/server-file-browser}}
-  `);
-
-  assert.equal(this.$().text().trim(), 'template block text');
 });

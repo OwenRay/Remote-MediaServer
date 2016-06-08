@@ -5,11 +5,16 @@ export default Ember.Component.extend({
     attributeBindings: ['style'],
     dataSet:null,
     style:"",
+    timeOut:null,
 
     didInsertElement()
     {
-        console.log("initBg");
         this.tick();
+    },
+
+    didDestroyElement()
+    {
+        Ember.run.cancel(this.get("timeOut"));
     },
 
     tick()
@@ -17,9 +22,8 @@ export default Ember.Component.extend({
         if(this.isDestroyed) {
             return;
         }
-        console.log("tick");
+
         var ds = this.get("dataSet");
-        console.log(ds);
         if(ds&&ds.length>0&&ds.objectAt(0).content) {
             //console.log(ds.objectAt(0).content.get("backdrop-img-style"), ds.dataset[]);
             while(true) {
@@ -32,6 +36,7 @@ export default Ember.Component.extend({
                 break;
             }
         }
-        Ember.run.later(this, this.tick, 5000);
+        var tick = Ember.run.later(this, this.tick, 5000);
+        this.set("timeOut", tick);
     }
 });

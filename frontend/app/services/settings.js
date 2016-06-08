@@ -7,7 +7,6 @@ export default Ember.Service.extend({
 
     init()
     {
-        console.log("initSettings");
         var promise = new Ember.RSVP.Promise(function(resolve) {
             var s = this.get("store").findRecord("setting", 1);
             this.set("model", s);

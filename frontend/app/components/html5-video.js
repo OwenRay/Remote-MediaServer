@@ -20,7 +20,6 @@ export default Ember.Component.extend({
         if(this.get("startOffset")===-1) {
             return "";
         }
-        console.log("daar");
         return "/ply/"+this.get("mediaItem.id")+"/"+this.get("startOffset");
     }),
 
@@ -31,10 +30,8 @@ export default Ember.Component.extend({
         vid.dblclick(this.toggleFullscreen.bind(this));
         vid.click(this.togglePause.bind(this));
         vid.on("emptied", function(){
-            console.log("emptied");
         });
         vid.on("abort", function(){
-            console.log("aborted");
         });
         this.addObserver("volume", this.volumeDidChange);
         this.volumeDidChange();
@@ -115,7 +112,6 @@ export default Ember.Component.extend({
                 break;
 
         }
-        console.log(e.keyCode);
     },
 
     toggleFullscreen()
@@ -133,7 +129,6 @@ export default Ember.Component.extend({
             } else if (elem.mozRequestFullScreen) {
                 elem.mozRequestFullScreen();
             } else if (elem.webkitRequestFullscreen) {
-                console.log(elem.webkitRequestFullscreen());
                 elem.webkitRequestFullscreen();
             }
         } else {
@@ -151,12 +146,10 @@ export default Ember.Component.extend({
 
     savePosition()
     {
-        console.log("savepos");
         var m = this.get("mediaItem");
         m.get("play-position").then(function(lastPos){
             lastPos.set("position", this.get("progress")+this.get("startOffset"));
             lastPos.save();
-            console.log(lastPos);
         }.bind(this));
     },
 

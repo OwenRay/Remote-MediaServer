@@ -31,11 +31,17 @@ export default Ember.Component.extend({
             )
             .then(
                 function(data){//success
+                    if(this.isDestroyed) {
+                        return;
+                    }
                     this.set("loading", false);
                     this.set("error", data.error?"Could not list directory":"");
                     this.set("directories", data.result);
                 }.bind(this),
                 function(){//fail
+                    if(this.isDestroyed) {
+                        return;
+                    }
                     this.set("loading", false);
                     this.set("error", "Could not list directory");
                     this.set("directories", []);
