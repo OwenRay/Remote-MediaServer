@@ -23,9 +23,10 @@ export default Ember.Component.extend({
         if(ds&&ds.length>0&&ds.objectAt(0).content) {
             //console.log(ds.objectAt(0).content.get("backdrop-img-style"), ds.dataset[]);
             while(true) {
-                var model = ds.objectAt(Math.round(Math.random() *ds.length)).content
-                if(!model)
+                var model = ds.objectAt(Math.round(Math.random() *ds.length)).content;
+                if(!model) {
                     continue;
+                }
 
                 this.set("style", model.get("backdrop-img-style"));
                 break;

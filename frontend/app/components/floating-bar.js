@@ -15,7 +15,7 @@ export default Ember.Component.extend({
         scroller.scroll(this.didScroll.bind(this));
     },
 
-    didScroll(e)
+    didScroll()
     {
         var scrollTop = this.get("scroller").scrollTop();
         var diff = this.get("lastScrollTop")-scrollTop;

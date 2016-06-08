@@ -65,7 +65,7 @@ export default Ember.Controller.extend({
         {
             this.set(
                     "filterClass",
-                    this.get("filterClass")=="filterClosed"?"filterOpen":"filterClosed"
+                    this.get("filterClass")==="filterClosed"?"filterOpen":"filterClosed"
                 );
         }
     }
