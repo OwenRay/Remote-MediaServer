@@ -119,7 +119,6 @@ class Database {
             var match = 0;
             for(var filterKey in filters)
             {
-
                 if (!this.matches(
                             item.attributes[filterKey].toLowerCase(),
                             filters[filterKey],
@@ -191,11 +190,13 @@ class Database {
         this.writeTimeout = setTimeout(this.doSave.bind(this), 3000);
     }
 
-    doSave()
+    doSave(callback)
     {
         console.log("Did write db");
+        if(this.writeTimeout)
+            clearTimeout(this.writeTimeout);
         this.writeTimeout = null;
-        fs.writeFile("db", JSON.stringify(this));
+        fs.writeFile("db", JSON.stringify(this), callback);
     }
 }
 

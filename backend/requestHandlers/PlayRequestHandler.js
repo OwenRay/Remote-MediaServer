@@ -20,9 +20,13 @@ class PlayRequestHandler extends RequestHandler{
         var mediaItem = Database.getById("media-item", parts.pop());
         var libraries = Settings.getValue("libraries");
         var library;
+        if(!mediaItem)
+        {
+            return this.response.end();
+        }
         for(var key in libraries)
         {
-            if(libraries[key].uuid==mediaItem.attributes.libraryId);
+            if(libraries[key].uuid==mediaItem.attributes.libraryId)
             {
                 library = libraries[key];
             }

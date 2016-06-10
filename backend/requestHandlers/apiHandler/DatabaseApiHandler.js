@@ -15,6 +15,7 @@ class DatabaseApiHandler extends IApiHandler
         var urlParts = url.pathname.split("/");
         var type = urlParts[2];
         var singularType = pluralize.singular(type);
+        console.log("r", request.method, url);
 
         switch(request.method)
         {
@@ -25,6 +26,7 @@ class DatabaseApiHandler extends IApiHandler
                 break;
             case "GET":
                 this.handleGet(response, query, singularType, parseInt(urlParts[3]));
+                break;
         }
     }
 

@@ -6,6 +6,7 @@ var http = require('http');
 var FileRequestHandler = require('./requestHandlers/FileRequestHandler');
 var ApiRequestHandler = require('./requestHandlers/ApiRequestHandler');
 var PlayRequestHandler = require('./requestHandlers/PlayRequestHandler');
+var CorsRequestHandler = require('./requestHandlers/CorsRequestHandler');
 var Settings = require('./Settings');
 
 class HttpServer {
@@ -25,10 +26,10 @@ class HttpServer {
         this.server.listen(Settings.getValue("port"), this.onConnected);
     }
 
-    restart()
+    stop(and)
     {
         console.log("shutting down http server");
-        this.server.close(this.start.bind(this));
+        this.server.close(and);
     }
 
     onConnected()
@@ -37,21 +38,27 @@ class HttpServer {
     }
 
     handleRequest(request, response) {
+        if(new CorsRequestHandler(request, response).handleRequest())
+        {
+            return;
+        }
+        
         var handlers = {
             api: ApiRequestHandler,
             ply: PlayRequestHandler,
             web: FileRequestHandler
         };
         var part = request.url.substr(1, 3);
-        if (!handlers[part])
+        if (!handlers[part]) {
             part = "web";
+        }
         new handlers[part](request, response).handleRequest();
     }
 
     onPortChange()
     {
         console.log("onPortChange", this)
-        this.restart();
+        this.stop(this.start.bind(this));
     }
 }
 
