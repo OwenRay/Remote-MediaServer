@@ -8,6 +8,7 @@ var ApiRequestHandler = require('./requestHandlers/ApiRequestHandler');
 var PlayRequestHandler = require('./requestHandlers/PlayRequestHandler');
 var CorsRequestHandler = require('./requestHandlers/CorsRequestHandler');
 var Settings = require('./Settings');
+var enableDestroy = require('server-destroy');
 
 class HttpServer {
 
@@ -21,6 +22,7 @@ class HttpServer {
         this.firstStarted = true;
         //Create a server
         this.server = http.createServer(this.handleRequest);
+        enableDestroy(this.server);
 
         //Lets start our server
         this.server.listen(Settings.getValue("port"), this.onConnected);
@@ -29,7 +31,7 @@ class HttpServer {
     stop(and)
     {
         console.log("shutting down http server");
-        this.server.close(and);
+        this.server.destroy(and);
     }
 
     onConnected()
@@ -42,7 +44,7 @@ class HttpServer {
         {
             return;
         }
-        
+
         var handlers = {
             api: ApiRequestHandler,
             ply: PlayRequestHandler,
