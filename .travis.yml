@@ -5,10 +5,14 @@ install:
   - npm install
   - npm install -g ember
   - npm install -g bower
+  - npm install -g nodeunit
   - cd frontend && npm install && cd ../
   - cd frontend && bower install && cd ../
 script:
   - mkdir dist && cd dist && npm pack ../ && cd ..
+after_script:
+  - nodeunit tests
+  - node main.js & cd frontend && ember test && cd ..
 deploy:
   provider: s3
   access_key_id: "AKIAIXHOM3CXN3AYZBHA"
