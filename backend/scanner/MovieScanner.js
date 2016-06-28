@@ -8,6 +8,8 @@ var Database = require("../Database");
 var MovieDB = require('moviedb')('0699a1db883cf76d71187d9b24c8dd8e');
 var FFProbe = require('../FFProbe');
 
+var discardRegex = new RegExp('\\W|-|_|([0-9]+p)|(LKRG)', "g");
+
 class MovieScanner
 {
 
@@ -22,11 +24,8 @@ class MovieScanner
     {
         if(this.scanning!=-1)
         {
-            // console.log("Scan in progress");
             return;
         }
-
-        //console.log("start scanner");
         this.scanNext();
     }
 
@@ -65,7 +64,7 @@ class MovieScanner
             // console.log(err);
             return;
         }
-        // console.log("gotAllFiles");
+        console.log("gotAllFiles");
         var offset = -1;
         var loadNext = function ()
         {
@@ -82,12 +81,11 @@ class MovieScanner
             var filePath = path.parse(files[offset]);
             var folder = path.parse(filePath.dir);
 
-            // console.log('here', relativePath);
-            // console.log("find", folder.base + "-" + filePath.base);
             var errorFunction = function ()
             {
-                // console.log("Fail");
-                guessit.parseName(folder.base.replace(/ /g, '.') + "-" + filePath.base.replace(/ /g, '.'), {type:"movie"}).then(function (data) {
+                 console.log("Fail");
+                guessit.parseName(folder.base.replace(/ /g, '.') + "-" + filePath.base.replace(/ /g, '.'), {options:"-t movie"}).then(function (data) {
+                    console.log(data);
                     if(data.title) {
                         data.title = data.title.replace(folder.base + '-', '');
                     }
@@ -95,12 +93,13 @@ class MovieScanner
                     loadNext();
                 }.bind(this), function()
                 {
-                    // console.log("andfail");
+                     console.log("andfail");
                     loadNext();
                 });
             }.bind(this);
 
-            guessit.parseName(filePath.base.replace(/ /g, '.'), {type:"movie"}).then(function (data) {
+            guessit.parseName(filePath.base.replace(/ /g, '.'), {options:"-t movie"}).then(function (data) {
+                console.log(data);
                 if(this.applyGuessitData(data, relativePath)) {
                     return loadNext();
                 }
@@ -116,7 +115,6 @@ class MovieScanner
             //console.log("no title", data);
             return false;
         }
-
         data.libraryId = this.library.uuid;
         data.mediaType = this.library.type;
         data.filepath = relativePath;
@@ -139,26 +137,55 @@ class MovieScanner
             var delayed = this.checkFileInfo(item);
                 if(!item.attributes.gotExtendedInfo)
             {
-                MovieDB.searchMovie(
-                    {query:item.attributes.title, year:item.attributes.year},
-                    function(err, res){
-                        if(!err) {
-                            res = res.results[0];
-                            if (res) {
-                                for (var key in res) {
-                                    item.attributes[key.replace("_", "-")] = res[key];
-                                }
-                                item.attributes.year = res["release_date"].split("-")[0];
-                                item.attributes.gotExtendedInfo = true;
-                                // console.log("extended");
-                                Database.update("media-item", item);
+
+                var searchFor = item.attributes.title;
+                if(item.attributes.episode)
+                {
+                    searchFor+=" "+item.attributes.episode;
+                }
+                var tryCount = 0;
+                console.log("check for "+searchFor);
+
+                var callback = function(err, res){
+                    console.log("callback");
+                    if(!err&&res.results.length>0) {
+                        res = res.results[0];
+                        if (res) {
+                            for (var key in res) {
+                                item.attributes[key.replace("_", "-")] = res[key];
                             }
-                            // console.log("got Extended attrs on", item.attributes.title);
-                        }else{
-                            // console.log(err);
+                            item.attributes.year = res["release_date"].split("-")[0];
+                            item.attributes.gotExtendedInfo = true;
+                            console.log("extended");
+                            Database.update("media-item", item);
                         }
-                        setTimeout(loadNext, 300);
-                    });
+                        console.log(res, err);
+                        console.log("got Extended attrs on", item.attributes.title);
+                    }else if(tryCount<2){
+                        //If the movie cannot be found:
+                        // 1. try again without year,
+                        // 2. Then try again with the filename
+                        console.log("try again moviedb again:"+tryCount);
+                        if(tryCount==1)
+                        {
+                            searchFor = path.parse(item.attributes.filepath).base.split(".")[0];
+                            searchFor = searchFor.replace(discardRegex, " ");
+                            console.log(searchFor);
+                        }
+                        MovieDB.searchMovie(
+                                {query:searchFor},
+                                callback
+                            );
+                        tryCount++;
+                        return;
+                    }
+                    setTimeout(loadNext, 300);
+                };
+
+                MovieDB.searchMovie(
+                        {query:searchFor, year:item.attributes.year},
+                        callback
+                    );
             }else{
                 if(delayed)
                     setTimeout(loadNext, 300);
