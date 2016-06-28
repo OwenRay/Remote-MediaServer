@@ -2,7 +2,7 @@ import Ember from 'ember';
 import config from "../config/environment";
 
 export default Ember.Component.extend({
-    value:null,
+    value:"/",
     loading: true,
     error: false,
     directories:[],
@@ -53,6 +53,10 @@ export default Ember.Component.extend({
         directoryClick(dir)
         {
             var current = this.get("value");
+            if(!current)
+            {
+                current = "";
+            }
 
             while(current.length>0&&current[current.length-1]==="/")
             {

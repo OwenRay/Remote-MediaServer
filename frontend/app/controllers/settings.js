@@ -41,7 +41,7 @@ export default Ember.Controller.extend({
         addLibrary()
         {
             this.set("creatingNewLibrary", true);
-            this.set("selectedLibrary", {});
+            this.set("selectedLibrary", {"folder":"/"});
         }
     }
 });

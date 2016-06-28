@@ -44,7 +44,7 @@ export default Ember.Controller.extend({
 
     libraryOptions:Ember.computed("settings.model.libraries", function()
     {
-        var s = this.get("settings.model.libraries");
+        var s = this.get("settings.model.libraries").slice(0);
         s.unshift({"name":"All libraries", "uuid":""});
         return s;
     }),
