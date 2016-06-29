@@ -13,7 +13,7 @@ var FFProbe =
 
         console.log(fileName);
         var proc = spawn(
-                    Settings.getValue("ffprobe_binary"),
+                    './' + Settings.getValue("ffprobe_binary"),
                     [
                         "-v", "quiet",
                         "-show_format",
