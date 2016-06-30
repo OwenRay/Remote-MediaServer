@@ -1,8 +1,9 @@
 module.exports = (function () {
 
-    var http = require('http');
-    var qs   = require('querystring');
-    var Q    = require('q');
+    var http     = require('http');
+    var qs       = require('querystring');
+    var Q        = require('q');
+    var Settings = require('../Settings')
 
     function apiCall (path, query, post) {
 
@@ -17,8 +18,8 @@ module.exports = (function () {
         }
 
         var options = {
-            'hostname': '52.17.159.194',
-            'port': 5000,
+            'hostname': Settings.getValue("guessit").host,
+            'port': Settings.getValue("guessit").port,
             'path': path,
             'method': isPOST ? 'POST' : 'GET'
         };

@@ -29,6 +29,10 @@ var settingsObj = {
         "mpeg",
         "m4v"
     ],
+    'guessit': {
+        'host': '192.168.99.100',
+        'port': 5000
+    }
 };
 
 var Settings = {
