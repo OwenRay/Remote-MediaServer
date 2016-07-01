@@ -7,7 +7,14 @@
             </div>
             <div class="description">
                 <div class="header">
-                    {{ model.vote-average }}
+                    <div class="stars">
+                        <img src="/assets/img/stars.png" alt="stars">
+                        <div class="full" style="width: {{ model.rating }}%;">
+                            <img src="/assets/img/stars-full.png" alt="full_stars">
+                        </div>
+                    </div>
+                    <i class="material-icons">fiber_manual_record</i>
+                    {{ model.fileduration }} min
                     <i class="material-icons">fiber_manual_record</i>
                     {{ model.year }}
                 </div>

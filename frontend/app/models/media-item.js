@@ -12,6 +12,10 @@ export default DS.Model.extend({
     "fileduration":DS.attr("number"),
     "play-position":DS.belongsTo("play-position"),
 
+    "rating":Ember.computed("vote-average", function()
+    {
+        return this.get('vote-average') * 10;
+    }),
     "backdrop-img-style":Ember.computed("backdrop-path", function()
     {
         return "background-image:url(https://image.tmdb.org/t/p/w1280/"+this.get("backdrop-path")+")";

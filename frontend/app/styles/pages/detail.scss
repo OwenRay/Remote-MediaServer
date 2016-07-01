@@ -41,6 +41,23 @@
         vertical-align: top;
         margin-top: 0;
 
+        .stars {
+            display: inline-block;
+            vertical-align: top;
+            position: relative;
+
+            .full {
+                position: absolute;
+                top: 0;
+                overflow: hidden;
+            }
+
+            i {
+                font-size: 14px !important;
+                margin-top: 4px;
+            }
+        }
+
         .header i {
             font-size: 8px;
             vertical-align: 1px;
