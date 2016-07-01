@@ -1,14 +1,12 @@
-"use strict"
+"use strict";
 
 var guessit = require("./Guessit");
 var recursive = require('recursive-readdir');
 var Settings = require("../Settings");
-var path = require('path');
 var Database = require("../Database");
-var MovieDB = require('moviedb')('0699a1db883cf76d71187d9b24c8dd8e');
-var FFProbe = require('../FFProbe');
+var TheMovieDBExtendedInfo = require("./extendedInfo/TheMovieDBExtendedInfo");
+var FFProbeExtendedInfo = require("./extendedInfo/FFProbeExtendedInfo");
 
-var discardRegex = new RegExp('\\W|-|_|([0-9]+p)|(LKRG)', "g");
 
 class MovieScanner
 {
@@ -126,94 +124,35 @@ class MovieScanner
     {
         // console.log("checking for extended info...");
         var items = Database.getAll("media-item");
+
+        var extendedInfoItems = [new TheMovieDBExtendedInfo(), new FFProbeExtendedInfo()];
+
         var loadNext = function()
         {
+            console.log("extendInfo, next");
             if(items.length === 0) {
+                console.log("done scanning");
                 this.scanNext();
                 return;
             }
 
             var item = items.pop();
-            var delayed = this.checkFileInfo(item);
-                if(!item.attributes.gotExtendedInfo)
+
+            var prevPromise;
+            for(var c = 0; c<extendedInfoItems.length; c++)
             {
-
-                var searchFor = item.attributes.title;
-                if(item.attributes.episode)
+                console.log("prevPromise", prevPromise);
+                if(!prevPromise)
                 {
-                    searchFor+=" "+item.attributes.episode;
+                    prevPromise = extendedInfoItems[c].extendInfo([item, this.library]);
+                }else{
+                    prevPromise = prevPromise.then(extendedInfoItems[c].extendInfo.bind(extendedInfoItems[c]));
                 }
-                var tryCount = 0;
-                console.log("check for "+searchFor);
-
-                var callback = function(err, res){
-                    console.log("callback");
-                    if(!err&&res.results.length>0) {
-                        res = res.results[0];
-                        if (res) {
-                            for (var key in res) {
-                                item.attributes[key.replace("_", "-")] = res[key];
-                            }
-                            item.attributes.year = res["release_date"].split("-")[0];
-                            item.attributes.gotExtendedInfo = true;
-                            console.log("extended");
-                            Database.update("media-item", item);
-                        }
-                        console.log(res, err);
-                        console.log("got Extended attrs on", item.attributes.title);
-                    }else if(tryCount<2){
-                        //If the movie cannot be found:
-                        // 1. try again without year,
-                        // 2. Then try again with the filename
-                        console.log("try again moviedb again:"+tryCount);
-                        if(tryCount==1)
-                        {
-                            searchFor = path.parse(item.attributes.filepath).base.split(".")[0];
-                            searchFor = searchFor.replace(discardRegex, " ");
-                            console.log(searchFor);
-                        }
-                        MovieDB.searchMovie(
-                                {query:searchFor},
-                                callback
-                            );
-                        tryCount++;
-                        return;
-                    }
-                    setTimeout(loadNext, 300);
-                };
-
-                MovieDB.searchMovie(
-                        {query:searchFor, year:item.attributes.year},
-                        callback
-                    );
-            }else{
-                if(delayed)
-                    setTimeout(loadNext, 300);
-                else
-                    loadNext();
             }
+            prevPromise.then(loadNext);
+
         }.bind(this);
         loadNext();
-    }
-
-    checkFileInfo(obj)
-    {
-        if(obj.attributes.gotfileinfo)
-            return false;
-
-        var file = decodeURI(this.library.folder+obj.attributes.filepath);
-        FFProbe.getInfo(file)
-            .then(function(fileData)
-            {
-                if(!fileData||!fileData.format)
-                    return;
-                obj.attributes.fileduration = parseFloat(fileData.format.duration);
-                obj.attributes.filesize = parseInt(fileData.format.size);
-                obj.attributes.bitrate = fileData.format.bit_rate;
-                obj.attributes.gotfileinfo = true;
-                Database.update("media-item", obj);
-            });
-        return true;
     }
 }
 
