@@ -11,9 +11,9 @@ var FFProbe =
     {
         var promise = new Promise();
 
-        console.log(fileName);
+        console.log(Settings.getValue("ffprobe_binary"), fileName);
         var proc = spawn(
-                    './' + Settings.getValue("ffprobe_binary"),
+                    Settings.getValue("ffprobe_binary"),
                     [
                         "-v", "quiet",
                         "-show_format",

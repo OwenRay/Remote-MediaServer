@@ -27,7 +27,13 @@ if(!fs.existsSync(dir+"ffmpeg")&&!fs.existsSync(dir+"ffmpeg.exe")) {
 if(os.platform()=="win32")
 {
     var Settings = require("../backend/Settings");
-    Settings.setValue("ffmpeg_binary", "ffmpeg.exe");
-    Settings.setValue("ffprobe_binary", "ffprobe.exe");
+    var ffmpeg = Settings.getValue("ffmpeg_binary");
+    var ffprobe = Settings.getValue("ffprobe_binary");
+    if(!ffmpeg.match(/exe$/)) {
+        Settings.setValue("ffmpeg_binary", ffmpeg + ".exe");
+    }
+    if(!ffprobe.match(/exe$/)) {
+        Settings.setValue("ffprobe_binary", ffprobe + ".exe");
+    }
     Settings.save();
 }
