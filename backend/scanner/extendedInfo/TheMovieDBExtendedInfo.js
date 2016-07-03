@@ -7,6 +7,7 @@ var IExtendedInfo = require("./IExtendedInfo");
 var Promise = require("node-promise").Promise;
 var MovieDB = require('moviedb')('0699a1db883cf76d71187d9b24c8dd8e');
 var path = require('path');
+var Database = require("../../Database");
 
 var discardRegex = new RegExp('\\W|-|_|([0-9]+p)|(LKRG)', "g");
 

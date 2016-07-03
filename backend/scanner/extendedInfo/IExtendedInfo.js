@@ -8,11 +8,10 @@ class IExtendedInfo
 {
     /**
      *
-     * @param mediaItem
-     * @param done
+     * @param params
      * @return Promise
      */
-    extendInfo(mediaItem, library)
+    extendInfo(params)
     {
     }
 }

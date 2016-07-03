@@ -1,11 +1,11 @@
 "use strict";
 
-var guessit = require("./Guessit");
 var recursive = require('recursive-readdir');
 var Settings = require("../Settings");
 var Database = require("../Database");
 var TheMovieDBExtendedInfo = require("./extendedInfo/TheMovieDBExtendedInfo");
 var FFProbeExtendedInfo = require("./extendedInfo/FFProbeExtendedInfo");
+var ParseFileNameExtendedInfo = require("./extendedInfo/ParseFileNameExtendedInfo");
 
 
 class MovieScanner
@@ -38,6 +38,7 @@ class MovieScanner
 
         this.types = Settings.getValue("videoFileTypes");
         this.library = Settings.getValue("libraries")[this.scanning];
+        console.log("start scan", this.library);
         recursive(this.library.folder, [this.willInclude.bind(this)], this.onListed.bind(this));
     }
 
@@ -59,73 +60,32 @@ class MovieScanner
     {
         if(err)
         {
-            // console.log(err);
+            console.log(err);
             return;
         }
         console.log("gotAllFiles");
-        var offset = -1;
-        var loadNext = function ()
+        for(var offset = 0; offset<files.length; offset++)
         {
-            offset++;
-            if(!files[offset]) {
-                this.checkForExtendedInfo();
-                return;
+            var file = files[offset].substr(this.library.folder.length);
+            if(!Database.findBy("media-item", "filepath", file).length) {
+                Database.setObject(
+                    "media-item",
+                    {
+                        filepath: file,
+                        libraryId: this.library.uuid,
+                        mediaType: this.library.type
+                    });
             }
-            var relativePath = files[offset].substr(this.library.folder.length);
-            if(Database.findBy("media-item", "filepath", relativePath).length!=0) {
-                return loadNext();
-            }
-
-            var filePath = path.parse(files[offset]);
-            var folder = path.parse(filePath.dir);
-
-            var errorFunction = function ()
-            {
-                 console.log("Fail");
-                guessit.parseName(folder.base.replace(/ /g, '.') + "-" + filePath.base.replace(/ /g, '.'), {options:"-t movie"}).then(function (data) {
-                    console.log(data);
-                    if(data.title) {
-                        data.title = data.title.replace(folder.base + '-', '');
-                    }
-                    this.applyGuessitData(data, relativePath);
-                    loadNext();
-                }.bind(this), function()
-                {
-                     console.log("andfail");
-                    loadNext();
-                });
-            }.bind(this);
-
-            guessit.parseName(filePath.base.replace(/ /g, '.'), {options:"-t movie"}).then(function (data) {
-                console.log(data);
-                if(this.applyGuessitData(data, relativePath)) {
-                    return loadNext();
-                }
-                errorFunction();
-            }.bind(this), errorFunction);
-        }.bind(this);
-        loadNext();
-    }
-
-    applyGuessitData(data, relativePath)
-    {
-        if(!data.title) {
-            //console.log("no title", data);
-            return false;
         }
-        data.libraryId = this.library.uuid;
-        data.mediaType = this.library.type;
-        data.filepath = relativePath;
-        Database.setObject("media-item", data);
-        return true;
+        this.checkForExtendedInfo();
     }
 
     checkForExtendedInfo()
     {
-        // console.log("checking for extended info...");
+        console.log("checking for extended info...");
         var items = Database.getAll("media-item");
 
-        var extendedInfoItems = [new TheMovieDBExtendedInfo(), new FFProbeExtendedInfo()];
+        var extendedInfoItems = [new ParseFileNameExtendedInfo(), new TheMovieDBExtendedInfo(), new FFProbeExtendedInfo()];
 
         var loadNext = function()
         {

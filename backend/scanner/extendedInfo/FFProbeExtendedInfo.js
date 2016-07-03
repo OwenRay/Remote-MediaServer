@@ -6,6 +6,7 @@
 var IExtendedInfo = require("./IExtendedInfo");
 var Promise = require("node-promise").Promise;
 var FFProbe = require('../../FFProbe');
+var Database = require("../../Database");
 
 class FFProbeExtendedInfo extends IExtendedInfo
 {
