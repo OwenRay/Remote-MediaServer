@@ -5,6 +5,7 @@
 
 var fs = require('fs');
 var mime = require('mime');
+var path = require('path');
 
 var RequestHandler = require("./RequestHandler");
 
@@ -15,6 +16,10 @@ class FileRequestHandler extends RequestHandler{
         var url = this.request.url;
         var dir = __dirname+"/../../frontend/dist/";
         if(! url || url[url.length-1] === "/" || ! fs.existsSync(dir + url)) {
+            if(path.parse(dir+url).ext)
+            {
+                return this.returnFourOFour();
+            }
             url = "/index.html";
         }
 
@@ -22,13 +27,17 @@ class FileRequestHandler extends RequestHandler{
         fs.readFile(dir + url, this.fileRead.bind(this));
     }
 
+    returnFourOFour()
+    {
+        this.response.statusCode = "404";
+        this.response.end("File not found.");
+    }
+
     fileRead(err, data)
     {
         if(err)
         {
-            this.response.statusCode = "404";
-            this.response.end("File not found.");
-            return;
+            return this.returnFourOFour();
         }
 
         this.response.end(data);
