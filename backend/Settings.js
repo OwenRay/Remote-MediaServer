@@ -32,7 +32,8 @@ var settingsObj = {
     'guessit': {
         'host': '192.168.99.100',
         'port': 5000
-    }
+    },
+    scanInterval:3600,
 };
 
 var Settings = {
