@@ -32,7 +32,8 @@ var settingsObj = {
     'guessit': {
         'host': 'guessit.theremote.io',
         'port': 5000
-    }
+    },
+    scanInterval:3600,
 };
 
 var Settings = {

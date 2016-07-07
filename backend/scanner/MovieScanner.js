@@ -15,7 +15,16 @@ class MovieScanner
     {
         this.scanning = -1;
         this.library = null;
+        this.setScanTimeout();
         Settings.addObserver("libraries", this.scan.bind(this));
+    }
+
+    setScanTimeout()
+    {
+        if(this.scanTimeout) {
+            clearTimeout(this.scanTimeout)
+        }
+        this.scanTimeout = setTimeout(this.scan.bind(this), Settings.getValue("scanInterval")*1000);
     }
 
     scan()
@@ -25,6 +34,7 @@ class MovieScanner
             // console.log("Scan in progress");
             return;
         }
+        this.setScanTimeout();
 
         //console.log("start scanner");
         this.scanNext();
