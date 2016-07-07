@@ -15,21 +15,17 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
 {
     extendInfo(args, tryCount)
     {
-        console.log("tmdb");
         var mediaItem = args[0];
         var library = args[1];
-        console.log("moviedbhere", library);
         if(!tryCount)
         {
             tryCount = 0;
         }
 
         var promise = new Promise();
-        console.log(args);
 
         if(mediaItem.attributes.gotExtendedInfo)
         {
-            console.log("already extended")
             promise.resolve([mediaItem, library]);
             return promise;
         }
@@ -38,15 +34,12 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
             if(!err&&res.results.length>0) {
                 res = res.results[0];
                 for (var key in res) {
-                    console.log(key, key.replace(/_/g, "-"));
                     mediaItem.attributes[key.replace(/_/g, "-")] = res[key];
                 }
                 var date = res["release_date"]?res["release_date"]:res["first_air_date"];
                 mediaItem.attributes.year = date.split("-")[0];
                 mediaItem.attributes.gotExtendedInfo = true;
                 Database.update("media-item", mediaItem);
-                console.log(mediaItem);
-                console.log("got Extended attrs on", mediaItem.attributes.title);
             }else if(tryCount<2){
 
                 this.extendInfo([mediaItem, library], tryCount+1).then(promise.resolve);
@@ -72,7 +65,6 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
                 params.year = mediaItem.attributes.year;
                 break;
             case 2:
-                console.log(mediaItem.attributes.filepath);
                 params.query = path.parse(mediaItem.attributes.filepath).base.split(".")[0];
                 params.query = params.query.replace(discardRegex, " ");
                 break;
@@ -94,7 +86,6 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
                 callback
             );
         }, 300);
-        console.log("ret promise");
         return promise;
     }
 }

@@ -12,10 +12,8 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
 {
     extendInfo(args, tryCount)
     {
-        console.log("parsefilename");
         var mediaItem = args[0];
         var library = args[1];
-        console.log(mediaItem);
         if(!tryCount)
         {
             tryCount = 0;
@@ -26,7 +24,6 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
         var relativePath = mediaItem.attributes.filepath;
 
         if(mediaItem.attributes.title) {
-            console.log("already parsed name!");
             promise.resolve([mediaItem, library]);
             return promise;
         }
@@ -40,13 +37,11 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
         {
             searchQuery = folder.base.replace(/ /g, '.') + "-" + filePath.base.replace(/ /g, '.');
         }
-        console.log("search:"+searchQuery);
         Guessit.parseName(
                 searchQuery,
                 {options:"-t "+library.type}
             ).then(
                 function (data) {
-                    console.log(data);
                     if (tryCount == 1 && data.title) {
                         data.title = data.title.replace(folder.base + '-', '');
                     }
