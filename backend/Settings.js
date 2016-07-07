@@ -6,8 +6,8 @@ var uuid = require('node-uuid');
 var settingsObj = {
     "port": 8080,
     "name": "My Media Server",
-    "ffmpeg_binary": "ffmpeg",
-    "ffprobe_binary": "ffprobe",
+    "ffmpeg_binary": process.cwd()+"/ffmpeg",
+    "ffprobe_binary": process.cwd()+"/ffprobe",
     "libraries": [],
     "videoFileTypes": [
         "mkv",
