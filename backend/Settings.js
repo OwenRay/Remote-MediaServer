@@ -30,7 +30,7 @@ var settingsObj = {
         "m4v"
     ],
     'guessit': {
-        'host': '192.168.99.100',
+        'host': 'guessit.theremote.io',
         'port': 5000
     }
 };
