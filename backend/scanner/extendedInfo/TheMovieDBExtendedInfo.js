@@ -15,6 +15,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
 {
     extendInfo(args, tryCount)
     {
+        console.log("tmdb");
         var mediaItem = args[0];
         var library = args[1];
         console.log("moviedbhere", library);
@@ -37,11 +38,14 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
             if(!err&&res.results.length>0) {
                 res = res.results[0];
                 for (var key in res) {
-                    mediaItem.attributes[key.replace("_", "-")] = res[key];
+                    console.log(key, key.replace(/_/g, "-"));
+                    mediaItem.attributes[key.replace(/_/g, "-")] = res[key];
                 }
-                mediaItem.attributes.year = res["release_date"].split("-")[0];
+                var date = res["release_date"]?res["release_date"]:res["first_air_date"];
+                mediaItem.attributes.year = date.split("-")[0];
                 mediaItem.attributes.gotExtendedInfo = true;
                 Database.update("media-item", mediaItem);
+                console.log(mediaItem);
                 console.log("got Extended attrs on", mediaItem.attributes.title);
             }else if(tryCount<2){
 
@@ -75,8 +79,17 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
         }
 
         //to make sure the api only gets called every 300ms
+        var searchMethod = MovieDB.searchMovie;
+        switch(library.type)
+        {
+            case "tv":
+                searchMethod = MovieDB.searchTv;
+                break;
+        }
+
+        searchMethod = searchMethod.bind(MovieDB);
         setTimeout(function() {
-            MovieDB.searchMovie(
+            searchMethod(
                 params,
                 callback
             );

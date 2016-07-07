@@ -12,6 +12,7 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
 {
     extendInfo(args, tryCount)
     {
+        console.log("parsefilename");
         var mediaItem = args[0];
         var library = args[1];
         console.log(mediaItem);
@@ -39,10 +40,10 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
         {
             searchQuery = folder.base.replace(/ /g, '.') + "-" + filePath.base.replace(/ /g, '.');
         }
-
+        console.log("search:"+searchQuery);
         Guessit.parseName(
                 searchQuery,
-                {options:"-t movie"}
+                {options:"-t "+library.type}
             ).then(
                 function (data) {
                     console.log(data);

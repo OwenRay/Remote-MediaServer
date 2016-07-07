@@ -66,6 +66,7 @@ class DatabaseApiHandler extends IApiHandler
         var offset = 0;
         var limit = 0;
         var sort =  null;
+        var distinct = null;
 
         if(query['page[limit]'])
         {
@@ -81,6 +82,11 @@ class DatabaseApiHandler extends IApiHandler
         {
             sort = query["sort"];
             delete query["sort"];
+        }
+        if(query["distinct"])
+        {
+            distinct = query["distinct"];
+            delete query["distinct"];
         }
 
         for(var key in query)
@@ -117,6 +123,22 @@ class DatabaseApiHandler extends IApiHandler
                 return a.attributes[sort]-b.attributes[sort];
             });
         }
+
+        if(distinct)
+        {
+            var got = [];
+            for(var c = 0; c<data.length; c++) {
+                var val = data[c].attributes[distinct];
+                if(got[val])
+                {
+                    data.splice(c, 1);
+                    c--;
+                   //.delete data[key];
+                }
+                got[val] = true;
+            }
+        }
+
 
         var metadata = {};
         if(offset||limit)
