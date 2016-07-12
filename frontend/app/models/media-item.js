@@ -14,14 +14,14 @@ export default DS.Model.extend({
 
     "backdrop-img-style":Ember.computed("backdrop-path", function()
     {
-        return "background-image:url(https://image.tmdb.org/t/p/w1280/"+this.get("backdrop-path")+")";
+        return "background-image:url(/img/"+this.get("id")+"_backdrop.jpg)";
     }),
     "poster-img":Ember.computed("poster-path", function()
     {
-        return "https://image.tmdb.org/t/p/w300/"+this.get("poster-path")+"";
+        return "/img/"+this.get("id")+"_poster.jpg";
     }),
     "poster-img-thumb-style":Ember.computed("poster-path", function()
     {
-        return "background-image:url(https://image.tmdb.org/t/p/w150/"+this.get("poster-path")+")";
+        return "background-image:url(/img/"+this.get("id")+"_postersmall.jpg)";
     })
 });

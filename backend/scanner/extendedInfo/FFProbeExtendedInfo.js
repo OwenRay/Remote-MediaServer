@@ -26,6 +26,9 @@ class FFProbeExtendedInfo extends IExtendedInfo
             {
                 if(!fileData||!fileData.format)
                     return promise.resolve(mediaItem, library);
+                
+                mediaItem.attributes.width = fileData.streams[0].width;
+                mediaItem.attributes.height = fileData.streams[0].height;
                 mediaItem.attributes.fileduration = parseFloat(fileData.format.duration);
                 mediaItem.attributes.filesize = parseInt(fileData.format.size);
                 mediaItem.attributes.bitrate = fileData.format.bit_rate;

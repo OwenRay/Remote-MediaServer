@@ -17,7 +17,7 @@ module.exports = (function () {
         }
 
         var options = {
-            'hostname': '52.17.159.194',
+            'hostname': 'localhost',
             'port': 5000,
             'path': path,
             'method': isPOST ? 'POST' : 'GET'
