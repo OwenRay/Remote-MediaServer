@@ -7,6 +7,7 @@ var FileRequestHandler = require('./requestHandlers/FileRequestHandler');
 var ApiRequestHandler = require('./requestHandlers/ApiRequestHandler');
 var PlayRequestHandler = require('./requestHandlers/PlayRequestHandler');
 var CorsRequestHandler = require('./requestHandlers/CorsRequestHandler');
+var ImageRequestHandler = require("./requestHandlers/ImageRequestHandler");
 var Settings = require('./Settings');
 var enableDestroy = require('server-destroy');
 
@@ -48,7 +49,8 @@ class HttpServer {
         var handlers = {
             api: ApiRequestHandler,
             ply: PlayRequestHandler,
-            web: FileRequestHandler
+            web: FileRequestHandler,
+			img: ImageRequestHandler
         };
         var part = request.url.substr(1, 3);
         if (!handlers[part]) {
