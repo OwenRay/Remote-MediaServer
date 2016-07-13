@@ -38,9 +38,9 @@ class FFProbeImageHandler extends IImageHandler
                     width:item.attributes.width, height:item.attributes.height};
         var size = crop.width+"x"+crop.height;
 
-        if(type!="backdrop")
+        if(type!=IImageHandler.TYPE_BACKDROP)
         {
-            var targetSize = type=="poster"?{w:300,h:450}:{w:150,h:218};
+            var targetSize = type==IImageHandler.TYPE_POSTER?{w:300,h:450}:{w:150,h:218};
 
             size = targetSize.w+"x"+targetSize.h;
             if(targetSize.w/targetSize.h>crop.width/crop.height)
@@ -67,7 +67,6 @@ class FFProbeImageHandler extends IImageHandler
             "-f", "singlejpeg",
             "-"
         ];
-        console.log(args.join(" "));
         var proc = spawn(
             Settings.getValue("ffmpeg_binary"),
             args);
@@ -84,7 +83,7 @@ class FFProbeImageHandler extends IImageHandler
 
         proc.stderr.on('data', function(data)
         {
-            console.log(`${data}`);
+            //console.log(`${data}`);
         });
 
         proc.on("close", function(){

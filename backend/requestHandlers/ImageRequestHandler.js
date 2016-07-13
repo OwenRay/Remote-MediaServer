@@ -24,7 +24,7 @@ class CorsRequestHandler extends RequestHandler{
             return this.response.end();
         }
         var loop = [
-                //ImageCacheHandler,
+                ImageCacheHandler,
                 TmbdImageHandler,
                 FFProbeImageHandler
             ];
@@ -40,7 +40,7 @@ class CorsRequestHandler extends RequestHandler{
                 if(c!=1) {
                     new ImageCacheHandler().put(item, data, type);
                 }
-                console.log("return data");
+                console.log("return img data");
                 this.response.end(data);
             }.bind(this));
         }else{

@@ -13,12 +13,13 @@ class ImageCacheHandler extends IImageHandler
         var promise = new Promise();
         var filename = "cache/thumb_"+item.id+"_"+type;
         try {
-            console.log(fs.statSync(filename));
+            fs.statSync(filename);
         }catch(e)
         {
-            console.log(e);
+            //console.log(e);
             return false;
         }
+        console.log("img from cache");
         fs.readFile(filename, function(err, data){
             promise.resolve(data);
         });

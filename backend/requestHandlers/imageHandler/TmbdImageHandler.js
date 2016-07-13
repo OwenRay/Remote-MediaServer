@@ -10,18 +10,23 @@ class TmdbImageHandler extends IImageHandler
 {
     getImageData(item, type)
     {
-        console.log(item);
         if(!item.attributes.gotExtendedInfo)
         {
-            return false;
+            return false;conso
         }
-        var w = "w150";
-        if(type==IImageHandler.TYPE_BACKDROP) {
+        var w = "w300";
+        if(type==IImageHandler.TYPE_BACKDROP)
+        {
             w = "w1280";
+        }else if(type==IImageHandler.TYPE_POSTER_SMALL)
+        {
+            w = "w150";
+            type = "poster";
+
         }
 
         var img = "http://image.tmdb.org/t/p/"+w+"/"+item.attributes[type+"-path"];
-        console.log(img);
+        console.log("img"+img);
         var promise = new Promise();
         http.get(img, function (response) {
             var bytes = [];
