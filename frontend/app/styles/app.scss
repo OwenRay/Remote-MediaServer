@@ -54,7 +54,7 @@ $secondary-color:#E50000;
 //#5
 $primary-color:#323232;
 $primary-color-light: white;
-$primary-color-dark:#000000;
+$primary-color-dark:#324550;
 $secondary-color:#FF001C;
 
 $card-bg-color: $primary-color;
@@ -172,9 +172,15 @@ html, body{
   }
 }
 
-.grid-item
-{
-  >a{
+.grid-item {
+  width: 200px;
+  height: 300px;
+  margin: 15px;
+  position: relative;
+  overflow: hidden;
+  background-size: 100%;
+
+  > a {
     position:absolute;
     left:0px;
     top:0px;
@@ -183,7 +189,7 @@ html, body{
     display:inline-block;
   }
 
-  .btn-floating{
+  .btn-floating {
     position:absolute;
     right:10px;
     top:-19px;
@@ -192,13 +198,7 @@ html, body{
     transform:scale(0,0) rotateX(90deg);
   }
 
-  width:150px;
-  height:218px;
-  margin:15px;
-  position:relative;
-  overflow:hidden;
-  background-size:100%;
-  .detail{
+  .detail {
     position:absolute;
     bottom:-75px;
     transition:all 0.3s;
@@ -208,26 +208,29 @@ html, body{
     height:60px;
     padding:10px;
     line-height: 1.2;
-    .title{
+
+    .title {
       display:inline-block;
       width:130px;
       white-space: nowrap;
       overflow:hidden !important;
       text-overflow: ellipsis;
     }
-    .year{
+
+    .year {
       font-weight: 200;
     }
   }
-  .poster{
+
+  .poster {
     transition:all 0.3s;
     background-position:center center;
-    position:absolute;
-    top:0px;
-    left:0px;
-    width:inherit;
-    height:inherit;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100%;
+    width: 100%;
   }
+
   &:hover {
     position:relative;
     .poster {
