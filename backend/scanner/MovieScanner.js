@@ -1,21 +1,21 @@
-"use strict"
+"use strict";
 
-var guessit = require("./Guessit");
 var recursive = require('recursive-readdir');
 var Settings = require("../Settings");
-var path = require('path');
 var Database = require("../Database");
-var MovieDB = require('moviedb')('0699a1db883cf76d71187d9b24c8dd8e');
-var FFProbe = require('../FFProbe');
+var TheMovieDBExtendedInfo = require("./extendedInfo/TheMovieDBExtendedInfo");
+var FFProbeExtendedInfo = require("./extendedInfo/FFProbeExtendedInfo");
+var ParseFileNameExtendedInfo = require("./extendedInfo/ParseFileNameExtendedInfo");
+
 
 class MovieScanner
 {
 
     constructor()
     {
-        this.scanning = -1;
         this.library = null;
-        this.setScanTimeout();
+        this.scanning = -1;
+        this.scan();
         Settings.addObserver("libraries", this.scan.bind(this));
     }
 
@@ -31,12 +31,12 @@ class MovieScanner
     {
         if(this.scanning!=-1)
         {
-            // console.log("Scan in progress");
+            console.log("Scan in progress");
             return;
         }
+        console.log("start scanner");
         this.setScanTimeout();
 
-        //console.log("start scanner");
         this.scanNext();
     }
 
@@ -51,6 +51,7 @@ class MovieScanner
 
         this.types = Settings.getValue("videoFileTypes");
         this.library = Settings.getValue("libraries")[this.scanning];
+        console.log("start scan", this.library);
         recursive(this.library.folder, [this.willInclude.bind(this)], this.onListed.bind(this));
     }
 
@@ -75,128 +76,55 @@ class MovieScanner
             // console.log(err);
             return;
         }
-        // console.log("gotAllFiles");
-        var offset = -1;
-        var loadNext = function ()
+        //console.log("gotAllFiles", files);
+        for(var offset = 0; offset<files.length; offset++)
         {
-            offset++;
-            if(!files[offset]) {
-                this.checkForExtendedInfo();
-                return;
+            var file = files[offset].substr(this.library.folder.length);
+            if(!Database.findBy("media-item", "filepath", file).length) {
+                Database.setObject(
+                    "media-item",
+                    {
+                        filepath: file,
+                        libraryId: this.library.uuid,
+                        mediaType: this.library.type
+                    });
             }
-            var relativePath = files[offset].substr(this.library.folder.length);
-            if(Database.findBy("media-item", "filepath", relativePath).length!=0) {
-                return loadNext();
-            }
-
-            var filePath = path.parse(files[offset]);
-            var folder = path.parse(filePath.dir);
-
-            // console.log('here', relativePath);
-            // console.log("find", folder.base + "-" + filePath.base);
-            var errorFunction = function ()
-            {
-                // console.log("Fail");
-                guessit.parseName(folder.base.replace(/ /g, '.') + "-" + filePath.base.replace(/ /g, '.'), {type:"movie"}).then(function (data) {
-                    if(data.title) {
-                        data.title = data.title.replace(folder.base + '-', '');
-                    }
-                    this.applyGuessitData(data, relativePath);
-                    loadNext();
-                }.bind(this), function()
-                {
-                    // console.log("andfail");
-                    loadNext();
-                });
-            }.bind(this);
-
-            guessit.parseName(filePath.base.replace(/ /g, '.'), {type:"movie"}).then(function (data) {
-                if(this.applyGuessitData(data, relativePath)) {
-                    return loadNext();
-                }
-                errorFunction();
-            }.bind(this), errorFunction);
-        }.bind(this);
-        loadNext();
-    }
-
-    applyGuessitData(data, relativePath)
-    {
-        if(!data.title) {
-            //console.log("no title", data);
-            return false;
         }
-
-        data.libraryId = this.library.uuid;
-        data.mediaType = this.library.type;
-        data.filepath = relativePath;
-        Database.setObject("media-item", data);
-        return true;
+        this.checkForExtendedInfo();
     }
 
     checkForExtendedInfo()
     {
         // console.log("checking for extended info...");
-        var items = Database.getAll("media-item");
+        var items = Database.findBy("media-item", "libraryId", this.library.uuid);
+
+        var extendedInfoItems = [new ParseFileNameExtendedInfo(), new TheMovieDBExtendedInfo(), new FFProbeExtendedInfo()];
+
         var loadNext = function()
         {
+            // console.log("extendInfo, next");
             if(items.length === 0) {
+                console.log("done scanning");
                 this.scanNext();
                 return;
             }
 
             var item = items.pop();
-            var delayed = this.checkFileInfo(item);
-                if(!item.attributes.gotExtendedInfo)
+
+            var prevPromise;
+            for(var c = 0; c<extendedInfoItems.length; c++)
             {
-                MovieDB.searchMovie(
-                    {query:item.attributes.title, year:item.attributes.year},
-                    function(err, res){
-                        if(!err) {
-                            res = res.results[0];
-                            if (res) {
-                                for (var key in res) {
-                                    item.attributes[key.replace("_", "-")] = res[key];
-                                }
-                                item.attributes.year = res["release_date"].split("-")[0];
-                                item.attributes.gotExtendedInfo = true;
-                                // console.log("extended");
-                                Database.update("media-item", item);
-                            }
-                            // console.log("got Extended attrs on", item.attributes.title);
-                        }else{
-                            // console.log(err);
-                        }
-                        setTimeout(loadNext, 300);
-                    });
-            }else{
-                if(delayed)
-                    setTimeout(loadNext, 300);
-                else
-                    loadNext();
+                if(!prevPromise)
+                {
+                    prevPromise = extendedInfoItems[c].extendInfo([item, this.library]);
+                }else{
+                    prevPromise = prevPromise.then(extendedInfoItems[c].extendInfo.bind(extendedInfoItems[c]));
+                }
             }
+            prevPromise.then(loadNext);
+
         }.bind(this);
         loadNext();
-    }
-
-    checkFileInfo(obj)
-    {
-        if(obj.attributes.gotfileinfo)
-            return false;
-
-        var file = decodeURI(this.library.folder+obj.attributes.filepath);
-        FFProbe.getInfo(file)
-            .then(function(fileData)
-            {
-                if(!fileData||!fileData.format)
-                    return;
-                obj.attributes.fileduration = parseFloat(fileData.format.duration);
-                obj.attributes.filesize = parseInt(fileData.format.size);
-                obj.attributes.bitrate = fileData.format.bit_rate;
-                obj.attributes.gotfileinfo = true;
-                Database.update("media-item", obj);
-            });
-        return true;
     }
 }
 

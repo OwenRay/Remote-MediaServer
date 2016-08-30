@@ -11,12 +11,17 @@ class Database {
         this.writeTimeout = null;
     }
 
-    setObject(type, obj)
+    checkTable(type)
     {
         if(!this.tables[type])
         {
-            this.tables[type] = [];
+            this.tables[type] = {};
         }
+    }
+
+    setObject(type, obj)
+    {
+        this.checkTable(type);
         if(!this.ids[type]) {
             this.ids[type] = 0;
         }
@@ -36,12 +41,17 @@ class Database {
         return o;
     }
 
+    deleteObject(type, id)
+    {
+        this.checkTable();
+        if(this.tables[type][id]) {
+            delete this.tables[type][id];
+        }
+    }
+
     update(type, obj)
     {
-        if(!this.tables[type])
-        {
-            this.tables[type] = [];
-        }
+        this.checkTable(type);
 
         this.tables[type][obj.id] = obj;
         this.save();
@@ -119,7 +129,8 @@ class Database {
             var match = 0;
             for(var filterKey in filters)
             {
-                if (!this.matches(
+                if (!item.attributes[filterKey]||
+                    !this.matches(
                             item.attributes[filterKey].toLowerCase(),
                             filters[filterKey],
                             filterProps[filterKey]
@@ -162,11 +173,14 @@ class Database {
 
     getAll(type)
     {
-        if(!this.tables[type]) {
-            this.tables[type] = [];
+        console.log("getall");
+        this.checkTable(type);
+        var table = this.tables[type];
+        var items = [];
+        for(var key in table) {
+            items.push(table[key]);
         }
-
-        return this.tables[type].slice();
+        return items;
     }
 
     load()

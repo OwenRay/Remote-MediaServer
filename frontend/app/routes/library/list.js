@@ -31,6 +31,9 @@ export default Ember.Route.extend({
         {
             queryParams.libraries = this.get("controller.libraries");
         }
+
+        queryParams.distinct = "id";
+
         return this.get("store").query('media-item', queryParams)
             .then((data) => {
                 stats.totalPages = data.get('meta').totalPages;

@@ -43,7 +43,7 @@ class DirectoryBrowserHandler extends IApiHandler
         //function to loop over files to see if they are directories
         function stat(err, res)
         {
-            console.log(arguments);
+            //console.log(arguments);
             if(res||err)
             {
                 if(res&&res.isDirectory()) //is the file a directory? move along
@@ -58,7 +58,7 @@ class DirectoryBrowserHandler extends IApiHandler
                     return response.end(JSON.stringify({"result":result}));
                 }
             }
-            console.log("STAT!", directory+result[pos]);
+            //console.log("STAT!", directory+result[pos]);
             fs.stat(directory+result[pos], stat);
         }
         stat();
