@@ -98,7 +98,11 @@ class MovieScanner
         // console.log("checking for extended info...");
         var items = Database.findBy("media-item", "libraryId", this.library.uuid);
 
-        var extendedInfoItems = [new ParseFileNameExtendedInfo(), new TheMovieDBExtendedInfo(), new FFProbeExtendedInfo()];
+        var extendedInfoItems = [
+                                    new FFProbeExtendedInfo(),
+                                    new ParseFileNameExtendedInfo(), 
+                                    new TheMovieDBExtendedInfo()
+                                ];
 
         var loadNext = function()
         {

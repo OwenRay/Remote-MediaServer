@@ -17,14 +17,17 @@ class FFProbeExtendedInfo extends IExtendedInfo
         var promise = new Promise();
 
         if(mediaItem.attributes.gotfileinfo)
-            return promise.resolve(mediaItem);
+            return promise.resolve([mediaItem, library]);
 
         var file = decodeURI(library.folder+mediaItem.attributes.filepath);
         FFProbe.getInfo(file)
             .then(function(fileData)
             {
                 if(!fileData||!fileData.format)
-                    return promise.resolve(mediaItem, library);
+                    return promise.resolve([mediaItem, library]);
+                
+                mediaItem.attributes.width = fileData.streams[0].width;
+                mediaItem.attributes.height = fileData.streams[0].height;
                 mediaItem.attributes.fileduration = parseFloat(fileData.format.duration);
                 mediaItem.attributes.filesize = parseInt(fileData.format.size);
                 mediaItem.attributes.bitrate = fileData.format.bit_rate;
