@@ -14,6 +14,7 @@ var RequestHandler = require("./RequestHandler");
 class PlayRequestHandler extends RequestHandler{
     handleRequest()
     {
+        this.bufferedChuncks = 0;
         var parts = this.request.url.split("/");
         this.offset = parts.pop();
         //this.file = Settings.getValue("moviesFolder")+"/"+decodeURI(parts.join("/"));
@@ -82,16 +83,22 @@ class PlayRequestHandler extends RequestHandler{
 
         var args = [
             //"-re", // <-- should read the file at running speed... but a little to slow...
+            "-probesize", "50000000",
+            "-thread_queue_size", "1024",
             "-ss", this.offset,
             "-i", this.file,
             "-i", this.tmpFile,
+            "-ss", 0,
             "-map_metadata", "1",
+            //"-af", "aresample=60000",
+            //"-keyint_min", "60", "-g", "60",
+            //"-r", "25",
 
             "-f", "mp4",
             "-vcodec", vCodec,
             "-movflags", "empty_moov",
             "-acodec", aCodec,
-            "-metadata:c:0", 'end=120000',
+            //"-metadata:c:0", 'end=120000',
             "-strict", "-2",
             "-"
         ];
@@ -116,8 +123,15 @@ class PlayRequestHandler extends RequestHandler{
 
 
     onData(data) {
-        this.proc.stdout.pause();
+        this.bufferedChuncks++;
+        if(this.bufferedChuncks>20)
+        {
+            console.log("pause!!");
+            this.proc.stdout.pause();
+        }
         this.response.write(data, function () {
+            this.bufferedChuncks--;
+            console.log("resume!!"+this.bufferedChuncks);
             this.proc.stdout.resume();
         }.bind(this));
     }
