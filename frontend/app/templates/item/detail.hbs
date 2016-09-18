@@ -2,22 +2,45 @@
 <div>
     <main>
         <div class="container detail">
+            {{#if seasons.content.length}}
+                {{#md-tabs selected=selectedTab id="tabs"}}
+                    {{md-tab value=-1 title="Episode info"}}
+                    {{#each seasons.content as |season|}}
+                        {{md-tab value=season title=(concat "Season " season)}}
+                    {{/each}}
+                {{/md-tabs}}
+            {{/if}}
             <h1>{{model.title}}</h1>
-            <div class="poster" style="background: url({{{model.poster-img}}}) top center no-repeat"  data-poster-image={{model.id}}>
-            </div>
-            <div class="description">
-                <div class="header">
-                    {{ model.vote-average }}
-                    <i class="material-icons">fiber_manual_record</i>
-                    {{ model.year }}
-                </div>
-                <p>{{model.overview}}</p>
-            </div>
+            <div class="poster" style="background: url({{{model.poster-img}}}) top center no-repeat"  data-poster-image={{model.id}}></div>
+
             {{md-btn id="play"
                 icon='mdi-av-play-arrow'
                 action='play'
                 buttonType='floating'
                 class='btn-large'}}
+            {{#if (eq selectedTab  -1)}}
+                <div class="description">
+                    {{#if model.episode}}
+                        <h3>Episode {{model.episode}} - {{model.episode-title}}</h3>
+                    {{/if}}
+                    <div class="header">
+                        {{ model.vote-average }}
+                        <i class="material-icons">fiber_manual_record</i>
+                        {{ model.year }}
+                    </div>
+                    <p>{{model.overview}}</p>
+                </div>
+            {{else}}
+                <div class="collection directoryList">
+                    {{#each allEpisodes as |episode|}}
+                        {{#if (eq selectedTab episode.season)}}
+                            {{#link-to "item.detail" episode class='collection-item'}}
+                                {{episode.episode}} - {{episode.episode-title}}
+                            {{/link-to}}
+                        {{/if}}
+                    {{/each}}
+                </div>
+            {{/if}}
         </div>
     </main>
 </div>

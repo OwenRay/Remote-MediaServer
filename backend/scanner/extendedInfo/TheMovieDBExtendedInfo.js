@@ -11,8 +11,6 @@ var Database = require("../../Database");
 
 var discardRegex = new RegExp('\\W|-|_|([0-9]+p)|(LKRG)', "g");
 
-var lastRequest = 0;
-
 class TheMovieDBExtendedInfo extends IExtendedInfo
 {
     extendInfo(args, tryCount)
@@ -33,12 +31,30 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
         }
 
         var callback = function(err, res){
-            if(!err&&res.results.length>0) {
-                res = res.results[0];
+            if(!err) {
+                var res = library.type != "tv" ?
+                    (res.result&&res.results.length > 0 ? res.results[0] : null)
+                    : res;
+            }
+            if(res)
+            {
+                if(library.type=="tv")
+                {
+                    res["external-episode-id"] = res.id;
+                    res["episode-title"] = res.name;
+                    delete res.name;
+                }
+                else
+                {
+                    res["external-id"] = res.id;
+                }
+                delete res.id;
                 for (var key in res) {
                     mediaItem.attributes[key.replace(/_/g, "-")] = res[key];
                 }
                 var date = res["release_date"]?res["release_date"]:res["first_air_date"];
+                date = date?data:res["air_date"];
+
                 mediaItem.attributes.year = date.split("-")[0];
                 mediaItem.attributes.gotExtendedInfo = true;
                 Database.update("media-item", mediaItem);
@@ -76,7 +92,12 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
         switch(library.type)
         {
             case "tv":
-                searchMethod = MovieDB.searchTv;
+                searchMethod = MovieDB.tvEpisodeInfo;
+                params = {};
+                params.id = mediaItem.attributes["external-id"];
+                params.season_number = mediaItem.attributes.season;
+                params.episode_number = mediaItem.attributes.episode;
+                params.episode_number = mediaItem.attributes.episode;
                 break;
         }
 
@@ -87,10 +108,10 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
                 params,
                 callback
             );
-            lastRequest = new Date().getTime();
+            TheMovieDBExtendedInfo.lastRequest = new Date().getTime();
         }
         //to make sure the api only gets called every 300ms
-        var waitFor = 300-(new Date().getTime()-lastRequest);
+        var waitFor = 300-(new Date().getTime()-TheMovieDBExtendedInfo.lastRequest);
         if(waitFor<20)
         {
             //console.log("do not wait:", waitFor);
@@ -103,5 +124,8 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
         return promise;
     }
 }
+
+TheMovieDBExtendedInfo.lastRequest = 0;
+
 
 module.exports = TheMovieDBExtendedInfo;

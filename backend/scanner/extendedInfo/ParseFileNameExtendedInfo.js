@@ -30,6 +30,30 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
 
         var filePath = path.parse(relativePath);
         var folder = path.parse(filePath.dir);
+        var extraGuessitOptions = [];
+        var fileParts = filePath.dir.split(path.sep);
+
+        var season = "";
+        var serieName = "";
+        if(library.type=="tv") {
+            var offset;
+            for (offset = 0; offset < fileParts.length; offset++) {
+                // the first directory we find containing season info is probably the child directory
+                // Of the directory containing the season name.
+                var seasonCheck = fileParts[offset].replace(/^.*?(se|season)[^a-zA-Z0-9]?([0-9]+).*?$/i, "$2");
+                if (seasonCheck != fileParts[offset]) {
+                    season = parseInt(seasonCheck);
+                    break;
+                }
+            }
+            if (season && offset > 0) {
+                var serieName = fileParts[offset - 1];
+                extraGuessitOptions.push("-T "+serieName);
+            }
+        }
+
+
+        console.log("SERIENAAAM:", serieName, season);
 
         var searchQuery = filePath.base.replace(/ /g, '.');
 
@@ -37,16 +61,29 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
         {
             searchQuery = folder.base.replace(/ /g, '.') + "-" + filePath.base.replace(/ /g, '.');
         }
+
         Guessit.parseName(
                 searchQuery,
-                {options:"-t "+library.type}
+                {options:"-t "+library.type+" "+extraGuessitOptions.join(" ")}
             ).then(
                 function (data) {
                     if (tryCount == 1 && data.title) {
                         data.title = data.title.replace(folder.base + '-', '');
                     }
                     if (data.title) {
+                        if(season)
+                        {
+                            data.season = season;
+                        }
+                        if(serieName)
+                        {
+                            mediaItem.attributes["episode-title"] = data["episode-title"]?data["episode-title"]:data.title;
+                            data.title = serieName;
+                        }
+                        mediaItem.attributes.season = data.season;
+                        mediaItem.attributes.episode = data.episode;
                         mediaItem.attributes.title = data.title;
+                        console.log(mediaItem);
                         Database.update("media-item", mediaItem);
                         return promise.resolve([mediaItem, library]);
                     }

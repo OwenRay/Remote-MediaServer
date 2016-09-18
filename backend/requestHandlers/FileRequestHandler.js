@@ -16,7 +16,7 @@ class FileRequestHandler extends RequestHandler{
         var url = this.request.url;
         var dir = __dirname+"/../../frontend/dist/";
         if(! url || url[url.length-1] === "/" || ! fs.existsSync(dir + url)) {
-            if(path.parse(dir+url).ext)
+            if(!url.indexOf("?")&&path.parse(dir+url).ext)
             {
                 return this.returnFourOFour();
             }

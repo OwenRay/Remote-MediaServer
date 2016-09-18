@@ -107,21 +107,32 @@ class DatabaseApiHandler extends IApiHandler
 
         if(sort)
         {
-            data = data.sort(function(a, b){
-                if(a.attributes[sort]===undefined)
-                {
-                    return 1;
+            var sort_array = sort.split(",");
+            data = data.sort(function (a, b) {
+                //for(var key = 0; key<sort_array.length; sort++) {
+                //    sort = sort_array[key];
+                for(var key in sort_array) {
+                    sort = sort_array[key];
+                    if (a.attributes[sort] === undefined) {
+                        return 1;
+                    }
+                    if (b.attributes[sort] === undefined) {
+                        return -1;
+                    }
+                    if (a.attributes[sort].localeCompare) {
+                        if(a.attributes[sort].localeCompare(b.attributes[sort])!=0)
+                            return a.attributes[sort].localeCompare(b.attributes[sort]);
+                    }
+                    if(a.attributes[sort] - b.attributes[sort]!=0)
+                    {
+                        return a.attributes[sort] - b.attributes[sort]>0?1:-1;
+                    }
                 }
-                if(b.attributes[sort]===undefined)
-                {
-                    return -1;
-                }
-                if(a.attributes[sort].localeCompare)
-                {
-                    return a.attributes[sort].localeCompare(b.attributes[sort]);
-                }
-                return a.attributes[sort]-b.attributes[sort];
+                return 0;
+                //}
+                //return 0;
             });
+            console.log("sorted");
         }
 
         if(distinct)

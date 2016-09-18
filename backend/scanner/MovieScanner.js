@@ -6,6 +6,7 @@ var Database = require("../Database");
 var TheMovieDBExtendedInfo = require("./extendedInfo/TheMovieDBExtendedInfo");
 var FFProbeExtendedInfo = require("./extendedInfo/FFProbeExtendedInfo");
 var ParseFileNameExtendedInfo = require("./extendedInfo/ParseFileNameExtendedInfo");
+var TheMovieDBSeriesAndSeasons = require("./extendedInfo/TheMovieDBSeriesAndSeasons");
 
 
 class MovieScanner
@@ -100,7 +101,8 @@ class MovieScanner
 
         var extendedInfoItems = [
                                     new FFProbeExtendedInfo(),
-                                    new ParseFileNameExtendedInfo(), 
+                                    new ParseFileNameExtendedInfo(),
+                                    new TheMovieDBSeriesAndSeasons(),
                                     new TheMovieDBExtendedInfo()
                                 ];
 

@@ -11,6 +11,10 @@ export default DS.Model.extend({
     "vote-average":DS.attr("number"),
     "fileduration":DS.attr("number"),
     "play-position":DS.belongsTo("play-position"),
+    "external-id":DS.attr("number"),
+    "season":DS.attr("number"),
+    "episode":DS.attr("number"),
+    "episode-title":DS.attr("string"),
 
     "backdrop-img-style":Ember.computed("backdrop-path", function()
     {

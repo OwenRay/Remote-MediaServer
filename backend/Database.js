@@ -121,6 +121,7 @@ class Database {
         {
             numFilters++;
         }
+        console.log(filters);
 
         var items = [];
         for(var itemKey in table)
@@ -131,8 +132,8 @@ class Database {
             {
                 if (!item.attributes[filterKey]||
                     !this.matches(
-                            item.attributes[filterKey].toLowerCase(),
-                            filters[filterKey],
+                            item.attributes[filterKey]+"".toLowerCase(),
+                            filters[filterKey]+"",
                             filterProps[filterKey]
                         )
                     )
@@ -150,7 +151,6 @@ class Database {
 
     matches(value, filter, filterProp)
     {
-        //console.log(filterProp);
         switch(filterProp)
         {
             case "endsWith":
