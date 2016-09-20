@@ -33,7 +33,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
         var callback = function(err, res){
             if(!err) {
                 var res = library.type != "tv" ?
-                    (res.result&&res.results.length > 0 ? res.results[0] : null)
+                    (res.results&&res.results.length > 0 ? res.results[0] : null)
                     : res;
             }
             if(res)
@@ -53,7 +53,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
                     mediaItem.attributes[key.replace(/_/g, "-")] = res[key];
                 }
                 var date = res["release_date"]?res["release_date"]:res["first_air_date"];
-                date = date?data:res["air_date"];
+                date = date?date:res["air_date"];
 
                 mediaItem.attributes.year = date.split("-")[0];
                 mediaItem.attributes.gotExtendedInfo = true;

@@ -40,7 +40,7 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
             for (offset = 0; offset < fileParts.length; offset++) {
                 // the first directory we find containing season info is probably the child directory
                 // Of the directory containing the season name.
-                var seasonCheck = fileParts[offset].replace(/^.*?(se|season)[^a-zA-Z0-9]?([0-9]+).*?$/i, "$2");
+                var seasonCheck = fileParts[offset].replace(/^.*?(s|se|season)[^a-zA-Z0-9]?([0-9]+).*?$/i, "$2");
                 if (seasonCheck != fileParts[offset]) {
                     season = parseInt(seasonCheck);
                     break;
@@ -51,9 +51,6 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
                 extraGuessitOptions.push("-T "+serieName);
             }
         }
-
-
-        console.log("SERIENAAAM:", serieName, season);
 
         var searchQuery = filePath.base.replace(/ /g, '.');
 
@@ -83,7 +80,7 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
                         mediaItem.attributes.season = data.season;
                         mediaItem.attributes.episode = data.episode;
                         mediaItem.attributes.title = data.title;
-                        console.log(mediaItem);
+                        mediaItem.attributes.type = library.type;
                         Database.update("media-item", mediaItem);
                         return promise.resolve([mediaItem, library]);
                     }

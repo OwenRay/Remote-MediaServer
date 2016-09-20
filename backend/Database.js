@@ -132,8 +132,8 @@ class Database {
             {
                 if (!item.attributes[filterKey]||
                     !this.matches(
-                            item.attributes[filterKey]+"".toLowerCase(),
-                            filters[filterKey]+"",
+                            (item.attributes[filterKey]+"").toLowerCase(),
+                            (filters[filterKey]+"").toLowerCase(),
                             filterProps[filterKey]
                         )
                     )
@@ -158,6 +158,7 @@ class Database {
             case "startsWith":
                 return value.indexOf(filter)===0;
             case "search":
+                console.log(arguments, value.indexOf(filter)>=0);
                 return value.indexOf(filter)>=0;
             case "normal":
                 return value===filter;

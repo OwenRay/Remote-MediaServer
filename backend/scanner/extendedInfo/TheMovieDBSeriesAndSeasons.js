@@ -33,7 +33,7 @@ class TheMovieDBSeriesAndSeasons extends IExtendedInfo
 
         if(library.type!="tv")
         {
-            promise.resolve(arguments);
+            promise.resolve([mediaItem, library]);
         }else{
             switch(round)
             {
@@ -56,6 +56,7 @@ class TheMovieDBSeriesAndSeasons extends IExtendedInfo
                         }
                         promise.resolve([mediaItem, library]);
                     }.bind(this);
+                    console.log(mediaItem.attributes.title);
                     var cache = NodeCache.get("1:"+mediaItem.attributes.title);
                     if(cache) {
                         console.log("fromcache!");

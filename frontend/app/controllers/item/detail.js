@@ -5,6 +5,30 @@ export default Ember.Controller.extend({
     queryParams: ['selectedTab'],
     store: Ember.inject.service("store"),
     selectedTab:-1,
+    showDetails:false,
+    detailItems_arr: {
+                    year: "Year",
+                    "filepath": "File",
+                    season: "Season",
+                    episode: "Episode",
+                    "episode-title": "Episode title",
+                    "release-date": "Release date",
+                    "fileduration":"Duration",
+                    "filesize":"File size",
+                    "bitrate":"Bitrate",
+                    "width":"Width",
+                    "height":"Height"
+                },
+
+    detailItems:Ember.computed("model", function(){
+        var arr = this.get("detailItems_arr");
+        var ret = [];
+        for(var key in arr)
+        {
+            ret.push({title:arr[key], value:this.get("model."+key)});
+        }
+        return ret;
+    }),
 
     seasons:Ember.computed("allEpisodes", function(){
         console.log("daar");
@@ -12,7 +36,6 @@ export default Ember.Controller.extend({
             promise: this.get("allEpisodes").then(function(episodes){
                 var seasons = Ember.A();
                 episodes.forEach(function(episode){
-                    console.log(episode.get("season"));
                     seasons.push(episode.get("season")|0);
                 });
                 return Ember.A(seasons).uniq();
@@ -30,6 +53,11 @@ export default Ember.Controller.extend({
         play()
         {
             this.transitionToRoute("item.view", this.get("model"));
+        },
+
+        toggleDetails()
+        {
+            this.set("showDetails", !this.get("showDetails"));
         }
 
     }

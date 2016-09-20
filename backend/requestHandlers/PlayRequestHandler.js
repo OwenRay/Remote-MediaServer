@@ -81,6 +81,8 @@ class PlayRequestHandler extends RequestHandler{
 
         fs.writeFileSync(this.tmpFile, metadata);
 
+        // om keyframe te vinden, gaat wellicht veel fixen:
+        // ffprobe.exe -read_intervals 142%+#1  -show_frames -select_streams v:0 -print_format json  "//home/nzbget/downloads/complete/MoviesComplete\Hitman Agent 47 2015 BluRay 720p DTS-ES x264-ETRG\Hitman Agent 47 2015 BluRay 720p DTS x264-ETRG.mkv" | grep pts_time
         var args = [
             //"-re", // <-- should read the file at running speed... but a little to slow...
             "-probesize", "50000000",

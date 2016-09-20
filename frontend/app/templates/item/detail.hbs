@@ -2,13 +2,15 @@
 <div>
     <main>
         <div class="container detail">
-            {{#if seasons.content.length}}
-                {{#md-tabs selected=selectedTab id="tabs"}}
-                    {{md-tab value=-1 title="Episode info"}}
-                    {{#each seasons.content as |season|}}
-                        {{md-tab value=season title=(concat "Season " season)}}
-                    {{/each}}
-                {{/md-tabs}}
+            {{#if (eq model.type "tv")}}
+                {{#if seasons.content.length}}
+                    {{#md-tabs selected=selectedTab id="tabs"}}
+                        {{md-tab value=-1 title="Episode info"}}
+                        {{#each seasons.content as |season|}}
+                            {{md-tab value=season title=(concat "Season " season)}}
+                        {{/each}}
+                    {{/md-tabs}}
+                {{/if}}
             {{/if}}
             <h1>{{model.title}}</h1>
             <div class="poster" style="background: url({{{model.poster-img}}}) top center no-repeat"  data-poster-image={{model.id}}></div>
@@ -20,7 +22,7 @@
                 class='btn-large'}}
             {{#if (eq selectedTab  -1)}}
                 <div class="description">
-                    {{#if model.episode}}
+                    {{#if (eq model.type "tv")}}
                         <h3>Episode {{model.episode}} - {{model.episode-title}}</h3>
                     {{/if}}
                     <div class="header">
@@ -29,9 +31,13 @@
                         {{ model.year }}
                     </div>
                     <p>{{model.overview}}</p>
+                    {{md-btn id="details"
+                        text="Media details"
+                        action='toggleDetails'
+                        class='btn-small'}}
                 </div>
             {{else}}
-                <div class="collection directoryList">
+                <div class="collection">
                     {{#each allEpisodes as |episode|}}
                         {{#if (eq selectedTab episode.season)}}
                             {{#link-to "item.detail" episode class='collection-item'}}
@@ -44,3 +50,25 @@
         </div>
     </main>
 </div>
+
+
+{{#if showDetails}}
+    {{#md-modal close='toggleDetails'}}
+        <div class="modal-content">
+            <h4>Media details</h4>
+            <div class="collection">
+                {{#each detailItems as |item|}}
+                    <div class=collection-item">
+                        <b>{{item.title}}:</b>
+                        {{item.value}}
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a class="modal-action modal-close waves-effect waves-red btn-flat cancel-button" {{action 'toggleDetails'}}>
+                Close
+            </a>
+        </div>
+    {{/md-modal}}
+{{/if}}
