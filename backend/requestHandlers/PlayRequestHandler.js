@@ -38,8 +38,22 @@ class PlayRequestHandler extends RequestHandler{
         FFProbe.getInfo(this.file).then(this.gotInfo.bind(this), this.onError.bind(this));
     }
 
-    gotInfo(info)
+    gotInfo(info, correctedOffset)
     {
+        if(!correctedOffset&&this.offset!=0)
+        {
+            FFProbe.getNearestKeyFrame(this.file, this.offset)
+                .then(
+                    function(offset){
+                        //this.offset = offset;
+                        this.offset = offset;
+                        console.log("play from 2:", offset);
+                        this.gotInfo(info, true);
+                    }.bind(this),
+                    this.onError.bind(this)
+                );
+            return;
+        }
         if(!info||!info.format)
         {
             console.log("VIDEO ERROR!");
@@ -87,10 +101,10 @@ class PlayRequestHandler extends RequestHandler{
             //"-re", // <-- should read the file at running speed... but a little to slow...
             "-probesize", "50000000",
             "-thread_queue_size", "1024",
-            "-ss", this.offset,
+            //"-ss", this.offset,
             "-i", this.file,
             "-i", this.tmpFile,
-            "-ss", 0,
+            //"-ss", 0,
             "-map_metadata", "1",
             //"-af", "aresample=60000",
             //"-keyint_min", "60", "-g", "60",
@@ -104,6 +118,10 @@ class PlayRequestHandler extends RequestHandler{
             "-strict", "-2",
             "-"
         ];
+        if(this.offset!=0) {
+            args.splice(8, 0, "-ss", 0);
+            args.splice(4, 0, "-ss", this.offset);
+        }
         console.log(Settings.getValue("ffmpeg_binary")+" "+args.join(" "));
         var proc = spawn(
             Settings.getValue("ffmpeg_binary"),
@@ -114,7 +132,6 @@ class PlayRequestHandler extends RequestHandler{
         proc.stderr.on('data', this.onError.bind(this));
         proc.on('close', this.onClose.bind(this))
         proc.on('drain', function(){
-            console.log("resume");
             proc.stdout.resume();
         });
         this.request.connection.on('close',function(){
@@ -128,12 +145,10 @@ class PlayRequestHandler extends RequestHandler{
         this.bufferedChuncks++;
         if(this.bufferedChuncks>20)
         {
-            console.log("pause!!");
             this.proc.stdout.pause();
         }
         this.response.write(data, function () {
             this.bufferedChuncks--;
-            console.log("resume!!"+this.bufferedChuncks);
             this.proc.stdout.resume();
         }.bind(this));
     }

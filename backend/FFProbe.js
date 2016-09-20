@@ -41,6 +41,46 @@ var FFProbe =
             }
         });
         return promise;
+    },
+
+    getNearestKeyFrame(fileName, position)
+    {
+        var promise = new Promise();
+
+        console.log(Settings.getValue("ffprobe_binary"), fileName);
+        var proc = spawn(
+            Settings.getValue("ffprobe_binary"),
+            [
+                "-v", "quiet",
+                "-read_intervals", position+"%+#1",
+                "-show_frames",
+                "-select_streams", "v:0",
+                "-print_format", "json",
+                fileName,
+            ]
+        );
+        var returnData = "";
+        proc.stdout.on('data', function(data)
+        {
+            returnData+=`${data}`;
+        });
+        proc.stderr.on('data', function(data)
+        {
+            promise.reject(`${data}`);
+            console.log(`${data}`);
+        });
+        proc.on("close", function()
+        {
+            try{
+                data = JSON.parse(returnData);
+                data = data.frames[0];
+                promise.resolve(parseFloat(data.pkt_pts_time)-parseFloat(data.pkt_duration_time)*2);
+                //promise.resolve(position);
+            }catch(e){
+                promise.reject(e);
+            }
+        });
+        return promise;
     }
 };
 
