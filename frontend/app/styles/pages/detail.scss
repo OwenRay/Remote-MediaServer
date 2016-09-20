@@ -46,6 +46,13 @@
             vertical-align: 1px;
         }
     }
+    #tabs{
+        position: absolute;
+        top: -48px;
+        right: 162px;
+        left: 400px;
+        cursor:pointer;
+    }
 }
 .container.detail
 {
