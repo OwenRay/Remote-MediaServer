@@ -102,7 +102,7 @@ class Database {
             {
                 type = "search";
                 filters[key] = filters[key].substring(1, filters[key].length-1);
-                console.log(filters[key]);
+                //console.log(filters[key]);
             }else if(a)
             {
                 type = "endsWith";
@@ -121,7 +121,7 @@ class Database {
         {
             numFilters++;
         }
-        console.log(filters);
+        //console.log(filters);
 
         var items = [];
         for(var itemKey in table)
@@ -158,7 +158,7 @@ class Database {
             case "startsWith":
                 return value.indexOf(filter)===0;
             case "search":
-                console.log(arguments, value.indexOf(filter)>=0);
+                //console.log(arguments, value.indexOf(filter)>=0);
                 return value.indexOf(filter)>=0;
             case "normal":
                 return value===filter;
