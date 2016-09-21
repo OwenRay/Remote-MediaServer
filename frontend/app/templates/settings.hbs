@@ -38,7 +38,12 @@
                 {{#md-card-content}}
                     <md-content>
                         {{#md-collection content=settings.model.libraries as |library|}}
-                            <a {{action "selectLibrary" library}} class="collection-item">{{library.name}}</a>
+                            <a {{action "selectLibrary" library}} class="collection-item">
+                                {{library.name}}
+                                <a {{action 'deleteLibrary' library bubbles=false}} class='secondary-content'>
+                                    <i class="mdi-action-delete"></i>
+                                </a>
+                            </a>
                         {{/md-collection}}
                     </md-content>
 
@@ -74,6 +79,27 @@
                     </a>
                     <a class="modal-action modal-close waves-effect waves-red btn-flat cancel-button" {{action 'deselectLibrary'}}>
                         Cancel
+                    </a>
+                </div>
+                <md-content>
+
+                </md-content>
+            {{/md-modal}}
+        {{/if}}
+
+
+        {{#if deletingLibrary}}
+            {{#md-modal close='deleteLibrary'}}
+                <div class="modal-content">
+                    <h4>Deleting "{{deletingLibrary.name}}"</h4>
+                    Are you sure your want to delete "{{deletingLibrary.name}}"?
+                </div>
+                <div class="modal-footer">
+                    <a class="modal-action modal-close waves-effect waves-green btn-flat agree-button" {{action 'confirmDelete'}}>
+                        Yes
+                    </a>
+                    <a class="modal-action modal-close waves-effect waves-red btn-flat cancel-button" {{action 'deleteLibrary'}}>
+                        No
                     </a>
                 </div>
                 <md-content>

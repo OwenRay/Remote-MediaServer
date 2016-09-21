@@ -37,8 +37,27 @@ class MovieScanner
         }
         console.log("start scanner");
         this.setScanTimeout();
-
+        this.checkForMediaItemsToDelete();
         this.scanNext();
+    }
+
+    checkForMediaItemsToDelete()
+    {
+        var libraries = Settings.getValue("libraries");
+        var libIds = [];
+        for(var c = 0; c<libraries.length; c++)
+        {
+            libIds.push(libraries[c].uuid);
+        }
+
+        var items = Database.getAll("media-item");
+        for(c = 0; c<items.length; c++)
+        {
+            if(libIds.indexOf(items[c].attributes.libraryId)==-1)
+            {
+                Database.deleteObject("media-item", items[c].id);
+            }
+        }
     }
 
     scanNext()
