@@ -105,6 +105,22 @@ class DatabaseApiHandler extends IApiHandler
             data = Database.getAll(singularType);
         }
 
+
+        if(distinct)
+        {
+            var got = [];
+            for(var c = 0; c<data.length; c++) {
+                var val = data[c].attributes[distinct];
+                if(got[val])
+                {
+                    data.splice(c, 1);
+                    c--;
+                    //.delete data[key];
+                }
+                got[val] = true;
+            }
+        }
+
         if(sort)
         {
             var sort_array = sort.split(",");
@@ -133,21 +149,6 @@ class DatabaseApiHandler extends IApiHandler
                 //return 0;
             });
             console.log("sorted");
-        }
-
-        if(distinct)
-        {
-            var got = [];
-            for(var c = 0; c<data.length; c++) {
-                var val = data[c].attributes[distinct];
-                if(got[val])
-                {
-                    data.splice(c, 1);
-                    c--;
-                   //.delete data[key];
-                }
-                got[val] = true;
-            }
         }
 
 

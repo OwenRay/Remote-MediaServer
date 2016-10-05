@@ -26,7 +26,7 @@ $primary-color: #1c1d36;
 $primary-color-light: #534c67;
 $primary-color-dark: #0a0c1a;
 $secondary-color: #b8a300;
-
+/*
 //#9
 $primary-color: #730F12;
 $primary-color-light: #AD4447;
@@ -55,7 +55,7 @@ $secondary-color:#E50000;
 $primary-color:#323232;
 $primary-color-light: white;
 $primary-color-dark:#000000;
-$secondary-color:#FF001C;
+$secondary-color:#FF001C;/**/
 
 $card-bg-color: $primary-color;
 
@@ -397,4 +397,22 @@ nav{
 input:not([type]), input[type=text], input[type=password], input[type=email], input[type=url], input[type=time], input[type=date], input[type=datetime], input[type=datetime-local], input[type=tel], input[type=number], input[type=search], textarea.materialize-textarea
 {
   transition: none;
+}
+
+.btn[disabled=false],
+.btn-large[disabled=false],
+.btn-floating[disabled=false] {
+  text-decoration: none;
+  color: $button-raised-color !important;
+  background-color: $button-raised-background  !important;;
+  text-align: center;
+  letter-spacing: .5px;
+  @extend .z-depth-1;
+  transition: .2s ease-out;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $button-raised-background-hover !important;
+    @extend .z-depth-1-half;
+  }
 }

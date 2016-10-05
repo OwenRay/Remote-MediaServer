@@ -12,41 +12,43 @@
                     {{/md-tabs}}
                 {{/if}}
             {{/if}}
-            <h1>{{model.title}}</h1>
-            <div class="poster" style="background: url({{{model.poster-img}}}) top center no-repeat"  data-poster-image={{model.id}}></div>
+            <div class="poster" style="background-image: url({{{model.poster-img}}})"  data-poster-image={{model.id}}></div>
 
             {{md-btn id="play"
                 icon='mdi-av-play-arrow'
                 action='play'
                 buttonType='floating'
                 class='btn-large'}}
-            {{#if (eq selectedTab  -1)}}
-                <div class="description">
-                    {{#if (eq model.type "tv")}}
-                        <h3>Episode {{model.episode}} - {{model.episode-title}}</h3>
-                    {{/if}}
-                    <div class="header">
-                        {{ model.vote-average }}
-                        <i class="material-icons">fiber_manual_record</i>
-                        {{ model.year }}
-                    </div>
-                    <p>{{model.overview}}</p>
-                    {{md-btn id="details"
-                        text="Media details"
-                        action='toggleDetails'
-                        class='btn-small'}}
-                </div>
-            {{else}}
-                <div class="collection">
-                    {{#each allEpisodes as |episode|}}
-                        {{#if (eq selectedTab episode.season)}}
-                            {{#link-to "item.detail" episode class='collection-item'}}
-                                {{episode.episode}} - {{episode.episode-title}}
-                            {{/link-to}}
+            <div class="scrollable">
+                <h1>{{model.title}}</h1>
+                {{#if (eq selectedTab  -1)}}
+                    <div class="description">
+                        {{#if (eq model.type "tv")}}
+                            <h3>Episode {{model.episode}} - {{model.episode-title}}</h3>
                         {{/if}}
-                    {{/each}}
-                </div>
-            {{/if}}
+                        <div class="header">
+                            {{ model.vote-average }}
+                            <i class="material-icons">fiber_manual_record</i>
+                            {{ model.year }}
+                        </div>
+                        <p>{{model.overview}}</p>
+                        {{md-btn id="details"
+                            text="Media details"
+                            action='toggleDetails'
+                            class='btn-small'}}
+                    </div>
+                {{else}}
+                    <div class="collection">
+                        {{#each allEpisodes as |episode|}}
+                            {{#if (eq selectedTab episode.season)}}
+                                {{#link-to "item.detail" episode class='collection-item'}}
+                                    {{episode.episode}} - {{episode.episode-title}}
+                                {{/link-to}}
+                            {{/if}}
+                        {{/each}}
+                    </div>
+                {{/if}}
+            </div>
         </div>
     </main>
 </div>

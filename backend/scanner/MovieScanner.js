@@ -3,11 +3,13 @@
 var recursive = require('recursive-readdir');
 var Settings = require("../Settings");
 var Database = require("../Database");
+var MediaItemHelper = require("../helpers/MediaItemHelper");
+var fs = require("fs");
+
 var TheMovieDBExtendedInfo = require("./extendedInfo/TheMovieDBExtendedInfo");
 var FFProbeExtendedInfo = require("./extendedInfo/FFProbeExtendedInfo");
 var ParseFileNameExtendedInfo = require("./extendedInfo/ParseFileNameExtendedInfo");
 var TheMovieDBSeriesAndSeasons = require("./extendedInfo/TheMovieDBSeriesAndSeasons");
-
 
 class MovieScanner
 {
@@ -37,11 +39,27 @@ class MovieScanner
         }
         console.log("start scanner");
         this.setScanTimeout();
-        this.checkForMediaItemsToDelete();
+        this.checkForMediaItemsWithMissingFiles();
+        this.checkForMediaItemsWithMissingLibrary();
         this.scanNext();
     }
 
-    checkForMediaItemsToDelete()
+    checkForMediaItemsWithMissingFiles()
+    {
+        var items = Database.getAll("media-item");
+        for(var c = 0; c<items.length; c++)
+        {
+            var item = items[c];
+            fs.exists(MediaItemHelper.getFullFilePath(item), function(exists) {
+                if (!exists) {
+                    console.log("item missing, removing", item.id);
+                    Database.deleteObject("media-item", item.id);
+                }
+            });
+        }
+    }
+
+    checkForMediaItemsWithMissingLibrary()
     {
         var libraries = Settings.getValue("libraries");
         var libIds = [];

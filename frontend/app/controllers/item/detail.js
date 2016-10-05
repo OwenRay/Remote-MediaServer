@@ -45,7 +45,6 @@ export default Ember.Controller.extend({
     }),
 
     allEpisodes:Ember.computed("model.external-id", function(){
-        console.log("hier");
         return this.get("store").query("media-item", {"external-id":this.get("model.external-id"), "sort":"season,episode"});
     }),
 

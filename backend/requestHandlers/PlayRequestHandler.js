@@ -10,6 +10,7 @@ var FFProbe = require("../FFProbe");
 var Database = require("../Database");
 
 var RequestHandler = require("./RequestHandler");
+var MediaItemHelper = require("../helpers/MediaItemHelper");
 
 class PlayRequestHandler extends RequestHandler{
     handleRequest()
@@ -19,21 +20,11 @@ class PlayRequestHandler extends RequestHandler{
         this.offset = parts.pop();
         //this.file = Settings.getValue("moviesFolder")+"/"+decodeURI(parts.join("/"));
         var mediaItem = Database.getById("media-item", parts.pop());
-        var libraries = Settings.getValue("libraries");
-        var library;
         if(!mediaItem)
         {
             return this.response.end();
         }
-        for(var key in libraries)
-        {
-            if(libraries[key].uuid==mediaItem.attributes.libraryId)
-            {
-                library = libraries[key];
-            }
-        }
-        console.log(library);
-        this.file = library.folder+"/"+mediaItem.attributes.filepath;
+        this.file = MediaItemHelper.getFullFilePath(mediaItem);
         console.log(this.file);
         FFProbe.getInfo(this.file).then(this.gotInfo.bind(this), this.onError.bind(this));
     }

@@ -7,15 +7,14 @@ var Promise = require("node-promise").Promise;
 var Database = require("../../Database");
 var spawn = require("child_process").spawn;
 var Settings = require("../../Settings");
+var MediaItemHelper = require("../../helpers/MediaItemHelper");
 
 class FFProbeImageHandler extends IImageHandler
 {
     getImageData(item, type)
     {
         var promise = new Promise();
-
-        var libraries = Settings.getValue("libraries");
-        var library;
+        
         var offset = 0;
         if(!item.attributes.width)
         {
@@ -24,14 +23,6 @@ class FFProbeImageHandler extends IImageHandler
         if(item.attributes.fileduration)
         {
             offset = item.attributes.fileduration/2;
-        }
-
-        for(var key in libraries)
-        {
-            if(libraries[key].uuid==item.attributes.libraryId)
-            {
-                library = libraries[key];
-            }
         }
 
         var crop = {x:0, y:0,
@@ -56,7 +47,7 @@ class FFProbeImageHandler extends IImageHandler
         }
         crop = crop.width+":"+crop.height+":"+crop.x+":"+crop.y;
 
-        var file = library.folder+"/"+item.attributes.filepath;
+        var file = MediaItemHelper.getFullFilePath(item);
         var args = [
             "-ss", offset,
             "-i", file,
