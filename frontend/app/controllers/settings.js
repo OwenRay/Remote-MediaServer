@@ -1,6 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
+    queryParams:["selectedTab"],
     settings: Ember.inject.service('settings'),
     selectedLibrary:null,
     creatingNewLibrary:null,
@@ -13,6 +14,7 @@ export default Ember.Controller.extend({
             {value:"library_music", label:"Music"}
         ]
     ),
+    deletingLibrary:null,
 
     actions:{
         save()
@@ -42,6 +44,23 @@ export default Ember.Controller.extend({
         {
             this.set("creatingNewLibrary", true);
             this.set("selectedLibrary", {"folder":"/"});
+        },
+
+        deleteLibrary(library)
+        {
+            this.set("deletingLibrary", library);
+            return false;
+        },
+
+        confirmDelete()
+        {
+            var libraries = this.get("settings.model.libraries");
+            var i = libraries.indexOf(this.get("deletingLibrary"));
+            libraries.splice(i, 1);
+            //the extra splice is to trigger the object reference change, so the interface is updated
+            this.set("settings.model.libraries", libraries.splice(0, libraries.length));
+            this.set("deletingLibrary", null);
+            this.get("settings.model").save();
         }
     }
 });
