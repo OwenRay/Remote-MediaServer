@@ -44,19 +44,22 @@ class MovieScanner
         this.scanNext();
     }
 
-    checkForMediaItemsWithMissingFiles()
+    checkForMediaItemsWithMissingFiles(items)
     {
         var items = Database.getAll("media-item");
-        for(var c = 0; c<items.length; c++)
-        {
-            var item = items[c];
-            fs.exists(MediaItemHelper.getFullFilePath(item), function(exists) {
+        function next() {
+            if(!items.length)
+                return;
+            fs.exists(MediaItemHelper.getFullFilePath(items[0]), function (exists) {
                 if (!exists) {
-                    console.log("item missing, removing", item.id);
-                    Database.deleteObject("media-item", item.id);
+                    console.log("item missing, removing", items[0].id);
+                    Database.deleteObject("media-item", items[0].id);
                 }
+                items.shift();
+                next();
             });
         }
+        next();
     }
 
     checkForMediaItemsWithMissingLibrary()
