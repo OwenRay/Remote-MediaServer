@@ -109,6 +109,11 @@ class PlayRequestHandler extends RequestHandler{
             "-strict", "-2",
             "-"
         ];
+        if(aCodec!="copy")
+        {
+            console.log("2 AC!");
+            args.splice(18, 0, "-ac", 2, "-ab", "192k");
+        }
         if(this.offset!=0) {
             args.splice(8, 0, "-ss", 0);
             args.splice(4, 0, "-ss", this.offset);

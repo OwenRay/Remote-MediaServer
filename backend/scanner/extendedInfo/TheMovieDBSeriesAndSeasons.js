@@ -56,10 +56,8 @@ class TheMovieDBSeriesAndSeasons extends IExtendedInfo
                         }
                         promise.resolve([mediaItem, library]);
                     }.bind(this);
-                    console.log(mediaItem.attributes.title);
                     var cache = NodeCache.get("1:"+mediaItem.attributes.title);
                     if(cache) {
-                        console.log("fromcache!");
                         result(null, cache);
                         break;
                     }
