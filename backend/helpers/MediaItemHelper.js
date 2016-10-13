@@ -17,7 +17,7 @@ class MediaItemHelper
         }
         if(!library)
             return "";
-        return library.folder+"/"+mediaItem.attributes.filepath;
+        return library.folder+mediaItem.attributes.filepath;
     }
 }
 

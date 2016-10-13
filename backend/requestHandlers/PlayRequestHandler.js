@@ -24,6 +24,23 @@ class PlayRequestHandler extends RequestHandler{
         {
             return this.response.end();
         }
+
+        /*this.range = -1;
+        if(this.request.headers.range)
+        {
+            var range = this.request.headers.range.split("=");
+            var h = range[1];
+            range = range[1].split("-");
+            if(range[1]) {
+                this.range = range[1] - range[0] + 1;
+                console.log("range!", this.request.headers.range, this.range);
+                this.response.statusCode = 206;
+                console.log("header", "bytes "+h+"/4372373000");
+                console.log("bytes "+h+"/4372373000");
+                this.response.setHeader("Content-Range", "bytes "+h;
+            }
+        }*/
+
         this.file = MediaItemHelper.getFullFilePath(mediaItem);
         console.log(this.file);
         FFProbe.getInfo(this.file).then(this.gotInfo.bind(this), this.onError.bind(this));
@@ -53,6 +70,9 @@ class PlayRequestHandler extends RequestHandler{
         }
         this.response.setHeader('Content-Type', "video/mp4");
         this.response.setHeader('Accept-Ranges', 'none');
+        //if(this.range!=-1)
+        //    this.response.setHeader('Content-Length', this.range);
+        this.response.setHeader('Transfer-Encoding', 'chunked');
         var vCodec = "libx264";
         var aCodec = "aac";
 
@@ -138,11 +158,31 @@ class PlayRequestHandler extends RequestHandler{
 
 
     onData(data) {
+        /*if(this.range==0)
+        {
+            console.log("closing!!");
+            if(!this.ended) {
+                this.response.end();
+                this.proc.kill("SIGINT");
+            }
+            this.ended = true;
+            return;
+        }
+        //return;
+        console.log("DATA!!!!", data, data.length);
+        if(this.range>=0&&data.length>this.range)
+        {
+            data = new Buffer(this.range);
+            data.fill(data, 0, this.range);
+        }
+        this.range-=data.length;
+        console.log("DATA!!!!", data.length);*/
         this.bufferedChuncks++;
-        if(this.bufferedChuncks>20)
+        if(this.bufferedChuncks>1)
         {
             this.proc.stdout.pause();
         }
+
         this.response.write(data, function () {
             this.bufferedChuncks--;
             this.proc.stdout.resume();

@@ -11,6 +11,23 @@ video-container{
     height:100%;
     width:100%;
   }
+
+  .preloader-wrapper, >.btn-large, >.btn-large[disabled=false]{
+    position:absolute;
+    left:50%;
+    top:50%;
+    margin-left:-25px;
+    margin-top:-25px;
+    background:transparent !important;
+    cursor:default;
+    &:hover {
+      background: transparent !important;
+    }
+    &.btn-large{
+      margin-left:-27.75px;
+      margin-top:-27.75px;
+    }
+  }
 }
 
 

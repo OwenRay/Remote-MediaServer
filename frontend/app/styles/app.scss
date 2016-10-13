@@ -63,7 +63,7 @@ $secondary-color-light: lighten($secondary-color, 15%);
 $secondary-color-dark: darken($secondary-color, 15%);
 
 $sidenav-font-color: #FFFFFF;
-$sidenav-bg-color: color("blue-grey", "darken-2");
+$sidenav-bg-color: $primary-color;
 //$sidenav-padding-right: 30px !default;
 //$sidenav-item-height: 64px !default;
 
@@ -116,21 +116,24 @@ html, body{
 }
 
 .quickOptions {
-  padding:0px 20px;
+  padding:0px 10px;
   position:absolute;
   top:0px;
   right:0px;
   left:0px;
-  height:96px;
+  height:65px;
   z-index:99;
-  background-color:$primary-color-dark;
+  background-color:$primary-color;
   .md-select{
     margin:0px;
     width:150px;
     float:left;
     margin-right:20px;
-    margin-top:30px;
+    margin-top:20px;
     height:50px;
+    .select-dropdown{
+      border-bottom: none;
+    }
     &:last-child{
       margin-right:0px;
     }
@@ -168,7 +171,7 @@ html, body{
     height:40px;
   }
   .scroller > div > div{
-    top:96px;
+    top:65px;
   }
 }
 
@@ -366,10 +369,13 @@ nav{
 
 .search{
   position:relative;
+  input{
+    margin-bottom: 5px;
+  }
   button{
     position:absolute;
     right:0px;
-    bottom:20px;
+    bottom:10px;
     background:none;
     border:none;
     font-size: 21px;
@@ -380,13 +386,10 @@ nav{
 {
   transition:top .5s;
   position: absolute;
-  top: 56px;
+  top: 50px;
   bottom: 0px;
   left: 0px;
   right: 0px;
-  @media only screen and (min-width: 601px) {
-    top: 64px;
-  }
 }
 .liquid-child
 {
@@ -414,5 +417,22 @@ input:not([type]), input[type=text], input[type=password], input[type=email], in
   &:hover {
     background-color: $button-raised-background-hover !important;
     @extend .z-depth-1-half;
+  }
+}
+
+nav {
+  height: 50px;
+  line-height: 50px;
+  .brand-logo {
+    font-size: 1.6rem;
+    text-transform: uppercase;
+  }
+  a.button-collapse, a.button-collapse i, .nav-wrapper i {
+    height: 50px;
+    line-height: 50px;
+  }
+  .side-nav li{
+    width:100%;
+    float:left;
   }
 }

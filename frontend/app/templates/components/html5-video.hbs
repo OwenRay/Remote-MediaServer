@@ -1,4 +1,14 @@
 <video src={{videoUrl}} preload="none" autoplay></video>
+{{#if loading}}
+    {{md-loader mode="circular" size="small"}}
+{{else if paused}}
+    {{md-btn
+        icon='mdi-av-play-arrow'
+        action='togglePauseAction'
+        buttonType='floating'
+        class='btn-large'}}
+{{/if}}
+
 <div class="controls {{{navClass}}}">
     <img src={{mediaItem.poster-img}} />
 

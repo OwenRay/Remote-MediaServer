@@ -4,7 +4,7 @@ export default Ember.Component.extend({
     tagName:"video-container",
     //attributeBindings: ['class'],
     //class:"video-container",
-    paused:false,
+    paused:true,
     src:"",
     progress:0,
     videoObj:null,
@@ -14,6 +14,8 @@ export default Ember.Component.extend({
     volume:80,
     volumeBeforeMute:80,
     mute:false,
+    loading:true,
+    neverplayed:true,
     lastPosSave:0,
 
     videoUrl:Ember.computed("mediaItem", "startOffset", function(){
@@ -29,16 +31,39 @@ export default Ember.Component.extend({
         this.set("videoObj", vid[0]);
         vid.dblclick(this.toggleFullscreen.bind(this));
         vid.click(this.togglePause.bind(this));
+        vid.on("touchstart", this.onTouchStart.bind(this));
         vid.on("emptied", function(){
         });
         vid.on("abort", function(){
         });
+        vid.on("suspend", this.onSuspend.bind(this));
+        vid.on("loadstart", this.onLoading.bind(this));
+        vid.on("play", this.didPlay.bind(this));
+        console.log("is paused?", vid[0].paused);
         this.addObserver("volume", this.volumeDidChange);
         this.volumeDidChange();
         Ember.$("body")
             .mousemove(this.onMouseMove.bind(this))
-            .keypress(this.onKeyPress.bind(this));
+            .keypress(this.onKeyPress.bind(this))
+            .on("touchstart", this.toggleNav.bind(this));;
         this.updateProgress();
+    },
+
+    onLoading()
+    {
+        this.set("loading", true);
+    },
+
+    onSuspend()
+    {
+        this.set("loading", false);
+    },
+
+    didPlay()
+    {
+        this.set("loading", false);
+        this.set("paused", false);
+        this.set("neverplayed", false);
     },
 
     muteIcon:Ember.computed("mute", function(){
@@ -52,13 +77,22 @@ export default Ember.Component.extend({
 
     onMouseMove()
     {
+        console.log("here");
         this.set("navClass", "visible");
         clearTimeout(this.get("hideTimeout"));
         this.set("hideTimeout", setTimeout(this.hide.bind(this), 2000));
     },
 
+    toggleNav()
+    {
+        if(this.get("navClass")=="hidden")
+            return this.onMouseMove();
+        this.hide();
+    },
+
     hide()
     {
+        clearTimeout(this.get("hideTimeout"));
         this.set("navClass", "hidden");
         this.set("navigationVisible", false);
     },
@@ -72,14 +106,25 @@ export default Ember.Component.extend({
         this.get("videoObj").src = "";
     },
 
-    togglePause()
+    togglePause(e)
     {
+        console.log(e);
         this.set("paused", !this.get("videoObj").paused);
         if(this.get("videoObj").paused)
         {
+            this.set("neverplayed", false);
             return this.get("videoObj").play();
         }
         this.get("videoObj").pause();
+    },
+
+    onTouchStart(e)
+    {
+        if(this.get("neverplayed"))
+            return true;
+        console.log("daar");
+        e.preventDefault();
+        return true;
     },
 
     updateProgress()

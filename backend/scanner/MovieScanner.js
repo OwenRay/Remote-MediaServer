@@ -50,8 +50,11 @@ class MovieScanner
         function next() {
             if(!items.length)
                 return;
-            fs.exists(MediaItemHelper.getFullFilePath(items[0]), function (exists) {
-                if (!exists) {
+            console.log(MediaItemHelper.getFullFilePath(items[0]).replace(/\//g, "\\"));
+            //console.log(MediaItemHelper.getFullFilePath(items[0]));
+            fs.stat(MediaItemHelper.getFullFilePath(items[0]).replace(/\//g, "\\"), function (err, stat) {
+                console.log(arguments);
+                if (err) {
                     console.log("item missing, removing", items[0].id);
                     Database.deleteObject("media-item", items[0].id);
                 }
