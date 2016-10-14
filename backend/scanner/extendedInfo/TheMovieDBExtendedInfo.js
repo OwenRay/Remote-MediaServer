@@ -15,6 +15,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
 {
     extendInfo(args, tryCount)
     {
+        console.log("tmdb");
         var mediaItem = args[0];
         var library = args[1];
         if(!tryCount)

@@ -175,9 +175,15 @@ html, body{
   }
 }
 
-.grid-item
-{
-  >a{
+.grid-item {
+  width: 200px;
+  height: 300px;
+  margin: 15px;
+  position: relative;
+  overflow: hidden;
+  background-size: 100%;
+
+  > a {
     position:absolute;
     left:0px;
     top:0px;
@@ -186,7 +192,7 @@ html, body{
     display:inline-block;
   }
 
-  .btn-floating{
+  .btn-floating {
     position:absolute;
     right:10px;
     top:-19px;
@@ -211,26 +217,29 @@ html, body{
     height:60px;
     padding:10px;
     line-height: 1.2;
-    .title{
+
+    .title {
       display:inline-block;
       width:130px;
       white-space: nowrap;
       overflow:hidden !important;
       text-overflow: ellipsis;
     }
-    .year{
+
+    .year {
       font-weight: 200;
     }
   }
-  .poster{
+
+  .poster {
     transition:all 0.3s;
     background-position:center center;
-    position:absolute;
-    top:0px;
-    left:0px;
-    width:inherit;
-    height:inherit;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100%;
+    width: 100%;
   }
+
   &:hover {
     position:relative;
     .poster {
@@ -390,6 +399,9 @@ nav{
   bottom: 0px;
   left: 0px;
   right: 0px;
+  @media only screen and (min-width: 601px) {
+    top: 64px;
+  }
 }
 .liquid-child
 {

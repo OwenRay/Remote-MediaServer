@@ -21,6 +21,10 @@ export default DS.Model.extend({
     "width":DS.attr("number"),
     "height":DS.attr("number"),
 
+    "rating":Ember.computed("vote-average", function()
+    {
+        return this.get('vote-average') * 10;
+    }),
     "backdrop-img-style":Ember.computed("backdrop-path", function()
     {
         return "background-image:url(/img/"+this.get("id")+"_backdrop.jpg)";
