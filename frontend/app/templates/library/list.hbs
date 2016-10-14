@@ -33,7 +33,7 @@
             </div>
         {{/floating-bar}}
 
-        {{#ember-collection class="scroller" items=records cell-layout=(fixed-grid-layout 230 330) as |record index|}}
+        {{#ember-collection class="scroller" items=records cell-layout=(fixed-grid-layout 165 233) as |record index|}}
             {{#if record.content}}
                 <div class="grid-item" >
                     <div class="poster" data-poster-image={{record.content.id}} style={{{record.content.poster-img-thumb-style}}}></div>

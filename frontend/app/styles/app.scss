@@ -273,7 +273,7 @@ body{
   &.item.view
   {
     nav{
-      margin-top:-64px;
+      margin-top:-50px;
     }
     .liquid-container{
       transition: none;
@@ -399,9 +399,6 @@ nav{
   bottom: 0px;
   left: 0px;
   right: 0px;
-  @media only screen and (min-width: 601px) {
-    top: 64px;
-  }
 }
 .liquid-child
 {
