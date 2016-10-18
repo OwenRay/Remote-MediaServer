@@ -45,7 +45,7 @@ export default Ember.Component.extend({
         Ember.$("body")
             .mousemove(this.onMouseMove.bind(this))
             .keypress(this.onKeyPress.bind(this))
-            .on("touchstart", this.toggleNav.bind(this));;
+            .on("touchstart", this.toggleNav.bind(this));
         this.updateProgress();
     },
 
@@ -85,8 +85,9 @@ export default Ember.Component.extend({
 
     toggleNav()
     {
-        if(this.get("navClass")=="hidden")
+        if(this.get("navClass")==="hidden") {
             return this.onMouseMove();
+        }
         this.hide();
     },
 
@@ -120,8 +121,9 @@ export default Ember.Component.extend({
 
     onTouchStart(e)
     {
-        if(this.get("neverplayed"))
+        if(this.get("neverplayed")) {
             return true;
+        }
         console.log("daar");
         e.preventDefault();
         return true;

@@ -15,7 +15,6 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
 {
     extendInfo(args, tryCount)
     {
-        console.log("tmdb");
         var mediaItem = args[0];
         var library = args[1];
         if(!tryCount)
@@ -31,7 +30,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
             return promise;
         }
 
-        var callback = function(err, res){
+        var callback = function(err, res){ 
             if(!err) {
                 var res = library.type != "tv" ?
                     (res.results&&res.results.length > 0 ? res.results[0] : null)
@@ -56,6 +55,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
                 var date = res["release_date"]?res["release_date"]:res["first_air_date"];
                 date = date?date:res["air_date"];
 
+                mediaItem.attributes["release-date"] = date;
                 mediaItem.attributes.year = date.split("-")[0];
                 mediaItem.attributes.gotExtendedInfo = true;
                 Database.update("media-item", mediaItem);

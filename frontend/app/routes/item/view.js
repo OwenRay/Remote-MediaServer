@@ -20,7 +20,6 @@ export default Ember.Route.extend({
                 console.log("creating record");
                 var pos = this.store.createRecord("play-position");
                 pos.save().then(function () {
-                        console.log("all done");
                         model.save();
                         resolve();
                     }, reject);

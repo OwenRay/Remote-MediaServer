@@ -45,8 +45,26 @@ export default Ember.Controller.extend({
     }),
 
     allEpisodes:Ember.computed("model.external-id", function(){
-        return this.get("store").query("media-item", {"external-id":this.get("model.external-id"), "sort":"season,episode"});
+        return this.get("store")
+                    .query(
+                        "media-item",
+                        {
+                            "external-id":this.get("model.external-id"),
+                            "sort":"season,episode",
+                            "join":"play-position"
+                        }
+                    );
     }),
+
+    watched:Ember.computed("model.fileduration", "model.play-position.position", function(){
+        return this.get("model.fileduration")&&this.get("model.play-position.position")&&
+                this.get("model.play-position.position")/this.get("model.fileduration")>0.99;
+    }),
+
+    ratingWidth: Ember.computed("model.rating", function(){
+        return Ember.String.htmlSafe("width:"+this.get("model.rating")+"%");
+    }),
+
 
     actions:{
         play()
@@ -57,6 +75,23 @@ export default Ember.Controller.extend({
         toggleDetails()
         {
             this.set("showDetails", !this.get("showDetails"));
+        },
+
+        toggleWatched()
+        {
+            var pos = this.get("model.play-position");
+            if(!this.get("model.play-position.id"))
+            {
+                pos = this.store.createRecord("play-position");
+            }else{
+                pos = this.store.peekRecord("play-position", this.get("model.play-position.id"));
+            }
+            pos.set("position", this.get("watched")?0:this.get("model.fileduration"));
+
+            this.set("model.play-position", pos);
+            pos.save().then(function(){
+                this.get("model").save();
+            }.bind(this));
         }
 
     }

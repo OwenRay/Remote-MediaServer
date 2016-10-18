@@ -22,22 +22,6 @@
     top: -30px;
 }
 
-.back {
-    background: transparent;
-    position: absolute;
-    left: 15px;
-    top: 15px;
-
-    #back-btn {
-        color: #fff;
-        cursor: pointer;
-    }
-
-    i {
-        font-size: 30px;
-    }
-}
-
 .detail {
     .poster {
         vertical-align: top;
@@ -89,13 +73,14 @@
     }
 }
 .container.detail {
+    border-top:solid 1px $secondary-color-dark;
     position:absolute;
     bottom:0px;
     right:0px;
     left:0px;
     width:auto;
     height:400px;
-    max-height:80%;
+    max-height:75%;
     box-sizing: content-box;
     background:transparentize($primary-color-dark, .2);
     .scrollable{

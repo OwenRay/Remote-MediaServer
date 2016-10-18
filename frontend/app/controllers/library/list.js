@@ -38,7 +38,7 @@ export default Ember.Controller.extend({
         [
             {value:"title", label:"Title"},
             {value:"date_added", label:"Date added"},
-            {value:"date_released", label:"Date released"}
+            {value:"release-date:DESC", label:"Date released"}
         ]
     ),
 

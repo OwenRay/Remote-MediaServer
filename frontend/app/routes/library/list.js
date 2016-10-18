@@ -33,6 +33,7 @@ export default Ember.Route.extend({
         }
 
         queryParams.distinct = "external-id";
+        queryParams.join = "play-position";
 
         return this.get("store").query('media-item', queryParams)
             .then((data) => {

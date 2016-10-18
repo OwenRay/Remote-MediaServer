@@ -72,7 +72,7 @@ class PlayRequestHandler extends RequestHandler{
         this.response.setHeader('Accept-Ranges', 'none');
         //if(this.range!=-1)
         //    this.response.setHeader('Content-Length', this.range);
-        this.response.setHeader('Transfer-Encoding', 'chunked');
+        //this.response.setHeader('Transfer-Encoding', 'chunked');
         var vCodec = "libx264";
         var aCodec = "aac";
 
@@ -178,7 +178,7 @@ class PlayRequestHandler extends RequestHandler{
         this.range-=data.length;
         console.log("DATA!!!!", data.length);*/
         this.bufferedChuncks++;
-        if(this.bufferedChuncks>1)
+        if(this.bufferedChuncks>20)
         {
             this.proc.stdout.pause();
         }

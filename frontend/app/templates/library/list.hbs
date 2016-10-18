@@ -39,6 +39,11 @@
                     <div class="poster" data-poster-image={{record.content.id}} style={{{record.content.poster-img-thumb-style}}}></div>
                     {{#link-to "item.detail" record.content }}{{/link-to}}
                     <div class="detail">
+                        {{#if record.content.play-position.position}}
+                            <div class="percent-played">
+                                <div style={{record.content.percent-watched}}></div>
+                            </div>
+                        {{/if}}
                         {{md-btn class="play" icon='mdi-av-play-arrow' action='play' actionArg=record.content bubble=false buttonType='floating' class='btn-small'}}
                         <span class="title">{{record.content.title}}</span>
                         <span class="year">{{record.content.year}}</span>

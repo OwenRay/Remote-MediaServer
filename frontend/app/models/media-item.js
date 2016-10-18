@@ -21,20 +21,35 @@ export default DS.Model.extend({
     "width":DS.attr("number"),
     "height":DS.attr("number"),
 
+    "percent-watched":Ember.computed("fileduration", "play-position.position", function()
+    {
+        var pos = this.get("play-position.position");
+        var val = "0";
+        if(pos&&this.get("fileduration")) {
+            val = Math.ceil(pos / this.get("fileduration") * 100);
+        }
+        console.log(val);
+        return Ember.String.htmlSafe("width:"+val+"%");
+    }),
+
     "rating":Ember.computed("vote-average", function()
     {
         return this.get('vote-average') * 10;
     }),
     "backdrop-img-style":Ember.computed("backdrop-path", function()
     {
-        return "background-image:url(/img/"+this.get("id")+"_backdrop.jpg)";
+        return Ember.String.htmlSafe("background-image:url(/img/"+this.get("id")+"_backdrop.jpg)");
     }),
     "poster-img":Ember.computed("poster-path", function()
     {
-        return "/img/"+this.get("id")+"_poster.jpg";
+        return Ember.String.htmlSafe("/img/"+this.get("id")+"_poster.jpg");
+    }),
+    "poster-img-style":Ember.computed("poster-path", function()
+    {
+        return Ember.String.htmlSafe("background-image:url(/img/"+this.get("id")+"_poster.jpg)");
     }),
     "poster-img-thumb-style":Ember.computed("poster-path", function()
     {
-        return "background-image:url(/img/"+this.get("id")+"_postersmall.jpg)";
+        return Ember.String.htmlSafe("background-image:url(/img/"+this.get("id")+"_postersmall.jpg)");
     })
 });

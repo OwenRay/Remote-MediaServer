@@ -15,7 +15,6 @@ class DatabaseApiHandler extends IApiHandler
         var urlParts = url.pathname.split("/");
         var type = urlParts[2];
         var singularType = pluralize.singular(type);
-        console.log("r", request.method, url);
 
         switch(request.method)
         {
@@ -35,10 +34,8 @@ class DatabaseApiHandler extends IApiHandler
         var body = [];
 
         request.on('data', function(chunk) {
-            console.log(chunk);
             body.push(chunk);
         }).on('end', function() {
-            console.log(`${body}`);
             body = JSON.parse(`${body}`);
             var i = body.data;
             var item = Database.getById(singularType, i.id);
@@ -67,6 +64,7 @@ class DatabaseApiHandler extends IApiHandler
         var limit = 0;
         var sort =  null;
         var distinct = null;
+        var join = null;
 
         if(query['page[limit]'])
         {
@@ -88,6 +86,11 @@ class DatabaseApiHandler extends IApiHandler
             distinct = query["distinct"];
             delete query["distinct"];
         }
+        if(query["join"])
+        {
+            join = query["join"];
+            delete query["join"];
+        }
 
         for(var key in query)
         {
@@ -105,50 +108,68 @@ class DatabaseApiHandler extends IApiHandler
             data = Database.getAll(singularType);
         }
 
+        if(sort)
+        {
+            var sort_array = sort.split(",");
+            for(var key in sort_array) {
+                sort_array[key] = sort_array[key].split(":");
+            }
+        }
+
+        var sortFunction = function(a, b) {
+            //for(var key = 0; key<sort_array.length; sort++) {
+            //    sort = sort_array[key];
+            for(var key in sort_array) {
+                var sort = sort_array[key][0];
+                var direction = sort_array[key].length>1?sort_array[key][1]:"ASC";
+                direction = direction==="ASC"?1:-1;
+                if (a.attributes[sort] === undefined||a.attributes[sort] === null) {
+                    return 1;
+                }
+                if (b.attributes[sort] === undefined||b.attributes[sort] === null) {
+                    return -1;
+                }
+                if (a.attributes[sort].localeCompare) {
+                    if(a.attributes[sort].localeCompare(b.attributes[sort])!=0)
+                        return a.attributes[sort].localeCompare(b.attributes[sort])*direction;
+                }
+                if(a.attributes[sort] - b.attributes[sort]!=0)
+                {
+                    return (a.attributes[sort] - b.attributes[sort]>0?1:-1)*direction;
+                }
+            }
+            return 0;
+            //}
+            //return 0;
+        };
 
         if(distinct)
         {
             var got = [];
             for(var c = 0; c<data.length; c++) {
                 var val = data[c].attributes[distinct];
-                if(got[val])
+                if(got[val]!==undefined)
                 {
-                    data.splice(c, 1);
+                    var score = sortFunction(data[c], got[val]);
+                    //console.log(score);
+                    if(score>0) {
+                        data.splice(c, 1);
+                        c--;
+                        continue;
+                    }else{
+                        //console.log("delete", data.indexOf(got[val]));
+                        data.splice(data.indexOf(got[val]), 1);
+                    }
                     c--;
                     //.delete data[key];
                 }
-                got[val] = true;
+                got[val] = data[c];
             }
         }
 
         if(sort)
         {
-            var sort_array = sort.split(",");
-            data = data.sort(function (a, b) {
-                //for(var key = 0; key<sort_array.length; sort++) {
-                //    sort = sort_array[key];
-                for(var key in sort_array) {
-                    sort = sort_array[key];
-                    if (a.attributes[sort] === undefined) {
-                        return 1;
-                    }
-                    if (b.attributes[sort] === undefined) {
-                        return -1;
-                    }
-                    if (a.attributes[sort].localeCompare) {
-                        if(a.attributes[sort].localeCompare(b.attributes[sort])!=0)
-                            return a.attributes[sort].localeCompare(b.attributes[sort]);
-                    }
-                    if(a.attributes[sort] - b.attributes[sort]!=0)
-                    {
-                        return a.attributes[sort] - b.attributes[sort]>0?1:-1;
-                    }
-                }
-                return 0;
-                //}
-                //return 0;
-            });
-            console.log("sorted");
+            data = data.sort(sortFunction);
         }
 
 
@@ -159,13 +180,34 @@ class DatabaseApiHandler extends IApiHandler
             data = data.splice(offset, limit);
         }
 
-        this.respond(response, data, metadata)
+        if(join)
+        {
+            var ids = {};
+            for(key in data)
+            {
+                if(data[key].relationships&&data[key].relationships[join])
+                {
+                    var rel = data[key].relationships[join];
+                    console.log(rel.data.id);
+                    ids[rel.data.id] = true;
+                }
+            }
+            for(key in ids)
+            {
+                data.push(Database.getById(join, key));
+            }
+        }
+
+        this.respond(response, data, metadata);
         return true;
     }
 
     respond(response, data, metadata)
     {
-        var json = JSON.stringify({data:data, meta:metadata});
+        var obj = {};
+        obj.data = data;
+        obj.meta = metadata;
+        var json = JSON.stringify(obj);
         response.end(json);
     }
 }

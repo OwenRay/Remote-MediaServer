@@ -93,6 +93,7 @@ $roboto-font-path: "../assets/";
 
 @import "pages/detail";
 @import "pages/view";
+@import "pages/nav-bar";
 
 body, .modal-content{
   background-color:$primary-color-dark;
@@ -176,12 +177,12 @@ html, body{
 }
 
 .grid-item {
-  width: 200px;
-  height: 300px;
-  margin: 15px;
-  position: relative;
-  overflow: hidden;
-  background-size: 100%;
+  width:150px;
+  height:218px;
+  margin:15px;
+  position:relative;
+  overflow:hidden;
+  background-size:100%;
 
   > a {
     position:absolute;
@@ -201,15 +202,9 @@ html, body{
     transform:scale(0,0) rotateX(90deg);
   }
 
-  width:150px;
-  height:218px;
-  margin:15px;
-  position:relative;
-  overflow:hidden;
-  background-size:100%;
   .detail{
     position:absolute;
-    bottom:-75px;
+    bottom:-60px;
     transition:all 0.3s;
     background:$primary-color;
     left:0px;
@@ -217,6 +212,7 @@ html, body{
     height:60px;
     padding:10px;
     line-height: 1.2;
+    box-sizing: border-box;
 
     .title {
       display:inline-block;
@@ -228,6 +224,19 @@ html, body{
 
     .year {
       font-weight: 200;
+    }
+    .percent-played {
+      position: absolute;
+      top: -5px;
+      height: 5px;
+      left:0px;
+      right:0px;
+      background:black;
+      padding:1px;
+      > div{
+        background:$secondary-color-light;
+        height:3px;
+      }
     }
   }
 
@@ -244,6 +253,11 @@ html, body{
     position:relative;
     .poster {
       background-size: 110%;
+    }
+    .percent-played{
+      top:-2.5px;
+      background: transparent;
+      padding:1px 0px;
     }
     .detail {
       bottom: 0px;
@@ -431,17 +445,34 @@ input:not([type]), input[type=text], input[type=password], input[type=email], in
 
 nav {
   height: 50px;
-  line-height: 50px;
+  line-height: 49px;
   .brand-logo {
     font-size: 1.6rem;
     text-transform: uppercase;
   }
   a.button-collapse, a.button-collapse i, .nav-wrapper i {
-    height: 50px;
-    line-height: 50px;
+    height: 49px;
+    line-height: 49px;
   }
   .side-nav li{
     width:100%;
     float:left;
+    i{
+      color:white !important;
+    }
   }
+}
+
+a.ember-view.active{
+  border-bottom:solid 1px $secondary-color-dark;
+  box-sizing: border-box;
+  background: $primary-color-dark;
+  &.brand-logo{
+    background: transparent;
+    border:none;
+  }
+}
+
+button.marked{
+  color:$secondary-color-light;
 }

@@ -47,7 +47,7 @@ class Database {
         if(this.tables[type][id]) {
             delete this.tables[type][id];
         }
-        //this.save();
+        this.save();
     }
 
     update(type, obj)

@@ -1,8 +1,27 @@
-<div class="back">
-    {{#link-to "library.list" id="back-btn" }}<i class="material-icons">arrow_back</i>{{/link-to}}
-</div>
+{{#nav-bar showBackButton=true}}
 
-<div style="{{model.backdrop-img-style}}" class="movie-detail-backdrop"></div>
+    {{#if watched}}
+        <button {{action "toggleWatched"}} class="mdi-action-done marked">
+            {{#tooltip-on-element}}
+                Mark unwatched
+            {{/tooltip-on-element}}
+        </button>
+    {{else}}
+        <button {{action "toggleWatched"}} class="mdi-action-done">
+            {{#tooltip-on-element}}
+                Mark watched
+            {{/tooltip-on-element}}
+        </button>
+    {{/if}}
+    <button {{action "toggleDetails"}} class="mdi-action-info-outline">
+        {{#tooltip-on-element}}
+            Info
+        {{/tooltip-on-element}}
+
+    </button>
+{{/nav-bar}}
+
+<div style={{model.backdrop-img-style}} class="movie-detail-backdrop"></div>
 <div>
     <main>
         <div class="container detail">
@@ -16,7 +35,9 @@
                     {{/md-tabs}}
                 {{/if}}
             {{/if}}
-            <div class="poster" style="background-image: url({{{model.poster-img}}})"  data-poster-image={{model.id}}></div>
+            <div class="poster" style={{model.poster-img-style}}  data-poster-image={{model.id}}>
+
+            </div>
 
             {{md-btn id="play"
                 icon='mdi-av-play-arrow'
@@ -34,7 +55,7 @@
 
                             <div class="stars">
                                 <img src="/assets/img/stars.png" alt="stars">
-                                <div class="full" style="width: {{ model.rating }}%;">
+                                <div class="full" style={{ratingWidth}}>
                                     <img src="/assets/img/stars-full.png" alt="full_stars">
                                 </div>
                             </div>
@@ -44,10 +65,6 @@
                             {{ model.year }}
                         </div>
                         <p>{{model.overview}}</p>
-                        {{md-btn id="details"
-                            text="Media details"
-                            action='toggleDetails'
-                            class='btn-small'}}
                     </div>
                 {{else}}
                     <div class="collection">
