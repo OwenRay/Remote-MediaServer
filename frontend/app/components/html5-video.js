@@ -75,9 +75,14 @@ export default Ember.Component.extend({
         this.get("videoObj").volume = this.get("volume")/100;
     },
 
-    onMouseMove()
+    onMouseMove(e)
     {
-        console.log("here");
+        if(e) {
+            if (this.get("lastPos.x") === e.clientX && this.get("lastPos.y") === e.clientY) {
+                return;
+            }
+            this.set("lastPos", {x: e.clientX, y: e.clientY});
+        }
         this.set("navClass", "visible");
         clearTimeout(this.get("hideTimeout"));
         this.set("hideTimeout", setTimeout(this.hide.bind(this), 2000));
@@ -86,6 +91,7 @@ export default Ember.Component.extend({
     toggleNav()
     {
         if(this.get("navClass")==="hidden") {
+            console.log("toggle");
             return this.onMouseMove();
         }
         this.hide();

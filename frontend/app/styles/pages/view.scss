@@ -10,6 +10,9 @@ video-container{
   video{
     height:100%;
     width:100%;
+    &.hidden{
+      cursor: none;
+    }
   }
 
   .preloader-wrapper, >.btn-large, >.btn-large[disabled=false]{
@@ -22,6 +25,7 @@ video-container{
     cursor:default;
     &:hover {
       background: transparent !important;
+      ;
     }
     &.btn-large{
       margin-left:-27.75px;
