@@ -4,24 +4,36 @@ var Settings = require("../Settings");
 
 class Debug
 {
-    static debug(...message)
+    /**
+     @param {...*} message
+     */
+    static debug(message)
     {
-        Debug.log(Debug.LEVEL.DEBUG, message);
+        Debug.log(Debug.LEVEL.DEBUG, arguments);
     }
 
-    static info(...message)
+    /**
+     @param {...*} message
+     */
+    static info(message)
     {
-        Debug.log(Debug.LEVEL.INFO, message);
+        Debug.log(Debug.LEVEL.INFO, arguments);
     }
 
-    static warning(...message)
+    /**
+     @param {...*} message
+     */
+    static warning(message)
     {
-        Debug.log(Debug.LEVEL.WARNING, message);
+        Debug.log(Debug.LEVEL.WARNING, arguments);
     }
 
-    static exception(...message)
+    /**
+     @param {...*} message
+     */
+    static exception(message)
     {
-        Debug.log(Debug.LEVEL.EXCEPTION, message);
+        Debug.log(Debug.LEVEL.EXCEPTION, arguments);
     }
 
     static log(level, message)
