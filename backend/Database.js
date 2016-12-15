@@ -97,24 +97,27 @@ class Database {
         for(var key in filters)
         {
             var type = "normal";
-            var a = filters[key][0]=="%";
-            var b = filters[key][filters[key].length-1]=="%";
-            if(a&&b)
-            {
-                type = "search";
-                filters[key] = filters[key].substring(1, filters[key].length-1);
-                //console.log(filters[key]);
-            }else if(a)
-            {
-                type = "endsWith";
-                filters[key] = filters[key].substring(1);
-            }else if(b)
-            {
-                type = "startsWith";
-                filters[key] = filters[key].substring(0, filters[key].length-1);
+            if(filters[key]==="false") {
+                filters[key] = false;
+            }else if(filters[key]=="true"){
+                filters[key] = true;
+            }else {
+                var a = filters[key][0] == "%";
+                var b = filters[key][filters[key].length - 1] == "%";
+                if (a && b) {
+                    type = "search";
+                    filters[key] = filters[key].substring(1, filters[key].length - 1);
+                    //console.log(filters[key]);
+                } else if (a) {
+                    type = "endsWith";
+                    filters[key] = filters[key].substring(1);
+                } else if (b) {
+                    type = "startsWith";
+                    filters[key] = filters[key].substring(0, filters[key].length - 1);
+                }
+                filters[key] = filters[key].toLowerCase();
             }
             filterProps[key] = type;
-            filters[key] = filters[key].toLowerCase();
         }
 
         var numFilters = 0;
@@ -128,6 +131,8 @@ class Database {
         for(var itemKey in table)
         {
             var item = table[itemKey];
+            if(!item.id)
+                continue;
             var match = 0;
             for(var filterKey in filters)
             {

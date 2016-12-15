@@ -23,7 +23,7 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
 
         var relativePath = mediaItem.attributes.filepath;
 
-        if(mediaItem.attributes.title) {
+        if(mediaItem.attributes.title||mediaItem.attributes.extra) {
             promise.resolve([mediaItem, library]);
             return promise;
         }
@@ -84,10 +84,14 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
                         Database.update("media-item", mediaItem);
                         return promise.resolve([mediaItem, library]);
                     }
-                    this.extendInfo([mediaItem, library], tryCount + 1).then(resolve);
+                    if(tryCount>=1)
+                    {
+                        return promise.resolve([mediaItem, library]);
+                    }
+                    this.extendInfo([mediaItem, library], tryCount + 1).then(promise.resolve);
                 }.bind(this),
                 function() {
-                    resolve([mediaItem, library]);
+                    promise.resolve([mediaItem, library]);
                 }
             );
         return promise;

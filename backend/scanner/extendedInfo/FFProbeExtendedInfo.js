@@ -16,8 +16,10 @@ class FFProbeExtendedInfo extends IExtendedInfo
         var library = args[1];
         var promise = new Promise();
 
-        if(mediaItem.attributes.gotfileinfo)
-            return promise.resolve([mediaItem, library]);
+        if(mediaItem.attributes.gotfileinfo||mediaItem.attributes.extra) {
+            promise.resolve([mediaItem, library]);
+            return promise;
+        }
 
         var file = decodeURI(library.folder+mediaItem.attributes.filepath);
         FFProbe.getInfo(file)

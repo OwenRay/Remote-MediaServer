@@ -24,7 +24,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
 
         var promise = new Promise();
 
-        if(mediaItem.attributes.gotExtendedInfo)
+        if(mediaItem.attributes.gotExtendedInfo||mediaItem.attributes.extra)
         {
             promise.resolve([mediaItem, library]);
             return promise;
