@@ -10,6 +10,7 @@ var TheMovieDBExtendedInfo = require("./extendedInfo/TheMovieDBExtendedInfo");
 var FFProbeExtendedInfo = require("./extendedInfo/FFProbeExtendedInfo");
 var ParseFileNameExtendedInfo = require("./extendedInfo/ParseFileNameExtendedInfo");
 var TheMovieDBSeriesAndSeasons = require("./extendedInfo/TheMovieDBSeriesAndSeasons");
+var Debug = require("../helpers/Debug");
 
 class MovieScanner
 {
@@ -34,10 +35,10 @@ class MovieScanner
     {
         if(this.scanning!=-1)
         {
-            console.log("Scan in progress");
+            Debug.info("Scan in progress");
             return;
         }
-        console.log("start scanner");
+        Debug.info("start scanner");
         this.setScanTimeout();
         this.checkForMediaItemsWithMissingFiles();
         this.checkForMediaItemsWithMissingLibrary();
@@ -50,10 +51,9 @@ class MovieScanner
         function next() {
             if(!items.length)
                 return;
-            //console.log(MediaItemHelper.getFullFilePath(items[0]));
             fs.stat(MediaItemHelper.getFullFilePath(items[0]), function (err, stat) {
                 if (err) {
-                    console.log("item missing, removing", items[0].id);
+                    Debug.info("item missing, removing", items[0].id);
                     Database.deleteObject("media-item", items[0].id);
                 }
                 items.shift();
@@ -93,7 +93,7 @@ class MovieScanner
 
         this.types = Settings.getValue("videoFileTypes");
         this.library = Settings.getValue("libraries")[this.scanning];
-        console.log("start scan", this.library);
+        Debug.info("start scan", this.library);
         recursive(this.library.folder, [this.willInclude.bind(this)], this.onListed.bind(this));
     }
 
@@ -115,10 +115,10 @@ class MovieScanner
     {
         if(err)
         {
-            // console.log(err);
+            Debug.debug(err);
             return;
         }
-        //console.log("gotAllFiles", files);
+        Debug.debug("gotAllFiles", files);
         for(var offset = 0; offset<files.length; offset++)
         {
             var file = files[offset].substr(this.library.folder.length);
@@ -137,7 +137,7 @@ class MovieScanner
 
     checkForExtendedInfo()
     {
-        // console.log("checking for extended info...");
+        Debug.info("checking for extended info...");
         var items = Database.findBy("media-item", "libraryId", this.library.uuid);
 
         var extendedInfoItems = [
@@ -149,9 +149,9 @@ class MovieScanner
 
         var loadNext = function()
         {
-            // console.log("extendInfo, next");
+            Debug.debug("extendInfo, next");
             if(items.length === 0) {
-                console.log("done scanning");
+                Debug.info("done scanning");
                 this.scanNext();
                 return;
             }

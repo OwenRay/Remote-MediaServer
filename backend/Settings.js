@@ -29,6 +29,8 @@ var settingsObj = {
         "mpeg",
         "m4v"
     ],
+    //0: debug, 1: info, 2: warning, 3: exception
+    verbosity: 1,
     'guessit': {
         'host': 'guessit.theremote.io',
         'port': 5000

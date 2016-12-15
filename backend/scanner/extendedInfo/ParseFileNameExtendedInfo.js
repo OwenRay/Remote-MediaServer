@@ -7,6 +7,7 @@ var Guessit = require("../Guessit");
 var Promise = require("node-promise").Promise;
 var Database = require("../../Database");
 var path = require('path');
+var Debug = require("../../helpers/Debug");
 
 class ParseFileNameExtendedInfo extends IExtendedInfo
 {
@@ -27,6 +28,7 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
             promise.resolve([mediaItem, library]);
             return promise;
         }
+        Debug.debug("parse filename", mediaItem.id);
 
         var filePath = path.parse(relativePath);
         var folder = path.parse(filePath.dir);

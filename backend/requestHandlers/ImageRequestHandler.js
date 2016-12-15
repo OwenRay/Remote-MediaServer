@@ -8,6 +8,7 @@ var FFProbeImageHandler = require("./imageHandler/FFProbeImageHandler");
 var TmbdImageHandler = require("./imageHandler/TmbdImageHandler");
 var ImageCacheHandler = require("./imageHandler/ImageCacheHandler");
 var path = require("path");
+var Debug = require("../helpers/Debug");
 
 
 class CorsRequestHandler extends RequestHandler{
@@ -40,12 +41,12 @@ class CorsRequestHandler extends RequestHandler{
                 if(c!=1) {
                     new ImageCacheHandler().put(item, data, type);
                 }
-                console.log("return img data");
+                Debug.debug("return img data");
                 this.response.end(data);
             }.bind(this));
         }else{
             //redirect to no-img
-            console.log("could not get cover img");
+            Debug.warning("could not get cover img for "+item.name);
             this.response.end("");
         }
     }

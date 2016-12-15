@@ -33,7 +33,7 @@ class SettingsApiHandler extends IApiHandler
                     }
                     Settings.save();
                 }catch(e){
-                    console.log("Exception", e);
+                    Debug.exception("Exception", e);
                 };
                 this.respond(response);
             }.bind(this));

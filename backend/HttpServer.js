@@ -10,12 +10,13 @@ var CorsRequestHandler = require('./requestHandlers/CorsRequestHandler');
 var ImageRequestHandler = require("./requestHandlers/ImageRequestHandler");
 var Settings = require('./Settings');
 var enableDestroy = require('server-destroy');
+var Debug = require("./helpers/Debug");
 
 class HttpServer {
 
     start() {
 
-        console.log("starting http server");
+        Debug.info("starting http server");
         if(!this.firstStarted) {
             Settings.addObserver("port", this.onPortChange.bind(this));
         }
@@ -31,13 +32,13 @@ class HttpServer {
 
     stop(and)
     {
-        console.log("shutting down http server");
+        Debug.info("shutting down http server");
         this.server.destroy(and);
     }
 
     onConnected()
     {
-        console.log("Server listening on: http://localhost:%s", Settings.getValue("port"));
+        Debug.info("Server listening on: http://localhost:%s", Settings.getValue("port"));
     }
 
     handleRequest(request, response) {
@@ -61,7 +62,7 @@ class HttpServer {
 
     onPortChange()
     {
-        console.log("onPortChange", this)
+        Debug.info("onPortChange", this)
         this.stop(this.start.bind(this));
     }
 }

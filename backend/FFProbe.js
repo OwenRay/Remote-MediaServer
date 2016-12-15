@@ -4,6 +4,7 @@
 var spawn = require('child_process').spawn;
 var Promise = require("node-promise").Promise;
 var Settings = require("./Settings");
+var Debug = require("./helpers/Debug")
 
 var FFProbe =
 {
@@ -11,7 +12,6 @@ var FFProbe =
     {
         var promise = new Promise();
 
-        console.log(Settings.getValue("ffprobe_binary"), fileName);
         var proc = spawn(
                     Settings.getValue("ffprobe_binary"),
                     [
@@ -30,7 +30,7 @@ var FFProbe =
         proc.stderr.on('data', function(data)
         {
             promise.reject(`${data}`);
-            console.log(`${data}`);
+            Debug.info("ffprobe result:", `${data}`);
         });
         proc.on("close", function()
         {
@@ -47,7 +47,7 @@ var FFProbe =
     {
         var promise = new Promise();
 
-        console.log(Settings.getValue("ffprobe_binary"), fileName);
+        Debug.debug(Settings.getValue("ffprobe_binary"), fileName);
         var proc = spawn(
             Settings.getValue("ffprobe_binary"),
             [
@@ -67,7 +67,7 @@ var FFProbe =
         proc.stderr.on('data', function(data)
         {
             promise.reject(`${data}`);
-            console.log(`${data}`);
+            Debug.debug("got nearest key frame", `${data}`);
         });
         proc.on("close", function()
         {

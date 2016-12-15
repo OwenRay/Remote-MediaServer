@@ -7,6 +7,7 @@ var IExtendedInfo = require("./IExtendedInfo");
 var Promise = require("node-promise").Promise;
 var FFProbe = require('../../FFProbe');
 var Database = require("../../Database");
+var Debug = require("../../helpers/Debug");
 
 class FFProbeExtendedInfo extends IExtendedInfo
 {
@@ -18,6 +19,8 @@ class FFProbeExtendedInfo extends IExtendedInfo
 
         if(mediaItem.attributes.gotfileinfo)
             return promise.resolve([mediaItem, library]);
+
+        Debug.debug("ffprobe extended info", mediaItem.id);
 
         var file = decodeURI(library.folder+mediaItem.attributes.filepath);
         FFProbe.getInfo(file)

@@ -9,6 +9,7 @@ var MovieDB = require('moviedb')('0699a1db883cf76d71187d9b24c8dd8e');
 var Database = require("../../Database");
 var TheMovieDBExtendedInfo = require("./TheMovieDBExtendedInfo");
 var NodeCache = new (require( "node-cache" ))();
+var Debug = require("../../helpers/Debug");
 
 var cachedTvSearch = [];
 
@@ -35,6 +36,7 @@ class TheMovieDBSeriesAndSeasons extends IExtendedInfo
         {
             promise.resolve([mediaItem, library]);
         }else{
+            Debug.debug("process serie", mediaItem.id);
             switch(round)
             {
                 case 0://find series
@@ -86,7 +88,7 @@ class TheMovieDBSeriesAndSeasons extends IExtendedInfo
                     var cached = NodeCache.get("2:"+mediaItem.attributes.title+":"+mediaItem.attributes.season);
                     if(cached)
                     {
-                        console.log("fromcache2!");
+                        Debug.debug("get series from cache2!");
                         result(null, cached);
                         break;
                     }

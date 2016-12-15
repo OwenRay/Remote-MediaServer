@@ -8,6 +8,7 @@ var Database = require("../../Database");
 var spawn = require("child_process").spawn;
 var Settings = require("../../Settings");
 var MediaItemHelper = require("../../helpers/MediaItemHelper");
+var Debug = require("../../helpers/Debug");
 
 class FFProbeImageHandler extends IImageHandler
 {
@@ -74,7 +75,7 @@ class FFProbeImageHandler extends IImageHandler
 
         proc.stderr.on('data', function(data)
         {
-            //console.log(`${data}`);
+            Debug.debug(`${data}`);
         });
 
         proc.on("close", function(){

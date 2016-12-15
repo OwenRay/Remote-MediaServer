@@ -11,6 +11,7 @@ var Database = require("../Database");
 
 var RequestHandler = require("./RequestHandler");
 var MediaItemHelper = require("../helpers/MediaItemHelper");
+var Debug = require("../helpers/Debug");
 
 class PlayRequestHandler extends RequestHandler{
     handleRequest()
@@ -42,7 +43,7 @@ class PlayRequestHandler extends RequestHandler{
         }*/
 
         this.file = MediaItemHelper.getFullFilePath(mediaItem);
-        console.log(this.file);
+        Debug.debug("starting to play:"+this.file);
         FFProbe.getInfo(this.file).then(this.gotInfo.bind(this), this.onError.bind(this));
     }
 
@@ -55,7 +56,7 @@ class PlayRequestHandler extends RequestHandler{
                     function(offset){
                         //this.offset = offset;
                         this.offset = offset;
-                        console.log("play from 2:", offset);
+                        Debug.debug("play from 2:", offset);
                         this.gotInfo(info, true);
                     }.bind(this),
                     this.onError.bind(this)
@@ -64,7 +65,7 @@ class PlayRequestHandler extends RequestHandler{
         }
         if(!info||!info.format)
         {
-            console.log("VIDEO ERROR!");
+            Debug.warning("VIDEO ERROR!");
             this.response.end();
             return;
         }
@@ -92,9 +93,8 @@ class PlayRequestHandler extends RequestHandler{
                 aCodec = "copy";
             }
         }
-        //console.log()
         var duration = Math.round((info.format.duration-this.offset)*1000);
-        console.log("setDuration", duration);
+        Debug.debug("setDuration", duration);
         //OK... this is a hack to specify the video duration...
         this.tmpFile = os.tmpdir()+"/"+Math.random()+".txt";
         var metadata = ";FFMETADATA1\n"+
@@ -131,14 +131,14 @@ class PlayRequestHandler extends RequestHandler{
         ];
         if(aCodec!="copy")
         {
-            console.log("2 AC!");
+            Debug.debug("mixing down to 2 AC!");
             args.splice(18, 0, "-ac", 2, "-ab", "192k");
         }
         if(this.offset!=0) {
             args.splice(8, 0, "-ss", 0);
             args.splice(4, 0, "-ss", this.offset);
         }
-        console.log(Settings.getValue("ffmpeg_binary")+" "+args.join(" "));
+        Debug.debug("starting ffmpeg:"+Settings.getValue("ffmpeg_binary")+" "+args.join(" "));
         var proc = spawn(
             Settings.getValue("ffmpeg_binary"),
             args);
@@ -151,7 +151,7 @@ class PlayRequestHandler extends RequestHandler{
             proc.stdout.resume();
         });
         this.request.connection.on('close',function(){
-            console.log("close!");
+            Debug.debug("close video play connection!");
             proc.kill("SIGINT");
         });
     }
@@ -191,12 +191,12 @@ class PlayRequestHandler extends RequestHandler{
 
     onError(data)
     {
-        console.log(`${data}`);
+        Debug.warn(`${data}`);
     }
 
     onClose(code)
     {
-        console.log("Close:"+code, this.tmpFile);
+        Debug.debug("Close:"+code, this.tmpFile);
         fs.unlink(this.tmpFile);
 
         //this.response.end();
