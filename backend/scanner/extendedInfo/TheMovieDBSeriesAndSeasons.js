@@ -25,7 +25,7 @@ class TheMovieDBSeriesAndSeasons extends IExtendedInfo
 
         var promise = new Promise();
 
-        if(mediaItem.attributes.gotSeriesAndSeasonInfo&&round==0||mediaItem.attributes.extra)
+        if(mediaItem.attributes.gotSeriesAndSeasonInfo&&round==0)
         {
             promise.resolve([mediaItem, library]);
             return promise;

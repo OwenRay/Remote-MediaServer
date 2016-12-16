@@ -23,7 +23,7 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
 
         var relativePath = mediaItem.attributes.filepath;
 
-        if(mediaItem.attributes.title||mediaItem.attributes.extra) {
+        if(mediaItem.attributes.title) {
             promise.resolve([mediaItem, library]);
             return promise;
         }

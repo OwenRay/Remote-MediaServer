@@ -24,7 +24,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
 
         var promise = new Promise();
 
-        if(mediaItem.attributes.gotExtendedInfo||mediaItem.attributes.extra)
+        if(mediaItem.attributes.gotExtendedInfo)
         {
             promise.resolve([mediaItem, library]);
             return promise;
@@ -56,7 +56,8 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
                 date = date?date:res["air_date"];
 
                 mediaItem.attributes["release-date"] = date;
-                mediaItem.attributes.year = date.split("-")[0];
+                if(date)
+                    mediaItem.attributes.year = date.split("-")[0];
                 mediaItem.attributes.gotExtendedInfo = true;
                 Database.update("media-item", mediaItem);
             }else if(tryCount<2){

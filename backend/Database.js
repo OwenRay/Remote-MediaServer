@@ -107,7 +107,6 @@ class Database {
                 if (a && b) {
                     type = "search";
                     filters[key] = filters[key].substring(1, filters[key].length - 1);
-                    //console.log(filters[key]);
                 } else if (a) {
                     type = "endsWith";
                     filters[key] = filters[key].substring(1);
@@ -125,7 +124,6 @@ class Database {
         {
             numFilters++;
         }
-        //console.log(filters);
 
         var items = [];
         for(var itemKey in table)
@@ -136,10 +134,14 @@ class Database {
             var match = 0;
             for(var filterKey in filters)
             {
-                if (!item.attributes[filterKey]||
-                    !this.matches(
-                            (item.attributes[filterKey]+"").toLowerCase(),
-                            (filters[filterKey]+"").toLowerCase(),
+                //when we're looking for (for example) extra=false,
+                //we also want items that don't have the extra attribute, thats why:
+                if(item.attributes[filterKey]===undefined)
+                    item.attributes[filterKey] = false;
+
+                if (!this.matches(
+                            item.attributes[filterKey],
+                            filters[filterKey],
                             filterProps[filterKey]
                         )
                     )
@@ -157,6 +159,12 @@ class Database {
 
     matches(value, filter, filterProp)
     {
+        if(typeof(filter) !== "boolean") {
+            value = (value + "").toLowerCase()
+            filter = (filter + "").toLowerCase()
+        }else{
+            console.log("bool");
+        }
         switch(filterProp)
         {
             case "endsWith":

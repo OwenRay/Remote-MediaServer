@@ -20,6 +20,10 @@ class ExtrasExtendedInfo extends IExtendedInfo
             return promise;
         }
 
+        //If external id has not been detected yet and items is an extra
+
+
+        //find all items with the same path, filtering out this item
         var fileParts = mediaItem.attributes.filepath;
         for(var c = 0; c<2; c++) {
             fileParts = path.parse(fileParts).dir;
@@ -33,6 +37,8 @@ class ExtrasExtendedInfo extends IExtendedInfo
                 break;
             }
         }
+
+        //have we found an item? give this item the same ids
         if(items.length)
         {
             mediaItem.attributes["exernal-id"] = items[0].attributes["external-id"];
