@@ -151,13 +151,11 @@ class DatabaseApiHandler extends IApiHandler
                 if(got[val]!==undefined)
                 {
                     var score = sortFunction(data[c], got[val]);
-                    //console.log(score);
                     if(score>0) {
                         data.splice(c, 1);
                         c--;
                         continue;
                     }else{
-                        //console.log("delete", data.indexOf(got[val]));
                         data.splice(data.indexOf(got[val]), 1);
                     }
                     c--;
@@ -188,7 +186,6 @@ class DatabaseApiHandler extends IApiHandler
                 if(data[key].relationships&&data[key].relationships[join])
                 {
                     var rel = data[key].relationships[join];
-                    console.log(rel.data.id);
                     ids[rel.data.id] = true;
                 }
             }

@@ -2,6 +2,7 @@
 
 var fs = require("fs");
 var uuid = require("node-uuid");
+var Debug = require("./helpers/Debug.js");
 
 class Database {
 
@@ -103,7 +104,6 @@ class Database {
             {
                 type = "search";
                 filters[key] = filters[key].substring(1, filters[key].length-1);
-                //console.log(filters[key]);
             }else if(a)
             {
                 type = "endsWith";
@@ -122,7 +122,7 @@ class Database {
         {
             numFilters++;
         }
-        //console.log(filters);
+        Debug.debug(filters);
 
         var items = [];
         for(var itemKey in table)
@@ -159,7 +159,6 @@ class Database {
             case "startsWith":
                 return value.indexOf(filter)===0;
             case "search":
-                //console.log(arguments, value.indexOf(filter)>=0);
                 return value.indexOf(filter)>=0;
             case "normal":
                 return value===filter;
@@ -175,7 +174,7 @@ class Database {
 
     getAll(type)
     {
-        console.log("getall");
+        Debug.debug("getall");
         this.checkTable(type);
         var table = this.tables[type];
         var items = [];
@@ -195,7 +194,7 @@ class Database {
                 }
             }
         }catch(e){
-            console.log(e);
+            Debug.exception(e);
         }
     }
 
@@ -208,7 +207,7 @@ class Database {
 
     doSave(callback)
     {
-        console.log("Did write db");
+        Debug.debug("Did write db");
         if(this.writeTimeout)
             clearTimeout(this.writeTimeout);
         this.writeTimeout = null;

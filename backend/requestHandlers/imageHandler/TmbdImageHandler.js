@@ -5,6 +5,7 @@
 var IImageHandler = require("./IImageHandler");
 var Promise = require("node-promise").Promise;
 var http = require("http");
+var Debug = require("../../helpers/Debug");
 
 class TmdbImageHandler extends IImageHandler
 {
@@ -12,7 +13,7 @@ class TmdbImageHandler extends IImageHandler
     {
         if(!item.attributes.gotExtendedInfo)
         {
-            return false;conso
+            return false;
         }
         var w = "w300";
         if(type==IImageHandler.TYPE_BACKDROP)
@@ -26,7 +27,7 @@ class TmdbImageHandler extends IImageHandler
         }
 
         var img = "http://image.tmdb.org/t/p/"+w+"/"+item.attributes[type+"-path"];
-        console.log("img"+img);
+        Debug.log("img"+img);
         var promise = new Promise();
         http.get(img, function (response) {
             var bytes = [];

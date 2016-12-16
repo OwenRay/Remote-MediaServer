@@ -5,6 +5,7 @@
 var IImageHandler = require("./IImageHandler");
 var Promise = require("node-promise").Promise;
 var fs = require("fs");
+var Debug = require("../../helpers/Debug");
 
 class ImageCacheHandler extends IImageHandler
 {
@@ -16,10 +17,10 @@ class ImageCacheHandler extends IImageHandler
             fs.statSync(filename);
         }catch(e)
         {
-            //console.log(e);
+            Debug.debug(e);
             return false;
         }
-        console.log("img from cache");
+        Debug.log("img from cache");
         fs.readFile(filename, function(err, data){
             promise.resolve(data);
         });

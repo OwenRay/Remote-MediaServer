@@ -8,6 +8,7 @@ var Promise = require("node-promise").Promise;
 var MovieDB = require('moviedb')('0699a1db883cf76d71187d9b24c8dd8e');
 var path = require('path');
 var Database = require("../../Database");
+var Debug = require("../../helpers/Debug");
 
 var discardRegex = new RegExp('\\W|-|_|([0-9]+p)|(LKRG)', "g");
 
@@ -29,6 +30,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
             promise.resolve([mediaItem, library]);
             return promise;
         }
+        Debug.debug("process tmdb", mediaItem.id);
 
         var callback = function(err, res){ 
             if(!err) {
