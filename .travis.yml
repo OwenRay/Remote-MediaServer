@@ -7,8 +7,11 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - libgnome-keyring-dev
     packages:
     - gcc-4.8
+before_install:		
+  - rvm install 2.2.5
 install:
   - npm install
   - npm install -g ember
