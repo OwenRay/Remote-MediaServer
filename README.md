@@ -1,6 +1,6 @@
 Production | Development
 --- | ---
-[![Build Status](https://travis-ci.com/OwenRay/Remote-MediaServer.svg?token=uLVecMrGXxYbztvo1nvC&branch=master)](https://travis-ci.com/OwenRay/Remote-MediaServer) | [![Build Status](https://travis-ci.com/OwenRay/Remote-MediaServer.svg?token=uLVecMrGXxYbztvo1nvC&branch=dev)](https://travis-ci.com/OwenRay/Remote-MediaServer)
+[![Build Status](https://travis-ci.org/OwenRay/Remote-MediaServer.svg?branch=master)](https://travis-ci.org/OwenRay/Remote-MediaServer) | [![Build Status](https://travis-ci.org/OwenRay/Remote-MediaServer.svg?branch=dev)](https://travis-ci.org/OwenRay/Remote-MediaServer)
 
 # PREREQUISITES
 - npm  
