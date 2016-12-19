@@ -19,7 +19,7 @@ direct your browser to http://localhost:8080
 
 # DEVELOPMENT
 ### Installing dependencies
-To setup your development environment run the following command
+To setup your development environment run the following command  
 `$ node setup.js`  
   
 To start the server:  
