@@ -7,6 +7,9 @@ module.exports = function(environment) {
     baseURL: '/',
     locationType: 'auto',
     EmberENV: {
+      EXTEND_PROTOTYPES: {
+        Date: false,
+      },
       FEATURES: {
         // Here you can enable experimental features on an ember canary build
         // e.g. 'with-controller': true
@@ -14,8 +17,13 @@ module.exports = function(environment) {
     },
 
     APP: {
+      host: "",
+      namespace: "api",
       // Here you can pass flags/options to your application instance
       // when it is created
+    },
+    sassOptions: {
+      includePaths: ['bower_components/materialize/sass']
     }
   };
 
@@ -31,6 +39,7 @@ module.exports = function(environment) {
     // Testem prefers this...
     ENV.baseURL = '/';
     ENV.locationType = 'none';
+    ENV.APP.host = "http://localhost:8080";
 
     // keep test console output quieter
     ENV.APP.LOG_ACTIVE_GENERATION = false;

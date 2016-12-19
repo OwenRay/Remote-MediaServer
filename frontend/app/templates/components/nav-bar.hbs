@@ -1,0 +1,8 @@
+<div class="top-bar">
+    {{#if showBackButton}}
+        <a {{action "onBackPressed"}} id="back-btn"><i class="material-icons">arrow_back</i></a>
+    {{/if}}
+    <div class="right">
+        {{yield}}
+    </div>
+</div>

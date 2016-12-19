@@ -2,7 +2,7 @@ import { moduleForModel, test } from 'ember-qunit';
 
 moduleForModel('media-item', 'Unit | Model | media item', {
   // Specify the other units that are required for this test.
-  needs: []
+  needs: ["model:play-position"]
 });
 
 test('it exists', function(assert) {

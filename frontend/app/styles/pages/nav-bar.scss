@@ -1,0 +1,46 @@
+.top-bar{
+  //border-bottom:solid 1px $secondary-color-dark;
+  position:absolute;
+  top:0px;
+  left:0px;
+  right:0px;
+  height:32px;
+  padding:0px 2px;
+  background:transparentize($primary-color-dark, .2);
+  z-index:99;
+
+  button{
+    height:32px;
+    line-height:28px;
+    width:32px;
+    padding:0px;
+    text-align: center;
+    background: transparent !important;
+    border:none;
+    font-size: 20px;
+    i {
+      margin:0px;
+    }
+  }
+
+  #back-btn {
+    color: #fff;
+    cursor: pointer;
+    i {
+      line-height: 32px;
+    }
+  }
+
+  .back {
+    background: transparent;
+    position: absolute;
+    left: 15px;
+    top: 15px;
+
+
+    i {
+      font-size: 30px;
+    }
+  }
+}
+

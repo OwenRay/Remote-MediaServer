@@ -1,25 +1,9 @@
-
-{{#paper-toolbar}}
-    <div class="md-toolbar-tools">
-        {{#paper-sidenav-toggle as |toggle|}}
-            {{#paper-button target=toggle action="toggleMenu" icon-button=true}}{{paper-icon "menu"}}{{/paper-button}}
-        {{/paper-sidenav-toggle}}
-        <span class="md-breadcrumb-page">Movies</span>
+<main>
+    <div class="container">
+        {{#md-card id="basic-card"}}
+            {{#md-card-content}}
+                This will be the landingpage, enabling you to continue watching where you left of... some time in the future...
+            {{/md-card-content}}
+        {{/md-card}}
     </div>
-{{/paper-toolbar}}
-
-{{#paper-content class="md-padding"}}
-    {{#paper-list}}
-        {{#each model as |item|}}
-            {{#paper-item class="md-3-line" action=(action "itemClick" item)}}
-                <div class="md-list-item-text">
-                    <h3>{{item.title}}</h3>
-                    <h4>{{item.year}}</h4>
-                </div>
-            {{/paper-item}}
-            {{!-- {{#paper-button icon-button=true}}
-                {{paper-icon "play-circle-filled"}}
-            {{/paper-button}} --}}
-        {{/each}}
-    {{/paper-list}}
-{{/paper-content}}
+</main>

@@ -1,14 +1,24 @@
 {
-  "name": "media",
+  "name": "remote-mediaserver",
   "description": "",
   "version": "0.0.1",
   "private": true,
+  "bin": {
+    "remote": "./main.js"
+  },
+  "scripts": {
+    "prepublish": "node scripts/prepublish.js"
+  },
   "dependencies": {
     "guessit-wrapper": "^1.0.0",
     "mime": "^1.3.4",
     "moviedb": "^0.2.3",
+    "node-cache": "^3.2.1",
     "node-promise": "^0.5.12",
+    "node-uuid": "^1.4.7",
     "pluralize": "^1.2.1",
-    "recursive-readdir": "^2.0.0"
+    "recursive-readdir": "^2.0.0",
+    "server-destroy": "^1.0.1",
+    "unzip": "^0.1.11"
   }
 }

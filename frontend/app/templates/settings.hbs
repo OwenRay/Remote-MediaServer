@@ -1,0 +1,111 @@
+<main>
+    <div class="container">
+        {{#md-tabs selected=selectedTab}}
+            {{md-tab value='server' title="Server settings"}}
+            {{md-tab value='library' title="Media library"}}
+        {{/md-tabs}}
+
+        {{#if (eq selectedTab "server")}}
+            {{#md-card title="Server settings"
+            titleClass="white-text"}}
+
+                {{#md-card-content}}
+                    {{md-input
+                        value=settings.model.name
+                        label='Server name'
+                        icon="mdi-action-label white-text"}}
+                    {{md-input
+                        value=settings.model.port
+                        label='Port'
+                        icon="mdi-action-label white-text"}}
+                {{/md-card-content}}
+
+                {{#md-card-action}}
+                    {{md-btn-submit
+                        action="save"
+                        icon='mdi-content-save'
+                        iconPosition='right'
+                        text='save'}}
+                {{/md-card-action}}
+
+            {{/md-card}}
+        {{/if}}
+
+        {{#if (eq selectedTab "library")}}
+            {{#md-card title="Library settings"
+            titleClass="white-text"}}
+
+                {{#md-card-content}}
+                    <md-content>
+                        {{#md-collection content=settings.model.libraries as |library|}}
+                            <a {{action "selectLibrary" library}} class="collection-item">
+                                {{library.name}}
+                                <a {{action 'deleteLibrary' library bubbles=false}} class='secondary-content'>
+                                    <i class="mdi-action-delete"></i>
+                                </a>
+                            </a>
+                        {{/md-collection}}
+                    </md-content>
+
+                {{/md-card-content}}
+
+                {{#md-card-action}}
+                    {{md-btn-submit
+                        action="addLibrary"
+                        icon='mdi-content-add'
+                        iconPosition='right'
+                        text='Add library'}}
+                {{/md-card-action}}
+
+            {{/md-card}}
+        {{/if}}
+
+        {{#if selectedLibrary}}
+            {{#md-modal close='deselectLibrary'}}
+                <div class="modal-content">
+                    <h4>Add library</h4>
+                    {{md-select content=libraryTypes
+                        value=selectedLibrary.type
+                        label="Library type"
+                        prompt="Please choose..."
+                        optionLabelPath="content.label"
+                        optionValuePath="content.value" class="col s12"}}
+                    {{md-input label="Name" value=selectedLibrary.name icon="mdi-action-label white-text"}}
+                    {{#server-file-browser label="Library folder" value=selectedLibrary.folder}}{{/server-file-browser}}
+                </div>
+                <div class="modal-footer">
+                    <a class="modal-action modal-close waves-effect waves-green btn-flat agree-button" {{action 'save'}}>
+                        Save
+                    </a>
+                    <a class="modal-action modal-close waves-effect waves-red btn-flat cancel-button" {{action 'deselectLibrary'}}>
+                        Cancel
+                    </a>
+                </div>
+                <md-content>
+
+                </md-content>
+            {{/md-modal}}
+        {{/if}}
+
+
+        {{#if deletingLibrary}}
+            {{#md-modal close='deleteLibrary'}}
+                <div class="modal-content">
+                    <h4>Deleting "{{deletingLibrary.name}}"</h4>
+                    Are you sure your want to delete "{{deletingLibrary.name}}"?
+                </div>
+                <div class="modal-footer">
+                    <a class="modal-action modal-close waves-effect waves-green btn-flat agree-button" {{action 'confirmDelete'}}>
+                        Yes
+                    </a>
+                    <a class="modal-action modal-close waves-effect waves-red btn-flat cancel-button" {{action 'deleteLibrary'}}>
+                        No
+                    </a>
+                </div>
+                <md-content>
+
+                </md-content>
+            {{/md-modal}}
+        {{/if}}
+    </div>
+</main>

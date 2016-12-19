@@ -9,29 +9,30 @@ export default Ember.Component.extend({
     progressObj:null,
     trackerObj:null,
     offset:null,
-    seekingProgress:0,
+    seekingProgress:-1,
 
     didInsertElement()
     {
         this.set("bufferObj", this.$(".buffer"));
-        this.set("progressObj", this.$(".progress"));
-        this.set("trackerObj",  this.$(".tracker"));
+        this.set("progressObj", this.$(".seekprogress"));
+        this.set("trackerObj",  this.$(".seektracker"));
         this.$().mousedown(this.onClick.bind(this));
         this.addObserver("offset", this.onOffsetChange);
 
         this.addObserver("progress", this.onProgress);
+        this.onProgress();
     },
 
     onOffsetChange()
     {
-        var left = this.get("offset")/this.get("max")*this.trackerObj.width();
-        this.bufferObj.css("left", left+"px");
-        this.progressObj.css("left", left+"px");
+        //var left = this.get("offset")/this.get("max")*this.trackerObj.width();
+        //this.bufferObj.css("left", left+"px");
+        //this.progressObj.css("left", left+"px");
     },
 
     onProgress()
     {
-        var progress = this.get("seekingProgress")?this.get("seekingProgress"):this.get("progress");
+        var progress = this.get("seekingProgress")!==-1?this.get("seekingProgress"):this.get("progress")+this.get("offset");
         this.progressObj.css("width", this.trackerObj.width()*(progress/this.get("max"))+"px");
     },
 
@@ -39,11 +40,13 @@ export default Ember.Component.extend({
     {
         e.preventDefault();
         e.stopPropagation();
+        var func = this.get("onMove").bind(this);
+        this.set("onMoveFunc", func);
         Ember.$("body")
-            .mousemove(this.get("onMove").bind(this))
+            .mousemove(func)
             .mouseup(this.get("stopSeeking").bind(this));
-        this.bufferObj.css("left", "0px");
-        this.progressObj.css("left", "0px");
+        //this.bufferObj.css("left", "0px");
+        //this.progressObj.css("left", "0px");
         this.onMove(e);
     },
 
@@ -57,6 +60,7 @@ export default Ember.Component.extend({
         {
             pos = w;
         }
+        console.log(pos, w, pos/w, this.get("max")*(pos/w));
         this.set("seekingProgress", this.get("max")*(pos/w));
         this.onProgress();
     },
@@ -64,10 +68,10 @@ export default Ember.Component.extend({
     stopSeeking()
     {
         Ember.$("body")
-            .unbind("mousemove")
+            .unbind("mousemove", this.get("onMoveFunc"))
             .unbind("mouseup");
         var progress = this.get("seekingProgress");
-        this.set("seekingProgress", 0);
+        this.set("seekingProgress", -1);
         this.onSeek(progress);
         this.onProgress();
         this.onOffsetChange();

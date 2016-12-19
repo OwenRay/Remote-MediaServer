@@ -1,0 +1,23 @@
+{{md-input label=label value=value icon="mdi-file-folder white-text"}}
+<div class="collection directoryList">
+    {{#if loading}}
+        {{md-loader}}
+    {{else}}
+        {{#if showUp}}
+            <a {{action "up"}} class="collection-item">Directory up</a>
+        {{/if}}
+        {{#each directories as |directory|}}
+            <a {{action "directoryClick" directory}} class="collection-item">{{directory}}</a>
+        {{/each}}
+        {{#if error}}
+            <div class="collection-item error">
+                {{error}}
+            </div>
+        {{/if}}
+        {{#if empty}}
+            <div class="collection-item">
+                Directory empty
+            </div>
+        {{/if}}
+    {{/if}}
+</div>

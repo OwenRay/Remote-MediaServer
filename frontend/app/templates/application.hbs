@@ -1,21 +1,30 @@
-{{#paper-nav-container}}
-    {{#paper-sidenav classNames="md-sidenav-left md-whiteframe-z2" flex-layout="column" flex=true }}
-        {{#paper-toolbar}}
-            <div class="md-toolbar-tools">
-                <div class="logo">
-                    <strong>Owen's Films</strong>
-                </div>
-            </div>
-        {{/paper-toolbar}}
+{{#md-navbar name=settings.model.name class="fixed navbar"}}
+    <!-- A workaround to get the "active" class
+      to apply to the active <li> automatically -->
+    {{#link-to 'index' tagName='li'}}
+        {{#link-to 'index'}}
+            <i class="material-icons left">home</i>
+            Home
+        {{/link-to}}
+    {{/link-to}}
 
-        {{#paper-content}}
-            {{#paper-list}}
-                {{#paper-item action="transitionTo" param="index"}}Movies{{/paper-item}}
-            {{/paper-list}}
-        {{/paper-content}}
-    {{/paper-sidenav}}
+    {{#link-to 'library.list' tagName='li'}}
+        {{#link-to 'library.list'}}
+            <i class="material-icons left">video_library</i>
+            Library
+        {{/link-to}}
+    {{/link-to}}
 
-    {{#paper-content flex-layout="column" flex=true}}
-        {{outlet}}
-    {{/paper-content}}
-{{/paper-nav-container}}
+    {{#link-to 'settings' tagName='li'}}
+        {{#link-to 'settings'}}
+            <i class="material-icons left">settings</i>
+            Settings
+        {{/link-to}}
+    {{/link-to}}
+{{/md-navbar}}
+
+{{liquid-outlet}}
+
+
+{{!-- ember-cli-materialize modal container --}}
+{{md-modal-container}}

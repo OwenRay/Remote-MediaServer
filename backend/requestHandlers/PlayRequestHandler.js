@@ -7,32 +7,73 @@ var os = require('os');
 var fs = require("fs");
 var Settings = require("../Settings");
 var FFProbe = require("../FFProbe");
+var Database = require("../Database");
 
 var RequestHandler = require("./RequestHandler");
+var MediaItemHelper = require("../helpers/MediaItemHelper");
+var Debug = require("../helpers/Debug");
 
 class PlayRequestHandler extends RequestHandler{
     handleRequest()
     {
-        //this.file = decodeURI(Settings.moviesFolder+this.request.url.substr(4));
+        this.bufferedChuncks = 0;
         var parts = this.request.url.split("/");
-        parts.shift();
-        parts.shift();
         this.offset = parts.pop();
-        this.file = Settings.moviesFolder+"/"+decodeURI(parts.join("/"));
-        console.log(this.file);
+        //this.file = Settings.getValue("moviesFolder")+"/"+decodeURI(parts.join("/"));
+        var mediaItem = Database.getById("media-item", parts.pop());
+        if(!mediaItem)
+        {
+            return this.response.end();
+        }
+
+        /*this.range = -1;
+        if(this.request.headers.range)
+        {
+            var range = this.request.headers.range.split("=");
+            var h = range[1];
+            range = range[1].split("-");
+            if(range[1]) {
+                this.range = range[1] - range[0] + 1;
+                console.log("range!", this.request.headers.range, this.range);
+                this.response.statusCode = 206;
+                console.log("header", "bytes "+h+"/4372373000");
+                console.log("bytes "+h+"/4372373000");
+                this.response.setHeader("Content-Range", "bytes "+h;
+            }
+        }*/
+
+        this.file = MediaItemHelper.getFullFilePath(mediaItem);
+        Debug.debug("starting to play:"+this.file);
         FFProbe.getInfo(this.file).then(this.gotInfo.bind(this), this.onError.bind(this));
     }
 
-    gotInfo(info)
+    gotInfo(info, correctedOffset)
     {
+        if(!correctedOffset&&this.offset!=0)
+        {
+            FFProbe.getNearestKeyFrame(this.file, this.offset)
+                .then(
+                    function(offset){
+                        //this.offset = offset;
+                        this.offset = offset;
+                        Debug.debug("play from 2:", offset);
+                        this.gotInfo(info, true);
+                    }.bind(this),
+                    this.onError.bind(this)
+                );
+            return;
+        }
         if(!info||!info.format)
         {
-            console.log("VIDEO ERROR!");
+            Debug.warning("VIDEO ERROR!");
             this.response.end();
             return;
         }
         this.response.setHeader('Content-Type', "video/mp4");
-        this.response.setHeader('Accept-Ranges', 'bytes');
+        this.response.setHeader('Accept-Ranges', 'none');
+        //if(this.range!=-1)
+        //    this.response.setHeader('Content-Length', this.range);
+        //this.response.setHeader('Transfer-Encoding', 'chunked');
         var vCodec = "libx264";
         var aCodec = "aac";
 
@@ -52,11 +93,10 @@ class PlayRequestHandler extends RequestHandler{
                 aCodec = "copy";
             }
         }
-        //console.log()
         var duration = Math.round((info.format.duration-this.offset)*1000);
-        console.log("setDuration", duration);
+        Debug.debug("setDuration", duration);
         //OK... this is a hack to specify the video duration...
-        this.tmpFile = os.tmpdir()+Math.random()+".txt";
+        this.tmpFile = os.tmpdir()+"/"+Math.random()+".txt";
         var metadata = ";FFMETADATA1\n"+
                         "[CHAPTER]\n"+
                         "TIMEBASE=1/1000\n"+
@@ -66,52 +106,100 @@ class PlayRequestHandler extends RequestHandler{
 
         fs.writeFileSync(this.tmpFile, metadata);
 
+        // om keyframe te vinden, gaat wellicht veel fixen:
+        // ffprobe.exe -read_intervals 142%+#1  -show_frames -select_streams v:0 -print_format json  "//home/nzbget/downloads/complete/MoviesComplete\Hitman Agent 47 2015 BluRay 720p DTS-ES x264-ETRG\Hitman Agent 47 2015 BluRay 720p DTS x264-ETRG.mkv" | grep pts_time
         var args = [
             //"-re", // <-- should read the file at running speed... but a little to slow...
-            "-ss", this.offset,
+            "-probesize", "50000000",
+            "-thread_queue_size", "1024",
+            //"-ss", this.offset,
             "-i", this.file,
             "-i", this.tmpFile,
+            //"-ss", 0,
             "-map_metadata", "1",
+            //"-af", "aresample=60000",
+            //"-keyint_min", "60", "-g", "60",
+            //"-r", "25",
 
             "-f", "mp4",
             "-vcodec", vCodec,
-            "-movflags", "faststart+empty_moov",
+            "-movflags", "empty_moov",
             "-acodec", aCodec,
-            "-metadata:c:0", 'end=120000',
+            //"-metadata:c:0", 'end=120000',
             "-strict", "-2",
             "-"
         ];
-
-        console.log(Settings.ffmpeg_binary+" "+args.join(" "));
+        if(aCodec!="copy")
+        {
+            Debug.debug("mixing down to 2 AC!");
+            args.splice(18, 0, "-ac", 2, "-ab", "192k");
+        }
+        if(this.offset!=0) {
+            args.splice(8, 0, "-ss", 0);
+            args.splice(4, 0, "-ss", this.offset);
+        }
+        Debug.debug("starting ffmpeg:"+Settings.getValue("ffmpeg_binary")+" "+args.join(" "));
         var proc = spawn(
-            Settings.ffmpeg_binary,
+            Settings.getValue("ffmpeg_binary"),
             args);
+        this.proc = proc;
 
         proc.stdout.on('data', this.onData.bind(this));
         proc.stderr.on('data', this.onError.bind(this));
-        proc.on('close', this.onClose.bind(this));
+        proc.on('close', this.onClose.bind(this))
+        proc.on('drain', function(){
+            proc.stdout.resume();
+        });
         this.request.connection.on('close',function(){
-            console.log("close!");
+            Debug.debug("close video play connection!");
             proc.kill("SIGINT");
         });
     }
 
 
-    onData(data)
-    {
-        this.response.write(data);
+    onData(data) {
+        /*if(this.range==0)
+        {
+            console.log("closing!!");
+            if(!this.ended) {
+                this.response.end();
+                this.proc.kill("SIGINT");
+            }
+            this.ended = true;
+            return;
+        }
+        //return;
+        console.log("DATA!!!!", data, data.length);
+        if(this.range>=0&&data.length>this.range)
+        {
+            data = new Buffer(this.range);
+            data.fill(data, 0, this.range);
+        }
+        this.range-=data.length;
+        console.log("DATA!!!!", data.length);*/
+        this.bufferedChuncks++;
+        if(this.bufferedChuncks>20)
+        {
+            this.proc.stdout.pause();
+        }
+
+        this.response.write(data, function () {
+            this.bufferedChuncks--;
+            this.proc.stdout.resume();
+        }.bind(this));
     }
 
     onError(data)
     {
-        console.log(`${data}`);
+        Debug.warning(`${data}`);
     }
 
     onClose(code)
     {
-        console.log("Close:"+code);
+        Debug.debug("Close:"+code, this.tmpFile);
+        fs.unlink(this.tmpFile);
 
-        this.response.end();
+        //this.response.end();
     }
 }
 

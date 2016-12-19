@@ -1,11 +1,14 @@
 "use strict";
 
 var fs = require("fs");
-var Settings = {
+var uuid = require('node-uuid');
+
+var settingsObj = {
     "port": 8080,
-    "moviesFolder": process.env.HOME || process.env.USERPROFILE,
-    "ffmpeg_binary": "ffmpeg",
-    "ffprobe_binary": "ffprobe",
+    "name": "My Media Server",
+    "ffmpeg_binary": process.cwd()+"/ffmpeg",
+    "ffprobe_binary": process.cwd()+"/ffprobe",
+    "libraries": [],
     "videoFileTypes": [
         "mkv",
         "mp4",
@@ -25,20 +28,99 @@ var Settings = {
         "mpg",
         "mpeg",
         "m4v"
-    ]
+    ],
+    //0: debug, 1: info, 2: warning, 3: exception
+    verbosity: 1,
+    'guessit': {
+        'host': 'guessit.theremote.io',
+        'port': 5000
+    },
+    scanInterval:3600,
 };
 
-try {
-    var contents = fs.readFileSync("settings.json", "utf8");
-    var newSettings = JSON.parse(contents);
-    for (var key in newSettings) {
-        Settings[key] = newSettings[key];
+var Settings = {
+    observers:[],
+
+    createIfNotExists()
+    {
+        if(!fs.existsSync("settings.json"))
+        {
+            Settings.save();
+        }
+    },
+
+    getValue(key)
+    {
+        return settingsObj[key];
+    },
+
+    setValue(key, value)
+    {
+        if(key=="libraries")
+        {
+            for(var c = 0; c<value.length; c++)
+            {
+                if(!value[c].uuid)
+                {
+                    value[c].uuid = uuid.v4();
+                }
+            }
+        }
+
+        var originalValue = settingsObj[key];
+        settingsObj[key] = value;
+
+        if(originalValue!=value)
+        {
+            this.triggerObservers(key);
+        }
+    },
+
+    getAll()
+    {
+        return settingsObj;
+    },
+
+    load()
+    {
+        try {
+            var contents = fs.readFileSync("settings.json", "utf8");
+            var newSettings = JSON.parse(contents);
+            for (var key in newSettings) {
+                settingsObj[key] = newSettings[key];
+            }
+        }catch (e){
+        }
+    },
+
+    save()
+    {
+        fs.writeFileSync("settings.json", JSON.stringify(settingsObj, null, '  '));
+    },
+
+    triggerObservers(variable)
+    {
+        if(!Settings.observers[variable])
+        {
+            return;
+        }
+        for(var c = 0; c<Settings.observers[variable].length; c++)
+        {
+            Settings.observers[variable][c](variable);
+        }
+    },
+
+    addObserver(variable, callback)
+    {
+        if(!Settings.observers[variable])
+        {
+            Settings.observers[variable] = [];
+        }
+        Settings.observers[variable].push(callback);
     }
-}catch (e){
-}
+};
 
-fs.writeFile("settings.json", JSON.stringify(Settings, null, '\t'));
-
-
+Settings.load();
+Settings.createIfNotExists();
 
 module.exports = Settings;

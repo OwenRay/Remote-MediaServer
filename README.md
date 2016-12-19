@@ -1,27 +1,40 @@
+Production | Development
+--- | ---
+[![Build Status](https://travis-ci.org/OwenRay/Remote-MediaServer.svg?branch=master)](https://travis-ci.org/OwenRay/Remote-MediaServer) | [![Build Status](https://travis-ci.org/OwenRay/Remote-MediaServer.svg?branch=dev)](https://travis-ci.org/OwenRay/Remote-MediaServer)
+
 # PREREQUISITES
-- npm
-- ffmpeg and ffprobe static binaries  
-(the download of ffmpeg binaries will be automated in the future)
+- npm  
+- nodejs >= 5.1
 
-# INSTALLATION
-To install execute:  
-node setup.js  
+# USING
+###INSTALL
+dev:  
+`$ npm install -g https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/remote-mediaserver-0.0.1.tgz`  
 
-# RUNNING
-To run execute:  
-node main.js
+prod:  
+`$ npm install -g https://s3-eu-west-1.amazonaws.com/remote-mediaserver/master/remote-mediaserver-0.0.1.tgz`  
+###RUN
+`$ remote`  
+direct your browser to http://localhost:8080
 
-A settings file will be created at first run  
-Restart after modification
-
-open http://localhost:8080
-
-# DEVELOPING
-##backend:
-just run the server like normal node main.js
-##frontend
-cd frontend (got into the frontend directory)  
-ember server --proxy http://localhost:8080
-
-# KNOWN ISSUES
-Empty library will crash the server.
+# DEVELOPMENT
+### Installing dependencies
+To setup your development environment run the following command  
+`$ node setup.js`  
+  
+To start the server:  
+`$ node main.js`  
+  
+A settings file (~/.remote/settings.json) will be created at first run  
+Restart the server after direct modification  
+  
+direct your browser to http://localhost:8080  
+  
+### Frontend
+The frontend is build on [Ember.js](emberjs.com)   
+to build and test the frontend first make sure the backend is running  
+then execute the following:  
+`$ cd frontend`  
+`$ ember server --proxy http://localhost:8080`  
+  
+The webapplication will now be accessible from http://localhost:4200

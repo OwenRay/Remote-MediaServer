@@ -5,6 +5,7 @@
 
 var fs = require('fs');
 var mime = require('mime');
+var path = require('path');
 
 var RequestHandler = require("./RequestHandler");
 
@@ -13,23 +14,32 @@ class FileRequestHandler extends RequestHandler{
     {
         //this.response.end("ok");
         var url = this.request.url;
-        console.log(url, url[url.length-1]);
-        if(!url||url[url.length-1]==="/")
-            url+="index.html";
+        var dir = __dirname+"/../../frontend/dist/";
+        if(! url || url[url.length-1] === "/" || ! fs.existsSync(dir + url)) {
+            if(!url.indexOf("?")&&path.parse(dir+url).ext)
+            {
+                return this.returnFourOFour();
+            }
+            url = "/index.html";
+        }
 
         this.response.setHeader('Content-Type', mime.lookup(url));
-        
-        fs.readFile("./frontend/dist"+url, "utf8", this.fileRead.bind(this));
+        fs.readFile(dir + url, this.fileRead.bind(this));
+    }
+
+    returnFourOFour()
+    {
+        this.response.statusCode = "404";
+        this.response.end("File not found.");
     }
 
     fileRead(err, data)
     {
         if(err)
         {
-            this.response.statusCode = "404";
-            this.response.end("File not found.");
-            return;
+            return this.returnFourOFour();
         }
+
         this.response.end(data);
     }
 }
