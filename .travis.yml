@@ -1,19 +1,19 @@
 language: node_js
 node_js:
-  - "6.9.2"
+  - "5.1"
 compiler: gcc
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - gcc-4.7
-      - g++-4.7
+      - gcc-4.8
+      - g++-4.8
 before_install:		
-  - export CC="gcc-4.7";
-  - export CXX="g++-4.7";
-  - export LINK="gcc-4.7";
-  - export LINKXX="g++-4.7";
+  - export CC="gcc-4.8";
+  - export CXX="g++-4.8";
+  - export LINK="gcc-4.8";
+  - export LINKXX="g++-4.8";
   - rvm install 2.2.5
   - nvm --version
   - node --version
