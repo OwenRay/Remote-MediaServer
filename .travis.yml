@@ -20,7 +20,7 @@ before_install:
   - g++ --version
 install:
   - npm install
-  - npm install -g ember
+  - npm install -g ember-cli
   - npm install -g bower
   - npm install -g nodeunit
   - ember -v
