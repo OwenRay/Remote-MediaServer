@@ -1,17 +1,34 @@
 language: node_js
 node_js:
   - "5.1"
-before_install:
+compiler: gcc
+env: 
+  - CXX=g++-4.8
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.8
+      - g++-4.8
+before_install:		
   - rvm install 2.2.5
+  - nvm --version
+  - node --version
+  - npm --version
+  - gcc --version
+  - g++ --version
 install:
   - npm install
-  - npm install -g ember
+  - npm install -g ember-cli
   - npm install -g bower
   - npm install -g nodeunit
+  - ember -v
   - cd frontend && npm install && cd ../
   - cd frontend && bower install && cd ../
 script:
   - mkdir dist && cd dist && npm pack ../ && cd ..
+  - ls -al frontend/dist/assets
 after_script:
   - nodeunit tests
   - node main.js & cd frontend && ember test && cd ..
