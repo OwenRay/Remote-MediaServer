@@ -9,8 +9,6 @@ addons:
     - ubuntu-toolchain-r-test
     packages:
     - gcc-4.8
-before_install:
-  - rvm install 2.2.5
 install:
   - npm install
   - npm install -g ember
