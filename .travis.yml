@@ -28,6 +28,7 @@ install:
   - cd frontend && bower install && cd ../
 script:
   - mkdir dist && cd dist && npm pack ../ && cd ..
+  - ls -al frontend/dist/assets
 after_script:
   - nodeunit tests
   - node main.js & cd frontend && ember test && cd ..
