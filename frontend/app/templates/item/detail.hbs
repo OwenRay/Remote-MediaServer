@@ -87,6 +87,15 @@
     {{#md-modal close='toggleDetails'}}
         <div class="modal-content">
             <h4>Media details</h4>
+            {{#each extras as |item|}}
+                {{#if item.trailer}}
+                    {{#link-to "item.view" item}}Watch trailer{{/link-to}}<br/>
+                {{/if}}
+                {{#if item.sample}}
+                    {{#link-to "item.view" item}}Watch sample{{/link-to}}<br/>
+                {{/if}}
+            {{/each}}
+
             <div class="collection">
                 {{#each detailItems as |item|}}
                     <div class=collection-item">
