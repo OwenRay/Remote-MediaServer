@@ -25,6 +25,7 @@ install:
   - npm install -g ember
   - npm install -g bower
   - npm install -g nodeunit
+  - ember -v
   - cd frontend && npm install && cd ../
   - cd frontend && bower install && cd ../
 script:
