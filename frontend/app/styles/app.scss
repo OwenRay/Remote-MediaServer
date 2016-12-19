@@ -436,6 +436,7 @@ input:not([type]), input[type=text], input[type=password], input[type=email], in
   @extend .z-depth-1;
   transition: .2s ease-out;
   cursor: pointer;
+  pointer-events: all !important;
 
   &:hover {
     background-color: $button-raised-background-hover !important;

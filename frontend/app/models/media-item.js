@@ -32,6 +32,10 @@ export default DS.Model.extend({
         return Ember.String.htmlSafe("width:"+val+"%");
     }),
 
+    "filedurationReadable":Ember.computed("fileduration", function(){
+        return Math.round(this.get("fileduration")/60)+"m";
+    }),
+
     "rating":Ember.computed("vote-average", function()
     {
         return this.get('vote-average') * 10;
