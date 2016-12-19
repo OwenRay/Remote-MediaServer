@@ -12,6 +12,7 @@ export default DS.Model.extend({
     "fileduration":DS.attr("number"),
     "play-position":DS.belongsTo("play-position"),
     "external-id":DS.attr("number"),
+    "external-episode-id":DS.attr("number"),
     "season":DS.attr("number"),
     "episode":DS.attr("number"),
     "episode-title":DS.attr("string"),
@@ -20,6 +21,8 @@ export default DS.Model.extend({
     "bitrate":DS.attr("number"),
     "width":DS.attr("number"),
     "height":DS.attr("number"),
+    "sample":DS.attr("boolean"),
+    "trailer":DS.attr("boolean"),
 
     "percent-watched":Ember.computed("fileduration", "play-position.position", function()
     {

@@ -51,9 +51,11 @@ export default Ember.Controller.extend({
                         {
                             "external-id":this.get("model.external-id"),
                             "sort":"season,episode",
-                            "join":"play-position"
+                            "join":"play-position",
+                            "extra":"false"
                         }
                     );
+
     }),
 
     watched:Ember.computed("model.fileduration", "model.play-position.position", function(){
@@ -65,6 +67,16 @@ export default Ember.Controller.extend({
         return Ember.String.htmlSafe("width:"+this.get("model.rating")+"%");
     }),
 
+    extras:Ember.computed("model.id", function() {
+         var q = {"extra":true};
+         console.log("extras");
+         if(this.get("model.type")=="tv") {
+            q["external-episode-id"] = this.get("model.external-episode-id");
+         }else {
+            q["external-id"] = this.get("model.external-id");
+         }
+         return this.store.query("media-item", q);
+    }),
 
     actions:{
         play()

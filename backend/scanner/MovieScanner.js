@@ -10,6 +10,7 @@ var TheMovieDBExtendedInfo = require("./extendedInfo/TheMovieDBExtendedInfo");
 var FFProbeExtendedInfo = require("./extendedInfo/FFProbeExtendedInfo");
 var ParseFileNameExtendedInfo = require("./extendedInfo/ParseFileNameExtendedInfo");
 var TheMovieDBSeriesAndSeasons = require("./extendedInfo/TheMovieDBSeriesAndSeasons");
+var ExtrasExtendedInfo = require("./extendedInfo/ExtrasExtendedInfo");
 var Debug = require("../helpers/Debug");
 
 class MovieScanner
@@ -123,13 +124,17 @@ class MovieScanner
         {
             var file = files[offset].substr(this.library.folder.length);
             if(!Database.findBy("media-item", "filepath", file).length) {
-                Database.setObject(
-                    "media-item",
-                    {
+                var obj = {
                         filepath: file,
                         libraryId: this.library.uuid,
                         mediaType: this.library.type
-                    });
+                    };
+                if(file.match(/.*sample.*/)){
+                    obj.sample = obj.extra = true;
+                }else if(file.match(/.*trailer.*/)){
+                    obj.sample = obj.extra = true;
+                }
+                Database.setObject("media-item", obj);
             }
         }
         this.checkForExtendedInfo();
@@ -139,12 +144,23 @@ class MovieScanner
     {
         Debug.info("checking for extended info...");
         var items = Database.findBy("media-item", "libraryId", this.library.uuid);
+        //order trailers and samples to the back
+        var count = items.length;
+        for(var c = 0; c<count; c++) {
+            if(items[c].attributes.extra) {
+                //console.log("isExtra", items[c]);
+                items.push(items.splice(c, 1)[0]);
+                count--;
+                c--;
+            }
+        }
 
         var extendedInfoItems = [
                                     new FFProbeExtendedInfo(),
                                     new ParseFileNameExtendedInfo(),
                                     new TheMovieDBSeriesAndSeasons(),
-                                    new TheMovieDBExtendedInfo()
+                                    new TheMovieDBExtendedInfo(),
+                                    new ExtrasExtendedInfo()
                                 ];
 
         var loadNext = function()
@@ -161,11 +177,11 @@ class MovieScanner
             var prevPromise;
             for(var c = 0; c<extendedInfoItems.length; c++)
             {
-                if(!prevPromise)
+                if(prevPromise)
                 {
-                    prevPromise = extendedInfoItems[c].extendInfo([item, this.library]);
-                }else{
                     prevPromise = prevPromise.then(extendedInfoItems[c].extendInfo.bind(extendedInfoItems[c]));
+                }else{
+                    prevPromise = extendedInfoItems[c].extendInfo([item, this.library]);
                 }
             }
             prevPromise.then(loadNext);
