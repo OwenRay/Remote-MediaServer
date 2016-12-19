@@ -2,6 +2,11 @@ language: node_js
 node_js:
   - "5.1"
 compiler: gcc
+env: 
+  - CC=gcc-4.8
+  - CXX=g++-4.8
+  - LINK=gcc-4.8
+  - LINKXX=g++-4.8
 addons:
   apt:
     sources:
@@ -10,10 +15,6 @@ addons:
       - gcc-4.8
       - g++-4.8
 before_install:		
-  - export CC="gcc-4.8";
-  - export CXX="g++-4.8";
-  - export LINK="gcc-4.8";
-  - export LINKXX="g++-4.8";
   - rvm install 2.2.5
   - nvm --version
   - node --version
