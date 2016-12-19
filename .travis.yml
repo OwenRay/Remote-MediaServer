@@ -3,10 +3,7 @@ node_js:
   - "5.1"
 compiler: gcc
 env: 
-  - CC=gcc-4.8
   - CXX=g++-4.8
-  - LINK=gcc-4.8
-  - LINKXX=g++-4.8
 addons:
   apt:
     sources:
