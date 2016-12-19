@@ -191,7 +191,7 @@ class PlayRequestHandler extends RequestHandler{
 
     onError(data)
     {
-        Debug.warn(`${data}`);
+        Debug.warning(`${data}`);
     }
 
     onClose(code)
