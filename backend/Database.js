@@ -161,6 +161,12 @@ class Database {
 
     matches(value, filter, filterProp)
     {
+        if(typeof(filter) !== "boolean") {
+            value = (value + "").toLowerCase()
+            filter = (filter + "").toLowerCase()
+        }else{
+            console.log("bool");
+        }
         switch(filterProp)
         {
             case "endsWith":
