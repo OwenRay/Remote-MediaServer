@@ -43,13 +43,13 @@ class Debug
             {
                 case Debug.LEVEL.INFO:
                 case Debug.LEVEL.DEBUG:
-                    console.log(message);
+                    console.log.apply(console, message);
                     break;
                 case Debug.LEVEL.WARNING:
-                    console.warn(message);
+                    console.warn.apply(console, message);
                     break;
                 case Debug.LEVEL.EXCEPTION:
-                    console.error(message);
+                    console.error.apply(console, message);
                     break;
             }
         }

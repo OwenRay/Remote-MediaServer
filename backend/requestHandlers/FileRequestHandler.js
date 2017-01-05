@@ -23,8 +23,14 @@ class FileRequestHandler extends RequestHandler{
             url = "/index.html";
         }
 
-        this.response.setHeader('Content-Type', mime.lookup(url));
-        fs.readFile(dir + url, this.fileRead.bind(this));
+        this.serveFile(dir+url);
+    }
+
+    serveFile(filename) {
+        console.log(this.response.headersSent);
+        this.response.setHeader('Content-Type', mime.lookup(filename));
+        console.log(mime.lookup(filename));
+        fs.readFile(filename, this.fileRead.bind(this));
     }
 
     returnFourOFour()
@@ -37,9 +43,12 @@ class FileRequestHandler extends RequestHandler{
     {
         if(err)
         {
+            console.log("404!");
             return this.returnFourOFour();
         }
-
+        //if(data.length<9999)
+        //    console.log('file served', `${data}`);
+        console.log('file returned');
         this.response.end(data);
     }
 }
