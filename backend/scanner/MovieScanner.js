@@ -21,7 +21,7 @@ class MovieScanner
     {
         this.library = null;
         this.scanning = -1;
-        //this.scan();
+        this.scan();
         Settings.addObserver("libraries", this.scan.bind(this));
     }
 
@@ -98,7 +98,7 @@ class MovieScanner
         Debug.info("start scan", this.library);
 
         //recursive(this.library.folder, [this.willInclude.bind(this)], this.onListed.bind(this));
-        this.getFilesFromDir(this.library.folder).then(this.checkForExtendedInfo.bind(this));
+        this.getFilesFromDir(this.library.folder+"/").then(this.checkForExtendedInfo.bind(this));
     }
 
     getFilesFromDir(dir) {
@@ -148,10 +148,10 @@ class MovieScanner
         var type =  f[f.length-1];
         for(var c = 0; c<this.types.length; c++) {
             if (this.types[c] === type) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     addFileToDatabase(file)

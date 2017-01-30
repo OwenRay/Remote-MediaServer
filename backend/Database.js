@@ -24,7 +24,7 @@ class Database {
     {
         this.checkTable(type);
         if(!this.ids[type]) {
-            this.ids[type] = 0;
+            this.ids[type] = 1;
         }
 
         var o = {id:obj.id};
