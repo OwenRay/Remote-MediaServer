@@ -165,7 +165,7 @@ class Database {
             value = (value + "").toLowerCase()
             filter = (filter + "").toLowerCase()
         }else{
-            console.log("bool");
+            //console.log("bool");
         }
         switch(filterProp)
         {

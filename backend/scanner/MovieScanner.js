@@ -5,6 +5,7 @@ var Settings = require("../Settings");
 var Database = require("../Database");
 var MediaItemHelper = require("../helpers/MediaItemHelper");
 var fs = require("fs");
+var Promise = require("node-promise").Promise;
 
 var TheMovieDBExtendedInfo = require("./extendedInfo/TheMovieDBExtendedInfo");
 var FFProbeExtendedInfo = require("./extendedInfo/FFProbeExtendedInfo");
@@ -20,7 +21,7 @@ class MovieScanner
     {
         this.library = null;
         this.scanning = -1;
-        this.scan();
+        //this.scan();
         Settings.addObserver("libraries", this.scan.bind(this));
     }
 
@@ -95,7 +96,48 @@ class MovieScanner
         this.types = Settings.getValue("videoFileTypes");
         this.library = Settings.getValue("libraries")[this.scanning];
         Debug.info("start scan", this.library);
-        recursive(this.library.folder, [this.willInclude.bind(this)], this.onListed.bind(this));
+
+        //recursive(this.library.folder, [this.willInclude.bind(this)], this.onListed.bind(this));
+        this.getFilesFromDir(this.library.folder).then(this.checkForExtendedInfo.bind(this));
+    }
+
+    getFilesFromDir(dir) {
+        var promise = new Promise();
+
+        fs.readdir(dir, (err, files) => {
+            if(err) {
+                Debug.warning("error dir listing", err);
+                return;
+            }
+            var  c = 0;
+            this.procesFiles(dir, files).then(promise.resolve);
+        });
+
+        return promise;
+    }
+
+    procesFiles(dir, files) {
+        var promise = new Promise();
+
+        var next = function(){
+            if(!files.length)
+                return promise.resolve();
+            var file = dir+files.pop();
+            fs.stat(file, function(err, stats){
+                if(err) {
+                    Debug.warning("err stating "+file);
+                    next();
+                    return;
+                }
+                if(stats.isDirectory())
+                    return this.getFilesFromDir(file+"/").then(next);
+                if(this.willInclude(file, stats))
+                    this.addFileToDatabase(file);
+                next();
+            }.bind(this));
+        }.bind(this);
+        next();
+        return promise;
     }
 
     willInclude(file, fileRef)
@@ -110,6 +152,24 @@ class MovieScanner
             }
         }
         return true;
+    }
+
+    addFileToDatabase(file)
+    {
+        //var file = files[offset].substr(this.library.folder.length);
+        if(!Database.findBy("media-item", "filepath", file).length) {
+            var obj = {
+                filepath: file,
+                libraryId: this.library.uuid,
+                mediaType: this.library.type
+            };
+            if(file.match(/.*sample.*/)){
+                obj.sample = obj.extra = true;
+            }else if(file.match(/.*trailer.*/)){
+                obj.sample = obj.extra = true;
+            }
+            Database.setObject("media-item", obj);
+        }
     }
 
     onListed(err, files)
