@@ -28,18 +28,25 @@ class HLSPlayHandler extends IPlayHandler{
             request.headers["user-agent"].indexOf("Safari")===-1)) {
             return false;
         }
+        if(request.headers["x-playback-session-id"]&&!u.query.session) {
+            u.query.session = request.headers["x-playback-session-id"];
+        }
 
         this.offset = u.pathname;
         if(!u.query||!u.query.session||!HLSPlayHandler.sessions[u.query.session]) {
             Debug.debug("STARTING NEW HLS SESSION!!!");
-            this.response.statusCode=302;
-            var id = uuid.v4();
+            //this.response.statusCode=302;
+            var id = u.query.session?u.query.session:uuid.v4();
             this.session = id;
-            var redirectUrl = "http://192.168.222.100:8080/ply/1021/0?format=hls&session="+id;
+            var redirectUrl = "/ply/"+mediaItem.id+"/0?format=hls&session="+id;
             Debug.debug("started hls session", redirectUrl);
-            this.response.setHeader("Location", redirectUrl);
+            // this.response.setHeader("Location", redirectUrl);
             HLSPlayHandler.sessions[id] = this;
-            this.response.end("");
+            this.response.setHeader("Content-Type", "application/x-mpegURL");
+
+            this.response.end("#EXTM3U\n"+
+                              "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=200000, RESOLUTION=720x480\n"+
+                              redirectUrl);
         }else{
             HLSPlayHandler.sessions[u.query.session].newRequest(request, response, u.query.segment);
             return true;
@@ -63,14 +70,13 @@ class HLSPlayHandler extends IPlayHandler{
     newRequest(request, response, segment) {
         if(segment) { //serve m3u8
             response.setHeader('Accept-Ranges', 'none');
-            console.log(segment);
             var file = os.tmpdir() + "/remote_cache/" + this.session + "/" + segment;
+            Debug.debug("return hls");
             this.hlsHasBeenServed = true;
             return new FileRequestHandler(request, response)
                 .serveFile(file, true);
         }
 
-        console.log("m3u8 requested", this.m3u8);
         fs.exists(this.m3u8, function(does) {
             if (!this.paused) {
                 setTimeout(function() {
@@ -101,7 +107,7 @@ class HLSPlayHandler extends IPlayHandler{
         }
         if(!info||!info.format)
         {
-            Debug.warning("VIDEO ERROR!");
+            Debug.warning("VIDEO ERROR!:", info);
             this.response.end();
             return;
         }
@@ -155,8 +161,8 @@ class HLSPlayHandler extends IPlayHandler{
             args.splice(19, 0, "-ac", 2, "-ab", "192k");
         }
         if(this.offset!=0) {
-            args.splice(7, 0, "-ss", 0);
-            args.splice(3, 0, "-ss", this.offset);
+            args.splice(6, 0, "-ss", 0);
+            args.splice(4, 0, "-ss", this.offset);
         }
         Debug.info("starting ffmpeg:"+Settings.getValue("ffmpeg_binary")+" "+args.join(" "));
         var str = fs.createWriteStream(null, { fd: 4 });
@@ -164,18 +170,11 @@ class HLSPlayHandler extends IPlayHandler{
             Settings.getValue("ffmpeg_binary"),
             args,
             {
-                "shell":true
-                ,"stdio":["pipe", null, "pipe", this.str]
+                "stdio":["pipe", null, "pipe", this.str]
             });
         this.proc = proc;
-        //process.stdin.pause();
-        process.stdin.on("data", function(data){
-            console.log("?", data);
-        });
+        proc.on("error", this.onError.bind(this));
 
-        str.on("data", function(){
-            console.log("strdata", arguments);
-        });
         proc.stdout.on('data', this.onInfo.bind(this));
         /*setTimeout(function() {
             console.log("pause stdout");
@@ -187,25 +186,23 @@ class HLSPlayHandler extends IPlayHandler{
         }, 6000);*/
         proc.stderr.on('data', this.onError.bind(this));
         proc.on('close', this.onClose.bind(this));
+        this.checkPause();
         setInterval(this.checkPause.bind(this), 100);
     }
 
     checkPause() {
-        console.log("checkPause");
         fs.readdir(os.tmpdir() + "/remote_cache/" + this.session + "/", function(err, files){
             if(err)
                 return;
             var count = 0;
             var limit = this.hlsHasBeenServed?10:3;
-            console.log(files.length, limit);
+            var limit = 3;
             if(files.length>limit&&!this.paused) {
                 this.paused = true;
                 this.proc.stdin.write("c");
-                Debug.debug("pause hls encoding");
             }else if(files.length<=limit&&this.paused) {
                 this.paused = false;
                 this.proc.stdin.write("\n");
-                Debug.debug("resume hls encoding");
             }
 
         }.bind(this));

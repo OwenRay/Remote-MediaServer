@@ -24,7 +24,7 @@ class FFProbeExtendedInfo extends IExtendedInfo
 
         Debug.debug("ffprobe extended info", mediaItem.id);
 
-        var file = decodeURI(library.folder+mediaItem.attributes.filepath);
+        var file = mediaItem.attributes.filepath;
         FFProbe.getInfo(file)
             .then(function(fileData)
             {

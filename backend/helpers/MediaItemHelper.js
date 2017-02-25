@@ -6,7 +6,7 @@ class MediaItemHelper
 {
     static getFullFilePath(mediaItem)
     {
-        var libraries = Settings.getValue("libraries");
+        /*var libraries = Settings.getValue("libraries");
         var library;
         for(var key in libraries)
         {
@@ -16,8 +16,8 @@ class MediaItemHelper
             }
         }
         if(!library)
-            return "";
-        return library.folder+mediaItem.attributes.filepath;
+            return "";*/
+        return mediaItem.attributes.filepath;
     }
 }
 

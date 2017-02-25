@@ -32,14 +32,12 @@ export default Ember.Component.extend({
         vid.dblclick(this.toggleFullscreen.bind(this));
         vid.click(this.togglePause.bind(this));
         vid.on("touchstart", this.onTouchStart.bind(this));
-        vid.on("emptied", function(){
-        });
         vid.on("abort", function(){
+            console.log("abort still needs to be handled!");
         });
         vid.on("suspend", this.onSuspend.bind(this));
         vid.on("loadstart", this.onLoading.bind(this));
         vid.on("play", this.didPlay.bind(this));
-        console.log("is paused?", vid[0].paused);
         this.addObserver("volume", this.volumeDidChange);
         this.volumeDidChange();
         Ember.$("body")
@@ -47,11 +45,14 @@ export default Ember.Component.extend({
             .keypress(this.onKeyPress.bind(this))
             .on("touchstart", this.toggleNav.bind(this));
         this.updateProgress();
+        setTimeout(this.onLoading.bind(this), 300);
     },
 
     onLoading()
     {
-        this.set("loading", true);
+        if(!this.get("videoObj").paused) {
+            this.set("loading", true);
+        }
     },
 
     onSuspend()
@@ -115,7 +116,6 @@ export default Ember.Component.extend({
 
     togglePause(e)
     {
-        console.log(e);
         this.set("paused", !this.get("videoObj").paused);
         if(this.get("videoObj").paused)
         {
@@ -130,7 +130,6 @@ export default Ember.Component.extend({
         if(this.get("neverplayed")) {
             return true;
         }
-        console.log("daar");
         e.preventDefault();
         return true;
     },
