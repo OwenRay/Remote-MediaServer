@@ -25,7 +25,12 @@ if(!fs.existsSync("cache"))
 if(!fs.existsSync(dir+"ffmpeg")&&!fs.existsSync(dir+"ffmpeg.exe")) {
     console.log("downloading ffmpeg");
     http.get("http://downloadffmpeg.s3-website-eu-west-1.amazonaws.com/ffmpeg_" + os.platform() + "_" + os.arch() + ".zip", function (response) {
-        response.pipe(unzip.Extract({"path": "./"}));
+        var e = unzip.Extract({"path": "./"});
+        response.pipe(e);
+        e.on("close", function(){
+            fs.chmodSync("ffmpeg", "755");
+            fs.chmodSync("ffprobe", "755");
+        })
     });
 }
 
