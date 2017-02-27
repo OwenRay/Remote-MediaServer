@@ -42,6 +42,7 @@ class HLSPlayHandler extends IPlayHandler{
             Debug.debug("started hls session", redirectUrl);
             // this.response.setHeader("Location", redirectUrl);
             HLSPlayHandler.sessions[id] = this;
+            this.setSessionTimeout();
             this.response.setHeader("Content-Type", "application/x-mpegURL");
 
             this.response.end("#EXTM3U\n"+
@@ -67,30 +68,105 @@ class HLSPlayHandler extends IPlayHandler{
         return true;
     }
 
+    /**
+     * timeout sessions and cleanup disk when sessions are no longer in use
+     */
+    setSessionTimeout() {
+        if(this.sessionTimeout) {
+            clearTimeout(this.sessionTimeout);
+        }
+        //session will time out after 2 minutes of no activity
+        this.sessionTimeout = setTimeout(this.timedOut.bind(this), 120000);
+    }
+
+    timedOut() {
+        if(this.proc)
+            this.proc.kill();
+        Debug.debug("session timeout!");
+        this.onClose(0);
+
+        //clean up filesystem
+        var parts = this.m3u8.split("/");
+        parts.pop();
+        var folder = parts.join("/");
+        fs.readdir(folder, (err, files) => {
+            var deleteNext = function(){
+                if(files.length==0)
+                    return fs.rmdir(folder, function(){});
+                fs.unlink(files.pop(), deleteNext);
+            }
+            deleteNext();
+        });
+    }
+
     newRequest(request, response, segment) {
-        if(segment) { //serve m3u8
+        this.setSessionTimeout();
+
+        if(segment) { //serve ts file
             response.setHeader('Accept-Ranges', 'none');
             var file = os.tmpdir() + "/remote_cache/" + this.session + "/" + segment;
             Debug.debug("return hls");
-            this.hlsHasBeenServed = true;
+            if(!this.playStart) { //set the play start time when serving first ts file
+                this.playStart = new Date().getTime();
+            }
             return new FileRequestHandler(request, response)
                 .serveFile(file, true);
         }
 
-        fs.exists(this.m3u8, function(does) {
-            if (!this.paused) {
-                setTimeout(function() {
-                    this.newRequest(request, response, segment);
-                }.bind(this), 1000);
-                return;
-            }
+        if (!this.paused) {
+            setTimeout(function() {
+                this.newRequest(request, response, segment);
+            }.bind(this), 1000);
+            return;
+        }
+        /*if(!this.hlsHasBeenServed) {
+            this.serveFirstThree(response);
+        }else{
             new FileRequestHandler(request, response).serveFile(this.m3u8);
+        }*/
+        this.serveFirstHls(response);
+    }
+
+    /**
+     * @param response
+     *
+     * Make sure the first hls that's requested has no more then three chunks
+     * this is to ensure the browser will not skip any chunks
+     */
+    serveFirstHls(response) {
+        response.setHeader("Content-Type", "application/x-mpegURL");
+
+        fs.readFile(this.m3u8, function(err, data){
+            if(err) {
+                return response.end();
+            }
+            var currentTime = this.playStart?(new Date().getTime()-this.playStart)/1000:0;
+            var segmentTime = 0;
+
+            var lines = `${data}`.split("\n");
+            var newSegments = 0;
+            for(var c = 0; c<lines.length; c++) {
+                response.write(lines[c]+"\n");
+                if(lines[c][0]!="#"&&segmentTime>=currentTime) {
+                    newSegments++;
+                }else{
+                    var ext = lines[c].substring(1).split(":");
+                    if(ext[0]=="EXTINF") {
+                        segmentTime+=parseFloat(ext[1]);
+                    }
+                }
+                if(newSegments==(!this.playStart?3:5)) {
+                    break;
+                }
+            }
+            return response.end();
         }.bind(this));
-        //server ts video file
     }
 
     gotInfo(info, correctedOffset)
     {
+        if(this.ended)
+            return;
         if(!correctedOffset&&this.offset!=0)
         {
             FFProbe.getNearestKeyFrame(this.file, this.offset)
@@ -187,16 +263,18 @@ class HLSPlayHandler extends IPlayHandler{
         proc.stderr.on('data', this.onError.bind(this));
         proc.on('close', this.onClose.bind(this));
         this.checkPause();
-        setInterval(this.checkPause.bind(this), 100);
+        this.checkPauseInterval = setInterval(this.checkPause.bind(this), 100);
     }
 
+    /**
+     * pauses the video encoding process when there are enough chunks available
+     */
     checkPause() {
         fs.readdir(os.tmpdir() + "/remote_cache/" + this.session + "/", function(err, files){
             if(err)
                 return;
             var count = 0;
-            var limit = this.hlsHasBeenServed?10:3;
-            var limit = 3;
+            var limit = 10;
             if(files.length>limit&&!this.paused) {
                 this.paused = true;
                 this.proc.stdin.write("c");
@@ -220,7 +298,10 @@ class HLSPlayHandler extends IPlayHandler{
 
     onClose(code)
     {
-        Debug.debug("Close:"+code);
+
+        clearInterval(this.checkPauseInterval);
+        HLSPlayHandler.sessions[this.session] = null;
+        this.ended = true;
     }
 }
 
