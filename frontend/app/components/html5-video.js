@@ -114,7 +114,7 @@ export default Ember.Component.extend({
         this.get("videoObj").src = "";
     },
 
-    togglePause(e)
+    togglePause()
     {
         this.set("paused", !this.get("videoObj").paused);
         if(this.get("videoObj").paused)
@@ -182,6 +182,8 @@ export default Ember.Component.extend({
                 elem.mozRequestFullScreen();
             } else if (elem.webkitRequestFullscreen) {
                 elem.webkitRequestFullscreen();
+            }else if(this.get("videoObj").webkitEnterFullscreen) {
+                this.get("videoObj").webkitEnterFullscreen();
             }
         } else {
             if (document.exitFullscreen) {
