@@ -7,13 +7,13 @@ Production | Development
 - nodejs >= 5.1
 
 # USING
-###INSTALL
+### INSTALL
 dev:  
 `$ npm install -g https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/remote-mediaserver-0.0.1.tgz`  
 
 prod:  
 `$ npm install -g https://s3-eu-west-1.amazonaws.com/remote-mediaserver/master/remote-mediaserver-0.0.1.tgz`  
-###RUN
+### RUN
 `$ remote`  
 direct your browser to http://localhost:8080
 
