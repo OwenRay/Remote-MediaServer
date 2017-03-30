@@ -55,7 +55,7 @@ class MovieScanner
                 return;
             fs.stat(MediaItemHelper.getFullFilePath(items[0]), function (err, stat) {
                 if (err) {
-                    Debug.info("item missing, removing", items[0].id);
+                    Debug.info("item missing, removing", MediaItemHelper.getFullFilePath(items[0]), items[0].id);
                     Database.deleteObject("media-item", items[0].id);
                 }
                 items.shift();
@@ -154,10 +154,15 @@ class MovieScanner
         return false;
     }
 
-    addFileToDatabase(file)
-    {
-        //var file = files[offset].substr(this.library.folder.length);
+    addFileToDatabase(file) {
+        var file = file.substr(this.library.folder.length);
+        file = file.replace("\\", "/").replace("//", "/");
+        if (!file[0] == "/") {
+            file = "/" + file;
+        }
+        file=this.library.folder.replace(/^(.*?)(\\|\/)?$/, "$1")+file;
         if(!Database.findBy("media-item", "filepath", file).length) {
+            Debug.info("found new file", file);
             var obj = {
                 filepath: file,
                 libraryId: this.library.uuid,
