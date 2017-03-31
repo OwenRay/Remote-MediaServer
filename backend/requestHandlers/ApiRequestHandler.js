@@ -4,6 +4,7 @@ var RequestHandler = require("./RequestHandler");
 var SettingsApiHandler = require("./apiHandler/SettingsApiHandler");
 var DatabaseApiHandler = require("./apiHandler/DatabaseApiHandler");
 var DirectoryBrowserHandler = require("./apiHandler/DirectoryBrowserHandler");
+var SubtitleApiHandler = require("./apiHandler/SubtitleApiHandler");
 var url = require('url');
 
 class ApiRequestHandler extends RequestHandler{
@@ -18,6 +19,7 @@ class ApiRequestHandler extends RequestHandler{
 ApiRequestHandler.chain = [
         new SettingsApiHandler(),
         new DirectoryBrowserHandler(),
+        new SubtitleApiHandler(),
         new DatabaseApiHandler()
     ];
 
