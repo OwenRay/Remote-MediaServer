@@ -18,7 +18,7 @@ export default Ember.Component.extend({
     },
 
     didDestroyElement(){
-        this.$(window).off("resize", this.onVideoResize);
+        Ember.$(window).off("resize", this.onVideoResize);
     },
 
     subtitlesLoaded(o){

@@ -33,7 +33,7 @@ class SubtitleApiHandler extends IApiHandler
 
         if(parts.length>=5)
         {
-            this.serveSubtitle(directory, parts[4]);
+            this.serveSubtitle(directory, decodeURI(parts[4]));
         }else{
             this.serveList(directory);
         }
