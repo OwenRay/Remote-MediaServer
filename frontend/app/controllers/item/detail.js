@@ -31,7 +31,6 @@ export default Ember.Controller.extend({
     }),
 
     seasons:Ember.computed("allEpisodes", function(){
-        console.log("daar");
         return DS.PromiseObject.create({
             promise: this.get("allEpisodes").then(function(episodes){
                 var seasons = Ember.A();
@@ -69,7 +68,6 @@ export default Ember.Controller.extend({
 
     extras:Ember.computed("model.id", function() {
          var q = {"extra":true};
-         console.log("extras");
          if(this.get("model.type")==="tv") {
             q["external-episode-id"] = this.get("model.external-episode-id");
          }else {

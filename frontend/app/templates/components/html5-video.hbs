@@ -37,12 +37,15 @@
         action='next'
         buttonType='floating'
         class='btn-medium'}}
-    {{md-btn
-        id="fullscreen"
-        icon='mdi-navigation-fullscreen'
-        action='fullscreen'
-        buttonType='floating'
-        class='btn-medium'}}
+    <div class="buttonsRight">
+        {{#video-subtitles videoTag=videoObj mediaItem=mediaItem currentTime=progress startOffset=startOffset}}{{/video-subtitles}}
+        {{md-btn
+            id="fullscreen"
+            icon='mdi-navigation-fullscreen'
+            action='fullscreen'
+            buttonType='floating'
+            class='btn-medium'}}
+    </div>
     {{seek-bar offset=startOffset onSeek=(action "seek") progress=progress max=mediaItem.fileduration}}
 
     <span {{action "toggleMute"}} class={{muteIcon}} id="mute"></span>

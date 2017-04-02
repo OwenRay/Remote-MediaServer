@@ -7,8 +7,11 @@ var querystring = require("querystring");
 var fs = require("fs");
 var db = require("../../Database");
 var path = require('path');
+var sub = require('srt-to-ass');
+const os = require('os');
+var FileRequestHandler = require("../FileRequestHandler");
 
-var supportedSubtitleFormats = [".srt", ".vtt"];
+var supportedSubtitleFormats = [".srt", ".ass"];
 
 class SubtitleApiHandler extends IApiHandler
 {
@@ -43,13 +46,31 @@ class SubtitleApiHandler extends IApiHandler
     }
 
     serveSubtitle(directory, file) {
-        fs.readFile(directory+"/"+file, function(err, result){
+        /*fs.readFile(directory+"/"+file, function(err, result){
             if(result&&path.extname(file)==".srt") {
                 result = "WEBVTT\n\n"+result;
                 result = result.replace(/(\d+:\d+:\d+),(\d+) (-->) (\d+:\d+:\d+),(\d+)+/g, "$1.$2 --> $4.$5");
             }
             this.response.end(result);
-        }.bind(this));
+        }.bind(this));*/
+
+        var deleteAfterServe = false;
+        if(path.extname(file)==".srt") {
+            var tmpFile = os.tmpdir()+"/"+file+"."+Math.random()+".ass";
+            console.log(sub);
+            sub.convert(
+                directory+"/"+file, tmpFile
+                //{"style": {"font": {"size": 100}}}
+            );
+            file = tmpFile;
+            console.log(file);
+            deleteAfterServe = true;
+        }
+        while(!fs.existsSync(file))
+            ;
+
+        return new FileRequestHandler(this.request, this.response)
+            .serveFile(file, deleteAfterServe);
     }
 
     returnEmpty(){

@@ -24,7 +24,6 @@ class PlayRequestHandler extends RequestHandler{
             Mpeg4PlayHandler,
         ];
         for(var c = 0; c<handlers.length; c++) {
-            console.log("???");
             if(new handlers[c]().play(mediaItem, offset, this.request, this.response)) {
                 break;
             }

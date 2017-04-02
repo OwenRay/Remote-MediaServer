@@ -32,7 +32,6 @@ export default Ember.Component.extend({
 
     onProgress()
     {
-        console.log("onprogress");
         var progress = this.get("seekingProgress")!==-1?this.get("seekingProgress"):this.get("progress")+this.get("offset");
         this.progressObj.css("width", this.trackerObj.width()*(progress/this.get("max"))+"px");
     },

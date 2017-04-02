@@ -1,3 +1,17 @@
+.libjass-wrapper{
+  position: absolute;
+  top:0px;
+  bottom:0px;
+  left:0px;
+  right:0px;
+/*  .libjass-subs{
+    position: absolute;
+    top:0px;
+    right:0px;
+    bottom:0px;
+    left:0px;
+  }*/
+}
 
 video-container{
   background:black;
@@ -114,8 +128,32 @@ video-container{
   #prev{
     margin-left:-80px;
   }
-  #fullscreen{
+  .buttonsRight {
+    position: absolute;
+    top:-19px;
     right:10px;
+    >*{
+      display:inline-block;
+    }
+    .btn-medium, .btn-large{
+      position: static;
+      width:37px;
+      height:37px;
+      font-size: 14px;
+      i {
+        line-height: 37px;
+      }
+    }
+    .fixed-action-btn {
+      right:auto;
+      bottom:auto;
+      position: relative;
+      padding-top:0px;
+      ul {
+        left: auto;
+        bottom: 33px;
+      }
+    }
   }
 }
 

@@ -25,9 +25,9 @@ class Mpeg4PlayHandler extends IPlayHandler{
         FFProbe.getInfo(this.file).then(this.gotInfo.bind(this), this.onError.bind(this));
     }
 
-    gotInfo(info, correctedOffset)
+    gotInfo(info)
     {
-        if(!correctedOffset&&this.offset!=0)
+        /*if(!correctedOffset&&this.offset!=0)
         {
             FFProbe.getNearestKeyFrame(this.file, this.offset)
                 .then(
@@ -40,7 +40,7 @@ class Mpeg4PlayHandler extends IPlayHandler{
                     this.onError.bind(this)
                 );
             return;
-        }
+        }*/
         if(!info||!info.format)
         {
             Debug.warning("VIDEO ERROR!");
