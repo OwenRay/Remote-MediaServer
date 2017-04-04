@@ -1,7 +1,7 @@
 /**
  * Created by owenray on 31-3-2017.
  */
-"use strict"
+"use strict";
 var IApiHandler = require("./IApiHandler");
 var querystring = require("querystring");
 var fs = require("fs");
@@ -45,29 +45,22 @@ class SubtitleApiHandler extends IApiHandler
         fs.readdir(directory, this.onReadDir.bind(this));
     }
 
-    serveSubtitle(directory, file) {
-        /*fs.readFile(directory+"/"+file, function(err, result){
-            if(result&&path.extname(file)==".srt") {
-                result = "WEBVTT\n\n"+result;
-                result = result.replace(/(\d+:\d+:\d+),(\d+) (-->) (\d+:\d+:\d+),(\d+)+/g, "$1.$2 --> $4.$5");
-            }
-            this.response.end(result);
-        }.bind(this));*/
+    serveSubtitle(directory, file, deleteAfterServe) {
 
-        var deleteAfterServe = false;
         if(path.extname(file)==".srt") {
             var tmpFile = os.tmpdir()+"/"+file+"."+Math.random()+".ass";
-            console.log(sub);
             sub.convert(
-                directory+"/"+file, tmpFile
-                //{"style": {"font": {"size": 100}}}
+                directory+"/"+file,
+                tmpFile,
+                {},
+                function(err){
+                    this.serveSubtitle(directory, tmpFile, true)
+                }.bind(this)
             );
-            file = tmpFile;
-            console.log(file);
-            deleteAfterServe = true;
+            return;
+        }else{
+            file = directory+"/"+file;
         }
-        while(!fs.existsSync(file))
-            ;
 
         return new FileRequestHandler(this.request, this.response)
             .serveFile(file, deleteAfterServe);
