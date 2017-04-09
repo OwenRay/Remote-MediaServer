@@ -16,12 +16,11 @@ class Mpeg4PlayHandler extends IPlayHandler{
     play(mediaItem, offset, request, response)
     {
         this.offset = offset;
-        console.log("mp4?");
         this.response = response;
         this.request = request;
         this.file = MediaItemHelper.getFullFilePath(mediaItem);
         Debug.debug("starting to play:"+this.file);
-        console.log(this.file);
+        this.bufferedChuncks = 0;
         FFProbe.getInfo(this.file).then(this.gotInfo.bind(this), this.onError.bind(this));
     }
 
