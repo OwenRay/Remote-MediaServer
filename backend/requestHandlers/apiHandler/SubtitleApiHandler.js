@@ -115,7 +115,6 @@ class SubtitleApiHandler extends IApiHandler
         var subtitles = {};
         for(var key in result) {
             if(supportedSubtitleFormats.indexOf(path.extname(result[key]))!=-1) {
-                subtitles.push(result[key]);
                 subtitles[result[key]] = result[key];
             }
         }
