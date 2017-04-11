@@ -22,9 +22,15 @@ export default Ember.Component.extend({
     },
 
     subtitlesLoaded(o){
-        if(o.length) {
-            o.push("Disabled");
-            this.set("subtitles", o);
+        var hasKeys = false;
+        var items = [];
+        for(var key in o)
+        {
+            items.push({label:o[key], value:key});
+        }
+        if(items.length) {
+            o["Disabled"] = "Disabled";
+            this.set("subtitles", items);
         }
     },
 

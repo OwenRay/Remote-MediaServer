@@ -11,16 +11,16 @@ class ApiRequestHandler extends RequestHandler{
     handleRequest()
     {
         var parsedUrl = url.parse(this.request.url);
-        for(var c = 0; c<ApiRequestHandler.chain.length && !ApiRequestHandler.chain[c].handle(this.request, this.response, parsedUrl); c++)
+        for(var c = 0; c<ApiRequestHandler.chain.length && !new (ApiRequestHandler.chain[c])().handle(this.request, this.response, parsedUrl); c++)
             ;
     }
 }
 
 ApiRequestHandler.chain = [
-        new SettingsApiHandler(),
-        new DirectoryBrowserHandler(),
-        new SubtitleApiHandler(),
-        new DatabaseApiHandler()
+        SettingsApiHandler,
+        DirectoryBrowserHandler,
+        SubtitleApiHandler,
+        DatabaseApiHandler
     ];
 
 module.exports = ApiRequestHandler;
