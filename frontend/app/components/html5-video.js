@@ -92,7 +92,6 @@ export default Ember.Component.extend({
     toggleNav()
     {
         if(this.get("navClass")==="hidden") {
-            console.log("toggle");
             return this.onMouseMove();
         }
         this.hide();

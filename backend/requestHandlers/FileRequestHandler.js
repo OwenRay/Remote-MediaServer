@@ -54,8 +54,7 @@ class FileRequestHandler extends RequestHandler{
         this.response.end(data, 'binary', function(){
             if(this.andDelete)
                 fs.unlink(this.file, function(){
-                    console.log("delete", arguments, this.file);
-
+                    Debug.info("delete", arguments, this.file);
                 }.bind(this));
         }.bind(this));
     }

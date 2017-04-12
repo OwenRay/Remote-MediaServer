@@ -98,7 +98,8 @@ class MovieScanner
         Debug.info("start scan", this.library);
 
         //recursive(this.library.folder, [this.willInclude.bind(this)], this.onListed.bind(this));
-        this.getFilesFromDir(this.library.folder+"/").then(this.checkForExtendedInfo.bind(this));
+        this.getFilesFromDir(this.library.folder+"/")
+            .then(this.checkForExtendedInfo.bind(this));
     }
 
     getFilesFromDir(dir) {
