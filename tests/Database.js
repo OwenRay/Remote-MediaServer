@@ -1,23 +1,27 @@
-var fs = require("fs");
-var Database = require("../backend/Database");
+"use strict";
+
+const fs = require("fs");
+const Database = require("../backend/Database");
 
 module.exports = {
     testInsert(test)
     {
         test.expect(2);
-        var o = Database.setObject("table", {test: "test"});
-        test.strictEqual(o.id, 0, "Can not insert database object");
+        let o = Database.setObject("table", {test: "test"});
+        test.strictEqual(o.id, 1, "Can not insert database object");
         test.notStrictEqual(Database.getById("table", o.id), null, "Object was inserted, but not found");
         test.done();
     },
     testFind(test) {
         test.expect(2);
-        for(var c = 0; c<10; c++)
+        for(let c = 0; c<10; c++)
         {
-            var o = Database.setObject("table", {"test": c+""});
+            Database.setObject("table", {"test": c+""});
         }
+        console.log("??");
         test.ok(Database.findBy("table", "test", 5)) ;
         test.strictEqual(1, Database.findByMatchFilters("table", {"test":"5"}).length);
+        console.log("??");
         test.done();
     },
     testWrite(test)

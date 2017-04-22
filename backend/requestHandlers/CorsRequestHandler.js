@@ -3,10 +3,7 @@
  */
 "use strict";
 
-var fs = require('fs');
-var mime = require('mime');
-
-var RequestHandler = require("./RequestHandler");
+const RequestHandler = require("./RequestHandler");
 
 class CorsRequestHandler extends RequestHandler{
     handleRequest()

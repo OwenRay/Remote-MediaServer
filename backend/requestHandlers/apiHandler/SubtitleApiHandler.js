@@ -2,19 +2,19 @@
  * Created by owenray on 31-3-2017.
  */
 "use strict";
-var IApiHandler = require("./IApiHandler");
-var fs = require("fs");
-var db = require("../../Database");
-var path = require('path');
-var sub = require('srt-to-ass');
+const IApiHandler = require("./IApiHandler");
+const fs = require("fs");
+const db = require("../../Database");
+const path = require('path');
+const sub = require('srt-to-ass');
 const os = require('os');
-var FileRequestHandler = require("../FileRequestHandler");
-var FFProbe = require("../../FFProbe");
-var spawn = require('child_process').spawn;
-var Settings = require("../../Settings");
-var Debug = require("../../helpers/Debug");
+const FileRequestHandler = require("../FileRequestHandler");
+const FFProbe = require("../../FFProbe");
+const spawn = require('child_process').spawn;
+const Settings = require("../../Settings");
+const Log = require("../../helpers/Log");
 
-var supportedSubtitleFormats = [".srt", ".ass"];
+const supportedSubtitleFormats = [".srt", ".ass"];
 
 class SubtitleApiHandler extends IApiHandler
 {
@@ -27,12 +27,12 @@ class SubtitleApiHandler extends IApiHandler
 
         this.request = request;
         this.response = response;
-        var parts = url.pathname.split("/");
+        const parts = url.pathname.split("/");
         if(parts.length<4) {
             return this.returnEmpty();
         }
-        var filePath = this.filePath = db.getById("media-item", parts[3]).attributes.filepath;
-        var directory = path.dirname(filePath);
+        const filePath = this.filePath = db.getById("media-item", parts[3]).attributes.filepath;
+        const directory = path.dirname(filePath);
 
         if(parts.length>=5)
         {
@@ -49,28 +49,27 @@ class SubtitleApiHandler extends IApiHandler
     }
 
     serveSubtitle(videoFilePath, directory, file, deleteAfterServe) {
-        console.log("serveSubtitle", arguments);
-        var extension = path.extname(file);
-
-        if(file[0]==":") {
-            var tmpFile = os.tmpdir()+"/"+file.substr(1);
-            var args = [
+        const extension = path.extname(file);
+        let tmpFile;
+        if(file[0]===":") {
+            tmpFile = os.tmpdir()+"/"+file.substr(1);
+            const args = [
                 "-y",
                 "-i", videoFilePath,
-                "-map", "0"+file.split(".").shift(),
+                "-map", "0" + file.split(".").shift(),
                 tmpFile
             ];
             console.log("spawn!!!!!", Settings.getValue("ffmpeg_binary")+" "+args.join(" "));
-            var proc = spawn(
+            const proc = spawn(
                 Settings.getValue("ffmpeg_binary"),
                 args);
             proc.stdout.on('data', function(data)
             {
-                Debug.info("ffmpeg result:", `${data}`);
+                Log.info("ffmpeg result:", `${data}`);
             });
             proc.stderr.on('data', function(data)
             {
-                Debug.info("ffmpeg result:", `${data}`);
+                Log.info("ffmpeg result:", `${data}`);
             });
             proc.on(
                 'close',
@@ -82,17 +81,17 @@ class SubtitleApiHandler extends IApiHandler
             return;
         }
 
-        if(extension==".srt") {
-            var tmpFile = os.tmpdir()+"/"+file+"."+Math.random()+".ass";
+        if(extension===".srt") {
+            tmpFile = os.tmpdir()+"/"+file+"."+Math.random()+".ass";
             sub.convert(
                 directory+"/"+file,
                 tmpFile,
                 {},
-                function(err){
+                function(){
                     if(deleteAfterServe) {
                         fs.unlink(directory+":"+file);
                     }
-                    this.serveSubtitle(directory, tmpFile, true);
+                    this.serveSubtitle(videoFilePath, directory, tmpFile, true);
                 }.bind(this)
             );
             return;
@@ -112,17 +111,17 @@ class SubtitleApiHandler extends IApiHandler
         if(err) {
             return this.returnEmpty();
         }
-        var subtitles = {};
-        for(var key in result) {
-            if(supportedSubtitleFormats.indexOf(path.extname(result[key]))!=-1) {
+        const subtitles = {};
+        for(let key in result) {
+            if(supportedSubtitleFormats.indexOf(path.extname(result[key]))!==-1) {
                 subtitles[result[key]] = result[key];
             }
         }
         FFProbe.getInfo(this.filePath).then(function(data){
-            var streams = data.streams;
-            for(var key in streams) {
+            const streams = data.streams;
+            for(let key in streams) {
                 console.log(streams[key].codec_name);
-                if(supportedSubtitleFormats.indexOf("."+streams[key].codec_name)!=-1) {
+                if(supportedSubtitleFormats.indexOf("."+streams[key].codec_name)!==-1) {
                     console.log(streams[key]);
                     subtitles[":"+streams[key].index+"."+streams[key].codec_name] = "Built in: "+streams[key].tags.language;
                 }

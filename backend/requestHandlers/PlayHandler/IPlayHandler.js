@@ -1,7 +1,15 @@
 "use strict";
 
 class IPlayHandler {
-    play(mediaItem, offset, request, response) {
+    /**
+     *
+     * @param mediaItem
+     * @param offset
+     * @param request
+     * @param response
+     * @returns {boolean}
+     */
+    play() {
         return false;
     }
 }

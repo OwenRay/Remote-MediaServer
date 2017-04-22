@@ -9,8 +9,8 @@
 
     {{content-for "head"}}
 
-    <link rel="stylesheet" href="assets/vendor.css" integrity="">
-    <link rel="stylesheet" href="assets/frontend.css" integrity="">
+    <link rel="stylesheet" href="{{rootURL}}assets/vendor.css" integrity="">
+    <link rel="stylesheet" href="{{rootURL}}assets/frontend.css" integrity="">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 
@@ -19,8 +19,8 @@
   <body>
     {{content-for "body"}}
 
-    <script src="assets/vendor.js" integrity=""></script>
-    <script src="assets/frontend.js" integrity=""></script>
+    <script src="{{rootURL}}assets/vendor.js" integrity=""></script>
+    <script src="{{rootURL}}assets/frontend.js" integrity=""></script>
 
     {{content-for "body-footer"}}
   </body>

@@ -2,61 +2,61 @@
 /**
  * Created by owenray on 29-06-16.
  */
-var IExtendedInfo = require("./IExtendedInfo");
-var Guessit = require("../Guessit");
-var Promise = require("node-promise").Promise;
-var Database = require("../../Database");
-var path = require('path');
-var Debug = require("../../helpers/Debug");
+const IExtendedInfo = require("./IExtendedInfo");
+const Guessit = require("../Guessit");
+const Prom = require("node-promise").Promise;
+const Database = require("../../Database");
+const path = require('path');
+const Log = require("../../helpers/Log");
 
 class ParseFileNameExtendedInfo extends IExtendedInfo
 {
     extendInfo(args, tryCount)
     {
-        var mediaItem = args[0];
-        var library = args[1];
+        const mediaItem = args[0];
+        const library = args[1];
         if(!tryCount)
         {
             tryCount = 0;
         }
 
-        var promise = new Promise();
+        const promise = new Prom();
 
-        var relativePath = mediaItem.attributes.filepath;
+        const relativePath = mediaItem.attributes.filepath;
 
         if(mediaItem.attributes.title) {
             promise.resolve([mediaItem, library]);
             return promise;
         }
-        Debug.debug("parse filename", mediaItem.id);
+        Log.debug("parse filename", mediaItem.id);
 
-        var filePath = path.parse(relativePath);
-        var folder = path.parse(filePath.dir);
-        var extraGuessitOptions = [];
-        var fileParts = filePath.dir.split(path.sep);
+        const filePath = path.parse(relativePath);
+        const folder = path.parse(filePath.dir);
+        const extraGuessitOptions = [];
+        const fileParts = filePath.dir.split(path.sep);
 
-        var season = "";
-        var serieName = "";
-        if(library.type=="tv") {
-            var offset;
+        let season = "";
+        let serieName = "";
+        if(library.type==="tv") {
+            let offset;
             for (offset = 0; offset < fileParts.length; offset++) {
                 // the first directory we find containing season info is probably the child directory
                 // Of the directory containing the season name.
-                var seasonCheck = fileParts[offset].replace(/^.*?(s|se|season)[^a-zA-Z0-9]?([0-9]+).*?$/i, "$2");
-                if (seasonCheck != fileParts[offset]) {
+                const seasonCheck = fileParts[offset].replace(/^.*?(s|se|season)[^a-zA-Z0-9]?([0-9]+).*?$/i, "$2");
+                if (seasonCheck !== fileParts[offset]) {
                     season = parseInt(seasonCheck);
                     break;
                 }
             }
             if (season && offset > 0) {
-                var serieName = fileParts[offset - 1];
+                serieName = fileParts[offset - 1];
                 extraGuessitOptions.push("-T "+serieName);
             }
         }
 
-        var searchQuery = filePath.base.replace(/ /g, '.');
+        let searchQuery = filePath.base.replace(/ /g, '.');
 
-        if(tryCount==1)
+        if(tryCount===1)
         {
             searchQuery = folder.base.replace(/ /g, '.') + "-" + filePath.base.replace(/ /g, '.');
         }
@@ -66,7 +66,7 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
                 {options:"-t "+library.type+" "+extraGuessitOptions.join(" ")}
             ).then(
                 function (data) {
-                    if (tryCount == 1 && data.title) {
+                    if (tryCount === 1 && data.title) {
                         data.title = data.title.replace(folder.base + '-', '');
                     }
                     if (data.title) {

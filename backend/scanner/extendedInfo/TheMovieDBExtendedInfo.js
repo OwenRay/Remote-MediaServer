@@ -2,69 +2,66 @@
 /**
  * Created by owenray on 29-06-16.
  */
+const IExtendedInfo = require("./IExtendedInfo");
+const Prom = require("node-promise").Promise;
+const MovieDB = require('moviedb')('0699a1db883cf76d71187d9b24c8dd8e');
+const path = require('path');
+const Database = require("../../Database");
+const Log = require("../../helpers/Log");
 
-var IExtendedInfo = require("./IExtendedInfo");
-var Promise = require("node-promise").Promise;
-var MovieDB = require('moviedb')('0699a1db883cf76d71187d9b24c8dd8e');
-var path = require('path');
-var Database = require("../../Database");
-var Debug = require("../../helpers/Debug");
-
-var discardRegex = new RegExp('\\W|-|_|([0-9]+p)|(LKRG)', "g");
+const discardRegex = new RegExp('\\W|-|_|([0-9]+p)|(LKRG)', "g");
 
 class TheMovieDBExtendedInfo extends IExtendedInfo
 {
     extendInfo(args, tryCount)
     {
-        var mediaItem = args[0];
-        var library = args[1];
+        const mediaItem = args[0];
+        const library = args[1];
         if(!tryCount)
         {
             tryCount = 0;
         }
 
-        var promise = new Promise();
+        const promise = new Prom();
 
         if(mediaItem.attributes.gotExtendedInfo)
         {
             promise.resolve([mediaItem, library]);
             return promise;
         }
-        Debug.debug("process tmdb", mediaItem.id);
+        Log.debug("process tmdb", mediaItem.id);
 
-        var callback = function(err, res){ 
-            if(!err) {
-                var res = library.type != "tv" ?
-                    (res.results&&res.results.length > 0 ? res.results[0] : null)
+        const callback = function (err, res) {
+            if (!err) {
+                res = library.type !== "tv" ?
+                    (res.results && res.results.length > 0 ? res.results[0] : null)
                     : res;
             }
-            if(res)
-            {
-                if(library.type=="tv")
-                {
+            if (res) {
+                if (library.type === "tv") {
                     res["external-episode-id"] = res.id;
                     res["episode-title"] = res.name;
                     delete res.name;
                 }
-                else
-                {
+                else {
                     res["external-id"] = res.id;
                 }
                 delete res.id;
-                for (var key in res) {
+                for (let key in res) {
                     mediaItem.attributes[key.replace(/_/g, "-")] = res[key];
                 }
-                var date = res["release_date"]?res["release_date"]:res["first_air_date"];
-                date = date?date:res["air_date"];
+                let date = res.release_date ? res.release_date : res.first_air_date;
+                date = date ? date : res.air_date;
 
                 mediaItem.attributes["release-date"] = date;
-                if(date)
+                if (date) {
                     mediaItem.attributes.year = date.split("-")[0];
+                }
                 mediaItem.attributes.gotExtendedInfo = true;
                 Database.update("media-item", mediaItem);
-            }else if(tryCount<2){
+            } else if (tryCount < 2) {
 
-                this.extendInfo([mediaItem, library], tryCount+1).then(promise.resolve);
+                this.extendInfo([mediaItem, library], tryCount + 1).then(promise.resolve);
                 return;
             }
             promise.resolve([mediaItem, library]);
@@ -74,7 +71,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
         // 1. try again without year,
         // 2. Then try again with the filename
 
-        var params = {query:mediaItem.attributes.title};
+        let params = {query: mediaItem.attributes.title};
 
         if(mediaItem.attributes.episode)
         {
@@ -92,7 +89,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
                 break;
         }
 
-        var searchMethod = MovieDB.searchMovie;
+        let searchMethod = MovieDB.searchMovie;
         switch(library.type)
         {
             case "tv":
@@ -115,7 +112,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
             TheMovieDBExtendedInfo.lastRequest = new Date().getTime();
         }
         //to make sure the api only gets called every 300ms
-        var waitFor = 300-(new Date().getTime()-TheMovieDBExtendedInfo.lastRequest);
+        const waitFor = 300 - (new Date().getTime() - TheMovieDBExtendedInfo.lastRequest);
         if(waitFor<20)
         {
             //console.log("do not wait:", waitFor);

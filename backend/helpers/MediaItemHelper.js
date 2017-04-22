@@ -1,7 +1,5 @@
 "use strict";
 
-var Settings = require("../Settings");
-
 class MediaItemHelper
 {
     static getFullFilePath(mediaItem)

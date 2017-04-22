@@ -7,7 +7,8 @@
     "remote": "./main.js"
   },
   "scripts": {
-    "prepublish": "node scripts/prepublish.js"
+    "prepublish": "node scripts/prepublish.js",
+    "test": "nodeunit tests/"
   },
   "dependencies": {
     "guessit-wrapper": "^1.0.0",
@@ -17,7 +18,6 @@
     "node-promise": "^0.5.12",
     "node-uuid": "^1.4.7",
     "pluralize": "^1.2.1",
-    "recursive-readdir": "^2.0.0",
     "server-destroy": "^1.0.1",
     "srt-to-ass": "^0.1.8",
     "unzip": "^0.1.11"

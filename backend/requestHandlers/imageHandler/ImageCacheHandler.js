@@ -2,25 +2,25 @@
 /**
  * Created by owenray on 7/9/16.
  */
-var IImageHandler = require("./IImageHandler");
-var Promise = require("node-promise").Promise;
-var fs = require("fs");
-var Debug = require("../../helpers/Debug");
+const IImageHandler = require("./IImageHandler");
+const Prom = require("node-promise").Promise;
+const fs = require("fs");
+const Log = require("../../helpers/Log");
 
 class ImageCacheHandler extends IImageHandler
 {
     getImageData(item, type)
     {
-        var promise = new Promise();
-        var filename = "cache/thumb_"+item.id+"_"+type;
+        const promise = new Prom();
+        const filename = "cache/thumb_" + item.id + "_" + type;
         try {
             fs.statSync(filename);
         }catch(e)
         {
-            Debug.debug(e);
+            Log.debug(e);
             return false;
         }
-        Debug.log("img from cache");
+        Log.log("img from cache");
         fs.readFile(filename, function(err, data){
             promise.resolve(data);
         });
@@ -29,7 +29,7 @@ class ImageCacheHandler extends IImageHandler
 
     put(item, data, type)
     {
-        var filename = "cache/thumb_"+item.id+"_"+type;
+        const filename = "cache/thumb_" + item.id + "_" + type;
         fs.writeFile(filename, data);
     }
 }

@@ -3,20 +3,20 @@
  */
 "use strict";
 
-var fs = require('fs');
-var mime = require('mime');
-var path = require('path');
-var Debug = require("../helpers/Debug");
+const fs = require('fs');
+const mime = require('mime');
+const path = require('path');
+const Log = require("../helpers/Log");
 
-var RequestHandler = require("./RequestHandler");
+const RequestHandler = require("./RequestHandler");
 
 class FileRequestHandler extends RequestHandler{
     handleRequest()
     {
         //this.response.end("ok");
 
-        var url = this.request.url;
-        var dir = __dirname+"/../../frontend/dist/";
+        let url = this.request.url;
+        const dir = __dirname + "/../../frontend/dist/";
         if(! url || url[url.length-1] === "/" || ! fs.existsSync(dir + url)) {
             if(!url.indexOf("?")&&path.parse(dir+url).ext)
             {
@@ -45,17 +45,18 @@ class FileRequestHandler extends RequestHandler{
     {
         if(err)
         {
-            Debug.debug("404!");
+            Log.debug("404!");
             return this.returnFourOFour();
         }
         //if(data.length<9999)
         //    console.log('file served', `${data}`);
-        //Debug.debug('file returned');
+        //Log.debug('file returned');
         this.response.end(data, 'binary', function(){
-            if(this.andDelete)
-                fs.unlink(this.file, function(){
-                    Debug.info("delete", arguments, this.file);
+            if(this.andDelete) {
+                fs.unlink(this.file, function () {
+                    Log.info("delete", arguments, this.file);
                 }.bind(this));
+            }
         }.bind(this));
     }
 }

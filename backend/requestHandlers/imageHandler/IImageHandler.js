@@ -5,7 +5,12 @@
 
 class IImageHandler
 {
-    getImageData(mediaItem, type)
+    /**
+     *
+     * @param mediaItem
+     * @param type
+     */
+    getImageData()
     {
 
     }

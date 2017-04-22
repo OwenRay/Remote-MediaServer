@@ -1,14 +1,14 @@
 "use strict";
 
-var fs = require("fs");
-var uuid = require("node-uuid");
-var Debug = require("./helpers/Debug.js");
+const fs = require("fs");
+const uuid = require("node-uuid");
+const Log = require("./helpers/Log.js");
 
 class Database {
 
     constructor() {
-        this.tables = {};
         this.ids = {};
+        this.tables = {};
         this.writeTimeout = null;
     }
 
@@ -27,7 +27,7 @@ class Database {
             this.ids[type] = 1;
         }
 
-        var o = {id:obj.id};
+        const o = {id: obj.id};
         if(!o.id) {
             o.id = this.ids[type]++;
         }
@@ -67,13 +67,13 @@ class Database {
 
     findBy(type, key, value)
     {
-        var table = this.tables[type];
+        let table = this.tables[type];
         if(!table) {
             return [];
         }
 
-        var items = [];
-        for(var itemKey in table)
+        const items = [];
+        for(let itemKey in table)
         {
             if(table[itemKey]&&table[itemKey].attributes[key]===value)
             {
@@ -85,26 +85,26 @@ class Database {
 
     findByMatchFilters(type, filters)
     {
-        var table = this.tables[type];
+        let table = this.tables[type];
         if(!table) {
             return [];
         }
-        var filterProps = {};
+        const filterProps = {};
 
         // loop over the filters and apply search arguments
         // %test%       match test somwhere in the string
         // test%        starts with test
         // %test        ends with test
-        for(var key in filters)
+        for(let key in filters)
         {
-            var type = "normal";
+            type = "normal";
             if(filters[key]==="false") {
                 filters[key] = false;
-            }else if(filters[key]=="true"){
+            }else if(filters[key]==="true"){
                 filters[key] = true;
             }else {
-                var a = filters[key][0] == "%";
-                var b = filters[key][filters[key].length - 1] == "%";
+                const a = filters[key][0] === "%";
+                const b = filters[key][filters[key].length - 1] === "%";
                 if (a && b) {
                     type = "search";
                     filters[key] = filters[key].substring(1, filters[key].length - 1);
@@ -120,26 +120,27 @@ class Database {
             filterProps[key] = type;
         }
 
-        var numFilters = 0;
-        for(var filterKey in filters)
-        {
+        let numFilters = 0;
+        for (const item in filters) { // jshint ignore:line
             numFilters++;
         }
-        Debug.debug(filters);
+        Log.debug(filters);
 
-        var items = [];
-        for(var itemKey in table)
+        const items = [];
+        for(let itemKey in table)
         {
-            var item = table[itemKey];
-            if(!item.id)
+            const item = table[itemKey];
+            if(!item.id) {
                 continue;
-            var match = 0;
-            for(var filterKey in filters)
+            }
+            let match = 0;
+            for(let filterKey in filters)
             {
                 //when we're looking for (for example) extra=false,
                 //we also want items that don't have the extra attribute, thats why:
-                if(item.attributes[filterKey]===undefined)
+                if(item.attributes[filterKey]===undefined) {
                     item.attributes[filterKey] = false;
+                }
 
                 if (!this.matches(
                             item.attributes[filterKey],
@@ -162,8 +163,8 @@ class Database {
     matches(value, filter, filterProp)
     {
         if(typeof(filter) !== "boolean") {
-            value = (value + "").toLowerCase()
-            filter = (filter + "").toLowerCase()
+            value = (value + "").toLowerCase();
+            filter = (filter + "").toLowerCase();
         }else{
             //console.log("bool");
         }
@@ -182,18 +183,19 @@ class Database {
 
     getById(type, id)
     {
-        if(!this.tables[type])
+        if(!this.tables[type]) {
             return null;
+        }
         return this.tables[type][id];
     }
 
     getAll(type)
     {
-        Debug.debug("getall");
+        Log.debug("getall");
         this.checkTable(type);
-        var table = this.tables[type];
-        var items = [];
-        for(var key in table) {
+        const table = this.tables[type];
+        const items = [];
+        for(let key in table) {
             items.push(table[key]);
         }
         return items;
@@ -203,34 +205,37 @@ class Database {
     {
         try {
             if (fs.existsSync('db')) {
-                var items = JSON.parse(fs.readFileSync("db", "utf8"));
-                for (var key in items) {
+                const items = JSON.parse(fs.readFileSync("db", "utf8"));
+                for (let key in items) {
                     this[key] = items[key];
                 }
             }
         }catch(e){
-            Debug.exception(e);
+            Log.exception(e);
         }
     }
 
     save()
     {
-        if(this.writeTimeout)
+        if(this.writeTimeout) {
             clearTimeout(this.writeTimeout);
+        }
         this.writeTimeout = setTimeout(this.doSave.bind(this), 3000);
     }
 
     doSave(callback)
     {
-        Debug.debug("Did write db");
-        if(this.writeTimeout)
+        Log.debug("Did write db");
+        if(this.writeTimeout) {
             clearTimeout(this.writeTimeout);
+        }
         this.writeTimeout = null;
         fs.writeFile("db", JSON.stringify(this), callback);
     }
 }
 
-var db = new Database();
+
+const db = new Database();
 db.load();
 
 module.exports = db;

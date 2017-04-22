@@ -19,19 +19,20 @@ before_install:
   - gcc --version
   - g++ --version
 install:
-  - npm install
   - npm install -g ember-cli
   - npm install -g bower
   - npm install -g nodeunit
-  - ember -v
+  - npm install -g jshint
   - cd frontend && npm install && cd ../
   - cd frontend && bower install && cd ../
+  - jshint --show-non-errors backend
+  - npm install
+  - ember -v
 script:
-  - mkdir dist && cd dist && npm pack ../ && cd ..
-  - ls -al frontend/dist/assets
-after_script:
   - nodeunit tests
   - node main.js & cd frontend && ember test && cd ..
+  - mkdir dist && cd dist && npm pack ../ && cd ..
+  - ls -al frontend/dist/assets
 deploy:
   provider: s3
   access_key_id: "AKIAIHYANWLHBG5FRLZQ"

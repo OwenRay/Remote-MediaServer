@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-require("./scripts/onrun.js")
-var fs = require("fs");
+require("./scripts/onrun.js");
+const fs = require("fs");
 
-var dir = process.env.HOME || process.env.USERPROFILE;
-dir += "/.remote/"
+let dir = process.env.HOME || process.env.USERPROFILE;
+dir += "/.remote/";
 if(!fs.existsSync(dir))
 {
     fs.mkdirSync(dir);
@@ -13,7 +13,7 @@ if(!fs.existsSync(dir))
 console.log("chdir", dir);
 process.chdir(dir);
 
-var MovieScanner = require("./backend/scanner/MovieScanner.js");
-var HttpServer = require("./backend/HttpServer");
+require("./backend/scanner/MovieScanner.js");
+const HttpServer = require("./backend/HttpServer");
 
 new HttpServer().start();

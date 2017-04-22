@@ -1,39 +1,39 @@
 "use strict";
 
-var Settings = require("../Settings");
+const Settings = require("../Settings");
 
-class Debug
+class Log
 {
     /**
      @param {...*} message
      */
-    static debug(message)
+    static debug()
     {
-        Debug.log(Debug.LEVEL.DEBUG, arguments);
+        Log.log(Log.LEVEL.DEBUG, arguments);
     }
 
     /**
      @param {...*} message
      */
-    static info(message)
+    static info()
     {
-        Debug.log(Debug.LEVEL.INFO, arguments);
+        Log.log(Log.LEVEL.INFO, arguments);
     }
 
     /**
      @param {...*} message
      */
-    static warning(message)
+    static warning()
     {
-        Debug.log(Debug.LEVEL.WARNING, arguments);
+        Log.log(Log.LEVEL.WARNING, arguments);
     }
 
     /**
      @param {...*} message
      */
-    static exception(message)
+    static exception()
     {
-        Debug.log(Debug.LEVEL.EXCEPTION, arguments);
+        Log.log(Log.LEVEL.EXCEPTION, arguments);
     }
 
     static log(level, message)
@@ -41,14 +41,14 @@ class Debug
         if(level>=Settings.getValue("verbosity")) {
             switch(level)
             {
-                case Debug.LEVEL.INFO:
-                case Debug.LEVEL.DEBUG:
+                case Log.LEVEL.INFO:
+                case Log.LEVEL.DEBUG:
                     console.log.apply(console, message);
                     break;
-                case Debug.LEVEL.WARNING:
+                case Log.LEVEL.WARNING:
                     console.warn.apply(console, message);
                     break;
-                case Debug.LEVEL.EXCEPTION:
+                case Log.LEVEL.EXCEPTION:
                     console.error.apply(console, message);
                     break;
             }
@@ -56,6 +56,6 @@ class Debug
     }
 }
 
-Debug.LEVEL = {DEBUG:0, INFO:1, WARNING:3, EXCEPTION:4};
+Log.LEVEL = {DEBUG:0, INFO:1, WARNING:3, EXCEPTION:4};
 
-module.exports = Debug;
+module.exports = Log;

@@ -1,13 +1,13 @@
 "use strict";
 
-var fs = require("fs");
-var uuid = require('node-uuid');
+const fs = require("fs");
+const uuid = require('node-uuid');
 
-var settingsObj = {
+const settingsObj = {
     "port": 8080,
     "name": "My Media Server",
-    "ffmpeg_binary": process.cwd()+"/ffmpeg",
-    "ffprobe_binary": process.cwd()+"/ffprobe",
+    "ffmpeg_binary": process.cwd() + "/ffmpeg",
+    "ffprobe_binary": process.cwd() + "/ffprobe",
     "libraries": [],
     "videoFileTypes": [
         "mkv",
@@ -35,16 +35,15 @@ var settingsObj = {
         'host': 'guessit.theremote.io',
         'port': 5000
     },
-    scanInterval:3600,
+    scanInterval: 3600,
 };
 
-var Settings = {
-    observers:[],
+const Settings = {
+    observers: [],
 
     createIfNotExists()
     {
-        if(!fs.existsSync("settings.json"))
-        {
+        if (!fs.existsSync("settings.json")) {
             Settings.save();
         }
     },
@@ -56,22 +55,18 @@ var Settings = {
 
     setValue(key, value)
     {
-        if(key=="libraries")
-        {
-            for(var c = 0; c<value.length; c++)
-            {
-                if(!value[c].uuid)
-                {
+        if (key === "libraries") {
+            for (let c = 0; c < value.length; c++) {
+                if (!value[c].uuid) {
                     value[c].uuid = uuid.v4();
                 }
             }
         }
 
-        var originalValue = settingsObj[key];
+        const originalValue = settingsObj[key];
         settingsObj[key] = value;
 
-        if(originalValue!=value)
-        {
+        if (originalValue !== value) {
             this.triggerObservers(key);
         }
     },
@@ -84,12 +79,12 @@ var Settings = {
     load()
     {
         try {
-            var contents = fs.readFileSync("settings.json", "utf8");
-            var newSettings = JSON.parse(contents);
-            for (var key in newSettings) {
+            const contents = fs.readFileSync("settings.json", "utf8");
+            const newSettings = JSON.parse(contents);
+            for (let key in newSettings) {
                 settingsObj[key] = newSettings[key];
             }
-        }catch (e){
+        } catch (e) {
         }
     },
 
@@ -100,20 +95,17 @@ var Settings = {
 
     triggerObservers(variable)
     {
-        if(!Settings.observers[variable])
-        {
+        if (!Settings.observers[variable]) {
             return;
         }
-        for(var c = 0; c<Settings.observers[variable].length; c++)
-        {
+        for (let c = 0; c < Settings.observers[variable].length; c++) {
             Settings.observers[variable][c](variable);
         }
     },
 
     addObserver(variable, callback)
     {
-        if(!Settings.observers[variable])
-        {
+        if (!Settings.observers[variable]) {
             Settings.observers[variable] = [];
         }
         Settings.observers[variable].push(callback);

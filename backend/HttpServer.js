@@ -1,22 +1,22 @@
 /**
  * Created by Owen on 15-4-2016.
  */
-"use strict"
-var http = require('http');
-var FileRequestHandler = require('./requestHandlers/FileRequestHandler');
-var ApiRequestHandler = require('./requestHandlers/ApiRequestHandler');
-var PlayRequestHandler = require('./requestHandlers/PlayRequestHandler');
-var CorsRequestHandler = require('./requestHandlers/CorsRequestHandler');
-var ImageRequestHandler = require("./requestHandlers/ImageRequestHandler");
-var Settings = require('./Settings');
-var enableDestroy = require('server-destroy');
-var Debug = require("./helpers/Debug");
+"use strict";
+const http = require('http');
+const FileRequestHandler = require('./requestHandlers/FileRequestHandler');
+const ApiRequestHandler = require('./requestHandlers/ApiRequestHandler');
+const PlayRequestHandler = require('./requestHandlers/PlayRequestHandler');
+const CorsRequestHandler = require('./requestHandlers/CorsRequestHandler');
+const ImageRequestHandler = require("./requestHandlers/ImageRequestHandler");
+const Settings = require('./Settings');
+const enableDestroy = require('server-destroy');
+const Log = require("./helpers/Log");
 
 class HttpServer {
 
     start() {
 
-        Debug.info("starting http server");
+        Log.info("starting http server");
         if(!this.firstStarted) {
             Settings.addObserver("port", this.onPortChange.bind(this));
         }
@@ -32,13 +32,13 @@ class HttpServer {
 
     stop(and)
     {
-        Debug.info("shutting down http server");
+        Log.info("shutting down http server");
         this.server.destroy(and);
     }
 
     onConnected()
     {
-        Debug.info("Server listening on: http://localhost:%s", Settings.getValue("port"));
+        Log.info("Server listening on: http://localhost:%s", Settings.getValue("port"));
     }
 
     handleRequest(request, response) {
@@ -47,13 +47,13 @@ class HttpServer {
             return;
         }
 
-        var handlers = {
+        const handlers = {
             api: ApiRequestHandler,
             ply: PlayRequestHandler,
             web: FileRequestHandler,
-			img: ImageRequestHandler
+            img: ImageRequestHandler
         };
-        var part = request.url.substr(1, 3);
+        let part = request.url.substr(1, 3);
         if (!handlers[part]) {
             part = "web";
         }
@@ -62,7 +62,7 @@ class HttpServer {
 
     onPortChange()
     {
-        Debug.info("onPortChange", this)
+        Log.info("onPortChange", this);
         this.stop(this.start.bind(this));
     }
 }

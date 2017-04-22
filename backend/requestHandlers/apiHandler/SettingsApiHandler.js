@@ -2,39 +2,40 @@
  * Created by Owen on 14-4-2016.
  */
 "use strict";
-var IApiHandler = require("./IApiHandler");
-var Settings = require("../../Settings.js");
+const IApiHandler = require("./IApiHandler");
+const Settings = require("../../Settings.js");
+const Log = require("../../helpers/Log");
 
 class SettingsApiHandler extends IApiHandler
 {
     handle(request, response)
     {
-        var urlParts = request.url.split("/");
-        var type = urlParts[2];
-        if(type!="settings")
+        const urlParts = request.url.split("/");
+        const type = urlParts[2];
+        if(type!=="settings")
         {
             return false;
         }
 
         response.setHeader("Content-Type", "text/json");
-        if(request.method=="PATCH")
+        if(request.method==="PATCH")
         {
-            var body = "";
+            let body = "";
             request.on('data', function (data) {
                 body += data;
             });
             request.on('end', function () {
                 try{
-                    var data = JSON.parse(body);
-                    var attrs = data.data.attributes;
-                    for(var key in attrs)
+                    const data = JSON.parse(body);
+                    const attrs = data.data.attributes;
+                    for(let key in attrs)
                     {
                         Settings.setValue(key, attrs[key]);
                     }
                     Settings.save();
                 }catch(e){
-                    Debug.exception("Exception", e);
-                };
+                    Log.exception("Exception", e);
+                }
                 this.respond(response);
             }.bind(this));
         }else{
@@ -45,7 +46,7 @@ class SettingsApiHandler extends IApiHandler
 
     respond(response)
     {
-        var json = JSON.stringify({data:{id:1, type:"setting", attributes:Settings.getAll()}});
+        const json = JSON.stringify({data: {id: 1, type: "setting", attributes: Settings.getAll()}});
         response.end(json);
     }
 }
