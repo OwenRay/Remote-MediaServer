@@ -31,7 +31,12 @@ class SubtitleApiHandler extends IApiHandler
         if(parts.length<4) {
             return this.returnEmpty();
         }
-        const filePath = this.filePath = db.getById("media-item", parts[3]).attributes.filepath;
+        var item = db.getById("media-item", parts[3]);
+        if(!item) {
+            response.end("");
+            return true;
+        }
+        const filePath = this.filePath = item.attributes.filepath;
         const directory = path.dirname(filePath);
 
         if(parts.length>=5)

@@ -30,7 +30,7 @@
     "ember-cli-htmlbars-inline-precompile": "^0.3.1",
     "ember-cli-inject-live-reload": "^1.4.0",
     "ember-cli-materialize": "~0.22.0-beta",
-    "ember-cli-qunit": "^2.1.0",
+    "ember-cli-qunit": "^2.2.0",
     "ember-cli-release": "0.2.9",
     "ember-cli-sass": "git://github.com/mike-north/ember-cli-sass.git#8ceb57d41f5774e8ececb5d1f05454449c19000c",
     "ember-cli-sri": "^2.1.0",

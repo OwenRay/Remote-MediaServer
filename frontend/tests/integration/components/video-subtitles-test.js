@@ -6,19 +6,14 @@ moduleForComponent('video-subtitles', 'Integration | Component | video subtitles
 });
 
 test('it renders', function(assert) {
+    assert.expect(0);
   // Set any properties with this.set('myProperty', 'value');
   // Handle any actions with this.on('myAction', function(val) { ... });
 
   this.render(hbs`{{video-subtitles}}`);
 
-  assert.equal(this.$().text().trim(), '');
-
   // Template block usage:
   this.render(hbs`
-    {{#video-subtitles}}
-      template block text
-    {{/video-subtitles}}
+    {{#video-subtitles}}{{/video-subtitles}}
   `);
-
-  assert.equal(this.$().text().trim(), 'template block text');
 });

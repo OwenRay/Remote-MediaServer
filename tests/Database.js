@@ -18,10 +18,8 @@ module.exports = {
         {
             Database.setObject("table", {"test": c+""});
         }
-        console.log("??");
         test.ok(Database.findBy("table", "test", 5)) ;
         test.strictEqual(1, Database.findByMatchFilters("table", {"test":"5"}).length);
-        console.log("??");
         test.done();
     },
     testWrite(test)

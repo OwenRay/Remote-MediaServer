@@ -4,7 +4,7 @@ Production | Development
 
 # PREREQUISITES
 - npm  
-- nodejs >= 5.1
+- nodejs >= 6
 
 # USING
 ### INSTALL

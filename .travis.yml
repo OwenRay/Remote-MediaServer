@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - "5.1"
+  - "6.10.2"
 compiler: gcc
 env: 
   - CXX=g++-4.8
@@ -25,14 +25,14 @@ install:
   - npm install -g jshint
   - cd frontend && npm install && cd ../
   - cd frontend && bower install && cd ../
-  - jshint --show-non-errors backend
   - npm install
   - ember -v
 script:
+  - jshint --show-non-errors --verbose --config .jshintrc backend/
   - nodeunit tests
-  - node main.js & cd frontend && ember test && cd ..
-  - mkdir dist && cd dist && npm pack ../ && cd ..
-  - ls -al frontend/dist/assets
+  - node main.js & cd frontend && ember test --environment=ci && cd ..
+  - mkdir dist
+  - cd dist && npm pack ../ && cd ..
 deploy:
   provider: s3
   access_key_id: "AKIAIHYANWLHBG5FRLZQ"

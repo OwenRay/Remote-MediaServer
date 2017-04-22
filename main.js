@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+"use strict";
 require("./scripts/onrun.js");
 const fs = require("fs");
 

@@ -22,6 +22,9 @@ export default Ember.Component.extend({
     },
 
     subtitlesLoaded(o){
+        if ( this.get('isDestroyed')||this.get('isDestroying') ) {
+            return;
+        }
         var hasKeys = false;
         var items = [];
         for(var key in o)

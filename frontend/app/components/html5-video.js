@@ -50,6 +50,9 @@ export default Ember.Component.extend({
 
     onLoading()
     {
+        if ( this.get('isDestroyed')||this.get('isDestroying') ) {
+            return;
+        }
         if(!this.get("videoObj").paused) {
             this.set("loading", true);
         }
