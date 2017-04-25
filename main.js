@@ -15,6 +15,4 @@ console.log("chdir", dir);
 process.chdir(dir);
 
 require("./backend/scanner/MovieScanner.js");
-const HttpServer = require("./backend/HttpServer");
-
-new HttpServer().start();
+require("./backend/HttpServer").start();

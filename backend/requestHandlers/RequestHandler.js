@@ -6,13 +6,15 @@
 class RequestHandler {
     /**
      *
-     * @param {IncomingMessage} request
-     * @param {ServerResponse} response
+     * @param {Context} context
      */
-    constructor(request, response)
+    constructor(method, path, context)
     {
-        this.request = request;
-        this.response = response;
+        console.log(arguments);
+        this.context = context;
+        this.request = this.context.req;
+        this.response = this.context.res;
+        this.path = path;
     }
 
     handleRequest()

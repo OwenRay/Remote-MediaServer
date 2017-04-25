@@ -2,29 +2,36 @@
  * Created by Owen on 15-4-2016.
  */
 "use strict";
-const http = require('http');
-const FileRequestHandler = require('./requestHandlers/FileRequestHandler');
-const ApiRequestHandler = require('./requestHandlers/ApiRequestHandler');
-const PlayRequestHandler = require('./requestHandlers/PlayRequestHandler');
-const CorsRequestHandler = require('./requestHandlers/CorsRequestHandler');
-const ImageRequestHandler = require("./requestHandlers/ImageRequestHandler");
+//const http = require('http');
 const Settings = require('./Settings');
-const enableDestroy = require('server-destroy');
 const Log = require("./helpers/Log");
+const glob = require( 'glob' );
+const path = require( 'path' );
+
+const Koa = require('koa');
+const Router = require('koa-router');
 
 class HttpServer {
+    constructor ()
+    {
+        this.server = new Koa();
+        this.router = new Router();
+    }
 
     start() {
-
         Log.info("starting http server");
         if(!this.firstStarted) {
             Settings.addObserver("port", this.onPortChange.bind(this));
         }
-
         this.firstStarted = true;
-        //Create a server
-        this.server = http.createServer(this.handleRequest);
-        enableDestroy(this.server);
+
+        glob.sync(__dirname+"/requestHandlers/**/*.js").forEach(function(file){
+            console.log("require", file);
+            require(path.resolve(file));
+        });
+
+        this.server.use(this.router.routes());
+        this.server.use(this.router.allowedMethods());
 
         //Lets start our server
         this.server.listen(Settings.getValue("port"), this.onConnected);
@@ -41,7 +48,20 @@ class HttpServer {
         Log.info("Server listening on: http://localhost:%s", Settings.getValue("port"));
     }
 
-    handleRequest(request, response) {
+    /**
+     *
+     * @param method
+     * @param path
+     * @param {RequestHandler} requestHandler
+     */
+    registerRoute(method, path, RequestHandler)
+    {
+        this.router[method](path, function(context){
+            new RequestHandler(method, path, context).handleRequest();
+        });
+    }
+
+    /*handleRequest(request, response) {
         if(new CorsRequestHandler(request, response).handleRequest())
         {
             return;
@@ -58,7 +78,7 @@ class HttpServer {
             part = "web";
         }
         new handlers[part](request, response).handleRequest();
-    }
+    }*/
 
     onPortChange()
     {
@@ -67,4 +87,4 @@ class HttpServer {
     }
 }
 
-module.exports = HttpServer;
+module.exports = new HttpServer();

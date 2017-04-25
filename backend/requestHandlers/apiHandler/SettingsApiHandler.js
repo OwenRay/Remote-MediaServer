@@ -2,29 +2,22 @@
  * Created by Owen on 14-4-2016.
  */
 "use strict";
-const IApiHandler = require("./IApiHandler");
+const RequestHandler = require("../RequestHandler");
 const Settings = require("../../Settings.js");
 const Log = require("../../helpers/Log");
 
-class SettingsApiHandler extends IApiHandler
+class SettingsApiHandler extends RequestHandler
 {
-    handle(request, response)
+    handleRequest()
     {
-        const urlParts = request.url.split("/");
-        const type = urlParts[2];
-        if(type!=="settings")
-        {
-            return false;
-        }
-
-        response.setHeader("Content-Type", "text/json");
-        if(request.method==="PATCH")
+        this.response.setHeader("Content-Type", "text/json");
+        if(this.request.method==="PATCH")
         {
             let body = "";
-            request.on('data', function (data) {
+            this.request.on('data', function (data) {
                 body += data;
             });
-            request.on('end', function () {
+            this.request.on('end', function () {
                 try{
                     const data = JSON.parse(body);
                     const attrs = data.data.attributes;
@@ -36,19 +29,22 @@ class SettingsApiHandler extends IApiHandler
                 }catch(e){
                     Log.exception("Exception", e);
                 }
-                this.respond(response);
+                this.respond();
             }.bind(this));
         }else{
-            this.respond(response);
+            this.respond();
         }
         return true;
     }
 
-    respond(response)
+    respond()
     {
         const json = JSON.stringify({data: {id: 1, type: "setting", attributes: Settings.getAll()}});
-        response.end(json);
+        this.response.end(json);
     }
 }
+
+require("../../HttpServer")
+    .registerRoute("all", "/api/settings/:unused_id", SettingsApiHandler);
 
 module.exports = SettingsApiHandler;
