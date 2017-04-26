@@ -10,7 +10,8 @@ class SettingsApiHandler extends RequestHandler
 {
     handleRequest()
     {
-        this.response.setHeader("Content-Type", "text/json");
+        this.response.header["Content-Type"] = "text/json";
+
         if(this.request.method==="PATCH")
         {
             let body = "";
@@ -39,8 +40,7 @@ class SettingsApiHandler extends RequestHandler
 
     respond()
     {
-        const json = JSON.stringify({data: {id: 1, type: "setting", attributes: Settings.getAll()}});
-        this.response.end(json);
+        this.context.body = {data: {id: 1, type: "setting", attributes: Settings.getAll()}};
     }
 }
 

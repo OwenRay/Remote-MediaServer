@@ -4,35 +4,35 @@
 "use strict";
 const Database = require("../../Database");
 const pluralize = require('pluralize');
-const IApiHandler = require("./IApiHandler");
-const querystring = require("querystring");
+const RequestHandler = require("../RequestHandler");
+const httpServer = require("../../HttpServer");
 
-class DatabaseApiHandler extends IApiHandler
+class DatabaseApiHandler extends RequestHandler
 {
-    handle(request, response, url) {
+    handleRequest() {
 
-        const query = querystring.parse(url.query);
-        const urlParts = url.pathname.split("/");
+        console.log(this.context.query);
+        const urlParts = this.path.split("/");
         const type = urlParts[2];
         const singularType = pluralize.singular(type);
 
-        switch(request.method)
+        switch(this.request.method)
         {
             case "PATCH":
             case "POST":
             case "PUT":
-                this.handlePost(request, response, singularType);
+                this.handlePost(singularType);
                 break;
             case "GET":
-                this.handleGet(response, query, singularType, parseInt(urlParts[3]));
+                this.handleGet(this.context.query, singularType, parseInt(urlParts[3]));
                 break;
         }
     }
 
-    handlePost(request, response, singularType) {
+    handlePost(singularType) {
         let body = [];
 
-        request.on('data', function(chunk) {
+        this.request.on('data', function(chunk) {
             body.push(chunk);
         }).on('end', function() {
             body = JSON.parse(`${body}`);
@@ -46,17 +46,17 @@ class DatabaseApiHandler extends IApiHandler
                     item.attributes[key] = i.attributes[key];
                 }
                 item.relationships = i.relationships;
-                this.respond(response, Database.update(singularType, item));
+                this.respond(this.response, Database.update(singularType, item));
                 return;
             }
 
-            this.respond(response, Database.setObject(singularType, i.attributes));
+            this.respond(this.response, Database.setObject(singularType, i.attributes));
         }.bind(this));
     }
 
-    handleGet(response, query, singularType, itemId)
+    handleGet(query, singularType, itemId)
     {
-        response.setHeader("Content-Type", "text/json");
+        this.response.header["Content-Type"] = "text/json";
 
         let data;
         let offset = 0;
@@ -195,18 +195,20 @@ class DatabaseApiHandler extends IApiHandler
             }
         }
 
-        this.respond(response, data, metadata);
+        this.respond(data, metadata);
         return true;
     }
 
-    respond(response, data, metadata)
+    respond(data, metadata)
     {
         const obj = {};
         obj.data = data;
         obj.meta = metadata;
-        const json = JSON.stringify(obj);
-        response.end(json);
+        this.context.body = obj;
     }
 }
+
+httpServer.registerRoute("all", "/api/media-items", DatabaseApiHandler);
+httpServer.registerRoute("all", "/api/media-items/:id", DatabaseApiHandler);
 
 module.exports = DatabaseApiHandler;

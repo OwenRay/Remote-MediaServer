@@ -10,12 +10,14 @@ const path = require( 'path' );
 
 const Koa = require('koa');
 const Router = require('koa-router');
+const Static = require('koa-static');
 
 class HttpServer {
     constructor ()
     {
         this.server = new Koa();
         this.router = new Router();
+        this.routes = [];
     }
 
     start() {
@@ -32,6 +34,16 @@ class HttpServer {
 
         this.server.use(this.router.routes());
         this.server.use(this.router.allowedMethods());
+        this.server.use(new Static(__dirname+"/../frontend/dist"));
+        this.server.use(function(context, next){
+            console.log(this, arguments);
+            if(context.url.split("?")[0].indexOf(".")===-1) {
+                console.log("change url");
+                context.url = "/";
+            }
+            return next();
+        });
+        this.server.use(new Static(__dirname+"/../frontend/dist"));
 
         //Lets start our server
         this.server.listen(Settings.getValue("port"), this.onConnected);
@@ -54,11 +66,33 @@ class HttpServer {
      * @param path
      * @param {RequestHandler} requestHandler
      */
-    registerRoute(method, path, RequestHandler)
-    {
-        this.router[method](path, function(context){
-            new RequestHandler(method, path, context).handleRequest();
-        });
+    registerRoute(method, path, RequestHandler, priority) {
+        if (!priority) {
+            priority = 0;
+        }
+        var route = method+"@"+path;
+
+        //if there's no such route yet, register it
+        if (!this.routes[route]) {
+            this.routes[route] = [];
+
+            this.router[method](path, context=>{
+
+                //run routes by priority, if one returns true, we'll stop propagating
+                for(let c = 10; c>=-10; c--)
+                {
+                    var R = this.routes[route][c];
+                    if(R){
+                        var result = new R(method, path, context).handleRequest();
+                        console.log("result", result);
+                        if(result) {
+                            return result;
+                        }
+                    }
+                }
+            });
+        }
+        this.routes[route][priority] = RequestHandler;
     }
 
     /*handleRequest(request, response) {
