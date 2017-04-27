@@ -10,13 +10,15 @@ class RequestHandler {
      * @param path
      * @param context
      */
-    constructor(method, path, context)
+    constructor(context, method, path)
     {
-        console.log(arguments);
+        this.method = method;
+        this.path = path;
         this.context = context;
-        this.request = this.context.request;
-        this.response = this.context.response;
-        console.log(this);
+        if(this.context) {
+            this.request = this.context.request;
+            this.response = this.context.response;
+        }
         this.path = path;
     }
 

@@ -6,6 +6,7 @@ const IImageHandler = require("./IImageHandler");
 const http = require("http");
 const Log = require("../../helpers/Log");
 const httpServer = require("../../HttpServer");
+const ImageCacheHandler = require("./ImageCacheHandler");
 
 class TmdbImageHandler extends IImageHandler
 {
@@ -36,7 +37,9 @@ class TmdbImageHandler extends IImageHandler
                     bytes.push(data);
                 });
                 response.on("end", () => {
-                    this.context.body = Buffer.concat(bytes);
+                    var b = Buffer.concat(bytes);
+                    new ImageCacheHandler(this.context).put(b);
+                    this.context.body = b;
                     resolve();
                 });
             });
@@ -45,6 +48,6 @@ class TmdbImageHandler extends IImageHandler
     }
 }
 
-httpServer.registerRoute("get", "/img/:image.jpg", TmdbImageHandler, 1);
+httpServer.registerRoute("get", "/img/:image.jpg", TmdbImageHandler, 1000, 2);
 
 module.exports = TmdbImageHandler;

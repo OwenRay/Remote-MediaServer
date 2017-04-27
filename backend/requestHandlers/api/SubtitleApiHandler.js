@@ -2,7 +2,7 @@
  * Created by owenray on 31-3-2017.
  */
 "use strict";
-const IApiHandler = require("./IApiHandler");
+const RequestHandler = require("../RequestHandler");
 const fs = require("fs");
 const db = require("../../Database");
 const path = require('path');
@@ -13,40 +13,32 @@ const FFProbe = require("../../FFProbe");
 const spawn = require('child_process').spawn;
 const Settings = require("../../Settings");
 const Log = require("../../helpers/Log");
+const httpServer = require("../../HttpServer");
 
 const supportedSubtitleFormats = [".srt", ".ass"];
 
-class SubtitleApiHandler extends IApiHandler
+class SubtitleApiHandler extends RequestHandler
 {
-    handle(request, response, url)
+    handleRequest()
     {
-        if(!url.pathname.startsWith("/api/subtitles/"))
-        {
-            return false;
+        console.log(this.context);
+        var item = db.getById("media-item", this.context.params.id);
+        if(!item) {
+            return;
         }
 
-        this.request = request;
-        this.response = response;
-        const parts = url.pathname.split("/");
-        if(parts.length<4) {
-            return this.returnEmpty();
-        }
-        var item = db.getById("media-item", parts[3]);
-        if(!item) {
-            response.end("");
-            return true;
-        }
         const filePath = this.filePath = item.attributes.filepath;
         const directory = path.dirname(filePath);
 
-        if(parts.length>=5)
+        if(this.context.params.file)
         {
-            this.serveSubtitle(filePath, directory, decodeURI(parts[4]));
+            this.serveSubtitle(filePath, directory, this.context.params.file);
         }else{
             this.serveList(directory);
         }
-
-        return true;
+        return new Promise(resolve=>{
+           this.resolve = resolve;
+        });
     }
 
     serveList(directory){
@@ -64,7 +56,7 @@ class SubtitleApiHandler extends IApiHandler
                 "-map", "0" + file.split(".").shift(),
                 tmpFile
             ];
-            console.log("spawn!!!!!", Settings.getValue("ffmpeg_binary")+" "+args.join(" "));
+
             const proc = spawn(
                 Settings.getValue("ffmpeg_binary"),
                 args);
@@ -104,8 +96,8 @@ class SubtitleApiHandler extends IApiHandler
             file = directory+"/"+file;
         }
 
-        return new FileRequestHandler(this.request, this.response)
-            .serveFile(file, deleteAfterServe);
+        return new FileRequestHandler(this.context)
+            .serveFile(file, deleteAfterServe, this.resolve);
     }
 
     returnEmpty(){
@@ -114,7 +106,7 @@ class SubtitleApiHandler extends IApiHandler
 
     onReadDir(err, result) {
         if(err) {
-            return this.returnEmpty();
+            this.resolve();
         }
         const subtitles = {};
         for(let key in result) {
@@ -122,18 +114,21 @@ class SubtitleApiHandler extends IApiHandler
                 subtitles[result[key]] = result[key];
             }
         }
+
         FFProbe.getInfo(this.filePath).then(function(data){
             const streams = data.streams;
             for(let key in streams) {
-                console.log(streams[key].codec_name);
                 if(supportedSubtitleFormats.indexOf("."+streams[key].codec_name)!==-1) {
-                    console.log(streams[key]);
                     subtitles[":"+streams[key].index+"."+streams[key].codec_name] = "Built in: "+streams[key].tags.language;
                 }
             }
-            this.response.end(JSON.stringify(subtitles));
+            this.context.body = subtitles;
+            this.resolve();
         }.bind(this));
     }
 }
+
+httpServer.registerRoute("get", "/api/subtitles/:id", SubtitleApiHandler);
+httpServer.registerRoute("get", "/api/subtitles/:id/:file", SubtitleApiHandler);
 
 module.exports = SubtitleApiHandler;

@@ -11,12 +11,16 @@ const path = require( 'path' );
 const Koa = require('koa');
 const Router = require('koa-router');
 const Static = require('koa-static');
+const cache = require('node-file-cache');
+const destroyable = require('server-destroy');
+
 
 class HttpServer {
     constructor ()
     {
-        this.server = new Koa();
+        this.cache = cache.create({file:process.cwd()+'/cache/httpCache'});
         this.router = new Router();
+        this.cacheRoute = [];
         this.routes = [];
     }
 
@@ -26,6 +30,7 @@ class HttpServer {
             Settings.addObserver("port", this.onPortChange.bind(this));
         }
         this.firstStarted = true;
+        this.server = new Koa();
 
         glob.sync(__dirname+"/requestHandlers/**/*.js").forEach(function(file){
             console.log("require", file);
@@ -34,11 +39,11 @@ class HttpServer {
 
         this.server.use(this.router.routes());
         this.server.use(this.router.allowedMethods());
-        this.server.use(new Static(__dirname+"/../frontend/dist"));
+
+        // make sure frontend javascript url handling works.
+        // for example /library/list redirects to /
         this.server.use(function(context, next){
-            console.log(this, arguments);
             if(context.url.split("?")[0].indexOf(".")===-1) {
-                console.log("change url");
                 context.url = "/";
             }
             return next();
@@ -46,13 +51,14 @@ class HttpServer {
         this.server.use(new Static(__dirname+"/../frontend/dist"));
 
         //Lets start our server
-        this.server.listen(Settings.getValue("port"), this.onConnected);
+        this.serverInstance = this.server.listen(Settings.getValue("port"), this.onConnected);
+        destroyable(this.serverInstance);
     }
 
     stop(and)
     {
         Log.info("shutting down http server");
-        this.server.destroy(and);
+        this.serverInstance.destroy(and);
     }
 
     onConnected()
@@ -66,53 +72,61 @@ class HttpServer {
      * @param path
      * @param {RequestHandler} requestHandler
      */
-    registerRoute(method, path, RequestHandler, priority) {
+    registerRoute(method, path, RequestHandler, cacheFor, priority) {
         if (!priority) {
             priority = 0;
         }
-        var route = method+"@"+path;
+        const route = method+"@"+path;
+        this.cacheRoute[route+"@"+priority] = cacheFor;
 
         //if there's no such route yet, register it
         if (!this.routes[route]) {
             this.routes[route] = [];
 
-            this.router[method](path, context=>{
-
-                //run routes by priority, if one returns true, we'll stop propagating
-                for(let c = 10; c>=-10; c--)
-                {
-                    var R = this.routes[route][c];
-                    if(R){
-                        var result = new R(method, path, context).handleRequest();
-                        console.log("result", result);
-                        if(result) {
-                            return result;
+            this.router[method](path, context => {
+                return this.checkCache(
+                    context,
+                    route+"@"+priority,
+                    ()=>{
+                        //run routes by priority, if one returns true, we'll stop propagating
+                        for (let c = 10; c >= -10; c--) {
+                            const R = this.routes[route][c];
+                            if (R) {
+                                const result = new R(context, method, path).handleRequest();
+                                if (result) {
+                                    return result;
+                                }
+                            }
                         }
-                    }
-                }
+                    });
             });
         }
         this.routes[route][priority] = RequestHandler;
     }
 
-    /*handleRequest(request, response) {
-        if(new CorsRequestHandler(request, response).handleRequest())
-        {
+    checkCache(context, key, func)
+    {
+        const cacheFor = this.cacheRoute[key];
+        if(!cacheFor) {
+            return func();
+        }
+
+        let entry = this.cache.get(context.url);
+        if(entry) {
+            context.body = entry;
             return;
         }
 
-        const handlers = {
-            api: ApiRequestHandler,
-            ply: PlayRequestHandler,
-            web: FileRequestHandler,
-            img: ImageRequestHandler
-        };
-        let part = request.url.substr(1, 3);
-        if (!handlers[part]) {
-            part = "web";
-        }
-        new handlers[part](request, response).handleRequest();
-    }*/
+        return new Promise(resolve=> {
+            Promise.resolve(func()).then(() => {
+                if (context.body) {
+                    var cacheObj = context.body;
+                    this.cache.set(context.url, cacheObj, {life:cacheFor}, [key]);
+                }
+                resolve();
+            });
+        });
+    }
 
     onPortChange()
     {

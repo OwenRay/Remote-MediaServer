@@ -14,24 +14,25 @@ class SettingsApiHandler extends RequestHandler
 
         if(this.request.method==="PATCH")
         {
-            let body = "";
-            this.request.on('data', function (data) {
-                body += data;
-            });
-            this.request.on('end', function () {
-                try{
-                    const data = JSON.parse(body);
-                    const attrs = data.data.attributes;
-                    for(let key in attrs)
-                    {
-                        Settings.setValue(key, attrs[key]);
+            return new Promise(resolve=> {
+                let body = "";
+                this.context.req.on('data', data=>{
+                    body += data;
+                }).on('end', ()=>{
+                    try {
+                        const data = JSON.parse(body);
+                        const attrs = data.data.attributes;
+                        for (let key in attrs) {
+                            Settings.setValue(key, attrs[key]);
+                        }
+                        Settings.save();
+                    } catch (e) {
+                        Log.exception("Exception", e);
                     }
-                    Settings.save();
-                }catch(e){
-                    Log.exception("Exception", e);
-                }
-                this.respond();
-            }.bind(this));
+                    this.respond();
+                    resolve();
+                });
+            });
         }else{
             this.respond();
         }

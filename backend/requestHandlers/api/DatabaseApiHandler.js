@@ -10,8 +10,6 @@ const httpServer = require("../../HttpServer");
 class DatabaseApiHandler extends RequestHandler
 {
     handleRequest() {
-
-        console.log(this.context.query);
         const urlParts = this.path.split("/");
         const type = urlParts[2];
         const singularType = pluralize.singular(type);
@@ -22,19 +20,22 @@ class DatabaseApiHandler extends RequestHandler
             case "POST":
             case "PUT":
                 this.handlePost(singularType);
-                break;
+                return new Promise(resolve=>{
+                    this.resolve = resolve;
+                });
             case "GET":
-                this.handleGet(this.context.query, singularType, parseInt(urlParts[3]));
+                this.handleGet(this.context.query, singularType, this.context.params.id);
                 break;
         }
     }
 
     handlePost(singularType) {
         let body = [];
+        console.log(this.context.request.body);
 
-        this.request.on('data', function(chunk) {
+        this.context.req.on('data', chunk => {
             body.push(chunk);
-        }).on('end', function() {
+        }).on('end', ()=>{
             body = JSON.parse(`${body}`);
             const i = body.data;
             const item = Database.getById(singularType, i.id);
@@ -46,12 +47,12 @@ class DatabaseApiHandler extends RequestHandler
                     item.attributes[key] = i.attributes[key];
                 }
                 item.relationships = i.relationships;
-                this.respond(this.response, Database.update(singularType, item));
+                this.respond(Database.update(singularType, item));
                 return;
             }
 
-            this.respond(this.response, Database.setObject(singularType, i.attributes));
-        }.bind(this));
+            this.respond(Database.setObject(singularType, i.attributes));
+        });
     }
 
     handleGet(query, singularType, itemId)
@@ -205,10 +206,16 @@ class DatabaseApiHandler extends RequestHandler
         obj.data = data;
         obj.meta = metadata;
         this.context.body = obj;
+        if(this.resolve) {
+            this.resolve();
+        }
+
     }
 }
 
 httpServer.registerRoute("all", "/api/media-items", DatabaseApiHandler);
 httpServer.registerRoute("all", "/api/media-items/:id", DatabaseApiHandler);
+httpServer.registerRoute("all", "/api/play-positions", DatabaseApiHandler);
+httpServer.registerRoute("all", "/api/play-positions/:id", DatabaseApiHandler);
 
 module.exports = DatabaseApiHandler;

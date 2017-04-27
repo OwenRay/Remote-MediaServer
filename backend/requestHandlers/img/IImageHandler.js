@@ -13,9 +13,12 @@ class IImageHandler extends RequestHandler
      * @param path
      * @param context
      */
-    constructor(method, path, context) {
-        super(method, path, context);
+    constructor(context, method, path) {
+        super(context, method, path);
 
+        if(!this.context) {
+            return;
+        }
         let item = context.params.image.split("_");
 
         this.type = item[1];
