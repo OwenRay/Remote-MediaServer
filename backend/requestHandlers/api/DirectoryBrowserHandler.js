@@ -26,7 +26,7 @@ class DirectoryBrowserHandler extends RequestHandler
             this.onDirectoryList.bind(this)
         );
         return new Promise(resolve=>{
-            this.resolve=resolve
+            this.resolve = resolve;
         });
     }
 

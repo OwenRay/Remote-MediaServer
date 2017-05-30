@@ -11,6 +11,7 @@ const path = require( 'path' );
 const Koa = require('koa');
 const Router = require('koa-router');
 const Static = require('koa-static');
+const cors = require('koa-cors');
 const cache = require('node-file-cache');
 const destroyable = require('server-destroy');
 
@@ -32,6 +33,7 @@ class HttpServer {
         this.firstStarted = true;
         this.server = new Koa();
 
+        this.server.use(cors( {origin: '*'}));
         glob.sync(__dirname+"/requestHandlers/**/*.js").forEach(function(file){
             console.log("require", file);
             require(path.resolve(file));

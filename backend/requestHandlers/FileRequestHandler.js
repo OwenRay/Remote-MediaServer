@@ -5,7 +5,6 @@
 
 const fs = require('fs');
 const mime = require('mime');
-const path = require('path');
 const Log = require("../helpers/Log");
 
 const RequestHandler = require("./RequestHandler");

@@ -23,6 +23,5 @@
   "sub": true,
   "strict": true,
   "white": false,
-  "eqnull": true,
-  "unused": true
+  "eqnull": true
 }

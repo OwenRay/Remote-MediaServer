@@ -31,7 +31,7 @@ script:
   - jshint --show-non-errors --verbose --config .jshintrc backend/
   - nodeunit tests
   - node main.js & cd frontend && ember test --environment=ci && cd ..
-  - mkdir dist
+  - mkdir -p dist
   - cd dist && npm pack ../ && cd ..
 deploy:
   provider: s3

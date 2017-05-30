@@ -5,7 +5,6 @@
 const spawn = require('child_process').spawn;
 const os = require('os');
 const fs = require("fs");
-const url = require("url");
 const Settings = require("../../Settings");
 const FFProbe = require("../../FFProbe");
 const uuid = require('node-uuid');
@@ -47,7 +46,7 @@ class HLSPlayHandler extends RequestHandler{
 
         HLSPlayHandler.sessions[id] = this;
         this.setSessionTimeout();
-        this.response.headers["Content-Type"] = "application/x-mpegURL"
+        this.response.headers["Content-Type"] = "application/x-mpegURL";
         this.context.body = "#EXTM3U\n"+
             "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=200000, RESOLUTION=720x480\n"+
             redirectUrl;
