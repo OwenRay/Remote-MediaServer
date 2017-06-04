@@ -1,7 +1,6 @@
-var HttpServer = require("../backend/HttpServer");
+var server = require("../backend/HttpServer");
 var http = require("http");
-
-var server = new HttpServer();
+require("../scripts/onrun.js");
 
 module.exports = {
     setUp(callback)

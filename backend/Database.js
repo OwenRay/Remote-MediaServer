@@ -121,6 +121,7 @@ class Database {
         }
 
         let numFilters = 0;
+
         for (const item in filters) { // jshint ignore:line
             numFilters++;
         }

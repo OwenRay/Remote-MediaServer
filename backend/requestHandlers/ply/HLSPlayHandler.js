@@ -5,56 +5,53 @@
 const spawn = require('child_process').spawn;
 const os = require('os');
 const fs = require("fs");
-const url = require("url");
 const Settings = require("../../Settings");
 const FFProbe = require("../../FFProbe");
 const uuid = require('node-uuid');
 
 const MediaItemHelper = require("../../helpers/MediaItemHelper");
 const Log = require("../../helpers/Log");
-const IPlayHandler = require("./IPlayHandler");
+const RequestHandler = require("../RequestHandler");
 const FileRequestHandler = require("../FileRequestHandler");
+const Database = require("../../Database");
+const httpServer = require("../../HttpServer");
 
-class HLSPlayHandler extends IPlayHandler{
-    play(mediaItem, offset, request, response)
+class HLSPlayHandler extends RequestHandler{
+    handleRequest()
     {
-        this.request = request;
-        this.response = response;
-        /**
-         * @type {{query:{segment:string},pathname:string}}
-         */
-        const u = url.parse(offset, true);
+        const params = this.context.params;
+        const query = this.context.query;
+        const mediaItem = Database.getById("media-item", params.id);
+        this.offset = params.offset;
 
-        if(u.query.format!=="hls"&&
-            (request.headers["user-agent"].indexOf("Chrome")!==-1||
-            request.headers["user-agent"].indexOf("Safari")===-1)) {
-            return false;
+        if(query.format!=="hls"&&
+            (this.request.headers["user-agent"].indexOf("Chrome")!==-1||
+            this.request.headers["user-agent"].indexOf("Safari")===-1)) {
+            return;
         }
-        if(request.headers["x-playback-session-id"]&&!u.query.session) {
-            u.query.session = request.headers["x-playback-session-id"];
+        if(this.request.headers["x-playback-session-id"]&&!query.session) {
+            this.context.query.session = this.request.headers["x-playback-session-id"];
         }
 
-        this.offset = u.pathname;
-        if(!u.query||!u.query.session||!HLSPlayHandler.sessions[u.query.session]) {
-            Log.debug("STARTING NEW HLS SESSION!!!");
-            //this.response.statusCode=302;
-            const id = u.query.session ? u.query.session : uuid.v4();
-            this.session = id;
-            const redirectUrl = "/ply/" + mediaItem.id + "/0?format=hls&session=" + id;
-            Log.debug("started hls session", redirectUrl);
-            // this.response.setHeader("Location", redirectUrl);
-            HLSPlayHandler.sessions[id] = this;
-            this.setSessionTimeout();
-            this.response.setHeader("Content-Type", "application/x-mpegURL");
-
-            this.response.end("#EXTM3U\n"+
-                              "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=200000, RESOLUTION=720x480\n"+
-                              redirectUrl);
-        }else{
-            HLSPlayHandler.sessions[u.query.session].newRequest(request, response, u.query.segment);
-            return true;
+        if(query.session&&HLSPlayHandler.sessions[query.session]) {
+            return HLSPlayHandler.sessions[query.session]
+                        .newRequest(this.context, query.segment);
         }
 
+        Log.debug("STARTING NEW HLS SESSION!!!");
+        const id = query.session ? query.session : uuid.v4();
+        this.session = id;
+        const redirectUrl = "/ply/" + mediaItem.id + "/0?format=hls&session=" + id;
+        Log.debug("started hls session", redirectUrl);
+
+        HLSPlayHandler.sessions[id] = this;
+        this.setSessionTimeout();
+        this.response.headers["Content-Type"] = "application/x-mpegURL";
+        this.context.body = "#EXTM3U\n"+
+            "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=200000, RESOLUTION=720x480\n"+
+            redirectUrl;
+
+        //prepare for decoding
         let dir = os.tmpdir() + "/remote_cache";
         if (!fs.existsSync(dir)){
             fs.mkdirSync(dir);
@@ -65,7 +62,9 @@ class HLSPlayHandler extends IPlayHandler{
         }
         this.m3u8 = dir+"vid.m3u8";
         this.file = MediaItemHelper.getFullFilePath(mediaItem);
+
         Log.debug("starting to play:"+this.file);
+        //get file info and start encoding
         FFProbe.getInfo(this.file).then(this.gotInfo.bind(this), this.onError.bind(this));
         return true;
     }
@@ -103,32 +102,28 @@ class HLSPlayHandler extends IPlayHandler{
         });
     }
 
-    newRequest(request, response, segment) {
+    newRequest(context, segment) {
         this.setSessionTimeout();
-
-        if(segment) { //serve ts file
-            response.setHeader('Accept-Ranges', 'none');
-            const file = os.tmpdir() + "/remote_cache/" + this.session + "/" + segment;
-            Log.debug("return hls");
-            if(!this.playStart) { //set the play start time when serving first ts file
-                this.playStart = new Date().getTime();
+        return new Promise(resolve=> {
+            if (segment) { //serve ts file
+                context.response['Accept-Ranges'] = 'none';
+                const file = os.tmpdir() + "/remote_cache/" + this.session + "/" + segment;
+                Log.debug("return hls");
+                if (!this.playStart) { //set the play start time when serving first ts file
+                    this.playStart = new Date().getTime();
+                }
+                return new FileRequestHandler(context)
+                    .serveFile(file, true, resolve);
             }
-            return new FileRequestHandler(request, response)
-                .serveFile(file, true);
-        }
 
-        if (!this.paused) {
-            setTimeout(function() {
-                this.newRequest(request, response, segment);
-            }.bind(this), 1000);
-            return;
-        }
-        /*if(!this.hlsHasBeenServed) {
-            this.serveFirstThree(response);
-        }else{
-            new FileRequestHandler(request, response).serveFile(this.m3u8);
-        }*/
-        this.serveFirstHls(response);
+            if (!this.paused) {
+                setTimeout(function () {
+                    this.newRequest(context, segment).then(resolve);
+                }.bind(this), 1000);
+                return;
+            }
+            this.serveFirstHls(context, resolve);
+        });
     }
 
     /**
@@ -137,58 +132,45 @@ class HLSPlayHandler extends IPlayHandler{
      * Make sure the first hls that's requested has no more then three chunks
      * this is to ensure the browser will not skip any chunks
      */
-    serveFirstHls(response) {
-        response.setHeader("Content-Type", "application/x-mpegURL");
+    serveFirstHls(context, resolve) {
+        context.response.headers["Content-Type"] = "application/x-mpegURL";
 
-        fs.readFile(this.m3u8, function(err, data){
-            if(err) {
-                return response.end();
+        fs.readFile(this.m3u8, (err, data) => {
+            if (err) {
+                return resolve();
             }
+            context.body = "";
             const currentTime = this.playStart ? (new Date().getTime() - this.playStart) / 1000 : 0;
             let segmentTime = 0;
 
             const lines = `${data}`.split("\n");
             let newSegments = 0;
-            for(let c = 0; c<lines.length; c++) {
-                response.write(lines[c]+"\n");
-                if(lines[c][0]!=="#"&&segmentTime>=currentTime) {
+            for (let c = 0; c < lines.length; c++) {
+                context.body+=lines[c] + "\n";
+                if (lines[c][0] !== "#" && segmentTime >= currentTime) {
                     newSegments++;
-                }else{
+                } else {
                     const ext = lines[c].substring(1).split(":");
-                    if(ext[0]==="EXTINF") {
-                        segmentTime+=parseFloat(ext[1]);
+                    if (ext[0] === "EXTINF") {
+                        segmentTime += parseFloat(ext[1]);
                     }
                 }
-                if(newSegments===(!this.playStart?3:5)) {
+                if (newSegments === (!this.playStart ? 3 : 5)) {
                     break;
                 }
             }
-            return response.end();
-        }.bind(this));
+
+            resolve();
+        });
     }
 
     /**
      *
      * @param {FFProbe.fileInfo} info
-     * @param correctedOffset
      */
-    gotInfo(info, correctedOffset)
+    gotInfo(info)
     {
         if(this.ended) {
-            return;
-        }
-        if(!correctedOffset&&this.offset!==0)
-        {
-            FFProbe.getNearestKeyFrame(this.file, this.offset)
-                .then(
-                    function(offset){
-                        //this.offset = offset;
-                        this.offset = offset;
-                        Log.debug("play from 2:", offset);
-                        this.gotInfo(info, true);
-                    }.bind(this),
-                    this.onError.bind(this)
-                );
             return;
         }
         if(!info||!info.format)
@@ -261,14 +243,6 @@ class HLSPlayHandler extends IPlayHandler{
         proc.on("error", this.onError.bind(this));
 
         proc.stdout.on('data', this.onInfo.bind(this));
-        /*setTimeout(function() {
-            console.log("pause stdout");
-            console.log("write1", proc.stdin.write("c", function(){
-                console.log("written?", arguments);
-            }));
-            //proc.stdin.end();
-            //proc.stdin.pause();
-        }, 6000);*/
         proc.stderr.on('data', this.onError.bind(this));
         proc.on('close', this.onClose.bind(this));
         this.checkPause();
@@ -314,5 +288,8 @@ class HLSPlayHandler extends IPlayHandler{
 }
 
 HLSPlayHandler.sessions = [];
+
+httpServer.registerRoute("get", "/ply/:id", HLSPlayHandler, false, 5);
+httpServer.registerRoute("get", "/ply/:id/:offset", HLSPlayHandler, false, 5);
 
 module.exports = HLSPlayHandler;

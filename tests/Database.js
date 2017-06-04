@@ -1,5 +1,6 @@
 "use strict";
 
+require("../scripts/onrun.js");
 const fs = require("fs");
 const Database = require("../backend/Database");
 

@@ -6,18 +6,29 @@
 class RequestHandler {
     /**
      *
-     * @param {IncomingMessage} request
-     * @param {ServerResponse} response
+     * @param method
+     * @param path
+     * @param context
      */
-    constructor(request, response)
+    constructor(context, method, path)
     {
-        this.request = request;
-        this.response = response;
+        this.method = method;
+        this.path = path;
+        this.context = context;
+        if(this.context) {
+            this.request = this.context.request;
+            this.response = this.context.response;
+        }
+        this.path = path;
     }
 
+    /**
+     *
+     * @returns {boolean|Promise} did you consume the request?
+     */
     handleRequest()
     {
-
+        return false;
     }
 }
 

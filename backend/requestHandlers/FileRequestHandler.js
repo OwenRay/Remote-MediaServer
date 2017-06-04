@@ -5,7 +5,6 @@
 
 const fs = require('fs');
 const mime = require('mime');
-const path = require('path');
 const Log = require("../helpers/Log");
 
 const RequestHandler = require("./RequestHandler");
@@ -13,51 +12,39 @@ const RequestHandler = require("./RequestHandler");
 class FileRequestHandler extends RequestHandler{
     handleRequest()
     {
-        //this.response.end("ok");
-
-        let url = this.request.url;
+        let url = this.context.url;
         const dir = __dirname + "/../../frontend/dist/";
-        if(! url || url[url.length-1] === "/" || ! fs.existsSync(dir + url)) {
-            if(!url.indexOf("?")&&path.parse(dir+url).ext)
-            {
-                return this.returnFourOFour();
-            }
-            url = "/index.html";
-        }
-
-        this.serveFile(dir+url);
+        new Promise(resolve=>{
+            this.resolve = resolve;
+        });
+        this.serveFile(dir+url, false, this.resolve);
     }
 
-    serveFile(filename, andDelete) {
-        this.response.setHeader('Content-Type', mime.lookup(filename));
+    serveFile(filename, andDelete, callback) {
+        this.response.header['Content-Type'] = mime.lookup(filename);
         this.andDelete = andDelete;
         this.file = filename;
+        this.resolve = callback;
         fs.readFile(filename, this.fileRead.bind(this));
-    }
-
-    returnFourOFour()
-    {
-        this.response.statusCode = "404";
-        this.response.end("File not found.");
     }
 
     fileRead(err, data)
     {
         if(err)
         {
-            Log.debug("404!");
-            return this.returnFourOFour();
+            return this.resolve();
         }
-        //if(data.length<9999)
-        //    console.log('file served', `${data}`);
-        //Log.debug('file returned');
-        this.response.end(data, 'binary', function(){
-            if(this.andDelete) {
-                fs.unlink(this.file, function () {
-                    Log.info("delete", arguments, this.file);
-                }.bind(this));
-            }
-        }.bind(this));
+
+        this.context.body = data;
+        if(this.resolve) {
+            this.resolve();
+        }
+
+        if(this.andDelete) {
+            fs.unlink(this.file, ()=>{
+                Log.info("delete", arguments, this.file);
+            });
+        }
     }
 }
 
