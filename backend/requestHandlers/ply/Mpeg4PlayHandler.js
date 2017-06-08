@@ -92,7 +92,7 @@ class Mpeg4PlayHandler extends RequestHandler{
             Log.debug("mixing down to 2 AC!");
             args.splice(18, 0, "-ac", 2, "-ab", "192k");
         }
-        if(this.offset!==0) {
+        if(this.offset!==undefined&&this.offset!==0) {
             args.splice(8, 0, "-ss", 0);
             args.splice(4, 0, "-ss", this.offset);
         }

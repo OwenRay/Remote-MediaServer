@@ -228,7 +228,7 @@ class HLSPlayHandler extends RequestHandler{
             Log.debug("mixing down to 2 AC!");
             args.splice(19, 0, "-ac", 2, "-ab", "192k");
         }
-        if(this.offset!==0) {
+        if(this.offset!==undefined&&this.offset!==0) {
             args.splice(6, 0, "-ss", 0);
             args.splice(4, 0, "-ss", this.offset);
         }

@@ -163,7 +163,7 @@ html, body{
   border:none;
   position:absolute;
   left:0px;
-  top:0px;
+  top:50px;
   margin:0px;
   bottom:0px;
   right:0px;
@@ -462,6 +462,10 @@ nav {
       color:white !important;
     }
   }
+}
+
+.button-collapse{
+  cursor:pointer;
 }
 
 a.ember-view.active{
