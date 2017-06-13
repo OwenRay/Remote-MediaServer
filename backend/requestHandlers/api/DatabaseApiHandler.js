@@ -179,6 +179,7 @@ class DatabaseApiHandler extends RequestHandler
             data = data.splice(offset, limit);
         }
 
+        let included = [];
         if(join)
         {
             const ids = {};
@@ -192,19 +193,20 @@ class DatabaseApiHandler extends RequestHandler
             }
             for(let key in ids)
             {
-                data.push(Database.getById(join, key));
+                included.push(Database.getById(join, key));
             }
         }
 
-        this.respond(data, metadata);
+        this.respond(data, metadata, included);
         return true;
     }
 
-    respond(data, metadata)
+    respond(data, metadata, included)
     {
         const obj = {};
         obj.data = data;
         obj.meta = metadata;
+        obj.included = included;
         this.context.body = obj;
         if(this.resolve) {
             this.resolve();

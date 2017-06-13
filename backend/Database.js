@@ -231,7 +231,7 @@ class Database {
             clearTimeout(this.writeTimeout);
         }
         this.writeTimeout = null;
-        fs.writeFile("db", JSON.stringify(this), callback);
+        fs.writeFile("db", JSON.stringify(this), callback?callback:()=>{});
     }
 }
 

@@ -25,6 +25,6 @@
     "pluralize": "^1.2.1",
     "server-destroy": "^1.0.1",
     "srt-to-ass": "^0.1.8",
-    "unzip": "^0.1.11"
+    "unzip2": "^0.2.5"
   }
 }

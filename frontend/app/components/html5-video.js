@@ -32,9 +32,10 @@ export default Ember.Component.extend({
         vid.dblclick(this.toggleFullscreen.bind(this));
         vid.click(this.togglePause.bind(this));
         vid.on("touchstart", this.onTouchStart.bind(this));
-        vid.on("abort", function(){
-            console.log("abort still needs to be handled!");
-        });
+
+        vid.on("error", this.reInit.bind(this));
+        vid.on("ended", this.reInit.bind(this));
+
         vid.on("suspend", this.onSuspend.bind(this));
         vid.on("loadstart", this.onLoading.bind(this));
         vid.on("play", this.didPlay.bind(this));
@@ -55,6 +56,16 @@ export default Ember.Component.extend({
         }
         if(!this.get("videoObj").paused) {
             this.set("loading", true);
+        }
+    },
+
+    reInit(e)
+    {
+        //if videoloading is interupted for any reason restart with offset
+        console.log(this.get("progress"), this.get("mediaItem.fileduration"));
+        if(this.get("progress")<this.get("mediaItem.fileduration")*0.99) {
+            this.set("startOffset", this.get("startOffset")+this.get("progress"));
+            this.set("progress", 0);
         }
     },
 
