@@ -37,8 +37,10 @@ class MovieScanner
         if(this.scanning!==-1)
         {
             Log.info("Scan in progress");
+            this.scanRequested = true;
             return;
         }
+        this.scanRequested = false;
         Log.info("start scanner");
         this.setScanTimeout();
         this.checkForMediaItemsWithMissingFiles();
@@ -90,6 +92,9 @@ class MovieScanner
         if(this.scanning>=Settings.getValue("libraries").length)
         {
             this.scanning = -1;
+            if(this.scanRequested) {
+                this.scan();
+            }
             return;
         }
 
