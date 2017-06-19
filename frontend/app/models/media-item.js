@@ -13,7 +13,7 @@ export default DS.Model.extend({
     "play-position":DS.belongsTo("play-position"),
     "external-id":DS.attr("number"),
     "external-episode-id":DS.attr("number"),
-    "season":DS.attr("number"),
+    "season":DS.attr("number", {defaultValue:0}),
     "episode":DS.attr("number"),
     "episode-title":DS.attr("string"),
     "type":DS.attr("string"),

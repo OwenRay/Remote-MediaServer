@@ -46,10 +46,13 @@ class HLSPlayHandler extends RequestHandler{
 
         HLSPlayHandler.sessions[id] = this;
         this.setSessionTimeout();
-        this.response.headers["Content-Type"] = "application/x-mpegURL";
-        this.context.body = "#EXTM3U\n"+
+        //this.context.body = "redirecting";
+        this.context.response.status = 302;
+        this.response.set("Content-Type", "application/x-mpegURL");
+        this.response.set("Location", redirectUrl);
+        /*this.context.body = "#EXTM3U\n"+
             "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=200000, RESOLUTION=720x480\n"+
-            redirectUrl;
+            redirectUrl;*/
 
         //prepare for decoding
         let dir = os.tmpdir() + "/remote_cache";
@@ -133,7 +136,7 @@ class HLSPlayHandler extends RequestHandler{
      * this is to ensure the browser will not skip any chunks
      */
     serveFirstHls(context, resolve) {
-        context.response.headers["Content-Type"] = "application/x-mpegURL";
+        context.response.set("Content-Type", "application/x-mpegURL");
 
         fs.readFile(this.m3u8, (err, data) => {
             if (err) {
@@ -228,7 +231,7 @@ class HLSPlayHandler extends RequestHandler{
             Log.debug("mixing down to 2 AC!");
             args.splice(19, 0, "-ac", 2, "-ab", "192k");
         }
-        if(this.offset!==0) {
+        if(this.offset!==undefined&&this.offset!==0) {
             args.splice(6, 0, "-ss", 0);
             args.splice(4, 0, "-ss", this.offset);
         }

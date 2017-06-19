@@ -1,7 +1,7 @@
 
 export default function(){
     console.log("HIIER!");
-    this.transition(
+        this.transition(
         this.toRoute('settings'),
         this.toRoute('library'),
         this.toRoute('index'),

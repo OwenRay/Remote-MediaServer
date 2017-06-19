@@ -35,6 +35,7 @@ export default Ember.Controller.extend({
             promise: this.get("allEpisodes").then(function(episodes){
                 var seasons = Ember.A();
                 episodes.forEach(function(episode){
+                    console.log(episode.get("season"), episode.get("id"));
                     seasons.push(episode.get("season")|0);
                 });
                 return Ember.A(seasons).uniq();

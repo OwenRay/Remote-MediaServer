@@ -15,7 +15,7 @@ const Settings = require("../../Settings");
 const Log = require("../../helpers/Log");
 const httpServer = require("../../HttpServer");
 
-const supportedSubtitleFormats = [".srt", ".ass"];
+const supportedSubtitleFormats = [".srt", ".ass", ".subrip"];
 
 class SubtitleApiHandler extends RequestHandler
 {
@@ -24,6 +24,7 @@ class SubtitleApiHandler extends RequestHandler
         console.log(this.context);
         var item = db.getById("media-item", this.context.params.id);
         if(!item) {
+            console.log("no such");
             return;
         }
 
@@ -47,9 +48,13 @@ class SubtitleApiHandler extends RequestHandler
 
     serveSubtitle(videoFilePath, directory, file, deleteAfterServe) {
         const extension = path.extname(file);
-        let tmpFile;
+            let tmpFile;
         if(file[0]===":") {
-            tmpFile = os.tmpdir()+"/"+file.substr(1);
+            var filename = file.substr(1);
+            if(filename.endsWith("subrip")) {
+                filename += ".srt";
+            }
+            tmpFile = os.tmpdir()+"/"+filename;
             const args = [
                 "-y",
                 "-i", videoFilePath,
@@ -71,24 +76,25 @@ class SubtitleApiHandler extends RequestHandler
             proc.on(
                 'close',
                 function(){
-                    this.serveSubtitle(videoFilePath, os.tmpdir(), file.substr(1), true);
+                    this.serveSubtitle(videoFilePath, os.tmpdir(), filename, true);
                 }.bind(this)
             );
 
             return;
         }
 
-        if(extension===".srt") {
-            tmpFile = os.tmpdir()+"/"+file+"."+Math.random()+".ass";
+        if(extension===".srt"||extension===".subrip") {
+            let filename = file+"."+Math.random()+".ass";
+            tmpFile = os.tmpdir()+"/"+filename;
             sub.convert(
                 directory+"/"+file,
                 tmpFile,
                 {},
                 function(){
                     if(deleteAfterServe) {
-                        fs.unlink(directory+":"+file);
+                        fs.unlink(directory+":"+file, ()=>{});
                     }
-                    this.serveSubtitle(videoFilePath, directory, tmpFile, true);
+                    this.serveSubtitle(videoFilePath, os.tmpdir(), filename, true);
                 }.bind(this)
             );
             return;
@@ -119,7 +125,8 @@ class SubtitleApiHandler extends RequestHandler
             const streams = data.streams;
             for(let key in streams) {
                 if(supportedSubtitleFormats.indexOf("."+streams[key].codec_name)!==-1) {
-                    subtitles[":"+streams[key].index+"."+streams[key].codec_name] = "Built in: "+streams[key].tags.language;
+                    var name = streams[key].tags?streams[key].tags.language:streams[key].codec_name;
+                    subtitles[":"+streams[key].index+"."+streams[key].codec_name] = "Built in: "+name;
                 }
             }
             this.context.body = subtitles;
