@@ -38,7 +38,7 @@
     "ember-cli-test-loader": "^2.1.0",
     "ember-collection": "1.0.0-alpha.7",
     "ember-composability": "0.3.7",
-    "ember-data": "^2.8.0",
+    "ember-data": "2.13.2",
     "ember-export-application-global": "^2.0.0",
     "ember-impagination": "0.2.2",
     "ember-keyboard": "2.1.10",
