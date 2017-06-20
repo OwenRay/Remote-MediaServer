@@ -1,8 +1,7 @@
 {
   "name": "remote-mediaserver",
-  "description": "",
-  "version": "0.0.1",
-  "private": true,
+  "description": "Manage and watch your movies and tv series.",
+  "version": "0.0.2",
   "bin": {
     "remote": "./main.js"
   },
