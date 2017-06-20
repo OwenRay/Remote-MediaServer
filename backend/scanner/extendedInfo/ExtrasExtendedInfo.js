@@ -2,34 +2,33 @@
 /**
  * Created by owenray on 29-06-16.
  */
-
-var IExtendedInfo = require("./IExtendedInfo");
-var Promise = require("node-promise").Promise;
-var Database = require("../../Database");
-var path = require('path');
+const IExtendedInfo = require("./IExtendedInfo");
+const Prom = require("node-promise").Promise;
+const Database = require("../../Database");
+const path = require('path');
 
 class ExtrasExtendedInfo extends IExtendedInfo
 {
     extendInfo(args)
     {
-        var mediaItem = args[0];
-        var library = args[1];
-        var promise = new Promise();
+        const mediaItem = args[0];
+        const library = args[1];
+        const promise = new Prom();
         if(!mediaItem.attributes.extra||mediaItem.attributes["external-id"]) {
             promise.resolve(args);
             return promise;
         }
-
         //If external id has not been detected yet and items is an extra
 
+        let items;
 
         //find all items with the same path, filtering out this item
-        var fileParts = mediaItem.attributes.filepath;
-        for(var c = 0; c<2; c++) {
+        let fileParts = mediaItem.attributes.filepath;
+        for(let c = 0; c<2; c++) {
             fileParts = path.parse(fileParts).dir;
-            var items = Database.findByMatchFilters("media-item", {filepath: fileParts + "%"});
-            for (var key in items) {
-                if (items[key].id == mediaItem.id) {
+            items = Database.findByMatchFilters("media-item", {filepath: fileParts + "%"});
+            for (let key in items) {
+                if (items[key].id === mediaItem.id) {
                     items.splice(key, 1);
                 }
             }
@@ -47,7 +46,7 @@ class ExtrasExtendedInfo extends IExtendedInfo
             mediaItem.attributes.extra = false;
         }
         Database.update("media-item", mediaItem);
-        promise.resolve([mediaItem, library])
+        promise.resolve([mediaItem, library]);
 
         return promise;
     }

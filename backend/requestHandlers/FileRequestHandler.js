@@ -3,44 +3,48 @@
  */
 "use strict";
 
-var fs = require('fs');
-var mime = require('mime');
-var path = require('path');
+const fs = require('fs');
+const mime = require('mime');
+const Log = require("../helpers/Log");
 
-var RequestHandler = require("./RequestHandler");
+const RequestHandler = require("./RequestHandler");
 
 class FileRequestHandler extends RequestHandler{
     handleRequest()
     {
-        //this.response.end("ok");
-        var url = this.request.url;
-        var dir = __dirname+"/../../frontend/dist/";
-        if(! url || url[url.length-1] === "/" || ! fs.existsSync(dir + url)) {
-            if(!url.indexOf("?")&&path.parse(dir+url).ext)
-            {
-                return this.returnFourOFour();
-            }
-            url = "/index.html";
-        }
-
-        this.response.setHeader('Content-Type', mime.lookup(url));
-        fs.readFile(dir + url, this.fileRead.bind(this));
+        let url = this.context.url;
+        const dir = __dirname + "/../../frontend/dist/";
+        new Promise(resolve=>{
+            this.resolve = resolve;
+        });
+        this.serveFile(dir+url, false, this.resolve);
     }
 
-    returnFourOFour()
-    {
-        this.response.statusCode = "404";
-        this.response.end("File not found.");
+    serveFile(filename, andDelete, callback) {
+        this.response.header['Content-Type'] = mime.lookup(filename);
+        this.andDelete = andDelete;
+        this.file = filename;
+        this.resolve = callback;
+        fs.readFile(filename, this.fileRead.bind(this));
     }
 
     fileRead(err, data)
     {
         if(err)
         {
-            return this.returnFourOFour();
+            return this.resolve();
         }
 
-        this.response.end(data);
+        this.context.body = data;
+        if(this.resolve) {
+            this.resolve();
+        }
+
+        if(this.andDelete) {
+            fs.unlink(this.file, ()=>{
+                Log.info("delete", arguments, this.file);
+            });
+        }
     }
 }
 

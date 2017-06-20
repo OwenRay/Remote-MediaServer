@@ -27,7 +27,7 @@
         <div class="container detail">
             {{#if (eq model.type "tv")}}
                 {{#if seasons.content.length}}
-                    {{#md-tabs selected=selectedTab id="tabs"}}
+                    {{#md-tabs selected=selectedTab  colWidth=3 id="tabs"}}
                         {{md-tab value=-1 title="Episode info"}}
                         {{#each seasons.content as |season|}}
                             {{md-tab value=season title=(concat "Season " season)}}

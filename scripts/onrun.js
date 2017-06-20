@@ -1,14 +1,15 @@
 #!/usr/bin/env node
-var fs = require("fs");
-var os = require("os");
-var http = require("http");
-var unzip = require("unzip");
+"use strict";
+const fs = require("fs");
+const os = require("os");
+const http = require("http");
+const unzip = require("unzip2");
 
 console.log("running on platform:", os.platform());
-var addToExec = os.platform()=="win32"?".cmd":"";
+const addToExec = os.platform()==="win32"?".cmd":"";
 
-var dir = process.env.HOME || process.env.USERPROFILE;
-dir += "/.remote/"
+let dir = process.env.HOME || process.env.USERPROFILE;
+dir += "/.remote/";
 if(!fs.existsSync(dir))
 {
     fs.mkdirSync(dir);
@@ -25,15 +26,20 @@ if(!fs.existsSync("cache"))
 if(!fs.existsSync(dir+"ffmpeg")&&!fs.existsSync(dir+"ffmpeg.exe")) {
     console.log("downloading ffmpeg");
     http.get("http://downloadffmpeg.s3-website-eu-west-1.amazonaws.com/ffmpeg_" + os.platform() + "_" + os.arch() + ".zip", function (response) {
-        response.pipe(unzip.Extract({"path": "./"}));
+        let e = unzip.Extract({"path": "./"});
+        response.pipe(e);
+        e.on("close", function() {
+            fs.chmodSync("ffmpeg"+(os.platform()==="win32"?".exe":""), "755");
+            fs.chmodSync("ffprobe"+(os.platform()==="win32"?".exe":""), "755");
+        });
     });
 }
 
-if(os.platform()=="win32")
+if(os.platform()==="win32")
 {
-    var Settings = require("../backend/Settings");
-    var ffmpeg = Settings.getValue("ffmpeg_binary");
-    var ffprobe = Settings.getValue("ffprobe_binary");
+    const Settings = require("../backend/Settings");
+    const ffmpeg = Settings.getValue("ffmpeg_binary");
+    const ffprobe = Settings.getValue("ffprobe_binary");
     if(!ffmpeg.match(/exe$/)) {
         Settings.setValue("ffmpeg_binary", ffmpeg + ".exe");
     }

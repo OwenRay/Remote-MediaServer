@@ -37,7 +37,7 @@ export default Ember.Controller.extend({
     sortTypes:Ember.A(
         [
             {value:"title", label:"Title"},
-            {value:"date_added", label:"Date added"},
+            {value:"date_added:DESC", label:"Date added"},
             {value:"release-date:DESC", label:"Date released"}
         ]
     ),

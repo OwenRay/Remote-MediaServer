@@ -1,15 +1,17 @@
+"use strict";
+
 module.exports = (function () {
 
-    var http     = require('http');
-    var qs       = require('querystring');
-    var Q        = require('q');
-    var Settings = require('../Settings')
+    const http = require('http');
+    const qs = require('querystring');
+    const Q = require('q');
+    const Settings = require('../Settings');
 
     function apiCall (path, query, post) {
 
-        var deferred = Q.defer();
+        const deferred = Q.defer();
 
-        var isPOST = (post === true);
+        let isPOST = (post === true);
 
         query = (query ? qs.stringify(query): '');
 
@@ -17,7 +19,7 @@ module.exports = (function () {
             path = path + (query.length ? '?' + query : '');
         }
 
-        var options = {
+        const options = {
             'hostname': Settings.getValue("guessit").host,
             'port': Settings.getValue("guessit").port,
             'path': path,
@@ -31,7 +33,7 @@ module.exports = (function () {
             };
         }
 
-        var req = http.request(options, function (res) {
+        const req = http.request(options, function (res) {
 
             res.setEncoding('utf8');
 

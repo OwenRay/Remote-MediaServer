@@ -10,10 +10,10 @@ class IApiHandler
      *
      * @param {IncomingMessage} request
      * @param {ServerResponse} response
-     * @param {url} url
+     * @param {{pathname:string,query:string}} url
      * @returns {boolean} handled or not?
      */
-    handle(request, response, url)
+    handle()
     {
        return false;
     }

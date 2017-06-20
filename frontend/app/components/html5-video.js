@@ -32,14 +32,13 @@ export default Ember.Component.extend({
         vid.dblclick(this.toggleFullscreen.bind(this));
         vid.click(this.togglePause.bind(this));
         vid.on("touchstart", this.onTouchStart.bind(this));
-        vid.on("emptied", function(){
-        });
-        vid.on("abort", function(){
-        });
+
+        vid.on("error", this.reInit.bind(this));
+        vid.on("ended", this.reInit.bind(this));
+
         vid.on("suspend", this.onSuspend.bind(this));
         vid.on("loadstart", this.onLoading.bind(this));
         vid.on("play", this.didPlay.bind(this));
-        console.log("is paused?", vid[0].paused);
         this.addObserver("volume", this.volumeDidChange);
         this.volumeDidChange();
         Ember.$("body")
@@ -47,11 +46,27 @@ export default Ember.Component.extend({
             .keypress(this.onKeyPress.bind(this))
             .on("touchstart", this.toggleNav.bind(this));
         this.updateProgress();
+        setTimeout(this.onLoading.bind(this), 300);
     },
 
     onLoading()
     {
-        this.set("loading", true);
+        if ( this.get('isDestroyed')||this.get('isDestroying') ) {
+            return;
+        }
+        if(!this.get("videoObj").paused) {
+            this.set("loading", true);
+        }
+    },
+
+    reInit(e)
+    {
+        //if videoloading is interupted for any reason restart with offset
+        console.log(this.get("progress"), this.get("mediaItem.fileduration"));
+        if(this.get("progress")<this.get("mediaItem.fileduration")*0.99) {
+            this.set("startOffset", this.get("startOffset")+this.get("progress"));
+            this.set("progress", 0);
+        }
     },
 
     onSuspend()
@@ -91,7 +106,6 @@ export default Ember.Component.extend({
     toggleNav()
     {
         if(this.get("navClass")==="hidden") {
-            console.log("toggle");
             return this.onMouseMove();
         }
         this.hide();
@@ -113,9 +127,8 @@ export default Ember.Component.extend({
         this.get("videoObj").src = "";
     },
 
-    togglePause(e)
+    togglePause()
     {
-        console.log(e);
         this.set("paused", !this.get("videoObj").paused);
         if(this.get("videoObj").paused)
         {
@@ -130,7 +143,6 @@ export default Ember.Component.extend({
         if(this.get("neverplayed")) {
             return true;
         }
-        console.log("daar");
         e.preventDefault();
         return true;
     },
@@ -183,6 +195,8 @@ export default Ember.Component.extend({
                 elem.mozRequestFullScreen();
             } else if (elem.webkitRequestFullscreen) {
                 elem.webkitRequestFullscreen();
+            }else if(this.get("videoObj").webkitEnterFullscreen) {
+                this.get("videoObj").webkitEnterFullscreen();
             }
         } else {
             if (document.exitFullscreen) {

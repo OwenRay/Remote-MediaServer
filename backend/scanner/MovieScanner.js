@@ -1,17 +1,17 @@
 "use strict";
 
-var recursive = require('recursive-readdir');
-var Settings = require("../Settings");
-var Database = require("../Database");
-var MediaItemHelper = require("../helpers/MediaItemHelper");
-var fs = require("fs");
+const Settings = require("../Settings");
+const Database = require("../Database");
+const MediaItemHelper = require("../helpers/MediaItemHelper");
+const fs = require("fs");
+const Prom = require("node-promise").Promise;
 
-var TheMovieDBExtendedInfo = require("./extendedInfo/TheMovieDBExtendedInfo");
-var FFProbeExtendedInfo = require("./extendedInfo/FFProbeExtendedInfo");
-var ParseFileNameExtendedInfo = require("./extendedInfo/ParseFileNameExtendedInfo");
-var TheMovieDBSeriesAndSeasons = require("./extendedInfo/TheMovieDBSeriesAndSeasons");
-var ExtrasExtendedInfo = require("./extendedInfo/ExtrasExtendedInfo");
-var Debug = require("../helpers/Debug");
+const TheMovieDBExtendedInfo = require("./extendedInfo/TheMovieDBExtendedInfo");
+const FFProbeExtendedInfo = require("./extendedInfo/FFProbeExtendedInfo");
+const ParseFileNameExtendedInfo = require("./extendedInfo/ParseFileNameExtendedInfo");
+const TheMovieDBSeriesAndSeasons = require("./extendedInfo/TheMovieDBSeriesAndSeasons");
+const ExtrasExtendedInfo = require("./extendedInfo/ExtrasExtendedInfo");
+const Log = require("../helpers/Log");
 
 class MovieScanner
 {
@@ -27,34 +27,37 @@ class MovieScanner
     setScanTimeout()
     {
         if(this.scanTimeout) {
-            clearTimeout(this.scanTimeout)
+            clearTimeout(this.scanTimeout);
         }
         this.scanTimeout = setTimeout(this.scan.bind(this), Settings.getValue("scanInterval")*1000);
     }
 
     scan()
     {
-        if(this.scanning!=-1)
+        if(this.scanning!==-1)
         {
-            Debug.info("Scan in progress");
+            Log.info("Scan in progress");
+            this.scanRequested = true;
             return;
         }
-        Debug.info("start scanner");
+        this.scanRequested = false;
+        Log.info("start scanner");
         this.setScanTimeout();
         this.checkForMediaItemsWithMissingFiles();
         this.checkForMediaItemsWithMissingLibrary();
         this.scanNext();
     }
 
-    checkForMediaItemsWithMissingFiles(items)
+    checkForMediaItemsWithMissingFiles()
     {
-        var items = Database.getAll("media-item");
+        const items = Database.getAll("media-item");
         function next() {
-            if(!items.length)
+            if(!items.length) {
                 return;
-            fs.stat(MediaItemHelper.getFullFilePath(items[0]), function (err, stat) {
+            }
+            fs.stat(MediaItemHelper.getFullFilePath(items[0]), function (err) {
                 if (err) {
-                    Debug.info("item missing, removing", items[0].id);
+                    Log.info("item missing, removing", MediaItemHelper.getFullFilePath(items[0]), items[0].id);
                     Database.deleteObject("media-item", items[0].id);
                 }
                 items.shift();
@@ -66,17 +69,17 @@ class MovieScanner
 
     checkForMediaItemsWithMissingLibrary()
     {
-        var libraries = Settings.getValue("libraries");
-        var libIds = [];
-        for(var c = 0; c<libraries.length; c++)
+        const libraries = Settings.getValue("libraries");
+        const libIds = [];
+        for(let c = 0; c<libraries.length; c++)
         {
             libIds.push(libraries[c].uuid);
         }
 
-        var items = Database.getAll("media-item");
-        for(c = 0; c<items.length; c++)
+        const items = Database.getAll("media-item");
+        for(let c = 0; c<items.length; c++)
         {
-            if(libIds.indexOf(items[c].attributes.libraryId)==-1)
+            if(libIds.indexOf(items[c].attributes.libraryId)===-1)
             {
                 Database.deleteObject("media-item", items[c].id);
             }
@@ -89,64 +92,104 @@ class MovieScanner
         if(this.scanning>=Settings.getValue("libraries").length)
         {
             this.scanning = -1;
+            if(this.scanRequested) {
+                this.scan();
+            }
             return;
         }
 
         this.types = Settings.getValue("videoFileTypes");
         this.library = Settings.getValue("libraries")[this.scanning];
-        Debug.info("start scan", this.library);
-        recursive(this.library.folder, [this.willInclude.bind(this)], this.onListed.bind(this));
+        Log.info("start scan", this.library);
+
+        this.getFilesFromDir(this.library.folder+"/")
+            .then(this.checkForExtendedInfo.bind(this));
+    }
+
+    getFilesFromDir(dir) {
+        const promise = new Prom();
+
+        fs.readdir(dir, (err, files) => {
+            if(err) {
+                Log.warning("error dir listing", err);
+                return;
+            }
+            this.procesFiles(dir, files).then(promise.resolve);
+        });
+
+        return promise;
+    }
+
+    procesFiles(dir, files) {
+        const promise = new Prom();
+
+        const next = function () {
+            if (!files.length) {
+                return promise.resolve();
+            }
+            const file = dir + files.pop();
+            fs.stat(file, function (err, stats) {
+                if (err) {
+                    Log.warning("err stating " + file);
+                    next();
+                    return;
+                }
+                if (stats.isDirectory()) {
+                    return this.getFilesFromDir(file + "/").then(next);
+                }
+                if (this.willInclude(file, stats)) {
+                    this.addFileToDatabase(file);
+                }
+                next();
+            }.bind(this));
+        }.bind(this);
+        next();
+        return promise;
     }
 
     willInclude(file, fileRef)
     {
-        if(fileRef.isDirectory())
+        if(fileRef.isDirectory()) {
             return false;
-        var f = file.split(".");
-        var type =  f[f.length-1];
-        for(var c = 0; c<this.types.length; c++) {
+        }
+        const f = file.split(".");
+        const type = f[f.length - 1];
+        for(let c = 0; c<this.types.length; c++) {
             if (this.types[c] === type) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
-    onListed(err, files)
-    {
-        if(err)
-        {
-            Debug.debug(err);
-            return;
-        }
-        Debug.debug("gotAllFiles", files);
-        for(var offset = 0; offset<files.length; offset++)
-        {
-            var file = files[offset].substr(this.library.folder.length);
-            if(!Database.findBy("media-item", "filepath", file).length) {
-                var obj = {
-                        filepath: file,
-                        libraryId: this.library.uuid,
-                        mediaType: this.library.type
-                    };
-                if(file.match(/.*sample.*/)){
-                    obj.sample = obj.extra = true;
-                }else if(file.match(/.*trailer.*/)){
-                    obj.sample = obj.extra = true;
-                }
-                Database.setObject("media-item", obj);
+    addFileToDatabase(file) {
+        file = file.substr(this.library.folder.length);
+        file = file.replace("\\", "/").replace("//", "/");
+        file=this.library.folder.replace(/^(.*?)(\\|\/)?$/, "$1")+file;
+        if(!Database.findBy("media-item", "filepath", file).length) {
+            Log.info("found new file", file);
+            const obj = {
+                filepath: file,
+                libraryId: this.library.uuid,
+                mediaType: this.library.type,
+                date_added: new Date().getTime()
+            };
+            if(file.match(/.*sample.*/)){
+                obj.sample = obj.extra = true;
+            }else if(file.match(/.*trailer.*/)){
+                obj.sample = obj.extra = true;
             }
+            Database.setObject("media-item", obj);
         }
-        this.checkForExtendedInfo();
     }
 
     checkForExtendedInfo()
     {
-        Debug.info("checking for extended info...");
-        var items = Database.findBy("media-item", "libraryId", this.library.uuid);
+        Log.info("checking for extended info...");
+        const items = Database.findBy("media-item", "libraryId", this.library.uuid);
         //order trailers and samples to the back
-        var count = items.length;
-        for(var c = 0; c<count; c++) {
+        let count = items.length;
+        for(let c = 0; c<count; c++) {
             if(items[c].attributes.extra) {
                 //console.log("isExtra", items[c]);
                 items.push(items.splice(c, 1)[0]);
@@ -155,32 +198,29 @@ class MovieScanner
             }
         }
 
-        var extendedInfoItems = [
-                                    new FFProbeExtendedInfo(),
-                                    new ParseFileNameExtendedInfo(),
-                                    new TheMovieDBSeriesAndSeasons(),
-                                    new TheMovieDBExtendedInfo(),
-                                    new ExtrasExtendedInfo()
-                                ];
+        const extendedInfoItems = [
+            new FFProbeExtendedInfo(),
+            new ParseFileNameExtendedInfo(),
+            new TheMovieDBSeriesAndSeasons(),
+            new TheMovieDBExtendedInfo(),
+            new ExtrasExtendedInfo()
+        ];
 
-        var loadNext = function()
-        {
-            Debug.debug("extendInfo, next");
-            if(items.length === 0) {
-                Debug.info("done scanning");
+        const loadNext = function () {
+            Log.debug("extendInfo, next");
+            if (items.length === 0) {
+                Log.info("done scanning");
                 this.scanNext();
                 return;
             }
 
-            var item = items.pop();
+            const item = items.pop();
 
-            var prevPromise;
-            for(var c = 0; c<extendedInfoItems.length; c++)
-            {
-                if(prevPromise)
-                {
+            let prevPromise;
+            for (let c = 0; c < extendedInfoItems.length; c++) {
+                if (prevPromise) {
                     prevPromise = prevPromise.then(extendedInfoItems[c].extendInfo.bind(extendedInfoItems[c]));
-                }else{
+                } else {
                     prevPromise = extendedInfoItems[c].extendInfo([item, this.library]);
                 }
             }

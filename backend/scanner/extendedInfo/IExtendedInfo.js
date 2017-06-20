@@ -9,9 +9,9 @@ class IExtendedInfo
     /**
      *
      * @param params
-     * @return Promise
+     * @return Prom
      */
-    extendInfo(params)
+    extendInfo()
     {
     }
 }
