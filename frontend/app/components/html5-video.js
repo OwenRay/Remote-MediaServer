@@ -17,12 +17,26 @@ export default Ember.Component.extend({
     loading:true,
     neverplayed:true,
     lastPosSave:0,
+    mediacontent:null,
+    videoChannel:null,
+    audioChannel:null,
 
-    videoUrl:Ember.computed("mediaItem", "startOffset", function(){
+    videoUrl:Ember.computed("mediaItem", "startOffset", "audioChannel", "videoChannel", function(){
         if(this.get("startOffset")===-1) {
             return "";
         }
-        return "/ply/"+this.get("mediaItem.id")+"/"+this.get("startOffset");
+        var url = "/ply/" +
+            this.get("mediaItem.id")+"/" +
+            this.get("startOffset")+"?";
+
+        if(this.get("audioChannel")!=null) {
+            url+="audioChannel="+this.get("audioChannel")+"&";
+        }
+        if(this.get("videoChannel")!=null) {
+            url+="videoChannel="+this.get("videoChannel")+"&";
+        }
+
+        return url;
     }),
 
     didInsertElement()
@@ -47,6 +61,16 @@ export default Ember.Component.extend({
             .on("touchstart", this.toggleNav.bind(this));
         this.updateProgress();
         setTimeout(this.onLoading.bind(this), 300);
+
+        Ember.$.getJSON("/api/mediacontent/"+this.get("mediaItem.id"))
+            .then(this.subtitlesLoaded.bind(this));
+    },
+
+    subtitlesLoaded(o){
+        if (this.get('isDestroyed') || this.get('isDestroying')) {
+            return;
+        }
+        this.set("mediacontent", o);
     },
 
     onLoading()
@@ -254,6 +278,16 @@ export default Ember.Component.extend({
             }else{
                this.set('volume', this.get("volumeBeforeMute"));
             }
+        },
+
+        setAudioChannel(channel) {
+            this.set("startOffset", this.get("progress")+this.get("startOffset"));
+            this.set("audioChannel", channel);
+        },
+
+        setVideoChannel(channel) {
+            this.set("startOffset", this.get("progress")+this.get("startOffset"));
+            this.set("videoChannel", channel);
         }
     }
 });

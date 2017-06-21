@@ -31,7 +31,6 @@ class DatabaseApiHandler extends RequestHandler
 
     handlePost(singularType) {
         let body = [];
-        console.log(this.context.request.body);
 
         this.context.req.on('data', chunk => {
             body.push(chunk);

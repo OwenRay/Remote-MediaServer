@@ -4,8 +4,8 @@
 "use strict";
 const spawn = require('child_process').spawn;
 const Prom = require("node-promise").Promise;
-const Settings = require("./Settings");
-const Log = require("./helpers/Log");
+const Settings = require("../Settings");
+const Log = require("./Log");
 
 
 const FFProbe =
