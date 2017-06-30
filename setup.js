@@ -12,12 +12,12 @@ function npm(args)
     return spawnSync(cmd, args);
 }
 
-if(npm(["-g", "ls", "bower"]).error)
+if(npm(["-g", "ls", "bower"]).status)
 {
     console.log("installing bower");
     npm(["install", "-g", "bower"]);
 }
-if(npm(["-g", "ls", "bower"]).error)
+if(npm(["-g", "ls", "ember-cli"]).status)
 {
     console.log("installing ember");
     npm(["install", "-g", "ember-cli"]);
