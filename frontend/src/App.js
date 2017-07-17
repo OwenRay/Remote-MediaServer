@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import {Navbar, Icon} from 'react-materialize';
-import Library from './components/Library';
-import Settings from './components/Settings';
-import Home from './components/Home';
+import Library from './components/routes/Library';
+import Settings from './components/routes/Settings';
+import Home from './components/routes/Home';
 import {Route, NavLink} from 'react-router-dom';
 import { apiActions} from 'redux-jsonapi';
 import store from './stores/settingsStore';

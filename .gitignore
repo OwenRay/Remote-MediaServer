@@ -7,3 +7,4 @@ ffmpeg
 ffprobe
 ffmpeg.exe
 ffprobe.exe
+frontend/src/css/*.css

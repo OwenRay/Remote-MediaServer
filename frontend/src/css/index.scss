@@ -37,6 +37,7 @@ $tabs-underline-color: $secondary-color !default;
 $tabs-text-color: #fff !default;
 $tabs-bg-color: $primary-color-dark !default;
 
+
 @import "_icon.scss";
 @import "materialize-css/sass/materialize.scss";
 
@@ -126,6 +127,15 @@ html, body{
   }
   .scroller > div > div{
     top:65px;
+  }
+}
+
+.collection-item{
+  &:hover{
+    background: $primary-color-light;
+  }
+  &.no-link:hover {
+    background: $primary-color;
   }
 }
 
