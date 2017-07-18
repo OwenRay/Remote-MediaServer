@@ -20,8 +20,7 @@ class LibraryDialog extends Component {
   /**
    * get the state from the passed arguments
    */
-  componentDidMount() {
-    console.log(this.props.editing);
+  componentWillMount() {
     this.setState(this.props.editing);
   }
 

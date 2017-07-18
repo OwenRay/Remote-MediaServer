@@ -35,7 +35,6 @@ class Settings extends Component {
    * called when user types in field, applies typed value to state
    */
   onChange(e) {
-    console.log(e.target.value);
     const o = this.state;
     o.settings[e.target.name] = e.target.value;
     this.setState(o);
@@ -47,7 +46,6 @@ class Settings extends Component {
    */
   librarySelect(lib) {
     this.setState({"create":lib});
-    console.log(lib);
   }
 
   /**
@@ -57,11 +55,9 @@ class Settings extends Component {
    * Remove library
    */
   removeLib(lib, confirm) {
-    console.log("rm");
     if(confirm===undefined) {
       this.setState({removing: lib});
     }else{
-      console.log("rmcancel");
       $('#deleteModal').modal('close');
       if(confirm) {
         //store.dispatch(apiActions.remove(lib));
@@ -77,7 +73,6 @@ class Settings extends Component {
    */
   componentDidUpdate() {
     $("#deleteModal").modal({'complete':()=>{
-        console.log("compl");
         this.setState({removing:null});
       }})
       .modal('open');
@@ -111,20 +106,18 @@ class Settings extends Component {
   }
 
   render() {
-    console.log("uupd");
     if(!this.state||!this.state.settings) {
       return (<p>Loading</p>);
     }
 
     var listItems = this.state.settings.libraries.map((lib)=>
-        <CollectionItem onClick={()=>{this.librarySelect(lib)}} key={lib.uuid}>
+        <CollectionItem onClick={()=>{this.librarySelect(lib)}} key={"key"+lib.uuid}>
           {lib.name}
           <Button icon="delete" onClick={(e)=>{e.stopPropagation(); this.removeLib(lib);}}/>
         </CollectionItem>
       );
 
     if(this.state.removing) {
-      console.log("rem");
       var deletingModal =
           <Modal
             id="deleteModal"
@@ -136,8 +129,6 @@ class Settings extends Component {
             Are you sure your want to delete "{this.state.removing.name}"?
           </Modal>;
     }
-
-    console.log(this.state.create);
 
     return (
       <Tabs>

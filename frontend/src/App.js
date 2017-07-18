@@ -21,15 +21,12 @@ class App extends Component {
       if(!store.getState().api.setting) {
         return;
       }
-      console.log(store.getState().api.setting[1].attributes.name);
-        this.setState({"name":store.getState().api.setting[1].attributes.name});
+      this.setState({"name":store.getState().api.setting[1].attributes.name});
 
     });
     store.dispatch(apiActions.read(
       { id: 1, _type: 'settings' }
-    )).then((a)=>{
-      console.log(a, arguments);
-    });
+    ));
   }
 
   render() {
