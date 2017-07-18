@@ -9,7 +9,7 @@ const path = require('path');
 const sub = require('srt-to-ass');
 const os = require('os');
 const FileRequestHandler = require("../FileRequestHandler");
-const FFProbe = require("../../FFProbe");
+const FFProbe = require("../../helpers/FFProbe");
 const spawn = require('child_process').spawn;
 const Settings = require("../../Settings");
 const Log = require("../../helpers/Log");
@@ -21,10 +21,8 @@ class SubtitleApiHandler extends RequestHandler
 {
     handleRequest()
     {
-        console.log(this.context);
         var item = db.getById("media-item", this.context.params.id);
         if(!item) {
-            console.log("no such");
             return;
         }
 
@@ -114,28 +112,46 @@ class SubtitleApiHandler extends RequestHandler
         if(err) {
             this.resolve();
         }
-        const subtitles = {};
+        const response = {subtitles:[]};
         for(let key in result) {
             if(supportedSubtitleFormats.indexOf(path.extname(result[key]))!==-1) {
-                subtitles[result[key]] = result[key];
+                response.subtitles.push({
+                    label:result[key],
+                    value:result[key],
+                });
             }
         }
 
         FFProbe.getInfo(this.filePath).then(function(data){
             const streams = data.streams;
             for(let key in streams) {
-                if(supportedSubtitleFormats.indexOf("."+streams[key].codec_name)!==-1) {
-                    var name = streams[key].tags?streams[key].tags.language:streams[key].codec_name;
-                    subtitles[":"+streams[key].index+"."+streams[key].codec_name] = "Built in: "+name;
+                var str = streams[key];
+                var name = str.tags?
+                            (str.tags.title?str.tags.title:str.tags.language):
+                            str.codec_long_name;
+                name = name?name:str.codec_name;
+                if(supportedSubtitleFormats.indexOf("."+str.codec_name)!==-1) {
+                    response.subtitles.push({
+                        "label": "Built in: " + name,
+                        "value": ":"+str.index + "." + str.codec_name
+                    });
+                }else{
+                    if(!response[str.codec_type]) {
+                        response[str.codec_type] = [];
+                    }
+                    response[str.codec_type].push({
+                            "label":name,
+                            "value":str.index,
+                        });
                 }
             }
-            this.context.body = subtitles;
+            this.context.body = response;
             this.resolve();
         }.bind(this));
     }
 }
 
-httpServer.registerRoute("get", "/api/subtitles/:id", SubtitleApiHandler);
-httpServer.registerRoute("get", "/api/subtitles/:id/:file", SubtitleApiHandler);
+httpServer.registerRoute("get", "/api/mediacontent/:id", SubtitleApiHandler);
+httpServer.registerRoute("get", "/api/mediacontent/subtitle/:id/:file", SubtitleApiHandler);
 
 module.exports = SubtitleApiHandler;

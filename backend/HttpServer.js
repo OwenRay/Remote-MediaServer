@@ -35,7 +35,6 @@ class HttpServer {
 
         this.server.use(cors( {origin: '*'}));
         glob.sync(__dirname+"/requestHandlers/**/*.js").forEach(function(file){
-            console.log("require", file);
             require(path.resolve(file));
         });
 

@@ -38,7 +38,38 @@
         buttonType='floating'
         class='btn-medium'}}
     <div class="buttonsRight">
-        {{#video-subtitles videoTag=videoObj mediaItem=mediaItem currentTime=progress startOffset=startOffset}}{{/video-subtitles}}
+        {{#if (gt mediacontent.video.length 1)}}
+            {{#md-fixed-btns
+                    btnIcon="mdi-av-videocam"
+                    action="firstAction"
+                    actionArgs="0"}}
+                {{#md-collection content=mediacontent.video as |video|}}
+                    <a href="javascript:void(0)" class="collection-item"  {{action 'setVideoChannel' video.value}}>
+                        {{video.label}}
+                    </a>
+                {{/md-collection}}
+            {{/md-fixed-btns}}
+        {{/if}}
+        {{#if (gt mediacontent.audio.length 1) }}
+            {{#md-fixed-btns
+                    btnIcon="mdi-image-audiotrack"
+                    action="firstAction"
+                    actionArgs="0"}}
+                {{#md-collection content=mediacontent.audio as |audio|}}
+                    <a href="javascript:void(0)" class="collection-item"  {{action 'setAudioChannel' audio.value}}>
+                        {{audio.label}}
+                    </a>
+                {{/md-collection}}
+            {{/md-fixed-btns}}
+        {{/if}}
+        {{#video-subtitles
+            videoTag=videoObj
+            mediaItem=mediaItem
+            subtitles=mediacontent.subtitles
+            currentTime=progress
+            startOffset=startOffset}}
+        {{/video-subtitles}}
+
         {{md-btn
             id="fullscreen"
             icon='mdi-navigation-fullscreen'

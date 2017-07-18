@@ -4,6 +4,7 @@
   bottom:0px;
   left:0px;
   right:0px;
+  pointer-events: none;
 /*  .libjass-subs{
     position: absolute;
     top:0px;
@@ -149,6 +150,7 @@ video-container{
       bottom:auto;
       position: relative;
       padding-top:0px;
+      margin-left: 4px;
       ul {
         left: auto;
         bottom: 33px;

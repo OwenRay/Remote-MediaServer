@@ -11,8 +11,6 @@ export default Ember.Component.extend({
     startOffset:0,
 
     didInsertElement(){
-        Ember.$.getJSON("/api/subtitles/"+this.get("mediaItem.id"))
-            .then(this.subtitlesLoaded.bind(this));
         this.$(window).on("resize", this.onVideoResize.bind(this));
         this.addObserver("currentTime", this.timeChange);
     },
@@ -21,7 +19,7 @@ export default Ember.Component.extend({
         Ember.$(window).off("resize", this.onVideoResize);
     },
 
-    subtitlesLoaded(o){
+    /*subtitlesLoaded(o){
         if ( this.get('isDestroyed')||this.get('isDestroying') ) {
             return;
         }
@@ -35,7 +33,7 @@ export default Ember.Component.extend({
             o["Disabled"] = "Disabled";
             this.set("subtitles", items);
         }
-    },
+    },*/
 
     timeChange(){
         if(this.get("clock")) {
@@ -44,7 +42,7 @@ export default Ember.Component.extend({
     },
 
     showSub(file) {
-        libjass.ASS.fromUrl("/api/subtitles/"+this.get("mediaItem.id")+"/"+file)
+        libjass.ASS.fromUrl("/api/mediacontent/subtitle/"+this.get("mediaItem.id")+"/"+file)
             .then(function(ass){
                 var v = this.get("videoTag");
                 if(this.get("subsRenderer")){

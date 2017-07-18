@@ -4,7 +4,7 @@
  */
 const IExtendedInfo = require("./IExtendedInfo");
 const Prom = require("node-promise").Promise;
-const FFProbe = require('../../FFProbe');
+const FFProbe = require('../../helpers/FFProbe');
 const Database = require("../../Database");
 const Log = require("../../helpers/Log");
 
