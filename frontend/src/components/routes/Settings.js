@@ -6,7 +6,7 @@ import React, {Component} from 'react';
 import {Tabs, Tab, Card, Input, Row, Button, Icon, Collection, CollectionItem, Modal} from 'react-materialize';
 import store from "../../stores/settingsStore";
 import { apiActions, deserialize} from 'redux-jsonapi';
-import ServerFileBrowser from '../components/ServerFileBrowser';
+import LibraryDialog from "../components/LibraryDialog";
 
 class Settings extends Component {
 
@@ -14,7 +14,6 @@ class Settings extends Component {
     store.subscribe(this.change.bind(this));
     this.onChange = this.onChange.bind(this);
     this.change();
-    this.librarySelect({});
   }
 
   /**
@@ -42,20 +41,28 @@ class Settings extends Component {
     this.setState(o);
   }
 
+  /**
+   * @param lib
+   * Called when creating a new library or when clicking an existing one
+   */
   librarySelect(lib) {
     this.setState({"create":lib});
     console.log(lib);
   }
 
-  componentDidUpdate() {
-    $('.modal').modal('open');
-  }
-
+  /**
+   * @param lib library object
+   * @param confirm confirmed via dialog?
+   *
+   * Remove library
+   */
   removeLib(lib, confirm) {
+    console.log("rm");
     if(confirm===undefined) {
       this.setState({removing: lib});
     }else{
-      $('.modal').modal('close');
+      console.log("rmcancel");
+      $('#deleteModal').modal('close');
       if(confirm) {
         //store.dispatch(apiActions.remove(lib));
         this.state.settings.libraries.splice(this.state.settings.libraries.indexOf(lib), 1);
@@ -63,6 +70,17 @@ class Settings extends Component {
       }
       this.setState({removing: null});
     }
+  }
+
+  /**
+   * Make sure the deletmodal opens when it's rendered
+   */
+  componentDidUpdate() {
+    $("#deleteModal").modal({'complete':()=>{
+        console.log("compl");
+        this.setState({removing:null});
+      }})
+      .modal('open');
   }
 
   /**
@@ -74,7 +92,26 @@ class Settings extends Component {
     store.dispatch(apiActions.write(o));
   }
 
+  /**
+   * called the library creating dialog wants to persist the edited data
+   * @param lib
+   */
+  onLibrarySave(lib) {
+    var o = this.state.settings;
+    this.state.settings.libraries.push(lib);
+    this.setState({"settings":o});
+    this.onSubmit();
+  }
+
+  /**
+   * Gets called when the library dialog closes
+   */
+  onLibraryClose() {
+    this.setState({"create":null});
+  }
+
   render() {
+    console.log("uupd");
     if(!this.state||!this.state.settings) {
       return (<p>Loading</p>);
     }
@@ -82,16 +119,17 @@ class Settings extends Component {
     var listItems = this.state.settings.libraries.map((lib)=>
         <CollectionItem onClick={()=>{this.librarySelect(lib)}} key={lib.uuid}>
           {lib.name}
-          <Button icon="delete" onClick={()=>this.removeLib(lib)}/>
+          <Button icon="delete" onClick={(e)=>{e.stopPropagation(); this.removeLib(lib);}}/>
         </CollectionItem>
       );
 
     if(this.state.removing) {
+      console.log("rem");
       var deletingModal =
           <Modal
             id="deleteModal"
             actions={[
-              <Button onClick={()=>this.removeLib(this.state.removing, false)} modal="close">close</Button>,
+              <Button modal="close">close</Button>,
               <Button onClick={()=>this.removeLib(this.state.removing, true)} modal="confirm">confirm</Button>,
             ]}>
             <h4>Deleting "{this.state.removing.name}"</h4>
@@ -99,31 +137,7 @@ class Settings extends Component {
           </Modal>;
     }
 
-    if(this.state.create) {
-      console.log("create");
-      var createModal =
-        <Modal
-            id="createModal"
-            actions={[
-              <Button modal="close">close</Button>,
-              <Button onClick={()=>this.createSave(true)} modal="confirm">confirm</Button>,
-            ]}>
-          <h4>Add library</h4>
-          <Row>
-            <Input value={this.state.type} name="type" onchange={this.onChange} label="Type" s={12} type="select">
-              <option value="folder">Unspecified</option>
-              <option value="tv">TV Shows</option>
-              <option value="movie">Movies</option>
-              <option value="library_music">Music</option>
-            </Input>
-            <Input onChange={this.onChange} name="name" s={12} label="Name"/>
-            <ServerFileBrowser onChange={this.onChange} label="Directory"/>
-          </Row>
-        {/*{{#server-file-browser label="Library folder" value=selectedLibrary.folder}}{{/server-file-browser}} */}
-        </Modal>
-    }
-
-
+    console.log(this.state.create);
 
     return (
       <Tabs>
@@ -157,7 +171,11 @@ class Settings extends Component {
             </Collection>
           </Card>
           {deletingModal}
-          {createModal}
+          {this.state.create && <LibraryDialog
+                                  onSave={this.onLibrarySave.bind(this)}
+                                  onClose={this.onLibraryClose.bind(this)}
+                                  editing={this.state.create}
+                                  />}
         </Tab>
       </Tabs>
     );

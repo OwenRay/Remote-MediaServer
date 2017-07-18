@@ -137,6 +137,10 @@ html, body{
   &.no-link:hover {
     background: $primary-color;
   }
+  button {
+    float:right;
+  }
+  overflow: hidden;
 }
 
 .grid-item {

@@ -9,18 +9,25 @@ import PropTypes from 'prop-types';
 class ServerFileBrowser extends Component {
  constructor(props){
    super(props);
-   console.log(props.onChange);
-   this.state = {value: "/"};
+   this.state = {value: props.value?props.value:"/"};
  }
 
+  /**
+   * set the default value
+   */
   componentDidMount() {
     this.update(this.state.value);
   }
 
+  /**
+   * load the contents of the target directory
+   * @param val
+   */
   update(val) {
-   if(this.state!=val) {
-     this.props.onChange();
+   if(this.state!==val) {
+     this.props.onChange(val);
    }
+
     this.setState({value:val, loading: true});
     $.getJSON(
       "/api/browse",
@@ -47,21 +54,31 @@ class ServerFileBrowser extends Component {
     );
   }
 
+  /**
+   * helper to go up a directory when clicked
+   */
   goUp() {
     return <CollectionItem key=".." onClick={()=>{this.onClick("..")}}>Go up</CollectionItem>;
   }
 
+  /**
+   * called when the input value changes
+   * @param e
+   */
   valueChange(e) {
-   console.log("hier?");
-   this.update(e.target.value);
+    this.update(e.target.value);
   }
 
+  /**
+   * called when any of the files or dirs are clicked
+   * @param dir
+   */
   onClick(dir) {
-   var val = this.state.value;
-   if(!val.endsWith("/")) {
+    var val = this.state.value;
+    if(!val.endsWith("/")) {
      val+="/";
-   }
-   if(dir==="..") {
+    }
+    if(dir==="..") {
      var parts = val.split("/");
      parts.pop();
      parts.pop();
@@ -69,10 +86,10 @@ class ServerFileBrowser extends Component {
      if(!val) {
        val = "/";
      }
-   }else {
+    }else {
      val += dir;
-   }
-   this.update(val);
+    }
+    this.update(val);
   }
 
   render() {
@@ -100,7 +117,7 @@ class ServerFileBrowser extends Component {
     return (
       <div>
         <Row>
-          <Input onChange={this.valueChange.bind(this)} s={12} label={this.props.label} value={this.state.value}/>
+          <Input ref={(input)=>{this.input=input}} onChange={this.valueChange.bind(this)} s={12} label={this.props.label} value={this.state.value}/>
         </Row>
         <div className="directoryList">
           {contents}
@@ -111,8 +128,8 @@ class ServerFileBrowser extends Component {
 }
 
 ServerFileBrowser.propTypes = {
-  optionalValue: PropTypes.string,
-  optionalOnChange: PropTypes.symbol
+  value: PropTypes.string,
+  onChange: PropTypes.func
 };
 
 export default ServerFileBrowser;
