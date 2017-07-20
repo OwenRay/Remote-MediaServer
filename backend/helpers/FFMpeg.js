@@ -167,8 +167,10 @@ class FFMpeg
         this.proc = proc;
 
         proc.stderr.on('data', this.onError);
-        this.proc.on('close', this.onClose.bind(this));
-
+        proc.on('close', this.onClose.bind(this));
+        proc.stderr.on("error", this.onClose.bind(this));
+        proc.stdin.on("error", this.onClose.bind(this));
+        
         this.onReady();
         return this;
     }
