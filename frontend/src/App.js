@@ -6,6 +6,7 @@ import Home from './components/routes/Home';
 import {Route, NavLink} from 'react-router-dom';
 import { apiActions} from 'redux-jsonapi';
 import store from './stores/settingsStore';
+//import('./css/index.scss');
 
 
 

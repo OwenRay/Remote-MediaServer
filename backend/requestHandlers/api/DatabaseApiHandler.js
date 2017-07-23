@@ -176,6 +176,7 @@ class DatabaseApiHandler extends RequestHandler
         if(offset||limit)
         {
             metadata.totalPages = Math.ceil(data.length/limit);
+            metadata.totalItems = data.length;
             data = data.splice(offset, limit);
         }
 
