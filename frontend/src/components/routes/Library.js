@@ -5,15 +5,17 @@ import React, {Component} from 'react';
 import store from '../../stores/apiStore';
 import {apiActions, deserialize} from 'redux-jsonapi';
 import MediaItem from "../components/MediaItem";
-import Ingrid from 'react-ingrid';
+import { Collection, AutoSizer} from 'react-virtualized';
 
 class Library extends Component {
   constructor() {
     super();
     this.filters = {};
     this.state = {media:[], hasMore:false, page:0};
+    this.media = [];
     this.promises = [];
     this.pageSize = 25;
+    this.colls = 2;
   }
 
   componentWillMount() {
@@ -49,28 +51,40 @@ class Library extends Component {
       const i = res.resources;
       const items = this.state.media;
       const { api } = store.getState();
-      while(items.length<res.meta.totalItems) {
-       items.push({index:items.length-1});
-      }
+      const firstTime = !items.length;
+
 
       for (var key in i) {
-        var o = deserialize(i[key], api);
         var index = parseInt(offset+parseInt(key));
+        var o = deserialize(i[key], api);
         items[index] = o;
         if(this.promises[index]) {
           this.promises[index](o);
           delete this.promises[index];
         }
       }
-      this.setState({
-        media: items,
-        page:this.state.page+1,
-        hasMore:this.state.page+1<res.meta.totalPages
-      });
+      for(let c = 0; c<res.meta.totalItems; c++) {
+        if(!items[c]) {
+          items[c] = {index: c};
+        }
+      }
+      if(firstTime) {
+        console.log("setstate!");
+        this.setState({
+          media:items,
+          rowCount:res.meta.totalItems
+        });
+      }
     });
   }
 
   requestData(index) {
+    let r;
+    const promise = new Promise((resolve)=>{r=resolve});
+    if(!this.state.media[index].index) {
+      r(this.state.media[index]);
+      return promise;
+    }
     if(index<this.minLoad||this.minLoad===-1) {
       this.minLoad = index;
     }
@@ -82,8 +96,6 @@ class Library extends Component {
     }
     this.requestDataTimeout = setTimeout(this.doRequestData.bind(this), 300);
 
-    let r;
-    var promise = new Promise((resolve)=>{r=resolve});
     this.promises[index] = r;
     return promise;
   }
@@ -101,23 +113,54 @@ class Library extends Component {
     this.loadMore(this.minLoad, count<this.pageSize?this.pageSize:count);
   }
 
+  onResize({width}) {
+    console.log("resize", width)
+    if(this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
+    this.resizeTimeout = setTimeout(()=>{
+      this.colls = Math.floor(width/165);
+      this.collection.recomputeCellSizesAndPositions();
+      this.forceUpdate();
+    }, 300);
+  }
+
+  cellSizeAndPositionGetter ({ index }) {
+    console.log("getter");
+    return {
+      height: 236,
+      width: 150,
+      x: index%this.colls*165,
+      y: Math.floor(index/this.colls)*251
+    }
+  }
+
+  cellRenderer({ index, key, style }) {
+    return <MediaItem
+      key={key}
+      style={style}
+      mediaItem={this.state.media[index]}
+      requestData={this.requestData.bind(this)} />
+  }
+
   render() {
     if (!this.state || !this.state.media.length)
       return <div>Loading</div>;
 
-    const ItemComponent = ({ data }) => {
-      return <MediaItem requestData={this.requestData.bind(this)} mediaItem={data}/>
-    };
-
     return (
       <div className="impagewrapper ember-view collection">
-        <Ingrid
-          ItemComponent={ItemComponent}
-          items={this.state.media}
-          itemWidth={165}
-          itemHeight={233}
-          load={this.loadMore.bind(this)}
-          more={false}/>
+        <AutoSizer onResize={this.onResize.bind(this)} >
+          {({ width, height }) =>
+            <Collection
+              ref={ref=>{this.collection=ref}}
+              cellCount={this.state.rowCount}
+              cellRenderer={this.cellRenderer.bind(this)}
+              cellSizeAndPositionGetter={this.cellSizeAndPositionGetter.bind(this)}
+              width={width}
+              verticalOverscanSize={10}
+              height={height}>
+            </Collection>}
+        </AutoSizer>
       </div>
     );
   }

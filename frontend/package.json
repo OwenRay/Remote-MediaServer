@@ -4,16 +4,16 @@
   "private": true,
   "proxy": "http://localhost:8080",
   "dependencies": {
+    "custom-react-scripts": "0.0.23",
     "materialize-css": "^0.99.0",
     "node-sass-chokidar": "0.0.3",
-    "custom-react-scripts": "0.0.23",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
-    "react-ingrid": "^1.1.2",
     "react-materialize": "^1.0.3",
     "react-redux": "^5.0.5",
     "react-router-dom": "^4.1.1",
     "react-scripts": "1.0.10",
+    "react-virtualized": "^9.9.0",
     "redux": "^3.7.1",
     "redux-jsonapi": "^1.1.3"
   },

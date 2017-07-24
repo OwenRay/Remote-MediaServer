@@ -122,7 +122,9 @@ html, body{
   bottom:0px;
   right:0px;
   z-index:0;
-  overflow: auto;
+  .ReactVirtualized__Collection{
+    overflow: auto;
+  }
   .collection-item{
     height:40px;
   }
@@ -158,6 +160,16 @@ html, body{
   overflow:hidden;
   background-size:100%;
   float: left;
+
+  &.loading {
+    text-align: center;
+    line-height: 218px;
+    border:solid 1px $primary-color-light;
+    .material-icons {
+      color: $primary-color-light;
+      font-size: 60px;
+    }
+  }
 
   > a {
     position:absolute;

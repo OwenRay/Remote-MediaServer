@@ -3,25 +3,31 @@
  */
 
 import React, {Component} from 'react';
-import {Button, Preloader} from 'react-materialize';
+import {Button, Icon} from 'react-materialize';
 import {NavLink} from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 class MediaItem extends Component {
 
-  constructor(props) {
-    super(props);
-    if(props.mediaItem.index) {
-      //this.state = {index:props.mediaItem};
-      props.requestData(props.mediaItem.index).then(this.gotData.bind(this));
+  componentDidMount() {
+    if(this.props.mediaItem.index) {
+      this.waitingForPromise = true;
+      this.props.requestData(this.props.mediaItem.index)
+        .then(this.gotData.bind(this));
       return;
     }
 
-    this.state = props.mediaItem;
+    this.setState(this.props.mediaItem);
+  }
+
+  componentWillUnmount() {
+    this.waitingForPromise = false;
   }
 
   gotData(data) {
-    //this.setState({mediaItem:data});
+    if(this.waitingForPromise) {
+      this.setState(data);
+    }
   }
 
   playPos() {
@@ -37,13 +43,13 @@ class MediaItem extends Component {
   render() {
     if(!this.state) {
       return (
-        <div className="grid-item">
-          <Preloader size='small'/>
+        <div style={this.props.style} className="grid-item loading">
+          <Icon>movie</Icon>
         </div>
       );
     }
     return (
-      <div className="grid-item">
+      <div style={this.props.style} className="grid-item">
         <div
           className="poster"
           data-poster-image={this.state.id}
