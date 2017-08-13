@@ -2,12 +2,15 @@
 
 # dependencies
 /node_modules
+/bower_components
 
 # testing
 /coverage
 
 # production
 /build
+/dist
+/tmp
 
 # misc
 .DS_Store

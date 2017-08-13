@@ -3,6 +3,7 @@ import {Navbar, Icon} from 'react-materialize';
 import Library from './components/routes/Library';
 import Settings from './components/routes/Settings';
 import Home from './components/routes/Home';
+import Video from './components/routes/Video'
 import {Route, NavLink} from 'react-router-dom';
 import { apiActions} from 'redux-jsonapi';
 import store from './stores/settingsStore';
@@ -52,10 +53,16 @@ class App extends Component {
               Settings
             </NavLink>
           </li>
+          <li>
+            <NavLink to='/Video'>
+              Video
+            </NavLink>
+          </li>
         </Navbar>
         <Route path="/" component={Home} exact={true}/>
         <Route path="/Library" component={Library}/>
         <Route path="/Settings" component={Settings}/>
+        <Route path="/Video" component={Video}/>
       </div>
     );
   }
