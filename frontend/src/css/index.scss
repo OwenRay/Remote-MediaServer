@@ -40,6 +40,7 @@ $tabs-bg-color: $primary-color-dark !default;
 
 @import "_icon.scss";
 @import "materialize-css/sass/materialize.scss";
+@import "_video.scss";
 
 body, .modal-content{
   background-color:$primary-color-dark;

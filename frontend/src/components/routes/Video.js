@@ -4,6 +4,7 @@
 import React, {Component} from 'react';
 import {Button, Preloader} from "react-materialize";
 import NavBar from "../components/NavBar.js"
+import SeekBar from "../components/SeekBar";
 
 class Video extends Component {
 
@@ -20,20 +21,20 @@ class Video extends Component {
   }
 
   onLoading(){
-    this.setState({loading: true})
+    this.setState({loading: true});
   }
 
   onCanPlay(){
-    this.setState({loading: false})
+    this.setState({loading: false});
   }
 
   togglePause() {
     if (this.state.paused) {
       this.setState({paused: false});
-      this.refs.vidRef.play()
+      this.refs.vidRef.play();
     } else {
       this.setState({paused: true});
-      this.refs.vidRef.pause()
+      this.refs.vidRef.pause();
     }
   }
 
@@ -43,7 +44,7 @@ class Video extends Component {
     } else {
       this.setState({muted: true, volumeBeforeMute: this.state.volume, volume: 0});
     }
-    this.refs.vidRef.volume = this.state.volume
+    this.refs.vidRef.volume = this.state.volume;
   }
 
   toggleFullScreen() {
@@ -85,9 +86,13 @@ class Video extends Component {
   render() {
     return (
     <div>
-      <video ref="vidRef" src="TEST SOURCE" preload="none" autoPlay/>
+      <video className="video" ref="vidRef" src="TEST SOURCE" preload="none" autoPlay/>
       {this.loadingOrPaused()}
-      <NavBar paused={this.state.paused} togglePause={this.togglePause.bind(this)} toggleFullScreen={this.toggleFullScreen.bind(this)}/>
+      <NavBar paused={this.state.paused} togglePause={this.togglePause.bind(this)} toggleFullScreen={this.toggleFullScreen.bind(this)}>
+        <SeekBar id="progress"/>
+        <span className="muteIcon" onClick={this.toggleMute.bind(this)} id="mute" icon="volume_mute"/>
+        <SeekBar id="volume"/>
+      </NavBar>
     </div>
     )
   }
