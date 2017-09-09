@@ -8,16 +8,23 @@ import SeekBar from "../components/SeekBar";
 
 class Video extends Component {
 
+  vidRef = null;
+  pageRef = null;
+
   componentWillMount(){
     this.setState({paused: false, load: false})
   }
 
   componentDidMount(){
-    let vid = this.refs.vidRef;
-    vid.onclick = this.togglePause.bind(this);
-    vid.ondblclick = this.toggleFullScreen.bind(this);
-    vid.oncanplay = this.onCanPlay.bind(this);
-    vid.onloadstart = this.onLoading.bind(this);
+    this.vidRef.onclick = this.togglePause.bind(this);
+    this.vidRef.ondblclick = this.toggleFullScreen.bind(this);
+    this.vidRef.oncanplay = this.onCanPlay.bind(this);
+    this.vidRef.onloadstart = this.onLoading.bind(this);
+    this.vidRef.ontimeupdate = this.onProgress.bind(this);
+  }
+
+  onProgress(){
+    this.setState({progress: this.vidRef.currentTime});
   }
 
   onLoading(){
@@ -26,15 +33,16 @@ class Video extends Component {
 
   onCanPlay(){
     this.setState({loading: false});
+    this.setState({duration: this.vidRef.duration})
   }
 
   togglePause() {
     if (this.state.paused) {
       this.setState({paused: false});
-      this.refs.vidRef.play();
+      this.vidRef.play();
     } else {
       this.setState({paused: true});
-      this.refs.vidRef.pause();
+      this.vidRef.pause();
     }
   }
 
@@ -44,24 +52,32 @@ class Video extends Component {
     } else {
       this.setState({muted: true, volumeBeforeMute: this.state.volume, volume: 0});
     }
-    this.refs.vidRef.volume = this.state.volume;
+    this.vidRef.volume = this.state.volume;
+  }
+
+  volumeChange(value) {
+    this.setState({muted: false, volume: value});
+    this.vidRef.volume = this.state.volume;
+  }
+
+  onSeek() {
+
   }
 
   toggleFullScreen() {
-    let elem = this.refs.vidRef;
     if (!document.fullscreenElement &&    // alternative standard method
       !document.mozFullScreenElement &&
       !document.webkitFullscreenElement &&
       !document.msFullscreenElement )
     {
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
-      } else if (elem.mozRequestFullScreen) {
-        elem.mozRequestFullScreen();
-      } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
+      if (this.pageRef.requestFullscreen) {
+        this.pageRef.requestFullscreen();
+      } else if (this.pageRef.msRequestFullscreen) {
+        this.pageRef.msRequestFullscreen();
+      } else if (this.pageRef.mozRequestFullScreen) {
+        this.pageRef.mozRequestFullScreen();
+      } else if (this.pageRef.webkitRequestFullscreen) {
+        this.pageRef.webkitRequestFullscreen();
       }
     } else {
       if (document.exitFullscreen) {
@@ -78,20 +94,20 @@ class Video extends Component {
 
   loadingOrPaused() {
     if (this.state.load) {
-      return <Preloader mode="circular" size="small"/>
+      return <Preloader mode="circular" size="small" flashing style={{zIndex: 99}}/>
     } else if (this.state.paused) {
       return <Button floating large className="play" icon='play_arrow' onClick={this.togglePause.bind(this)}/>
     }
   }
   render() {
     return (
-    <div>
-      <video className="video" ref="vidRef" src="TEST SOURCE" preload="none" autoPlay/>
+    <div className="videoComponent" ref={(input) => {this.pageRef = input;}}>
+      <video className="video" ref={(input) => {this.vidRef = input;}} src="" preload="none" autoPlay/>
       {this.loadingOrPaused()}
       <NavBar paused={this.state.paused} togglePause={this.togglePause.bind(this)} toggleFullScreen={this.toggleFullScreen.bind(this)}>
-        <SeekBar id="progress"/>
+        <SeekBar id="progress" onSeek={this.onSeek.bind(this)} progress={this.state.progress} max={this.state.duration}/>
         <span className="muteIcon" onClick={this.toggleMute.bind(this)} id="mute" icon="volume_mute"/>
-        <SeekBar id="volume"/>
+        <SeekBar id="volume" onSeek={this.volumeChange.bind(this)} progress={this.state.volume} max={100}/>
       </NavBar>
     </div>
     )

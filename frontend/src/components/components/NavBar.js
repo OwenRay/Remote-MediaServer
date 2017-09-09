@@ -22,12 +22,9 @@ class NavBar extends Component {
           {/**
            Add channel selection logic
            */}
-           <Button id="fullscreen" icon="fullscreen" onClick={this.props.toggleFullScreen}/>
+           <Button id="fullscreen" floating icon="fullscreen" onClick={this.props.toggleFullScreen}/>
         </div>
         {this.props.children}
-        {/**
-         Add Seek Bars
-         */}
       </div>
     )
   }

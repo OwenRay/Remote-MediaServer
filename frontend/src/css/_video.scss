@@ -13,7 +13,6 @@
       left:0px;
     }*/
 }
-
 .video{
   background:black;
   position:absolute;
@@ -21,10 +20,10 @@
   right:0px;
   bottom:0px;
   top:0px;
+  height:100%;
+  width:100%;
   overflow:hidden;
   video{
-    height:100%;
-    width:100%;
     &.hidden{
       cursor: none;
     }
@@ -97,6 +96,7 @@
       top: 0px;
       bottom: 0px;
       position: absolute;
+      z-index: 99;
       > div {
         position: absolute;
         right: -1px;
@@ -113,21 +113,16 @@
     top:-28px;
     bottom:0px;
     left:50%;
-    margin-left:-28px;
-  }
-
-  .btn-medium
-  {
-    position:absolute;
-    top:-19px;
+    margin-left:-38px;
   }
 
   #next, #prev{
+    top:-19px;
     left:50%;
-    margin-left:43px;
+    margin-left:70px;
   }
   #prev{
-    margin-left:-80px;
+    margin-left:-85px;
   }
   .buttonsRight {
     position: absolute;

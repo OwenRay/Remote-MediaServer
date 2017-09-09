@@ -8,3 +8,5 @@ ffprobe
 ffmpeg.exe
 ffprobe.exe
 frontend/src/css/*.css
+Remote-MediaServer.iml
+package-lock.json
