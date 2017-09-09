@@ -20,10 +20,10 @@
   right:0px;
   bottom:0px;
   top:0px;
-  height:100%;
-  width:100%;
   overflow:hidden;
   video{
+    height:100%;
+    width:100%;
     &.hidden{
       cursor: none;
     }

@@ -96,13 +96,13 @@ class Video extends Component {
     if (this.state.load) {
       return <Preloader mode="circular" size="small" flashing style={{zIndex: 99}}/>
     } else if (this.state.paused) {
-      return <Button floating large className="play" icon='play_arrow' onClick={this.togglePause.bind(this)}/>
+      return <Button floating large className="play" icon='play_arrow' onClick={this.togglePause.bind(this)} flat/>
     }
   }
   render() {
     return (
-    <div className="videoComponent" ref={(input) => {this.pageRef = input;}}>
-      <video className="video" ref={(input) => {this.vidRef = input;}} src="" preload="none" autoPlay/>
+    <div className="video" ref={(input) => {this.pageRef = input;}}>
+      <video ref={(input) => {this.vidRef = input;}} src="" preload="none" autoPlay/>
       {this.loadingOrPaused()}
       <NavBar paused={this.state.paused} togglePause={this.togglePause.bind(this)} toggleFullScreen={this.toggleFullScreen.bind(this)}>
         <SeekBar id="progress" onSeek={this.onSeek.bind(this)} progress={this.state.progress} max={this.state.duration}/>
