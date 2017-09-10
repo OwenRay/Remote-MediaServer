@@ -2,27 +2,54 @@ import React, {Component} from 'react';
 
 class SeekBar extends Component {
   tracker = null;
-  buffer = null;
   progress = null;
 
   componentWillMount(){
-    this.setState({barWidth: 0})
+    this.setState({barWidth: 0, progress: -1})
   }
 
   componentDidMount(){
-    this.setState({barWidth: this.tracker.offsetWidth})
+    this.setState({barWidth: this.tracker.offsetWidth});
   }
 
-  componentWillReceiveProps(nextProps){
+  onClick(e){
+    e.preventDefault();
+    e.stopPropagation();
+    document.onmousemove = this.onMove.bind(this);
+    document.onmouseup = this.stopSeeking.bind(this);
+    this.onMove(e);
+  }
+
+  onMove(e){
+    let pos = e.pageX - this.tracker.getBoundingClientRect().left;
+    if (pos < 0) {
+      pos = 0;
+    } else if (pos > this.tracker.offsetWidth) {
+      pos = this.tracker.offsetWidth;
+    }
+    this.setState({progress: pos/this.tracker.offsetWidth*this.props.max});
+  }
+
+  stopSeeking(){
+    document.onmousemove = null;
+    document.onmouseup = null;
+    this.props.onSeek(this.state.progress);
+    this.setState({progress: -1})
   }
 
   render() {
     return (
-      <div className="seektracker" id={this.props.id} ref={(input) => {this.tracker = input}}>
-      <div className="seekbuffer" ref={(input) => {this.buffer = input}}/>
-      <div className="seekprogress" ref={(input) => {this.progress = input}} style={{width: this.state.barWidth*(this.props.progress/this.props.max) + "px"}}>
-        <div/>
-      </div>
+      <div id={this.props.id} onMouseDown={this.onClick.bind(this)}>
+        <div className="seektracker" ref={(input) => {this.tracker = input}}>
+          <div className="seekprogress" ref={(input) => {this.progress = input}}
+               style={{width:
+                 this.state.progress === -1 ?
+                   this.state.barWidth*(this.props.progress/this.props.max) + "px" :
+                   this.state.barWidth*(this.state.progress/this.props.max)
+               }}>
+            <div/>
+          </div>
+        </div>
     </div>)
   }
 }

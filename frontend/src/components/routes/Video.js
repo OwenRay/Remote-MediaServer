@@ -21,6 +21,7 @@ class Video extends Component {
     this.vidRef.oncanplay = this.onCanPlay.bind(this);
     this.vidRef.onloadstart = this.onLoading.bind(this);
     this.vidRef.ontimeupdate = this.onProgress.bind(this);
+    this.setState({volume: this.vidRef.volume});
   }
 
   onProgress(){
@@ -60,8 +61,9 @@ class Video extends Component {
     this.vidRef.volume = this.state.volume;
   }
 
-  onSeek() {
-
+  onSeek(value) {
+    this.setState({progress: value});
+    this.vidRef.currentTime = value;
   }
 
   toggleFullScreen() {
@@ -102,12 +104,12 @@ class Video extends Component {
   render() {
     return (
     <div className="video" ref={(input) => {this.pageRef = input;}}>
-      <video ref={(input) => {this.vidRef = input;}} src="" preload="none" autoPlay/>
+      <video ref={(input) => {this.vidRef = input;}} src="http://download.blender.org/peach/trailer/trailer_1080p.ogg" preload="none" autoPlay/>
       {this.loadingOrPaused()}
       <NavBar paused={this.state.paused} togglePause={this.togglePause.bind(this)} toggleFullScreen={this.toggleFullScreen.bind(this)}>
         <SeekBar id="progress" onSeek={this.onSeek.bind(this)} progress={this.state.progress} max={this.state.duration}/>
         <span className="muteIcon" onClick={this.toggleMute.bind(this)} id="mute" icon="volume_mute"/>
-        <SeekBar id="volume" onSeek={this.volumeChange.bind(this)} progress={this.state.volume} max={100}/>
+        <SeekBar id="volume" onSeek={this.volumeChange.bind(this)} progress={this.state.volume} max={1}/>
       </NavBar>
     </div>
     )
