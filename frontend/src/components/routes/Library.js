@@ -6,34 +6,49 @@ import store from '../../stores/apiStore';
 import {apiActions, deserialize} from 'redux-jsonapi';
 import MediaItem from "../components/MediaItem";
 import { Collection, AutoSizer} from 'react-virtualized';
+import SearchBar from "../components/SearchBar";
 
 class Library extends Component {
   constructor() {
     super();
     this.filters = {};
-    this.state = {media:[], hasMore:false, page:0};
-    this.media = [];
+    /** @type Collection */
+    this.state = {media:[], hasMore:false, page:0, rowCount:0};
     this.promises = [];
     this.pageSize = 25;
-    this.colls = 2;
+    this.colls = 5;
   }
 
   componentWillMount() {
+    this.refresh();
+  }
+
+  refresh() {
+
+    this.setState({media:[], hasmore:true, page:0});
+    this.promises = [];
+    if(this.collection) {
+      this.collection.recomputeCellSizesAndPositions();
+      this.collection.forceUpdate();
+    }
     this.loadMore(0,this.pageSize);
   }
 
   loadMore(offset, limit) {
+    this.lastLoadRequest = new Date().getTime();
     this.minLoad = -1;
     this.maxLoad = 0;
 
-    var queryParams = {page: {offset:offset, limit: limit}};
-    var filters = this.filters;
-    for (var key in this.filters) {
-      queryParams[key] = filters[key];
+    const queryParams = {page: {offset:offset, limit: limit}};
+    const filters = this.filters;
+    for (let key in this.filters) {
+      if(filters[key]) {
+        queryParams[key] = filters[key];
+      }
     }
 
-    if (this.state.title) {
-      queryParams.title = "%" + this.state.title + "%";
+    if (queryParams.title) {
+      queryParams.title = "%" + queryParams.title + "%";
     }
 
     if (this.state.libraries) {
@@ -54,9 +69,9 @@ class Library extends Component {
       const firstTime = !items.length;
 
 
-      for (var key in i) {
-        var index = parseInt(offset+parseInt(key));
-        var o = deserialize(i[key], api);
+      for (let key in i) {
+        const index = parseInt(offset+parseInt(key, 10), 10);
+        const o = deserialize(i[key], api);
         items[index] = o;
         if(this.promises[index]) {
           this.promises[index](o);
@@ -69,7 +84,6 @@ class Library extends Component {
         }
       }
       if(firstTime) {
-        console.log("setstate!");
         this.setState({
           media:items,
           rowCount:res.meta.totalItems
@@ -80,7 +94,7 @@ class Library extends Component {
 
   requestData(index) {
     let r;
-    const promise = new Promise((resolve)=>{r=resolve});
+    const promise = new Promise(resolve => r=resolve);
     if(!this.state.media[index].index) {
       r(this.state.media[index]);
       return promise;
@@ -94,7 +108,11 @@ class Library extends Component {
     if(this.requestDataTimeout) {
       clearTimeout(this.requestDataTimeout);
     }
-    this.requestDataTimeout = setTimeout(this.doRequestData.bind(this), 300);
+    if(new Date().getTime()-this.lastLoadRequest>600) {
+      this.doRequestData();
+    }else {
+      this.requestDataTimeout = setTimeout(this.doRequestData.bind(this), 1000);
+    }
 
     this.promises[index] = r;
     return promise;
@@ -103,35 +121,36 @@ class Library extends Component {
   doRequestData() {
     this.minLoad-=this.pageSize;
     this.maxLoad+=this.pageSize;
+    /* Not sure why I did this:
     while(!this.state.media[this.minLoad]||!this.state.media[this.minLoad].index) {
+      console.log(this.minLoad);
       this.minLoad++;
     }
     while(!this.state.media[this.maxLoad]||!this.state.media[this.maxLoad].index) {
       this.maxLoad--;
-    }
-    var count = this.maxLoad-this.minLoad;
+    }*/
+    const count = this.maxLoad-this.minLoad;
     this.loadMore(this.minLoad, count<this.pageSize?this.pageSize:count);
   }
 
   onResize({width}) {
-    console.log("resize", width)
     if(this.resizeTimeout) {
       clearTimeout(this.resizeTimeout);
     }
     this.resizeTimeout = setTimeout(()=>{
       this.colls = Math.floor(width/165);
-      this.collection.recomputeCellSizesAndPositions();
+      if(this.collection)
+        this.collection.recomputeCellSizesAndPositions();
       this.forceUpdate();
     }, 300);
   }
 
   cellSizeAndPositionGetter ({ index }) {
-    console.log("getter");
     return {
       height: 236,
       width: 150,
       x: index%this.colls*165,
-      y: Math.floor(index/this.colls)*251
+      y: Math.floor(index/this.colls)*251+65
     }
   }
 
@@ -143,24 +162,35 @@ class Library extends Component {
       requestData={this.requestData.bind(this)} />
   }
 
+  onChange(o) {
+    this.filters = o;
+    this.refresh();
+  }
+
   render() {
-    if (!this.state || !this.state.media.length)
-      return <div>Loading</div>;
+    let collection = <div>Loading</div>;
+
+    if(this.state.media.length) {
+      collection = <AutoSizer onResize={this.onResize.bind(this)}>
+        {({width, height}) =>
+          <Collection
+            ref={ref => this.collection = ref}
+            cellCount={this.state.rowCount}
+            cellRenderer={this.cellRenderer.bind(this)}
+            cellSizeAndPositionGetter={this.cellSizeAndPositionGetter.bind(this)}
+            width={width}
+            verticalOverscanSize={20}
+            height={height}>
+          </Collection>}
+      </AutoSizer>
+    }
 
     return (
-      <div className="impagewrapper ember-view collection">
-        <AutoSizer onResize={this.onResize.bind(this)} >
-          {({ width, height }) =>
-            <Collection
-              ref={ref=>{this.collection=ref}}
-              cellCount={this.state.rowCount}
-              cellRenderer={this.cellRenderer.bind(this)}
-              cellSizeAndPositionGetter={this.cellSizeAndPositionGetter.bind(this)}
-              width={width}
-              verticalOverscanSize={10}
-              height={height}>
-            </Collection>}
-        </AutoSizer>
+      <div>
+        <div className="impagewrapper">
+          <SearchBar scroller={this.collection} onChange={this.onChange.bind(this)}/>
+          {collection}
+        </div>
       </div>
     );
   }

@@ -62,7 +62,7 @@ html, body{
   color:white !important;
 }
 
-.md-select .select-wrapper .caret
+.select-wrapper span.caret
 {
   color:white;
 }
@@ -103,20 +103,30 @@ html, body{
   }
 
   .search {
-    position: absolute;
-    left: 360px;
-    right: 20px;
-    bottom: 8px;
-    max-width: 300px;
-    @media (max-width: 512px) {
-      display: none;
+    position: relative;
+    input{
+      margin-bottom: 5px;
+    }
+    .col{
+      padding:0px;
+    }
+    button{
+      position:absolute;
+      right:10px;
+      bottom:15px;
+      background:none;
+      border:none;
+      font-size: 21px;
+      box-shadow: none;
+      width:36px;
+      padding:0px;
     }
   }
 }
 
 .impagewrapper{
   border:none;
-  position:absolute;
+  position:absolute !important;
   left:0px;
   top:50px;
   margin:0px;
@@ -286,6 +296,8 @@ body{
 
 nav{
   transition:margin-top .5s;
+  position: relative;
+  z-index: 100;
 }
 
 .directoryList
@@ -378,21 +390,6 @@ nav{
   }
 }
 
-.search{
-  position:relative;
-  input{
-    margin-bottom: 5px;
-  }
-  button{
-    position:absolute;
-    right:0px;
-    bottom:10px;
-    background:none;
-    border:none;
-    font-size: 21px;
-  }
-}
-
 .liquid-container
 {
   transition:top .5s;
@@ -425,11 +422,20 @@ input:not([type]), input[type=text], input[type=password], input[type=email], in
   transition: .2s ease-out;
   cursor: pointer;
   pointer-events: all !important;
+  position: relative;
 
   &:hover {
     background-color: $button-raised-background-hover !important;
     @extend .z-depth-1-half;
   }
+}
+
+button a{
+  position: absolute;
+  top:0px;
+  bottom: 0px;
+  right:0px;
+  left:0px;
 }
 
 nav {

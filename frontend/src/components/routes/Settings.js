@@ -26,7 +26,9 @@ class Settings extends Component {
       return;
     }
     this.setState(
-      {"settings":deserialize(api.setting[1], api)}
+      {
+        "settings":deserialize(api.setting[1], api)
+      }
     );
   }
 
@@ -105,16 +107,21 @@ class Settings extends Component {
     this.setState({"create":null});
   }
 
+  onTabChange(tab) {
+    console.log("tb", parseInt(tab, 10), arguments);
+    this.setState({activeTab: parseInt(tab, 10)%10});
+  }
+
   render() {
     if(!this.state||!this.state.settings) {
       return (<p>Loading</p>);
     }
 
     var listItems = this.state.settings.libraries.map((lib)=>
-        <CollectionItem onClick={()=>{this.librarySelect(lib)}} key={"key"+lib.uuid}>
+        <CollectionItem onClick={(e)=>{e.stopPropagation(); e.preventDefault(); this.librarySelect(lib)}} key={"key"+lib.uuid}>
           {lib.name}
           <Button icon="delete" onClick={(e)=>{e.stopPropagation(); this.removeLib(lib);}}/>
-        </CollectionItem>
+        </CollectionItem>``
       );
 
     if(this.state.removing) {
@@ -131,8 +138,12 @@ class Settings extends Component {
     }
 
     return (
-      <Tabs>
-        <Tab title="Server settings" active>
+      <Tabs
+        onChange={this.onTabChange.bind(this)}
+        className="tabs-fixed-width">
+        <Tab
+          active={this.state.activeTab===0}
+          title="Server settings">
           <Card
             title="Server settings"
             actions={[<Button key="save" onClick={this.onSubmit.bind(this)}><Icon left>save</Icon>Save</Button>]}>
@@ -153,7 +164,9 @@ class Settings extends Component {
             </Row>
           </Card>
         </Tab>
-        <Tab title="Media library">
+        <Tab
+          active={this.state.activeTab===1}
+          title="Media library">
           <Card
             title="Media library"
             actions={[<Button key="new" onClick={()=>this.librarySelect({})}><Icon left>add</Icon>Add new</Button>]}>

@@ -8,16 +8,23 @@ import {NavLink} from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 class MediaItem extends Component {
-
   componentDidMount() {
-    if(this.props.mediaItem.index) {
+    this.componentWillReceiveProps(this.props);
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if(!nextProps.mediaItem) {
+      return;
+    }
+    if(nextProps.mediaItem.index) {
+      if(this.waitingForPromise)
+        return;
       this.waitingForPromise = true;
-      this.props.requestData(this.props.mediaItem.index)
+      nextProps.requestData(nextProps.mediaItem.index)
         .then(this.gotData.bind(this));
       return;
     }
-
-    this.setState(this.props.mediaItem);
+    this.setState(nextProps.mediaItem);
   }
 
   componentWillUnmount() {
@@ -26,6 +33,7 @@ class MediaItem extends Component {
 
   gotData(data) {
     if(this.waitingForPromise) {
+      this.waitingForPromise = false;
       this.setState(data);
     }
   }
@@ -34,7 +42,7 @@ class MediaItem extends Component {
     if (this.state.playPosition) {
       return (
         <div className="percent-played">
-          <div style={{width: this.state.playPosition().position / this.state.fileduration * 100 + "%"}}></div>
+          <div style={{width: this.state.playPosition().position / this.state.fileduration * 100 + "%"}}/>
         </div>
       );
     }
@@ -48,20 +56,23 @@ class MediaItem extends Component {
         </div>
       );
     }
+
     return (
       <div style={this.props.style} className="grid-item">
         <div
           className="poster"
           data-poster-image={this.state.id}
           style={{"backgroundImage": "url(/img/" + this.state.id + "_postersmall.jpg)"}}/>
-        <NavLink to={"item/detail/" + this.state.id}></NavLink>
+        <NavLink to={"item/detail/" + this.state.id}/>
         <div className="detail">
           {this.playPos()}
           <Button
             floating
             className="play"
             icon='play_arrow'
-            action='play'/>
+            action='play'>
+            <NavLink to={"item/view/" + this.state.id}/>
+          </Button>
           <span className="title">{this.state.title}</span>
           <span className="year">{this.state.year}</span>
         </div>
