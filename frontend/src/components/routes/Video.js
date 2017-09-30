@@ -12,7 +12,7 @@ class Video extends Component {
   pageRef = null;
 
   componentWillMount(){
-    this.setState({paused: false, load: false})
+    this.setState({paused: false, load: false, navClass: "visible"})
   }
 
   componentDidMount(){
@@ -21,7 +21,18 @@ class Video extends Component {
     this.vidRef.oncanplay = this.onCanPlay.bind(this);
     this.vidRef.onloadstart = this.onLoading.bind(this);
     this.vidRef.ontimeupdate = this.onProgress.bind(this);
-    this.setState({volume: this.vidRef.volume});
+    this.setState({volume: this.vidRef.volume, navTimeout:setTimeout(this.hide.bind(this), 2000)});
+  }
+
+  onMouseMove(e){
+    this.setState({navClass:"visible"});
+    clearTimeout(this.state.navTimeout);
+    this.setState({navTimeout:setTimeout(this.hide.bind(this), 2000)});
+  }
+
+  hide(){
+    clearTimeout(this.state.navTimeout);
+    this.setState({navClass:"hidden"})
   }
 
   onProgress(){
@@ -103,10 +114,10 @@ class Video extends Component {
   }
   render() {
     return (
-    <div className="video" ref={(input) => {this.pageRef = input;}}>
+    <div className="video" ref={(input) => {this.pageRef = input;}} onMouseMove={this.onMouseMove.bind(this)}>
       <video ref={(input) => {this.vidRef = input;}} src="http://download.blender.org/peach/trailer/trailer_1080p.ogg" preload="none" autoPlay/>
       {this.loadingOrPaused()}
-      <NavBar paused={this.state.paused} togglePause={this.togglePause.bind(this)} toggleFullScreen={this.toggleFullScreen.bind(this)}>
+      <NavBar paused={this.state.paused} togglePause={this.togglePause.bind(this)} toggleFullScreen={this.toggleFullScreen.bind(this)} navClass={this.state.navClass}>
         <SeekBar id="progress" onSeek={this.onSeek.bind(this)} progress={this.state.progress} max={this.state.duration}/>
         <span className="muteIcon" onClick={this.toggleMute.bind(this)} id="mute" icon="volume_mute"/>
         <SeekBar id="volume" onSeek={this.volumeChange.bind(this)} progress={this.state.volume} max={1}/>
