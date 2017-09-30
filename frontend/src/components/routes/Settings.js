@@ -13,6 +13,7 @@ class Settings extends Component {
   componentWillMount() {
     store.subscribe(this.change.bind(this));
     this.onChange = this.onChange.bind(this);
+    this.state={"activeTab":0};
     this.change();
   }
 
@@ -121,7 +122,7 @@ class Settings extends Component {
         <CollectionItem onClick={(e)=>{e.stopPropagation(); e.preventDefault(); this.librarySelect(lib)}} key={"key"+lib.uuid}>
           {lib.name}
           <Button icon="delete" onClick={(e)=>{e.stopPropagation(); this.removeLib(lib);}}/>
-        </CollectionItem>``
+        </CollectionItem>
       );
 
     if(this.state.removing) {

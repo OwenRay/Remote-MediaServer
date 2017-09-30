@@ -133,6 +133,7 @@ html, body{
   bottom:0px;
   right:0px;
   z-index:0;
+  overflow:hidden;
   .ReactVirtualized__Collection{
     overflow: auto;
   }
@@ -297,7 +298,6 @@ body{
 nav{
   transition:margin-top .5s;
   position: relative;
-  z-index: 100;
 }
 
 .directoryList
