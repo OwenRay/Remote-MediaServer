@@ -15,6 +15,7 @@ class SearchBar extends Component
     this.setState({hidden:false, filters:{title:""}, settings:{libraries:[]}});
     this.onChange = this.onChange.bind(this);
     store.subscribe(this.onSettingsChange.bind(this));
+    this.onSettingsChange();
   }
 
   /**

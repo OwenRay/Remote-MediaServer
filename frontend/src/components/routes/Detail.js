@@ -3,7 +3,7 @@
  */
 import React, {Component} from 'react';
 import TopBar from '../components/TopBar';
-import {Button, Icon, Tabs, Tab} from 'react-materialize';
+import {Button, Icon, Tabs, Tab, Modal} from 'react-materialize';
 import ReactTooltip from 'react-tooltip';
 import BodyClassName from 'react-body-classname';
 import store from '../../stores/apiStore';
@@ -11,6 +11,7 @@ import { apiActions, deserialize} from 'redux-jsonapi';
 import ReadableDuration from "../components/ReadableDuration";
 import MediaItemRow from "../components/mediaItem/MediaItemRow";
 import {NavLink} from 'react-router-dom';
+import MediaInfo from '../components/mediaItem/MediaInfo';
 
 
 
@@ -86,7 +87,7 @@ class Detail extends Component {
       item:i,
       episodes:seasons,
       seasons:Object.keys(seasons),
-      watched:i.playPosition&&(await i.playPosition()).position>i.fileduration*.97
+      watched:i.playPosition&&(await i.playPosition()).position>(i.fileduration|1)*.97
     });
   }
 
@@ -98,7 +99,6 @@ class Detail extends Component {
   }
 
   showTabs() {
-    console.log(this.state);
     return this.state.item.type==="tv"&&this.state.seasons;
   }
 
@@ -165,9 +165,8 @@ class Detail extends Component {
       pos = await this.itemModel.playPosition();
     }
     pos._type = 'play-positions';
-    pos.position = this.state.watched?0:this.state.item.fileduration;
+    pos.position = this.state.watched?0:this.state.item.fileduration|1;
     this.setState({watched:!this.state.watched});
-    console.log(pos);
     let posResult = await store.dispatch(apiActions.write(pos));
 
     if(!pos.id) {
@@ -184,7 +183,6 @@ class Detail extends Component {
   render() {
     const s = this.state;
     if(!s||!s.item) {
-      console.log("render empty");
       return null;
     }
     return (
@@ -195,7 +193,12 @@ class Detail extends Component {
               <Button onClick={this.toggleWatched} data-tip="Mark unwatched" className="marked"><Icon>done</Icon></Button>:
               <Button onClick={this.toggleWatched} data-tip="Mark watched"><Icon>done</Icon></Button>
             }
-            <Button onClick={this.toggleDetails} data-tip="Info"><Icon>info_outline</Icon></Button>
+            <Modal
+              header={this.state.item.title}
+              fixedFooter
+              trigger={<Button onClick={this.toggleDetails} data-tip="Info" icon="info_outline"></Button>}>
+              <MediaInfo item={this.state.item}/>
+            </Modal>
 
             <ReactTooltip place="bottom" effect="solid"/>
           </TopBar>

@@ -21,14 +21,14 @@ class Settings extends Component {
    * triggered when the settings model changes
    */
   change() {
-    const api = store.getState().api;
+    const {api} = store.getState().api;
     if(!api.setting)
     {
       return;
     }
     this.setState(
       {
-        "settings":deserialize(api.setting[1], api)
+        "settings":deserialize(api.setting[1], store)
       }
     );
   }
@@ -109,7 +109,6 @@ class Settings extends Component {
   }
 
   onTabChange(tab) {
-    console.log("tb", parseInt(tab, 10), arguments);
     this.setState({activeTab: parseInt(tab, 10)%10});
   }
 

@@ -33,7 +33,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Navbar brand={this.state.name} right>
+        <Navbar options={{ closeOnClick: true }} brand={this.state.name} right>
           <li>
             <NavLink to="/">
               <Icon left>home</Icon>

@@ -15,8 +15,19 @@ async function deserializeRelationship(resource = {}, store) {
   if (api[camelize(type)] && api[camelize(type)][resource.id]) {
     return deserialize({ ...api[camelize(type)][resource.id], meta: { loaded: true } }, api);
   }
-  console.log("QQQ", resource);
-  return deserialize((await store.dispatch(apiActions.read(deserialize(resource)))).resources[0], api);
+  console.log(api);
+  const req = (await store.dispatch(
+      apiActions.read(
+        {
+          id:resource.id,
+          _type:pluralize.plural(resource.type)
+        }
+      )
+    ));
+  return deserialize(
+    req.resources[0],
+    store
+  );
   //return deserialize({ ...resource, meta: { loaded: false } }, api);
 }
 
