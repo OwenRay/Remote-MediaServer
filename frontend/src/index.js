@@ -1,11 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-//import './css/index.scss';
+
+// these two lines overwrite the serialization of redux-jsonapi
+// noinspection ES6UnusedImports
+import serializer from "./stores/serialize";
+// noinspection ES6UnusedImports
+import deserializer from "./stores/deserialize";
+
 import {BrowserRouter} from 'react-router-dom';
 
 import App from './App';
 require('./css/index.css');
-//import registerServiceWorker from './registerServiceWorker';
 
 ReactDOM.render(
   <BrowserRouter>

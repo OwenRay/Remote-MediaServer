@@ -41,6 +41,7 @@ $tabs-bg-color: $primary-color-dark !default;
 @import "_icon.scss";
 @import "materialize-css/sass/materialize.scss";
 @import "_video.scss";
+@import "_detail.scss";
 
 body, .modal-content{
   background-color:$primary-color-dark;
@@ -280,19 +281,9 @@ html, body{
   }
 }
 
-body{
-  /* Hide nav on certain pages */
-  &.item.detail,
-  &.item.view
-  {
-    nav{
-      margin-top:-50px;
-    }
-    .liquid-container{
-      transition: none;
-      top:0px;
-    }
-  }
+/* Hide nav on certain pages */
+body.hideNav nav{
+  margin-top:-50px;
 }
 
 nav{

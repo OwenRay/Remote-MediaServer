@@ -33,7 +33,7 @@ class HttpServer {
         this.firstStarted = true;
         this.server = new Koa();
 
-        this.server.use(cors( {origin: '*'}));
+        this.server.use(cors( {origin: '*', methods:["GET","HEAD","PUT","POST","DELETE","PATCH"]}));
         glob.sync(__dirname+"/requestHandlers/**/*.js").forEach(function(file){
             console.log("require", file);
             require(path.resolve(file));

@@ -7,7 +7,7 @@ import {Button, Icon} from 'react-materialize';
 import {NavLink} from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-class MediaItem extends Component {
+class MediaItemTile extends Component {
   componentDidMount() {
     this.componentWillReceiveProps(this.props);
   }
@@ -63,7 +63,7 @@ class MediaItem extends Component {
           className="poster"
           data-poster-image={this.state.id}
           style={{"backgroundImage": "url(/img/" + this.state.id + "_postersmall.jpg)"}}/>
-        <NavLink to={"item/detail/" + this.state.id}/>
+        <NavLink to={"/item/detail/" + this.state.id}/>
         <div className="detail">
           {this.playPos()}
           <Button
@@ -71,7 +71,7 @@ class MediaItem extends Component {
             className="play"
             icon='play_arrow'
             action='play'>
-            <NavLink to={"item/view/" + this.state.id}/>
+            <NavLink to={"/item/view/" + this.state.id}/>
           </Button>
           <span className="title">{this.state.title}</span>
           <span className="year">{this.state.year}</span>
@@ -81,11 +81,11 @@ class MediaItem extends Component {
   }
 }
 
-MediaItem.propTypes = {
+MediaItemTile.propTypes = {
   mediaItem: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.object
   ]),
 };
 
-export default MediaItem;
+export default MediaItemTile;

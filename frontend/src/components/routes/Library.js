@@ -4,7 +4,7 @@
 import React, {Component} from 'react';
 import store from '../../stores/apiStore';
 import {apiActions, deserialize} from 'redux-jsonapi';
-import MediaItem from "../components/MediaItem";
+import MediaItem from "../components/mediaItem/MediaItemTile";
 import { Collection, AutoSizer} from 'react-virtualized';
 import SearchBar from "../components/SearchBar";
 
@@ -65,13 +65,12 @@ class Library extends Component {
     )).then((res) => {
       const i = res.resources;
       const items = this.state.media;
-      const { api } = store.getState();
       const firstTime = !items.length;
 
 
       for (let key in i) {
         const index = parseInt(offset+parseInt(key, 10), 10);
-        const o = deserialize(i[key], api);
+        const o = deserialize(i[key], store);
         items[index] = o;
         if(this.promises[index]) {
           this.promises[index](o);

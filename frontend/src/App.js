@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+
 import {Navbar, Icon} from 'react-materialize';
 import Library from './components/routes/Library';
 import Settings from './components/routes/Settings';
@@ -7,9 +8,7 @@ import Video from './components/routes/Video'
 import {Route, NavLink} from 'react-router-dom';
 import { apiActions} from 'redux-jsonapi';
 import store from './stores/settingsStore';
-//import('./css/index.scss');
-
-
+import Detail from "./components/routes/Detail";
 
 
 class App extends Component {
@@ -62,6 +61,7 @@ class App extends Component {
         <Route path="/" component={Home} exact={true}/>
         <Route path="/Library" component={Library}/>
         <Route path="/Settings" component={Settings}/>
+        <Route path="/item/detail/:id" component={Detail}/>
         <Route path="/Video" component={Video}/>
       </div>
     );

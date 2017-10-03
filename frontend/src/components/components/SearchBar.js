@@ -13,7 +13,7 @@ class SearchBar extends Component
   componentWillMount() {
     this.lastScrollUpPos = 0;
     this.setState({hidden:false, filters:{title:""}, settings:{libraries:[]}});
-    this.onChange = this.onChange.bind(this)
+    this.onChange = this.onChange.bind(this);
     store.subscribe(this.onSettingsChange.bind(this));
   }
 
@@ -28,7 +28,7 @@ class SearchBar extends Component
     }
     this.setState(
       {
-        "settings":deserialize(api.setting[1], api)
+        "settings":deserialize(api.setting[1], store)
       }
     );
   }
@@ -42,7 +42,6 @@ class SearchBar extends Component
         onScroll(e);
         this.didScroll();
       }
-      //this.scroller.scroll(this.didScroll.bind(this));
     }
   }
 

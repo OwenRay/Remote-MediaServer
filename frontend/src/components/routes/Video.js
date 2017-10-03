@@ -3,8 +3,8 @@
  */
 import React, {Component} from 'react';
 import {Button, Preloader} from "react-materialize";
-import NavBar from "../components/NavBar.js"
-import SeekBar from "../components/SeekBar";
+import NavBar from "../components/player/NavBar.js"
+import SeekBar from "../components/player/SeekBar";
 
 class Video extends Component {
 
