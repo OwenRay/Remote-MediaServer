@@ -21,7 +21,7 @@ class Settings extends Component {
    * triggered when the settings model changes
    */
   change() {
-    const {api} = store.getState().api;
+    const {api} = store.getState();
     if(!api.setting)
     {
       return;

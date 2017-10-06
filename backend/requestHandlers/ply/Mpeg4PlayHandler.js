@@ -102,10 +102,8 @@ class Mpeg4PlayHandler extends RequestHandler{
             args);
         this.proc = proc;
 
-        proc.stdout.on('data', this.onData.bind(this));
         proc.stderr.on('data', this.onError.bind(this));
         proc.on('close', this.onClose.bind(this));
-        this.context.res.on("drain", this.onDrain.bind(this));
 
         this.context.req.connection.on('close',function(){
             Log.debug("close video play connection!");
@@ -113,25 +111,6 @@ class Mpeg4PlayHandler extends RequestHandler{
         });
         this.context.body = proc.stdout;
         this.resolve();
-    }
-
-
-    onData(data) {
-        this.bufferedChuncks++;
-        if(this.bufferedChuncks>20)
-        {
-            this.proc.stdout.pause();
-        }
-
-        /*this.response.write(data, function () {
-            this.bufferedChuncks--;
-            this.proc.stdout.resume();
-        }.bind(this));*/
-    }
-
-    onDrain() {
-        this.bufferedChuncks = 0;
-        this.proc.stdout.resume();
     }
 
     onError(data)

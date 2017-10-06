@@ -52,17 +52,12 @@ class App extends Component {
               Settings
             </NavLink>
           </li>
-          <li>
-            <NavLink to='/Video'>
-              Video
-            </NavLink>
-          </li>
         </Navbar>
         <Route path="/" component={Home} exact={true}/>
         <Route path="/Library" component={Library}/>
         <Route path="/Settings" component={Settings}/>
         <Route path="/item/detail/:id" component={Detail}/>
-        <Route path="/Video" component={Video}/>
+        <Route path="/item/view/:id" component={Video}/>
       </div>
     );
   }

@@ -13,25 +13,6 @@ import MediaItemRow from "../components/mediaItem/MediaItemRow";
 import {NavLink} from 'react-router-dom';
 import MediaInfo from '../components/mediaItem/MediaInfo';
 
-
-
-export const fetchRelationships = (resource, payload = {}) => {
-  return Promise.all(
-    Object.keys(resource).map((key) => {
-      if (typeof resource[key] === 'function') {
-        const relationship = resource[key]();
-        if (relationship && !relationship._meta.loaded) {
-          return store.dispatch(apiActions.read(relationship, payload));
-        }
-      }
-    })
-  ).then(() => {
-    console.log(store, resource._type);
-    return resource;
-    //return deserialize(store.getState().api[resource._type][resource.id], store.getState().api);
-  });
-};
-
 class Detail extends Component {
   constructor() {
     super();

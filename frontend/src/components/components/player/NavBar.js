@@ -14,7 +14,7 @@ class NavBar extends Component {
   render() {
     return (
       <div className={"controls ".concat(this.props.navClass)}>
-        <image src="TEST SOURCE"/>
+        <img src={this.props.item?"/img/"+this.props.item.id+"_poster.jpg":""}/>
         <Button id="prev" floating icon="skip_previous"/>
         {this.playPauseButton()}
         <Button id="next" floating icon="skip_next"/>

@@ -5,14 +5,15 @@ import React, {Component} from 'react';
 import {Button, Preloader} from "react-materialize";
 import NavBar from "../components/player/NavBar.js"
 import SeekBar from "../components/player/SeekBar";
+import store from "../../stores/apiStore";
+import { apiActions, deserialize} from 'redux-jsonapi';
 
 class Video extends Component {
-
   vidRef = null;
   pageRef = null;
 
   componentWillMount(){
-    this.setState({paused: false, load: false, navClass: "visible"})
+    this.setState({paused: false, playOffset:0, load: false, navClass: "visible"})
   }
 
   componentDidMount(){
@@ -22,6 +23,17 @@ class Video extends Component {
     this.vidRef.onloadstart = this.onLoading.bind(this);
     this.vidRef.ontimeupdate = this.onProgress.bind(this);
     this.setState({volume: this.vidRef.volume, navTimeout:setTimeout(this.hide.bind(this), 2000)});
+    this.componentWillReceiveProps(this.props);
+  }
+
+  async componentWillReceiveProps (nextProps) {
+    if (this.id === nextProps.match.params.id) {
+      return;
+    }
+    this.id = nextProps.match.params.id;
+    const request = await store.dispatch(apiActions.read({_type:"media-items",id:this.id}));
+    const i = deserialize(request.resources[0], store);
+    this.setState({item:i, duration:i.fileduration});
   }
 
   onMouseMove(e){
@@ -36,7 +48,10 @@ class Video extends Component {
   }
 
   onProgress(){
-    this.setState({progress: this.vidRef.currentTime});
+    console.log("progress");
+    if(!this.state.loading) {
+      this.setState({progress: this.vidRef.currentTime});
+    }
   }
 
   onLoading(){
@@ -44,8 +59,9 @@ class Video extends Component {
   }
 
   onCanPlay(){
+    console.log("canplay");
     this.setState({loading: false});
-    this.setState({duration: this.vidRef.duration})
+    //this.setState({duration: this.vidRef.duration})
   }
 
   togglePause() {
@@ -73,8 +89,7 @@ class Video extends Component {
   }
 
   onSeek(value) {
-    this.setState({progress: value});
-    this.vidRef.currentTime = value;
+    this.setState({playOffset:value, progress: 0, loading:true});
   }
 
   toggleFullScreen() {
@@ -112,13 +127,19 @@ class Video extends Component {
       return <Button floating large className="play" icon='play_arrow' onClick={this.togglePause.bind(this)} flat/>
     }
   }
+
+  getVideoUrl() {
+    if(!this.state.item) return "";
+    return "/ply/"+this.state.item.id+"/"+this.state.playOffset;
+  }
+
   render() {
     return (
     <div className="video" ref={(input) => {this.pageRef = input;}} onMouseMove={this.onMouseMove.bind(this)}>
-      <video ref={(input) => {this.vidRef = input;}} src="http://download.blender.org/peach/trailer/trailer_1080p.ogg" preload="none" autoPlay/>
+      <video ref={(input) => {this.vidRef = input;}} src={this.getVideoUrl()} preload="none" autoPlay />
       {this.loadingOrPaused()}
-      <NavBar paused={this.state.paused} togglePause={this.togglePause.bind(this)} toggleFullScreen={this.toggleFullScreen.bind(this)} navClass={this.state.navClass}>
-        <SeekBar id="progress" onSeek={this.onSeek.bind(this)} progress={this.state.progress} max={this.state.duration}/>
+      <NavBar item={this.state.item} paused={this.state.paused} togglePause={this.togglePause.bind(this)} toggleFullScreen={this.toggleFullScreen.bind(this)} navClass={this.state.navClass}>
+        <SeekBar id="progress" onSeek={this.onSeek.bind(this)} progress={this.state.playOffset+this.state.progress} max={this.state.duration}/>
         <span className="muteIcon" onClick={this.toggleMute.bind(this)} id="mute" icon="volume_mute"/>
         <SeekBar id="volume" onSeek={this.volumeChange.bind(this)} progress={this.state.volume} max={1}/>
       </NavBar>

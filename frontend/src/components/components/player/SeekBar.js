@@ -8,10 +8,6 @@ class SeekBar extends Component {
     this.setState({barWidth: 0, progress: -1})
   }
 
-  componentDidMount(){
-    this.setState({barWidth: this.tracker.offsetWidth});
-  }
-
   onClick(e){
     e.preventDefault();
     e.stopPropagation();
@@ -43,9 +39,9 @@ class SeekBar extends Component {
         <div className="seektracker" ref={(input) => {this.tracker = input}}>
           <div className="seekprogress" ref={(input) => {this.progress = input}}
                style={{width:
-                 this.state.progress === -1 ?
-                   this.state.barWidth*(this.props.progress/this.props.max) + "px" :
-                   this.state.barWidth*(this.state.progress/this.props.max)
+                 (this.state.progress === -1 ?
+                   this.props.progress/this.props.max  :
+                   this.state.progress/this.props.max)*100+"%"
                }}>
             <div/>
           </div>
