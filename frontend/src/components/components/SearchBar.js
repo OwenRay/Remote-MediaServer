@@ -44,6 +44,8 @@ class SearchBar extends Component
         this.didScroll();
       }
     }
+    console.log(props.filters);
+    this.setState({filters:props.filters});
   }
 
   didScroll()
@@ -88,7 +90,7 @@ class SearchBar extends Component
             </Button>
             */}
             <Row>
-              <Input s={3} name="libraryId" type='select' label="Library:" value={this.state.filters.library} onChange={this.onChange}>
+              <Input s={3} name="libraryId" type='select' label="Library:" value={this.state.filters.libraryId} onChange={this.onChange}>
                 <option value=''>All libraries</option>
                 {this.state.settings.libraries.map(lib => <option key={lib.uuid} value={lib.uuid}>{lib.name}</option>)}
               </Input>
@@ -96,7 +98,7 @@ class SearchBar extends Component
                 <Input s={12} name="title" type="text" label="" value={this.state.filters.title}  onChange={this.onChange}/>
                 <Button className="mdi-action-search"><Icon>search</Icon></Button>
               </div>
-              <Input s={3} name="sort" type='select' label="Sort by:" value={this.state.filters.sortBy} onChange={this.onChange}>
+              <Input s={3} name="sort" type='select' label="Sort by:" value={this.state.filters.sort} onChange={this.onChange}>
                 <option value='title'>Title</option>
                 <option value='date_added:DESC'>Date added</option>
                 <option value='release-date:DESC'>Date released</option>

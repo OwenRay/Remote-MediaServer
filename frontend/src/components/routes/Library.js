@@ -7,25 +7,37 @@ import {apiActions, deserialize} from 'redux-jsonapi';
 import MediaItem from "../components/mediaItem/MediaItemTile";
 import { Collection, AutoSizer} from 'react-virtualized';
 import SearchBar from "../components/SearchBar";
+import { Red} from 'react-router-dom';
 
 class Library extends Component {
   constructor() {
     super();
-    this.filters = {};
     /** @type Collection */
-    this.state = {media:[], hasMore:false, page:0, rowCount:0};
+    this.state = {filters:{}, media:[], hasMore:false, page:0, rowCount:0};
     this.promises = [];
     this.pageSize = 25;
     this.colls = 5;
   }
 
-  componentWillMount() {
-    this.refresh();
+  componentDidMount() {
+    if(!this.state.init) {
+      this.componentWillReceiveProps(this.props);
+    }
   }
 
-  refresh() {
-
-    this.setState({media:[], hasmore:true, page:0});
+  componentWillReceiveProps (nextProps) {
+    let filters = {};
+    nextProps.location.search
+      .substr(1)
+      .split("&")
+      .forEach(o=>{
+        const parts = o.split("=");
+        if(parts[0]&&parts[1]) {
+          filters[parts[0]] = parts[1];
+        }
+      });
+    this.setState({filters:filters, init:true, media:[], hasmore:true, page:0});
+    this.filters = filters;
     this.promises = [];
     if(this.collection) {
       this.collection.recomputeCellSizesAndPositions();
@@ -41,7 +53,8 @@ class Library extends Component {
 
     const queryParams = {page: {offset:offset, limit: limit}};
     const filters = this.filters;
-    for (let key in this.filters) {
+    console.log("load with", filters);
+    for (let key in filters) {
       if(filters[key]) {
         queryParams[key] = filters[key];
       }
@@ -162,8 +175,12 @@ class Library extends Component {
   }
 
   onChange(o) {
-    this.filters = o;
-    this.refresh();
+    this.setState({filters:o});
+    let url = "";
+    for (let key in this.state.filters) {
+      url += key + "=" + this.state.filters[key] + "&";
+    }
+    this.props.history.push("?" + url);
   }
 
   render() {
@@ -187,7 +204,7 @@ class Library extends Component {
     return (
       <div>
         <div className="impagewrapper">
-          <SearchBar scroller={this.collection} onChange={this.onChange.bind(this)}/>
+          <SearchBar filters={this.state.filters} scroller={this.collection} onChange={this.onChange.bind(this)}/>
           {collection}
         </div>
       </div>

@@ -24,16 +24,21 @@ class MediaItemTile extends Component {
         .then(this.gotData.bind(this));
       return;
     }
-    this.setState(nextProps.mediaItem);
+    this.waitingForPromise = true;
+    this.gotData(nextProps.mediaItem);
   }
 
   componentWillUnmount() {
     this.waitingForPromise = false;
   }
 
-  gotData(data) {
+  async gotData(data) {
     if(this.waitingForPromise) {
       this.waitingForPromise = false;
+      console.log(data.playPosition);
+      if(data.playPosition) {
+        data.playPos = (await data.playPosition()).position;
+      }
       this.setState(data);
     }
   }
@@ -42,7 +47,7 @@ class MediaItemTile extends Component {
     if (this.state.playPosition) {
       return (
         <div className="percent-played">
-          <div style={{width: this.state.playPosition().position / this.state.fileduration * 100 + "%"}}/>
+          <div style={{width: this.state.playPos / this.state.fileduration * 100 + "%"}}/>
         </div>
       );
     }

@@ -20,6 +20,7 @@ class MediaItemRow extends MediaItemTile {
     return (
       <NavLink to={"/item/detail/" + this.state.id} className="collection-item">
         {this.state.episode} - {this.state.episodeTitle}
+        {this.playPos()}
       </NavLink>
     );
   }

@@ -163,6 +163,7 @@ html, body{
     background: transparent;
   }
   overflow: hidden;
+  position: relative;
 }
 
 .grid-item {
@@ -225,19 +226,6 @@ html, body{
     .year {
       font-weight: 200;
     }
-    .percent-played {
-      position: absolute;
-      top: -5px;
-      height: 5px;
-      left:0px;
-      right:0px;
-      background:black;
-      padding:1px;
-      > div{
-        background:$secondary-color-light;
-        height:3px;
-      }
-    }
   }
 
   .poster {
@@ -267,6 +255,27 @@ html, body{
       transform:scale(1,1) rotateX(0deg);
     }
   }
+}
+
+
+.percent-played {
+  position: absolute;
+  top: -5px;
+  height: 5px;
+  left:0px;
+  right:0px;
+  background:black;
+  padding:1px;
+  > div{
+    background:$secondary-color-light;
+    height:3px;
+  }
+}
+
+.collection-item .percent-played {
+  top:auto;
+  bottom:0px;
+  height:1px;
 }
 
 .semi-transparent
