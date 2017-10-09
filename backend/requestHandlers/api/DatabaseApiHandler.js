@@ -13,7 +13,6 @@ class DatabaseApiHandler extends RequestHandler
         const urlParts = this.path.split("/");
         const type = urlParts[2];
         const singularType = pluralize.singular(type);
-        console.log("received req", urlParts, this.request.method)
 
         switch(this.request.method)
         {
