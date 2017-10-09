@@ -13,6 +13,7 @@ class DatabaseApiHandler extends RequestHandler
         const urlParts = this.path.split("/");
         const type = urlParts[2];
         const singularType = pluralize.singular(type);
+        console.log("received req", urlParts, this.request.method)
 
         switch(this.request.method)
         {
@@ -175,6 +176,7 @@ class DatabaseApiHandler extends RequestHandler
         if(offset||limit)
         {
             metadata.totalPages = Math.ceil(data.length/limit);
+            metadata.totalItems = data.length;
             data = data.splice(offset, limit);
         }
 
@@ -216,6 +218,7 @@ class DatabaseApiHandler extends RequestHandler
 
 httpServer.registerRoute("all", "/api/media-items", DatabaseApiHandler);
 httpServer.registerRoute("all", "/api/media-items/:id", DatabaseApiHandler);
+httpServer.registerRoute("all", "/api/media-item/:id", DatabaseApiHandler);
 httpServer.registerRoute("all", "/api/play-positions", DatabaseApiHandler);
 httpServer.registerRoute("all", "/api/play-positions/:id", DatabaseApiHandler);
 

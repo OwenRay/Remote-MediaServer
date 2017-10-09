@@ -33,7 +33,7 @@ class HttpServer {
         this.firstStarted = true;
         this.server = new Koa();
 
-        this.server.use(cors( {origin: '*'}));
+        this.server.use(cors( {origin: '*', methods:["GET","HEAD","PUT","POST","DELETE","PATCH"]}));
         glob.sync(__dirname+"/requestHandlers/**/*.js").forEach(function(file){
             require(path.resolve(file));
         });
@@ -49,7 +49,7 @@ class HttpServer {
             }
             return next();
         });
-        this.server.use(new Static(__dirname+"/../frontend/dist"));
+        this.server.use(new Static(__dirname+"/../frontend/build"));
 
         //Lets start our server
         this.serverInstance = this.server.listen(Settings.getValue("port"), this.onConnected);
