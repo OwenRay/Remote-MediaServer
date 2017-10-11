@@ -19,6 +19,7 @@ class NavBar extends Component {
         {this.playPauseButton()}
         <Button id="next" floating icon="skip_next"/>
         <div className="buttonsRight">
+          {this.props.subs}
           {/**
            Add channel selection logic
            */}
