@@ -1,6 +1,5 @@
 import { camelize } from 'humps';
 import pluralize from 'pluralize';
-import store from './apiStore';
 import { apiActions } from 'redux-jsonapi';
 
 function deserializeRelationships(resources = [], store) {

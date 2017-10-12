@@ -7,7 +7,6 @@ import {apiActions, deserialize} from 'redux-jsonapi';
 import MediaItem from "../components/mediaItem/MediaItemTile";
 import { Collection, AutoSizer} from 'react-virtualized';
 import SearchBar from "../components/SearchBar";
-import { Red} from 'react-router-dom';
 
 class Library extends Component {
   constructor() {

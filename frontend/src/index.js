@@ -2,9 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 // these two lines overwrite the serialization of redux-jsonapi
-// noinspection ES6UnusedImports
+// eslint-disable-next-line
 import serializer from "./stores/serialize";
-// noinspection ES6UnusedImports
+// eslint-disable-next-line
 import deserializer from "./stores/deserialize";
 
 import {BrowserRouter} from 'react-router-dom';
