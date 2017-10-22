@@ -6,7 +6,8 @@ const RequestHandler = require("../RequestHandler");
 const fs = require("fs");
 const db = require("../../Database");
 const path = require('path');
-const sub = require('srt-to-ass');
+const ass2vtt = require('ass-to-vtt');
+const srt2vtt = require('srt-to-vtt');
 const os = require('os');
 const FileRequestHandler = require("../FileRequestHandler");
 const FFProbe = require("../../helpers/FFProbe");
@@ -46,7 +47,7 @@ class SubtitleApiHandler extends RequestHandler
 
     serveSubtitle(videoFilePath, directory, file, deleteAfterServe) {
         const extension = path.extname(file);
-            let tmpFile;
+        let tmpFile;
         if(file[0]===":") {
             var filename = file.substr(1);
             if(filename.endsWith("subrip")) {
@@ -80,23 +81,38 @@ class SubtitleApiHandler extends RequestHandler
 
             return;
         }
-
+        console.log(file);
         if(extension===".srt"||extension===".subrip") {
-            let filename = file+"."+Math.random()+".ass";
+            let filename = file+"."+Math.random()+".vtt";
             tmpFile = os.tmpdir()+"/"+filename;
-            sub.convert(
-                directory+"/"+file,
-                tmpFile,
-                {},
+            let writeFile = fs.createWriteStream(tmpFile);
+            writeFile.on('close',
                 function(){
                     if(deleteAfterServe) {
                         fs.unlink(directory+":"+file, ()=>{});
                     }
-                    this.serveSubtitle(videoFilePath, os.tmpdir(), filename, true);
-                }.bind(this)
-            );
+                    this.serveSubtitle(videoFilePath, os.tmpdir(), filename, true)
+                }.bind(this));
+            fs.createReadStream(directory + "/" + file)
+                .pipe(srt2vtt())
+                .pipe(writeFile);
             return;
-        }else{
+        } else if (extension===".ass") {
+            let filename = file+"."+Math.random()+".vtt";
+            tmpFile = os.tmpdir()+"/"+filename;
+            let writeFile = fs.createWriteStream(tmpFile);
+            writeFile.on('close',
+                function(){
+                    if(deleteAfterServe) {
+                        fs.unlink(directory+":"+file, ()=>{});
+                    }
+                    this.serveSubtitle(videoFilePath, os.tmpdir(), filename, true)
+                }.bind(this));
+            fs.createReadStream(directory + "/" + file)
+                .pipe(ass2vtt())
+                .pipe(writeFile);
+            return;
+        } else{
             file = directory+"/"+file;
         }
 
