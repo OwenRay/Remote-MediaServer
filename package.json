@@ -10,6 +10,7 @@
     "test": "nodeunit tests/"
   },
   "dependencies": {
+    "ass-to-vtt": "^1.1.1",
     "guessit-wrapper": "^1.0.0",
     "koa": "^2.3.0",
     "koa-cors": "0.0.16",
@@ -24,6 +25,7 @@
     "pluralize": "^1.2.1",
     "server-destroy": "^1.0.1",
     "srt-to-ass": "^0.1.8",
+    "srt-to-vtt": "^1.1.1",
     "unzip2": "^0.2.5"
   }
 }
