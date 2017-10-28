@@ -146,7 +146,7 @@ class Video extends Component {
     let subs = <Subtitles subtitles={this.state.subtitles} videoTag={this.vidRef} progress={this.state.playOffset+this.state.progress} id={this.id}/>;
     return (
     <div className="video" ref={(input) => {this.pageRef = input;}} onMouseMove={this.onMouseMove.bind(this)}>
-      <video ref={(input) => {this.vidRef = input;}} src={this.getVideoUrl()} preload="none" autoPlay id="testID"/>
+      <video ref={(input) => {this.vidRef = input;}} src={this.getVideoUrl()} preload="none" autoPlay id="videoPlayer"/>
       {this.loadingOrPaused()}
       <NavBar item={this.state.item} paused={this.state.paused} togglePause={this.togglePause.bind(this)} toggleFullScreen={this.toggleFullScreen.bind(this)} navClass={this.state.navClass} subs={subs}>
         <SeekBar id="progress" onSeek={this.onSeek.bind(this)} progress={this.state.playOffset+this.state.progress} max={this.state.duration}/>
