@@ -48,7 +48,6 @@ class Video extends Component {
   }
 
   onProgress(){
-    console.log("progress");
     if(!this.state.loading) {
       this.setState({progress: this.vidRef.currentTime});
     }
@@ -59,7 +58,6 @@ class Video extends Component {
   }
 
   onCanPlay(){
-    console.log("canplay");
     this.setState({loading: false});
     //this.setState({duration: this.vidRef.duration})
   }

@@ -7,24 +7,27 @@ import {apiActions, deserialize} from 'redux-jsonapi';
 import MediaItem from "../components/mediaItem/MediaItemTile";
 import { Collection, AutoSizer} from 'react-virtualized';
 import SearchBar from "../components/SearchBar";
+import {debounce} from 'throttle-debounce';
 
 class Library extends Component {
   constructor() {
     super();
+    this.doRequestData = debounce(300, this.doRequestData.bind(this));
     /** @type Collection */
     this.state = {filters:{}, media:[], hasMore:false, page:0, rowCount:0};
     this.promises = [];
     this.pageSize = 25;
-    this.colls = 5;
+    this.colls = Math.floor(window.innerWidth/165);
   }
 
   componentDidMount() {
-    if(!this.state.init) {
       this.componentWillReceiveProps(this.props);
-    }
   }
 
   componentWillReceiveProps (nextProps) {
+    if(this.state.init) {
+      return;
+    }
     let filters = {};
     nextProps.location.search
       .substr(1)
@@ -42,17 +45,20 @@ class Library extends Component {
       this.collection.recomputeCellSizesAndPositions();
       this.collection.forceUpdate();
     }
-    this.loadMore(0,this.pageSize);
+    this.loadMore(0, this.pageSize);
   }
 
   loadMore(offset, limit) {
     this.lastLoadRequest = new Date().getTime();
     this.minLoad = -1;
     this.maxLoad = 0;
+    //mark items as loading
+    for(let c = offset; c<offset+limit&&c<this.state.media.length; c++) {
+      this.state.media[c].loading = true;
+    }
 
     const queryParams = {page: {offset:offset, limit: limit}};
     const filters = this.filters;
-    console.log("load with", filters);
     for (let key in filters) {
       if(filters[key]) {
         queryParams[key] = filters[key];
@@ -83,9 +89,12 @@ class Library extends Component {
       for (let key in i) {
         const index = parseInt(offset+parseInt(key, 10), 10);
         const o = deserialize(i[key], store);
+        if(o._type!=="media-item") {
+          continue;
+        }
         items[index] = o;
         if(this.promises[index]) {
-          this.promises[index](o);
+          this.promises[index].resolve(o);
           delete this.promises[index];
         }
       }
@@ -104,8 +113,12 @@ class Library extends Component {
   }
 
   requestData(index) {
+    if(this.promises[index]) {
+      return this.promises[index];
+    }
     let r;
     const promise = new Promise(resolve => r=resolve);
+    promise.resolve = r;
     if(!this.state.media[index].index) {
       r(this.state.media[index]);
       return promise;
@@ -119,27 +132,34 @@ class Library extends Component {
     if(this.requestDataTimeout) {
       clearTimeout(this.requestDataTimeout);
     }
-    if(new Date().getTime()-this.lastLoadRequest>600) {
-      this.doRequestData();
-    }else {
-      this.requestDataTimeout = setTimeout(this.doRequestData.bind(this), 1000);
-    }
+    this.doRequestData();
 
-    this.promises[index] = r;
+    this.promises[index] = promise;
     return promise;
   }
 
   doRequestData() {
     this.minLoad-=this.pageSize;
     this.maxLoad+=this.pageSize;
-    /* Not sure why I did this:
-    while(!this.state.media[this.minLoad]||!this.state.media[this.minLoad].index) {
-      console.log(this.minLoad);
+    if(this.minLoad<0) {
+      this.minLoad = 0;
+    }
+
+    while(!this.state.media[this.minLoad]||
+          !this.state.media[this.minLoad].index||
+          this.state.media[this.minLoad].loading) {
+      if(this.minLoad>this.maxLoad) {
+        return;
+      }
       this.minLoad++;
     }
-    while(!this.state.media[this.maxLoad]||!this.state.media[this.maxLoad].index) {
+    while(!this.state.media[this.maxLoad]
+          ||!this.state.media[this.maxLoad].index) {
+      if(this.maxLoad<this.minLoad) {
+        return;
+      }
       this.maxLoad--;
-    }*/
+    }
     const count = this.maxLoad-this.minLoad;
     this.loadMore(this.minLoad, count<this.pageSize?this.pageSize:count);
   }
@@ -150,8 +170,9 @@ class Library extends Component {
     }
     this.resizeTimeout = setTimeout(()=>{
       this.colls = Math.floor(width/165);
-      if(this.collection)
+      if(this.collection) {
         this.collection.recomputeCellSizesAndPositions();
+      }
       this.forceUpdate();
     }, 300);
   }
@@ -162,15 +183,17 @@ class Library extends Component {
       width: 150,
       x: index%this.colls*165,
       y: Math.floor(index/this.colls)*251+65
-    }
+    };
   }
 
   cellRenderer({ index, key, style }) {
-    return <MediaItem
-      key={key}
-      style={style}
-      mediaItem={this.state.media[index]}
-      requestData={this.requestData.bind(this)} />
+    return (
+      <MediaItem
+        key={key}
+        style={style}
+        mediaItem={this.state.media[index]}
+        requestData={this.requestData.bind(this)} />
+    );
   }
 
   onChange(o) {

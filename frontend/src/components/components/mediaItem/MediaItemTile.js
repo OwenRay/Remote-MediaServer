@@ -17,8 +17,9 @@ class MediaItemTile extends Component {
       return;
     }
     if(nextProps.mediaItem.index) {
-      if(this.waitingForPromise)
+      if(this.waitingForPromise) {
         return;
+      }
       this.waitingForPromise = true;
       nextProps.requestData(nextProps.mediaItem.index)
         .then(this.gotData.bind(this));
@@ -35,7 +36,6 @@ class MediaItemTile extends Component {
   async gotData(data) {
     if(this.waitingForPromise) {
       this.waitingForPromise = false;
-      console.log(data.playPosition);
       if(data.playPosition) {
         data.playPos = (await data.playPosition()).position;
       }

@@ -44,7 +44,6 @@ class SearchBar extends Component
         this.didScroll();
       }
     }
-    console.log(props.filters);
     this.setState({filters:props.filters});
   }
 

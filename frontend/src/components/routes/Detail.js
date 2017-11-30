@@ -38,7 +38,6 @@ class Detail extends Component {
         }
       )
     );
-    console.log(item.resources[0]);
     let i = deserialize(item.resources[0], store);
     this.itemModel = i;
     const readAction = apiActions.read(
@@ -177,7 +176,7 @@ class Detail extends Component {
             <Modal
               header={this.state.item.title}
               fixedFooter
-              trigger={<Button onClick={this.toggleDetails} data-tip="Info" icon="info_outline"></Button>}>
+              trigger={<Button onClick={this.toggleDetails} data-tip="Info" icon="info_outline"/>}>
               <MediaInfo item={this.state.item}/>
             </Modal>
 

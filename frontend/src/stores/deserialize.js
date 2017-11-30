@@ -14,7 +14,7 @@ async function deserializeRelationship(resource = {}, store) {
   if (api[camelize(type)] && api[camelize(type)][resource.id]) {
     return deserialize({ ...api[camelize(type)][resource.id], meta: { loaded: true } }, api);
   }
-  console.log(api);
+
   const req = (await store.dispatch(
       apiActions.read(
         {
