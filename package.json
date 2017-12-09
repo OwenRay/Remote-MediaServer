@@ -25,5 +25,8 @@
     "server-destroy": "^1.0.1",
     "srt-to-ass": "^0.1.8",
     "unzip2": "^0.2.5"
+  },
+  "devDependencies": {
+    "nodeunit": "^0.11.2"
   }
 }
