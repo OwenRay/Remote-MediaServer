@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://whileip.com:8181",
+  "proxy": "http://localhost:88080",
   "dependencies": {
     "bluebird": "^3.5.0",
     "custom-react-scripts": "^0.2.0",

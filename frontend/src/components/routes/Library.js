@@ -25,9 +25,11 @@ class Library extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    if(this.state.init) {
+    if(this.lastLocation===nextProps.location) {
       return;
     }
+    console.log("did mount!!");
+    this.lastLocation = nextProps.location;
     let filters = {};
     nextProps.location.search
       .substr(1)
