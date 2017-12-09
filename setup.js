@@ -12,28 +12,12 @@ function npm(args)
     return spawnSync(cmd, args);
 }
 
-if(npm(["-g", "ls", "bower"]).status)
-{
-    console.log("installing bower");
-    npm(["install", "-g", "bower"]);
-}
-if(npm(["-g", "ls", "ember-cli"]).status)
-{
-    console.log("installing ember");
-    npm(["install", "-g", "ember-cli"]);
-}
-
-console.log("installing backend dependencies");
+process.chdir("frontend");
+console.log("installing frontend dependencies");
 var data = npm(["install"]);
 console.log(`${data.stdout}`, `${data.stderr}`);
 
-process.chdir("frontend");
-console.log("installing frontend dependencies (this can take some time)");
+process.chdir("../");
+console.log("installing backend dependencies");
 data = npm(["install"]);
-console.log(`${data.stdout}`, `${data.stderr}`);
-data = spawnSync("bower"+addToExec, ["install"]);
-console.log(`${data.stdout}`, `${data.stderr}`);
-
-console.log("Building frontend");
-data = spawnSync("ember"+addToExec, ["build", "--environment=production"]);
 console.log(`${data.stdout}`, `${data.stderr}`);
