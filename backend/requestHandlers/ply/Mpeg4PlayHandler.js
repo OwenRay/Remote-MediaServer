@@ -47,7 +47,7 @@ class Mpeg4PlayHandler extends RequestHandler {
 
         this.ffmpeg.getOutputStream().on('data', this.onData.bind(this));
 
-        this.context.body = PassThrough();
+        this.context.body = new PassThrough();
         this.context.body.on("close", ()=>{
             this.ffmpeg.kill();
            console.log("onclose");
