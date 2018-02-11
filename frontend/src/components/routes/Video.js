@@ -13,7 +13,7 @@ class Video extends Component {
   pageRef = null;
 
   componentWillMount(){
-    this.setState({paused: false, playOffset:0, load: false, navClass: "visible"})
+    this.setState({paused: false, playOffset:0, load: false, navClass: "visible"});
   }
 
   componentDidMount(){
@@ -22,6 +22,9 @@ class Video extends Component {
     this.vidRef.oncanplay = this.onCanPlay.bind(this);
     this.vidRef.onloadstart = this.onLoading.bind(this);
     this.vidRef.ontimeupdate = this.onProgress.bind(this);
+    this.vidRef.onerror = this.reInit.bind(this);
+    this.vidRef.onended = this.reInit.bind(this);
+
     this.setState({volume: this.vidRef.volume, navTimeout:setTimeout(this.hide.bind(this), 2000)});
     this.componentWillReceiveProps(this.props);
   }
@@ -34,6 +37,15 @@ class Video extends Component {
     const request = await store.dispatch(apiActions.read({_type:"media-items",id:this.id}));
     const i = deserialize(request.resources[0], store);
     this.setState({item:i, duration:i.fileduration});
+  }
+
+  reInit() {
+    if(this.state.playOffset+this.state.progress<this.state.duration*0.99) {
+      this.setState({playOffset:this.state.playOffset+this.state.progress, progress: 0, loading:true});
+      console.log("reset", this.state);
+      //this.set("startOffset", this.get("startOffset")+this.get("progress"));
+      //this.set("progress", 0);
+    }
   }
 
   onMouseMove(e){

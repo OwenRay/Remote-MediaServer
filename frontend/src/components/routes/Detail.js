@@ -12,6 +12,7 @@ import ReadableDuration from "../components/ReadableDuration";
 import MediaItemRow from "../components/mediaItem/MediaItemRow";
 import {NavLink} from 'react-router-dom';
 import MediaInfo from '../components/mediaItem/MediaInfo';
+import { Redirect } from 'react-router';
 
 class Detail extends Component {
   constructor() {
@@ -160,11 +161,19 @@ class Detail extends Component {
     }
   }
 
+  play() {
+    this.setState({playClicked:true});
+  }
+
   render() {
     const s = this.state;
     if(!s||!s.item) {
       return null;
     }
+    if(this.state.playClicked) {
+        return (<Redirect to={"/item/view/"+s.item.id}/>);
+    }
+
     return (
       <div>
           <BodyClassName className="hideNav"></BodyClassName>
@@ -190,9 +199,7 @@ class Detail extends Component {
 
                 <div className="poster" style={this.poster()}/>
 
-                <Button large floating id="play" icon="play_arrow">
-                  <NavLink to={"/item/view/"+s.item.id}/>
-                </Button>
+                <Button large floating id="play" icon="play_arrow" onClick={this.play.bind(this)}/>
 
               </div>
             </main>

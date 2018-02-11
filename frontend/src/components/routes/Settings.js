@@ -5,15 +5,15 @@
 import React, {Component} from 'react';
 import {Tabs, Tab, Card, Input, Row, Button, Icon, Collection, CollectionItem, Modal} from 'react-materialize';
 import store from "../../stores/settingsStore";
-import { apiActions, deserialize} from 'redux-jsonapi';
+import {apiActions, deserialize} from 'redux-jsonapi';
 import LibraryDialog from "../components/LibraryDialog";
 
 class Settings extends Component {
 
-  componentWillMount() {
+  componentDidMount() {
     store.subscribe(this.change.bind(this));
     this.onChange = this.onChange.bind(this);
-    this.state={"activeTab":0};
+    this.setState({"activeTab": 0});
     this.change();
   }
 
@@ -21,14 +21,14 @@ class Settings extends Component {
    * triggered when the settings model changes
    */
   change() {
+    console.log("change!!!!");
     const {api} = store.getState();
-    if(!api.setting)
-    {
+    if (!api.setting) {
       return;
     }
     this.setState(
       {
-        "settings":deserialize(api.setting[1], store)
+        settings: deserialize(api.setting[1], store)
       }
     );
   }
@@ -38,9 +38,9 @@ class Settings extends Component {
    * called when user types in field, applies typed value to state
    */
   onChange(e) {
-    const o = this.state;
-    o.settings[e.target.name] = e.target.value;
-    this.setState(o);
+    const {settings} = this.state;
+    settings[e.target.name] = e.target.value;
+    this.setState({settings});
   }
 
   /**
@@ -48,7 +48,7 @@ class Settings extends Component {
    * Called when creating a new library or when clicking an existing one
    */
   librarySelect(lib) {
-    this.setState({"create":lib});
+    this.setState({"create": lib});
   }
 
   /**
@@ -58,12 +58,11 @@ class Settings extends Component {
    * Remove library
    */
   removeLib(lib, confirm) {
-    if(confirm===undefined) {
+    if (confirm === undefined) {
       this.setState({removing: lib});
-    }else{
+    } else {
       $('#deleteModal').modal('close');
-      if(confirm) {
-        //store.dispatch(apiActions.remove(lib));
+      if (confirm) {
         this.state.settings.libraries.splice(this.state.settings.libraries.indexOf(lib), 1);
         this.onSubmit();
       }
@@ -75,9 +74,12 @@ class Settings extends Component {
    * Make sure the deletmodal opens when it's rendered
    */
   componentDidUpdate() {
-    $("#deleteModal").modal({'complete':()=>{
-        this.setState({removing:null});
-      }})
+    $("#deleteModal").modal({
+      'complete': () => {
+        console.log("hier?");
+        this.setState({removing: null});
+      }
+    })
       .modal('open');
   }
 
@@ -96,8 +98,19 @@ class Settings extends Component {
    */
   onLibrarySave(lib) {
     var o = this.state.settings;
-    this.state.settings.libraries.push(lib);
-    this.setState({"settings":o});
+    console.log(o, lib);
+    var existing = false;
+    for(var key in this.state.settings.libraries) {
+      if(lib.uuid===this.state.settings.libraries[key].uuid) {
+        this.state.settings.libraries[key] = lib;
+        existing = true;
+        break;
+      }
+    }
+    if(!existing) {
+      this.state.settings.libraries.push(lib);
+    }
+    this.setState({"settings": o});
     this.onSubmit();
   }
 
@@ -105,45 +118,65 @@ class Settings extends Component {
    * Gets called when the library dialog closes
    */
   onLibraryClose() {
-    this.setState({"create":null});
+    this.setState({"create": null});
   }
 
   onTabChange(tab) {
-    this.setState({activeTab: parseInt(tab, 10)%10});
+    console.log("ontabchange", tab);
+    this.setState({activeTab: parseInt(tab, 10) % 10});
   }
 
   render() {
-    if(!this.state||!this.state.settings) {
+    if (!this.state || !this.state.settings) {
       return (<p>Loading</p>);
     }
+    console.log("render settings", this.state);
 
-    var listItems = this.state.settings.libraries.map((lib)=>
-        <CollectionItem onClick={(e)=>{e.stopPropagation(); e.preventDefault(); this.librarySelect(lib)}} key={"key"+lib.uuid}>
-          {lib.name}
-          <Button icon="delete" onClick={(e)=>{e.stopPropagation(); this.removeLib(lib);}}/>
-        </CollectionItem>
-      );
+    var listItems = this.state.settings.libraries.map((lib) =>
+      <CollectionItem onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        this.librarySelect(lib)
+      }} key={"key" + lib.uuid}>
+        {lib.name}
+        <Button icon="delete" onClick={(e) => {
+          e.stopPropagation();
+          this.removeLib(lib);
+        }}/>
+      </CollectionItem>
+    );
 
-    if(this.state.removing) {
+    if (this.state.removing) {
       var deletingModal =
-          <Modal
-            id="deleteModal"
-            actions={[
-              <Button modal="close">close</Button>,
-              <Button onClick={()=>this.removeLib(this.state.removing, true)} modal="confirm">confirm</Button>,
-            ]}>
-            <h4>Deleting "{this.state.removing.name}"</h4>
-            Are you sure your want to delete "{this.state.removing.name}"?
-          </Modal>;
+        <Modal
+          id="deleteModal"
+          actions={[
+            <Button modal="close">close</Button>,
+            <Button onClick={() => this.removeLib(this.state.removing, true)} modal="confirm">confirm</Button>,
+          ]}>
+          <h4>Deleting "{this.state.removing.name}"</h4>
+          Are you sure your want to delete "{this.state.removing.name}"?
+        </Modal>;
     }
 
     return (
-      <Tabs
-        onChange={this.onTabChange.bind(this)}
-        className="tabs-fixed-width">
-        <Tab
-          active={this.state.activeTab===0}
-          title="Server settings">
+      <div>
+        <Tabs
+          key="settingstabs"
+          onChange={this.onTabChange.bind(this)}
+          className="tabs-fixed-width">
+          <Tab
+            key="1"
+            active={this.state.activeTab === 0}
+            title="Server settings">
+          </Tab>
+          <Tab
+            key="2"
+            active={this.state.activeTab === 1}
+            title="Media library">
+          </Tab>
+        </Tabs>
+        {this.state.activeTab === 0 ?
           <Card
             title="Server settings"
             actions={[<Button key="save" onClick={this.onSubmit.bind(this)}><Icon left>save</Icon>Save</Button>]}>
@@ -151,37 +184,33 @@ class Settings extends Component {
               <Input
                 name="name"
                 onChange={this.onChange.bind(this)}
-                value={this.state.settings.name}
+                defaultValue={this.state.settings.name}
                 label='Server name'
                 s={12}/>
               <Input
                 name="port"
                 onChange={this.onChange.bind(this)}
-                value={this.state.settings.port+""}
-                defaultValue=""
+                defaultValue={this.state.settings.port + ""}
                 label='Port'
                 s={12}/>
             </Row>
-          </Card>
-        </Tab>
-        <Tab
-          active={this.state.activeTab===1}
-          title="Media library">
+          </Card> : ""}
+        {this.state.activeTab === 1 ?
           <Card
             title="Media library"
-            actions={[<Button key="new" onClick={()=>this.librarySelect({})}><Icon left>add</Icon>Add new</Button>]}>
+            actions={[<Button key="new" onClick={() => this.librarySelect({})}><Icon left>add</Icon>Add new</Button>]}>
             <Collection>
               {listItems}
             </Collection>
-          </Card>
-          {deletingModal}
-          {this.state.create && <LibraryDialog
-                                  onSave={this.onLibrarySave.bind(this)}
-                                  onClose={this.onLibraryClose.bind(this)}
-                                  editing={this.state.create}
-                                  />}
-        </Tab>
-      </Tabs>
+          </Card> : ""}
+
+        {deletingModal}
+        {this.state.create && <LibraryDialog
+          onSave={this.onLibrarySave.bind(this)}
+          onClose={this.onLibraryClose.bind(this)}
+          editing={this.state.create}
+        />}
+      </div>
     );
   }
 }

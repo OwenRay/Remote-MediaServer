@@ -8,11 +8,12 @@ const httpServer = require("../../HttpServer");
 
 const Log = require("../../helpers/Log");
 const RequestHandler = require("../RequestHandler");
+const PassThrough = require('stream').PassThrough;
 
-class Mpeg4PlayHandler extends RequestHandler{
-    handleRequest(){
+class Mpeg4PlayHandler extends RequestHandler {
+    handleRequest() {
         const mediaItem = Database.getById("media-item", this.context.params.id);
-
+        this.context.set("Accept-Ranges", "none");
         this.ffmpeg = new FFMpeg(mediaItem, "-")
             .setPlayOffset(this.context.params.offset)
             .setOnReadyListener(this.onFFMpegReady.bind(this))
@@ -22,29 +23,49 @@ class Mpeg4PlayHandler extends RequestHandler{
                     "-movflags", "empty_moov"
                 ]
             );
-        if(this.context.query.audioChannel) {
+        if (this.context.query.audioChannel) {
             this.ffmpeg.setAudioChannel(this.context.query.audioChannel);
         }
-        if(this.context.query.videoChannel) {
+        if (this.context.query.videoChannel) {
             this.ffmpeg.setVideoChannel(this.context.query.videoChannel);
         }
         this.ffmpeg.run();
 
-        Log.debug("starting to play:"+this.file);
+        this.bufferedChuncks = 0;
+        Log.debug("starting to play:" + this.file);
 
-        return new Promise(resolve=>{
+        return new Promise(resolve => {
             this.resolve = resolve;
         });
     }
 
     onFFMpegReady() {
-        this.context.req.connection.on('close',()=>{
+        this.context.req.connection.on('close', () => {
             Log.debug("close video play connection!");
             this.ffmpeg.kill();
         });
 
-        this.context.body = this.ffmpeg.getOutputStream();
+        this.ffmpeg.getOutputStream().on('data', this.onData.bind(this));
+
+        this.context.body = PassThrough();
+        this.context.body.on("close", ()=>{
+            this.ffmpeg.kill();
+           console.log("onclose");
+        });
         this.resolve();
+    }
+
+    onData(data) {
+        this.bufferedChuncks++;
+        if (this.bufferedChuncks > 20) {
+            this.ffmpeg.getOutputStream().pause();
+        }
+        this.context.body.write(data, () => {
+            this.bufferedChuncks--;
+            if (this.ffmpeg.getOutputStream().isPaused() && this.bufferedChuncks <= 19) {
+                this.ffmpeg.getOutputStream().resume();
+            }
+        });
     }
 }
 

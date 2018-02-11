@@ -75,7 +75,7 @@ class FFMpeg
     }
 
     kill() {
-        this.proc.kill("SIGINT");
+        this.proc.kill("SIGKILL");
     }
 
     gotInfo(info) {
@@ -149,10 +149,12 @@ class FFMpeg
         {
             this.addOutputArguments(["-ac", 2, "-ab", "192k"]);
         }
-        if(this.offset!==undefined&&parseInt(this.offset)!==0) {
-            this.addInputArguments(["-ss", this.offset]);
-            this.addOutputArguments(["-ss", 0]);
+        if(!this.offset) {
+            this.offset = 0;
         }
+
+        this.addInputArguments(["-ss", this.offset]);
+        this.addOutputArguments(["-ss", 0]);
 
         while(this.outputArgs.length) {
             args.splice(19, 0, this.outputArgs.pop());
@@ -170,7 +172,7 @@ class FFMpeg
         proc.on('close', this.onClose.bind(this));
         proc.stderr.on("error", this.onClose.bind(this));
         proc.stdin.on("error", this.onClose.bind(this));
-        
+
         this.onReady();
         return this;
     }

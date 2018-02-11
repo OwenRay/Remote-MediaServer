@@ -6,6 +6,7 @@ import React, {Component} from 'react';
 import {Button, Icon} from 'react-materialize';
 import {NavLink} from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Redirect } from 'react-router';
 
 class MediaItemTile extends Component {
   componentDidMount() {
@@ -53,6 +54,10 @@ class MediaItemTile extends Component {
     }
   }
 
+  play() {
+    this.setState({playClicked:true});
+  }
+
   render() {
     if(!this.state) {
       return (
@@ -60,6 +65,10 @@ class MediaItemTile extends Component {
           <Icon>movie</Icon>
         </div>
       );
+    }
+
+    if(this.state.playClicked) {
+      return (<Redirect to={"/item/view/"+this.state.id}/>);
     }
 
     return (
@@ -75,8 +84,8 @@ class MediaItemTile extends Component {
             floating
             className="play"
             icon='play_arrow'
-            action='play'>
-            <NavLink to={"/item/view/" + this.state.id}/>
+            action='play'
+            onClick={this.play.bind(this)}>
           </Button>
           <span className="title">{this.state.title}</span>
           <span className="year">{this.state.year}</span>

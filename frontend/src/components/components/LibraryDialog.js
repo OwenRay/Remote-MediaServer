@@ -95,7 +95,7 @@ class LibraryDialog extends Component {
             <option value="movie">Movies</option>
             <option value="library_music">Music</option>
           </Input>
-          <Input value={this.state.name} onChange={this.onChange} name="name" s={12} label="Name"/>
+          <Input defaultValue={this.state.name} onChange={this.onChange} name="name" s={12} label="Name"/>
           <ServerFileBrowser value={this.state.folder} onChange={this.fileBrowserChange.bind(this)} label="Directory"/>
         </Row>
       </Modal>
