@@ -100,15 +100,15 @@ class Settings extends Component {
     var o = this.state.settings;
     console.log(o, lib);
     var existing = false;
-    for(var key in this.state.settings.libraries) {
-      if(lib.uuid===this.state.settings.libraries[key].uuid) {
-        this.state.settings.libraries[key] = lib;
+    for(var key in o.libraries) {
+      if(lib.uuid===o.libraries[key].uuid) {
+        o.libraries[key] = lib;
         existing = true;
         break;
       }
     }
     if(!existing) {
-      this.state.settings.libraries.push(lib);
+      o.libraries.push(lib);
     }
     this.setState({"settings": o});
     this.onSubmit();

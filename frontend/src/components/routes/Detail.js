@@ -10,7 +10,6 @@ import store from '../../stores/apiStore';
 import { apiActions, deserialize} from 'redux-jsonapi';
 import ReadableDuration from "../components/ReadableDuration";
 import MediaItemRow from "../components/mediaItem/MediaItemRow";
-import {NavLink} from 'react-router-dom';
 import MediaInfo from '../components/mediaItem/MediaInfo';
 import { Redirect } from 'react-router';
 

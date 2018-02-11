@@ -54,9 +54,11 @@ class Library extends Component {
     this.lastLoadRequest = new Date().getTime();
     this.minLoad = -1;
     this.maxLoad = 0;
+    const items = this.state.media;
+
     //mark items as loading
-    for(let c = offset; c<offset+limit&&c<this.state.media.length; c++) {
-      this.state.media[c].loading = true;
+    for(let c = offset; c<offset+limit&&c<items.length; c++) {
+      items[c].loading = true;
     }
 
     const queryParams = {page: {offset:offset, limit: limit}};
@@ -84,7 +86,6 @@ class Library extends Component {
       {"params": queryParams}
     )).then((res) => {
       const i = res.resources;
-      const items = this.state.media;
       const firstTime = !items.length;
 
 
