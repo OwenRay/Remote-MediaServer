@@ -144,13 +144,14 @@
       bottom:auto;
       position: relative;
       padding-top:0px;
-      margin-left: 4px;
+      margin-right: 4px;
       ul {
         left: auto;
         bottom: 33px;
       }
     }
     .collection-item{
+      cursor:pointer;
       min-width: 130px;
     }
   }

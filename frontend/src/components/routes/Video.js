@@ -1,6 +1,7 @@
 /**
  * Created by danielsauve on 7/07/2017.
  */
+/* global $ */
 import React, {Component} from 'react';
 import {Button, Preloader} from "react-materialize";
 import NavBar from "../components/player/NavBar.js"
@@ -27,6 +28,7 @@ class Video extends Component {
 
     this.setState({volume: this.vidRef.volume, navTimeout:setTimeout(this.hide.bind(this), 2000)});
     this.componentWillReceiveProps(this.props);
+
   }
 
   async componentWillReceiveProps (nextProps) {
@@ -37,14 +39,18 @@ class Video extends Component {
     const request = await store.dispatch(apiActions.read({_type:"media-items",id:this.id}));
     const i = deserialize(request.resources[0], store);
     this.setState({item:i, duration:i.fileduration});
+    $.getJSON("/api/mediacontent/"+this.id)
+      .then(this.mediaContentLoaded.bind(this));
+
+  }
+
+  async mediaContentLoaded(mediaContent) {
+    this.setState({mediaContent})
   }
 
   reInit() {
     if(this.state.playOffset+this.state.progress<this.state.duration*0.99) {
       this.setState({playOffset:this.state.playOffset+this.state.progress, progress: 0, loading:true});
-      console.log("reset", this.state);
-      //this.set("startOffset", this.get("startOffset")+this.get("progress"));
-      //this.set("progress", 0);
     }
   }
 
@@ -140,7 +146,20 @@ class Video extends Component {
 
   getVideoUrl() {
     if(!this.state.item) return "";
-    return "/ply/"+this.state.item.id+"/"+this.state.playOffset;
+    const params = [];
+    if(this.state.audio!==undefined) {
+      params.push("audioChannel=" + this.state.audio);
+    }
+    if(this.state.video!==undefined) {
+      params.push("videoChannel=" + this.state.video);
+    }
+    return "/ply/"+this.state.item.id+"/"+this.state.playOffset+"?"+params.join("&");
+  }
+
+  onSelectContent(what, channel) {
+    const o = {playOffset:this.state.playOffset+this.state.progress};
+    o[what] = channel;
+    this.setState(o);
   }
 
   render() {
@@ -148,7 +167,14 @@ class Video extends Component {
     <div className="video" ref={(input) => {this.pageRef = input;}} onMouseMove={this.onMouseMove.bind(this)}>
       <video className={this.state.navClass} ref={(input) => {this.vidRef = input;}} src={this.getVideoUrl()} preload="none" autoPlay />
       {this.loadingOrPaused()}
-      <NavBar item={this.state.item} paused={this.state.paused} togglePause={this.togglePause.bind(this)} toggleFullScreen={this.toggleFullScreen.bind(this)} navClass={this.state.navClass}>
+      <NavBar
+        onSelectContent={this.onSelectContent.bind(this)}
+        mediaContent={this.state.mediaContent}
+        item={this.state.item}
+        paused={this.state.paused}
+        togglePause={this.togglePause.bind(this)}
+        toggleFullScreen={this.toggleFullScreen.bind(this)}
+        navClass={this.state.navClass}>
         <SeekBar id="progress" onSeek={this.onSeek.bind(this)} progress={this.state.playOffset+this.state.progress} max={this.state.duration}/>
         <span className="muteIcon" onClick={this.toggleMute.bind(this)} id="mute" icon="volume_mute"/>
         <SeekBar id="volume" onSeek={this.volumeChange.bind(this)} progress={this.state.volume} max={1}/>

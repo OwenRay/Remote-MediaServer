@@ -7004,11 +7004,12 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
       bottom: auto;
       position: relative;
       padding-top: 0px;
-      margin-left: 4px; }
+      margin-right: 4px; }
       .controls .buttonsRight .fixed-action-btn ul {
         left: auto;
         bottom: 33px; }
     .controls .buttonsRight .collection-item {
+      cursor: pointer;
       min-width: 130px; }
 
 #volume .seektracker {
