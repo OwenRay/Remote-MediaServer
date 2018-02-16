@@ -1,7 +1,7 @@
 {
   "name": "remote-mediaserver",
   "description": "Manage and watch your movies and tv series.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "bin": {
     "remote": "./main.js"
   },
@@ -23,7 +23,7 @@
     "node-uuid": "^1.4.7",
     "pluralize": "^1.2.1",
     "server-destroy": "^1.0.1",
-    "srt-to-ass": "^0.1.8",
+    "srt-to-ass": "^0.1.9",
     "unzip2": "^0.2.5",
     "filewatcher": "^3.0.1"
   },
