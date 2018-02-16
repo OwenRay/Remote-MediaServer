@@ -97,7 +97,7 @@ class FFMpeg
             }
             if(stream.codec_type==="audio")
             {
-                if(!this.audioChannel===undefined) {
+                if(this.audioChannel===undefined) {
                     this.audioChannel = stream.index;
                 }
                 if(this.audioChannel+""===stream.index+""&&supportedAudioCodecs[stream.codec_name]) {
