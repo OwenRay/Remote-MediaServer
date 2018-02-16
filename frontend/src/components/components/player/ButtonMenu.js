@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Button} from "react-materialize";
 
-class SeekBar extends Component {
+class ButtonMenu extends Component {
 
   shouldComponentUpdate() {
     return false;
@@ -14,7 +14,7 @@ class SeekBar extends Component {
   render() {
     const items = this.props.items;
     const type = this.props.type;
-    if(!items||(items.length<=1&&type!=="subtitles")) {
+    if(!items||items.length<=1) {
       return (<div></div>);
     }
     return (
@@ -34,4 +34,4 @@ class SeekBar extends Component {
   }
 }
 
-export default SeekBar
+export default ButtonMenu;

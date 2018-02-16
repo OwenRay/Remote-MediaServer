@@ -37,8 +37,8 @@ class NavBar extends Component {
            */}
           <ButtonMenu onSelect={this.props.onSelectContent} type="audio" items={this.props.mediaContent["audio"]}/>
           <ButtonMenu onSelect={this.props.onSelectContent} type="video" items={this.props.mediaContent["video"]}/>
-          {/*this.renderMenu("subtitles")*/}
-           <Button id="fullscreen" floating icon="fullscreen" onClick={this.props.toggleFullScreen}/>
+          <ButtonMenu onSelect={this.props.onSelectContent} type="subtitles" items={this.props.mediaContent["subtitles"]}/>
+          <Button id="fullscreen" floating icon="fullscreen" onClick={this.props.toggleFullScreen}/>
         </div>
         {this.props.children}
       </div>

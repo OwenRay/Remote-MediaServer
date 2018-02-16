@@ -170,7 +170,7 @@ class Detail extends Component {
       return null;
     }
     if(this.state.playClicked) {
-        return (<Redirect to={"/item/view/"+s.item.id}/>);
+        return (<Redirect push to={"/item/view/"+s.item.id}/>);
     }
 
     return (

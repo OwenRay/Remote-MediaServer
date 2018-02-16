@@ -1,3 +1,4 @@
+@import url(../../node_modules/libjass/libjass.css);
 body {
   margin: 0;
   padding: 0;
@@ -7031,7 +7032,7 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
   right: 0px;
   background-size: cover;
   background-position: center center;
-  z-index: -1;
+  z-index: 0;
   /*-webkit-filter: blur($blur);
   -moz-filter: blur($blur);
   -o-filter: blur($blur);
@@ -7159,7 +7160,13 @@ html, body {
 .modal .modal-footer {
   background-color: #1c1d36; }
   .modal .modal-footer .modal-action {
-    color: white; }
+    color: white;
+    margin-left: 10px; }
+
+.hideNav .modal {
+  top: 50%;
+  margin-top: -103px;
+  max-height: inherit; }
 
 .card .card-content .card-title {
   color: white !important; }

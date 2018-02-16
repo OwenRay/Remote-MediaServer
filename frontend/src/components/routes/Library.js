@@ -28,7 +28,6 @@ class Library extends Component {
     if(this.lastLocation===nextProps.location) {
       return;
     }
-    console.log("did mount!!");
     this.lastLocation = nextProps.location;
     let filters = {};
     nextProps.location.search
@@ -40,14 +39,16 @@ class Library extends Component {
           filters[parts[0]] = parts[1];
         }
       });
-    this.setState({filters:filters, init:true, media:[], hasmore:true, page:0});
+
     this.filters = filters;
     this.promises = [];
-    if(this.collection) {
-      this.collection.recomputeCellSizesAndPositions();
-      this.collection.forceUpdate();
-    }
-    this.loadMore(0, this.pageSize);
+    this.setState({filters:filters, init:true, media:[], hasmore:true, page:0}, ()=>{
+      if(this.collection) {
+        this.collection.recomputeCellSizesAndPositions();
+        this.collection.forceUpdate();
+      }
+      this.loadMore(0, this.pageSize);
+    });
   }
 
   loadMore(offset, limit) {
@@ -106,6 +107,7 @@ class Library extends Component {
           items[c] = {index: c};
         }
       }
+
       if(firstTime) {
         this.setState({
           media:items,

@@ -88,7 +88,7 @@ class FFMpeg
             const stream = info.streams[key];
             if(stream.codec_type==="video")
             {
-                if(!this.videoChannel) {
+                if(this.videoChannel===undefined) {
                     this.videoChannel = stream.index;
                 }
                 if(this.videoChannel+""===stream.index+""&&supportedVideoCodecs[stream.codec_name]) {
@@ -97,7 +97,7 @@ class FFMpeg
             }
             if(stream.codec_type==="audio")
             {
-                if(!this.audioChannel) {
+                if(!this.audioChannel===undefined) {
                     this.audioChannel = stream.index;
                 }
                 if(this.audioChannel+""===stream.index+""&&supportedAudioCodecs[stream.codec_name]) {
@@ -153,8 +153,10 @@ class FFMpeg
             this.offset = 0;
         }
 
-        this.addInputArguments(["-ss", this.offset]);
-        this.addOutputArguments(["-ss", 0]);
+        if(this.offset) {
+            this.addInputArguments(["-ss", this.offset]);
+            this.addOutputArguments(["-ss", 0]);
+        }
 
         while(this.outputArgs.length) {
             args.splice(19, 0, this.outputArgs.pop());

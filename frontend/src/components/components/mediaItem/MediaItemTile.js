@@ -10,6 +10,7 @@ import { Redirect } from 'react-router';
 
 class MediaItemTile extends Component {
   componentDidMount() {
+    this.mounted = true;
     this.componentWillReceiveProps(this.props);
   }
 
@@ -31,6 +32,7 @@ class MediaItemTile extends Component {
   }
 
   componentWillUnmount() {
+    this.mounted = false;
     this.waitingForPromise = false;
   }
 
