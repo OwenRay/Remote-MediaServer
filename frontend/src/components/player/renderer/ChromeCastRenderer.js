@@ -56,8 +56,7 @@ class Html5VideoRenderer extends BaseRenderer {
       s.seek!==prevState.seek||
       s.audioChannel!==prevState.audioChannel||
       s.videoChannel!==prevState.videoChannel) {
-      //ChromeCast.setMedia("http://"+document.location.host+this.getVideoUrl(), "video/mp4");
-      ChromeCast.setMedia("http://192.168.111.12:8080"+this.getVideoUrl(), "video/mp4");
+      ChromeCast.setMedia("http://"+document.location.host+this.getVideoUrl(), "video/mp4");
     }
   }
 
