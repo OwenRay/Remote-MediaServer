@@ -2,7 +2,7 @@
  * Created by owenray on 6/30/2017.
  */
 import React, {Component} from 'react';
-import store from '../../stores/apiStore';
+import store from '../helpers/stores/apiStore';
 import {apiActions, deserialize} from 'redux-jsonapi';
 import MediaItem from "../components/mediaItem/MediaItemTile";
 import { Collection, AutoSizer} from 'react-virtualized';

@@ -4,7 +4,7 @@
 /* global $ */
 import React, {Component} from 'react';
 import {Tabs, Tab, Card, Input, Row, Button, Icon, Collection, CollectionItem, Modal} from 'react-materialize';
-import store from "../../stores/settingsStore";
+import store from "../helpers/stores/settingsStore";
 import {apiActions, deserialize} from 'redux-jsonapi';
 import LibraryDialog from "../components/LibraryDialog";
 

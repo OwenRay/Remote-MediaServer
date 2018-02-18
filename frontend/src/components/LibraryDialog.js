@@ -4,7 +4,7 @@
 /* global $ */
 import React, {Component} from 'react';
 import {Input, Row, Button, Modal} from 'react-materialize';
-import ServerFileBrowser from '../components/ServerFileBrowser';
+import ServerFileBrowser from './ServerFileBrowser';
 import PropTypes from 'prop-types';
 
 class LibraryDialog extends Component {

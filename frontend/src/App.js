@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
 
 import {Navbar, Icon} from 'react-materialize';
-import Library from './components/routes/Library';
-import Settings from './components/routes/Settings';
-import Home from './components/routes/Home';
-import Video from './components/routes/Video'
+import Library from './routes/Library';
+import Settings from './routes/Settings';
+import Home from './routes/Home';
+import Video from './routes/Video'
 import {Route, NavLink} from 'react-router-dom';
 import { apiActions} from 'redux-jsonapi';
-import store from './stores/settingsStore';
-import Detail from "./components/routes/Detail";
+import store from './helpers/stores/settingsStore';
+import Detail from "./routes/Detail";
 
 
 class App extends Component {

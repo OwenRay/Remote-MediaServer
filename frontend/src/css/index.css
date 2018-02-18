@@ -6894,14 +6894,7 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
   bottom: 0px;
   left: 0px;
   right: 0px;
-  pointer-events: none;
-  /*  .libjass-subs{
-      position: absolute;
-      top:0px;
-      right:0px;
-      bottom:0px;
-      left:0px;
-    }*/ }
+  pointer-events: none; }
 
 .video {
   background: black;
@@ -6911,6 +6904,13 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
   bottom: 0px;
   top: 0px;
   overflow: hidden; }
+  .video .wrapper {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    top: 0px;
+    background-size: cover; }
   .video video {
     height: 100%;
     width: 100%; }
@@ -7018,11 +7018,15 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
   width: 80px;
   left: auto; }
 
-#mute {
+.muteIcon {
   position: absolute;
-  right: 95px;
-  bottom: 4px;
-  color: #b8a300; }
+  right: 90px;
+  bottom: 3px;
+  color: #b8a300;
+  cursor: pointer; }
+
+.cast.active {
+  color: #6c5f00; }
 
 .movie-detail-backdrop {
   position: absolute;
@@ -7474,3 +7478,9 @@ nav {
 
 button.marked {
   color: #ffe306; }
+
+.cast {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  cursor: pointer; }

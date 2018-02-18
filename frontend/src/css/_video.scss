@@ -5,13 +5,6 @@
   left:0px;
   right:0px;
   pointer-events: none;
-  /*  .libjass-subs{
-      position: absolute;
-      top:0px;
-      right:0px;
-      bottom:0px;
-      left:0px;
-    }*/
 }
 .video{
   background:black;
@@ -21,6 +14,14 @@
   bottom:0px;
   top:0px;
   overflow:hidden;
+  .wrapper{
+    position:absolute;
+    left:0px;
+    right:0px;
+    bottom:0px;
+    top:0px;
+    background-size: cover;
+  }
   video{
     height:100%;
     width:100%;
@@ -165,9 +166,14 @@
   }
 }
 
-#mute{
+.muteIcon {
   position: absolute;
-  right: 95px;
-  bottom: 4px;
+  right: 90px;
+  bottom: 3px;
   color:$secondary-color;
+  cursor:pointer;
+}
+
+.cast.active{
+  color:$secondary-color-dark;
 }
