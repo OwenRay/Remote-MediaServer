@@ -64,6 +64,7 @@ class DirectoryBrowserHandler extends RequestHandler
             {
                 this.context.body = {"result":this.result};
                 this.resolve();
+                return;
             }
         }
         fs.stat(this.dir+this.result[this.pos], this.stat.bind(this));

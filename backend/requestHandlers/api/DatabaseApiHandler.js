@@ -31,7 +31,6 @@ class DatabaseApiHandler extends RequestHandler
 
     handlePost(singularType) {
         let body = [];
-        console.log(this.context.request.body);
 
         this.context.req.on('data', chunk => {
             body.push(chunk);
@@ -176,6 +175,7 @@ class DatabaseApiHandler extends RequestHandler
         if(offset||limit)
         {
             metadata.totalPages = Math.ceil(data.length/limit);
+            metadata.totalItems = data.length;
             data = data.splice(offset, limit);
         }
 
@@ -217,6 +217,7 @@ class DatabaseApiHandler extends RequestHandler
 
 httpServer.registerRoute("all", "/api/media-items", DatabaseApiHandler);
 httpServer.registerRoute("all", "/api/media-items/:id", DatabaseApiHandler);
+httpServer.registerRoute("all", "/api/media-item/:id", DatabaseApiHandler);
 httpServer.registerRoute("all", "/api/play-positions", DatabaseApiHandler);
 httpServer.registerRoute("all", "/api/play-positions/:id", DatabaseApiHandler);
 

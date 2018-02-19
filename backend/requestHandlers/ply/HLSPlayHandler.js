@@ -2,19 +2,16 @@
  * Created by owenray on 08-04-16.
  */
 "use strict";
-const spawn = require('child_process').spawn;
 const os = require('os');
 const fs = require("fs");
-const Settings = require("../../Settings");
-const FFProbe = require("../../FFProbe");
 const uuid = require('node-uuid');
 
-const MediaItemHelper = require("../../helpers/MediaItemHelper");
 const Log = require("../../helpers/Log");
 const RequestHandler = require("../RequestHandler");
 const FileRequestHandler = require("../FileRequestHandler");
 const Database = require("../../Database");
 const httpServer = require("../../HttpServer");
+const FFMpeg = require("../../helpers/FFMpeg");
 
 class HLSPlayHandler extends RequestHandler{
     handleRequest()
@@ -22,7 +19,6 @@ class HLSPlayHandler extends RequestHandler{
         const params = this.context.params;
         const query = this.context.query;
         const mediaItem = Database.getById("media-item", params.id);
-        this.offset = params.offset;
 
         if(query.format!=="hls"&&
             (this.request.headers["user-agent"].indexOf("Chrome")!==-1||
@@ -50,9 +46,6 @@ class HLSPlayHandler extends RequestHandler{
         this.context.response.status = 302;
         this.response.set("Content-Type", "application/x-mpegURL");
         this.response.set("Location", redirectUrl);
-        /*this.context.body = "#EXTM3U\n"+
-            "#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=200000, RESOLUTION=720x480\n"+
-            redirectUrl;*/
 
         //prepare for decoding
         let dir = os.tmpdir() + "/remote_cache";
@@ -64,11 +57,20 @@ class HLSPlayHandler extends RequestHandler{
             fs.mkdirSync(dir);
         }
         this.m3u8 = dir+"vid.m3u8";
-        this.file = MediaItemHelper.getFullFilePath(mediaItem);
 
-        Log.debug("starting to play:"+this.file);
-        //get file info and start encoding
-        FFProbe.getInfo(this.file).then(this.gotInfo.bind(this), this.onError.bind(this));
+        this.ffmpeg = new FFMpeg(mediaItem, this.m3u8)
+            .setPlayOffset(params.offset)
+            .addOutputArguments(
+                [
+                "-hls_time", 5,
+                "-hls_list_size", 0,
+                "-hls_base_url", this.request.url.split("?")[0] + "?format=hls&session=" + this.session + "&segment=",
+                "-bsf:v", "h264_mp4toannexb"
+                ]
+            )
+            .setOnClose(this.onClose.bind(this))
+            .setOnReadyListener(this.onReady.bind(this))
+            .run();
         return true;
     }
 
@@ -88,7 +90,7 @@ class HLSPlayHandler extends RequestHandler{
             this.proc.kill();
         }
         Log.debug("session timeout!");
-        this.onClose(0);
+        this.onClose();
 
         //clean up filesystem
         const parts = this.m3u8.split("/");
@@ -119,7 +121,7 @@ class HLSPlayHandler extends RequestHandler{
                     .serveFile(file, true, resolve);
             }
 
-            if (!this.paused) {
+            if (!this.ffmpeg.paused) {
                 setTimeout(function () {
                     this.newRequest(context, segment).then(resolve);
                 }.bind(this), 1000);
@@ -167,126 +169,34 @@ class HLSPlayHandler extends RequestHandler{
         });
     }
 
-    /**
-     *
-     * @param {FFProbe.fileInfo} info
-     */
-    gotInfo(info)
-    {
-        if(this.ended) {
-            return;
-        }
-        if(!info||!info.format)
-        {
-            Log.warning("VIDEO ERROR!:", info);
-            this.response.end();
-            return;
-        }
-
-        let vCodec = "libx264";
-        let aCodec = "aac";
-
-        const supportedVideoCodecs = {"h264": 1};
-        const supportedAudioCodecs = {"aac": 1};
-
-
-        for(let key in info.streams)
-        {
-            const stream = info.streams[key];
-            if(stream.codec_type==="video"&&supportedVideoCodecs[stream.codec_name])
-            {
-                vCodec = "copy";
-            }
-            if(stream.codec_type==="audio"&&supportedAudioCodecs[stream.codec_name])
-            {
-                aCodec = "copy";
-            }
-        }
-        const duration = Math.round((info.format.duration - this.offset) * 1000);
-        Log.debug("setDuration", duration);
-
-        // om keyframe te vinden, gaat wellicht veel fixen:
-        // ffprobe.exe -read_intervals 142%+#1  -show_frames -select_streams v:0 -print_format json  "//home/nzbget/downloads/complete/MoviesComplete\Hitman Agent 47 2015 BluRay 720p DTS-ES x264-ETRG\Hitman Agent 47 2015 BluRay 720p DTS x264-ETRG.mkv" | grep pts_time
-        const args = [
-            //"-re", // <-- should read the file at running speed... but a little to slow...
-            "-probesize", "50000000",
-            "-thread_queue_size", "1024",
-            "-i", this.file,
-
-            "-stdin",
-            "-vcodec", vCodec,
-            "-hls_time", 5,
-            "-hls_list_size", 0,
-            "-hls_base_url", this.request.url.split("?")[0] +
-            "?format=hls&session=" + this.session + "&segment=",
-            "-bsf:v", "h264_mp4toannexb",
-            "-acodec", aCodec,
-            "-sn",
-            "-strict", "-2",
-            this.m3u8
-
-        ];
-        if(aCodec!=="copy")
-        {
-            Log.debug("mixing down to 2 AC!");
-            args.splice(19, 0, "-ac", 2, "-ab", "192k");
-        }
-        if(this.offset!==undefined&&this.offset!==0) {
-            args.splice(6, 0, "-ss", 0);
-            args.splice(4, 0, "-ss", this.offset);
-        }
-        Log.info("starting ffmpeg:"+Settings.getValue("ffmpeg_binary")+" "+args.join(" "));
-        const proc = spawn(
-            Settings.getValue("ffmpeg_binary"),
-            args,
-            {
-                "stdio": ["pipe", null, "pipe", this.str]
-            });
-        this.proc = proc;
-        proc.on("error", this.onError.bind(this));
-
-        proc.stdout.on('data', this.onInfo.bind(this));
-        proc.stderr.on('data', this.onError.bind(this));
-        proc.on('close', this.onClose.bind(this));
+    onReady() {
         this.checkPause();
         this.checkPauseInterval = setInterval(this.checkPause.bind(this), 100);
     }
+
 
     /**
      * pauses the video encoding process when there are enough chunks available
      */
     checkPause() {
-        fs.readdir(os.tmpdir() + "/remote_cache/" + this.session + "/", function(err, files){
+            fs.readdir(os.tmpdir() + "/remote_cache/" + this.session + "/", function(err, files){
             if(err) {
                 return;
             }
             const limit = 10;
-            if(files.length>limit&&!this.paused) {
-                this.paused = true;
-                this.proc.stdin.write("c");
-            }else if(files.length<=limit&&this.paused) {
-                this.paused = false;
-                this.proc.stdin.write("\n");
+            if(files.length>limit&&!this.ffmpeg.paused) {
+                this.ffmpeg.pause();
+            }else if(files.length<=limit&&this.ffmpeg.paused) {
+                this.ffmpeg.resume();
             }
 
         }.bind(this));
-    }
-
-    onInfo(data)
-    {
-        Log.debug("ffmpeg:"+`${data}`);
-    }
-
-    onError(data)
-    {
-        Log.debug("ffmpeg:"+`${data}`);
     }
 
     onClose()
     {
         clearInterval(this.checkPauseInterval);
         HLSPlayHandler.sessions[this.session] = null;
-        this.ended = true;
     }
 }
 

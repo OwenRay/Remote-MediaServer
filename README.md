@@ -9,7 +9,7 @@ Production | Development
 # USING
 ### INSTALL
 dev:  
-`$ npm install -g https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/remote-mediaserver-0.0.1.tgz`  
+`$ npm install -g https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/remote-mediaserver-0.0.3.tgz`  
 
 prod:  
 `$ npm install -g remote-mediaserver`
@@ -32,10 +32,10 @@ Restart the server after direct modification
 direct your browser to http://localhost:8080  
   
 ### Frontend
-The frontend is build on [Ember.js](emberjs.com)   
+The frontend is build on [React](reactjs.org/)   
 to build and test the frontend first make sure the backend is running  
 then execute the following:  
 `$ cd frontend`  
-`$ ember server --proxy http://localhost:8080`  
+`$ npm start`  
   
-The webapplication will now be accessible from http://localhost:4200
+The webapplication will now be accessible from http://localhost:3000

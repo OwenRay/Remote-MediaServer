@@ -1,0 +1,173 @@
+.libjass-wrapper{
+  position: absolute;
+  top:0px;
+  bottom:0px;
+  left:0px;
+  right:0px;
+  pointer-events: none;
+  /*  .libjass-subs{
+      position: absolute;
+      top:0px;
+      right:0px;
+      bottom:0px;
+      left:0px;
+    }*/
+}
+.video{
+  background:black;
+  position:absolute;
+  left:0px;
+  right:0px;
+  bottom:0px;
+  top:0px;
+  overflow:hidden;
+  video{
+    height:100%;
+    width:100%;
+    &.hidden{
+      cursor: none;
+    }
+  }
+
+  .preloader-wrapper, >.btn-large, >.btn-large[disabled=false]{
+    position:absolute;
+    left:50%;
+    top:50%;
+    margin-left:-25px;
+    margin-top:-25px;
+    background:transparent !important;
+    cursor:default;
+    &:hover {
+      background: transparent !important;
+    ;
+    }
+    &.btn-large{
+      margin-left:-27.75px;
+      margin-top:-27.75px;
+    }
+  }
+}
+
+
+
+.controls {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  height:60px;
+  background:$primary-color;
+
+  img{
+    position:absolute;
+    bottom:10px;
+    width:10%;
+    left:10px;
+  }
+
+  &.hidden{
+    opacity: 0;
+    bottom:-50px;
+  }
+
+  transition:all .5s;
+
+  .seektracker {
+    position:absolute;
+    transition:all .5s;
+    margin:0px;
+    flex:1;
+    background: $primary-color-dark;
+    cursor: pointer;
+    left:10%;
+    margin-left:20px;
+    right:120px;
+    bottom:10px;
+    height: 10px;
+    .seekbuffer {
+      position: absolute;
+      top: 0px;
+      bottom: 0px;
+      background:rgba(0,0,0,.3);
+    }
+
+    .seekprogress {
+      background: $secondary-color;
+      top: 0px;
+      bottom: 0px;
+      position: absolute;
+      > div {
+        position: absolute;
+        right: -1px;
+        top: -1px;
+        bottom: -1px;
+        background: inherit;
+        width: 2px;
+      }
+    }
+  }
+
+  #play-pause{
+    position:absolute;
+    top:-28px;
+    bottom:0px;
+    left:50%;
+    margin-left:-38px;
+  }
+
+  #next, #prev{
+    top:-19px;
+    left:50%;
+    margin-left:70px;
+  }
+  #prev{
+    margin-left:-85px;
+  }
+  .buttonsRight {
+    position: absolute;
+    top:-19px;
+    right:10px;
+    >*{
+      display:inline-block;
+    }
+    .btn-medium, .btn-large{
+      position: static;
+      width:37px;
+      height:37px;
+      font-size: 14px;
+      i {
+        line-height: 37px;
+      }
+    }
+    .fixed-action-btn {
+      right:auto;
+      bottom:auto;
+      position: relative;
+      padding-top:0px;
+      margin-right: 4px;
+      ul {
+        left: auto;
+        bottom: 33px;
+      }
+    }
+    .collection-item{
+      cursor:pointer;
+      min-width: 130px;
+    }
+  }
+}
+
+#volume{
+  .seektracker{
+    right:10px;
+    width:80px;
+    left:auto;
+  }
+}
+
+#mute{
+  position: absolute;
+  right: 95px;
+  bottom: 4px;
+  color:$secondary-color;
+}

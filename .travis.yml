@@ -2,7 +2,7 @@ language: node_js
 node_js:
   - "6.10.2"
 compiler: gcc
-env: 
+env:
   - CXX=g++-4.8
 addons:
   apt:
@@ -11,7 +11,8 @@ addons:
     packages:
       - gcc-4.8
       - g++-4.8
-before_install:		
+  firefox: latest
+before_install:
   - rvm install 2.2.5
   - nvm --version
   - node --version
@@ -19,18 +20,13 @@ before_install:
   - gcc --version
   - g++ --version
 install:
-  - npm install -g ember-cli
-  - npm install -g bower
   - npm install -g nodeunit
   - npm install -g jshint
   - cd frontend && npm install && cd ../
-  - cd frontend && bower install && cd ../
   - npm install
-  - ember -v
 script:
   - jshint --show-non-errors --verbose --config .jshintrc backend/
-  - nodeunit tests
-  - node main.js & cd frontend && ember test --environment=ci && cd ..
+  - npm run test
   - mkdir -p dist
   - cd dist && npm pack ../ && cd ..
 deploy:
