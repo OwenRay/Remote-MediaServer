@@ -5,13 +5,6 @@
   left:0px;
   right:0px;
   pointer-events: none;
-  /*  .libjass-subs{
-      position: absolute;
-      top:0px;
-      right:0px;
-      bottom:0px;
-      left:0px;
-    }*/
 }
 .video{
   background:black;
@@ -21,6 +14,15 @@
   bottom:0px;
   top:0px;
   overflow:hidden;
+  .wrapper{
+    position:absolute;
+    left:0px;
+    right:0px;
+    bottom:0px;
+    top:0px;
+    background-size: cover;
+    background-position: center center;
+  }
   video{
     height:100%;
     width:100%;
@@ -65,12 +67,57 @@
     left:10px;
   }
 
-  &.hidden{
-    opacity: 0;
-    bottom:-50px;
-  }
 
   transition:all .5s;
+  .time{
+    position:absolute;
+    right:4px;
+    font-size:10px;
+    font-weight: bold;
+    color:$primary-color-light;
+    opacity:0;
+    transition: opacity .3s;
+    &:first-child{
+      left:4px;
+      right:0px;
+      overflow:hidden;
+    }
+  }
+
+  #volume .seektracker{
+    height:10px;
+  }
+
+  #progress {
+    > .time {
+      right: auto;
+      bottom: 30px;
+      background: $primary-color-light;
+      color:$primary-color-dark;
+      padding:0px 5px;
+      height:13px;
+      line-height: 13px;
+      border-radius:13px;
+      margin-left:-15px;
+      overflow: visible;
+      z-index:999;
+      pointer-events: none;
+      &:after{
+        content:" ";
+        width:5px;
+        height:5px;
+        transform: rotate(45deg);
+        position: absolute;
+        left:11px;
+        bottom:-2px;
+        background: inherit;
+        z-index: 0;
+      }
+    }
+    &:hover .time {
+      opacity: 1;
+    }
+  }
 
   .seektracker {
     position:absolute;
@@ -83,7 +130,13 @@
     margin-left:20px;
     right:120px;
     bottom:10px;
-    height: 10px;
+    height:10px;
+    &:hover {
+      height: 15px;
+      .time{
+        opacity: 1;
+      }
+    }
     .seekbuffer {
       position: absolute;
       top: 0px;
@@ -98,11 +151,15 @@
       position: absolute;
       > div {
         position: absolute;
-        right: -1px;
+        right: 0px;
         top: -1px;
         bottom: -1px;
         background: inherit;
-        width: 2px;
+        width: 1px;
+      }
+      .time{
+        color: $primary-color-dark;
+        z-index:2;
       }
     }
   }
@@ -157,6 +214,15 @@
   }
 }
 
+.hidden .controls{
+  opacity: 0;
+  bottom:-50px;
+}
+
+.hidden .cast{
+  opacity: 0;
+}
+
 #volume{
   .seektracker{
     right:10px;
@@ -165,9 +231,14 @@
   }
 }
 
-#mute{
+.muteIcon {
   position: absolute;
-  right: 95px;
-  bottom: 4px;
+  right: 90px;
+  bottom: 3px;
   color:$secondary-color;
+  cursor:pointer;
+}
+
+.cast.active{
+  color:$secondary-color-dark;
 }

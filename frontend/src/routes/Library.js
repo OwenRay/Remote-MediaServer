@@ -2,7 +2,7 @@
  * Created by owenray on 6/30/2017.
  */
 import React, {Component} from 'react';
-import store from '../../stores/apiStore';
+import store from '../helpers/stores/apiStore';
 import {apiActions, deserialize} from 'redux-jsonapi';
 import MediaItem from "../components/mediaItem/MediaItemTile";
 import { Collection, AutoSizer} from 'react-virtualized';
@@ -18,6 +18,7 @@ class Library extends Component {
     this.promises = [];
     this.pageSize = 25;
     this.colls = Math.floor(window.innerWidth/165);
+    this.offsetLeft = (window.innerWidth-this.colls*165)/2-15;
   }
 
   componentDidMount() {
@@ -175,6 +176,7 @@ class Library extends Component {
     }
     this.resizeTimeout = setTimeout(()=>{
       this.colls = Math.floor(width/165);
+      this.offsetLeft = (window.innerWidth-this.colls*165)/2-7.5;
       if(this.collection) {
         this.collection.recomputeCellSizesAndPositions();
       }
@@ -186,7 +188,7 @@ class Library extends Component {
     return {
       height: 236,
       width: 150,
-      x: index%this.colls*165,
+      x: this.offsetLeft+index%this.colls*165,
       y: Math.floor(index/this.colls)*251+65
     };
   }

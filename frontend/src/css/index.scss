@@ -473,3 +473,15 @@ nav {
 button.marked{
   color:$secondary-color-light;
 }
+
+.cast{
+  position: absolute;
+  right:5px;
+  top:5px;
+  cursor: pointer;
+  transition: opacity .5s;
+}
+
+.hidden .cast{
+  opacity: 0;
+}

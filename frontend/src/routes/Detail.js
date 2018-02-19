@@ -6,7 +6,7 @@ import TopBar from '../components/TopBar';
 import {Button, Icon, Tabs, Tab, Modal} from 'react-materialize';
 import ReactTooltip from 'react-tooltip';
 import BodyClassName from 'react-body-classname';
-import store from '../../stores/apiStore';
+import store from '../helpers/stores/apiStore';
 import { apiActions, deserialize} from 'redux-jsonapi';
 import ReadableDuration from "../components/ReadableDuration";
 import MediaItemRow from "../components/mediaItem/MediaItemRow";
