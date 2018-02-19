@@ -24,20 +24,17 @@ class ChromeCast{
   }
 
   onInit() {
-    console.log("init", arguments);
   }
 
   onSession(session) {
     this.session = session;
     this.trigger(this.EVENT_CASTING_CHANGE, [true]);
-    console.log("sess", arguments);
   }
 
   onReceiver(e) {
     if(e==="available") {
       this._available = true;
     }
-    console.log(arguments);
   }
 
   isAvailable() {
@@ -56,7 +53,6 @@ class ChromeCast{
   }
 
   onRequestSession(session) {
-    console.log("newsession", session);
     this.session = session;
     this.trigger(this.EVENT_CASTING_CHANGE, [true]);
   }
@@ -77,26 +73,22 @@ class ChromeCast{
   }
 
   removeListener(event, callback) {
-    console.log("will r", this.events[event]);
     for(let key in this.events[event]) {
       if(this.events[event][key]===callback) {
         this.events[event].splice(key, 1);
       }
     }
-    console.log("rd", this.events[event]);
   }
 
   setMedia(media, contentType) {
     if(!this.session) {
       return;
     }
-    console.log(media, contentType);
     const mediaInfo = new chrome.cast.media.MediaInfo(media, contentType);
     const request = new chrome.cast.media.LoadRequest(mediaInfo);
     this.session.loadMedia(
       request,
       media=>{
-        console.log("gotMedia");
         this.media=media;
         this.trigger(this.EVENT_ONPLAY);
       }
@@ -105,9 +97,10 @@ class ChromeCast{
   }
 
   setVolume(volume) {
-    console.log("startsetvol");
     if(this.media) {
-      const request = new chrome.cast.media.VolumeRequest(volume);
+      const request = new chrome.cast.media.VolumeRequest(
+        new chrome.cast.Volume(volume)
+      );
       this.media.setVolume(request);
     }
   }
@@ -117,11 +110,15 @@ class ChromeCast{
   }
 
   play() {
-    this.media.play();
+    if(this.media) {
+      this.media.play();
+    }
   }
 
   pause() {
-    this.media.pause();
+    if(this.media) {
+      this.media.pause();
+    }
   }
 
   isActive() {

@@ -219,7 +219,7 @@ class Video extends Component {
     }
 
     return (
-      <div className="video" ref={(input) => {this.pageRef = input;}} onMouseMove={this.onMouseMove.bind(this)}>
+      <div className={"video "+this.state.navClass} ref={(input) => {this.pageRef = input;}} onMouseMove={this.onMouseMove.bind(this)}>
         <BodyClassName className="hideNav"/>
         <div
           className="wrapper"
@@ -235,6 +235,7 @@ class Video extends Component {
             subtitle={this.state.subtitle}
             volume={this.state.volume}
             paused={this.state.paused}
+            onVolumeChange={this.volumeChange.bind(this)}
             />
         </div>
         <CastButton/>
@@ -246,10 +247,14 @@ class Video extends Component {
           item={this.state.item}
           paused={this.state.paused}
           togglePause={this.togglePause.bind(this)}
-          toggleFullScreen={this.toggleFullScreen.bind(this)}
-          navClass={this.state.navClass}>
+          toggleFullScreen={this.toggleFullScreen.bind(this)}>
 
-          <SeekBar id="progress" onSeek={this.onSeek.bind(this)} progress={this.state.progress} max={this.state.duration}/>
+          <SeekBar
+            displayTime={true}
+            id="progress"
+            onSeek={this.onSeek.bind(this)}
+            progress={this.state.progress}
+            max={this.state.duration}/>
           <span onClick={this.toggleMute.bind(this)}>
             <Icon id="mute" className="muteIcon">volume_mute</Icon>
           </span>

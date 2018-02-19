@@ -479,4 +479,9 @@ button.marked{
   right:5px;
   top:5px;
   cursor: pointer;
+  transition: opacity .5s;
+}
+
+.hidden .cast{
+  opacity: 0;
 }

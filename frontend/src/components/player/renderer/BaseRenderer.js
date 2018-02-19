@@ -28,7 +28,8 @@ BaseRenderer.propTypes = {
   videoChannel:PropTypes.number,
   subtitle:PropTypes.string,
   volume:PropTypes.number,
-  paused:PropTypes.bool
+  paused:PropTypes.bool,
+  onVolumeChange:PropTypes.func
 };
 
 BaseRenderer.defaultProps = {

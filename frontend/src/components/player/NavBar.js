@@ -26,7 +26,7 @@ class NavBar extends Component {
       return <div></div>;
     }
     return (
-      <div className={"controls ".concat(this.props.navClass)}>
+      <div className="controls">
         <img alt="poster" src={this.props.item?"/img/"+this.props.item.id+"_poster.jpg":""}/>
         <Button id="prev" floating icon="skip_previous"/>
         {this.playPauseButton()}

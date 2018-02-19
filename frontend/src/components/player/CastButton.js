@@ -9,7 +9,6 @@ class CastButton extends Component {
   }
 
   componentWillMount() {
-    console.log(Chromecast.isAvailable());
     Chromecast.addListener(Chromecast.EVENT_CASTING_CHANGE, this.castingChange);
     this.setState({available: Chromecast.isAvailable(), active:Chromecast.isActive()});
   }
@@ -29,7 +28,6 @@ class CastButton extends Component {
     if(!this.state.available) {
       return null;
     }
-    console.log(this.state);
     return <span className={"cast"+(this.state.active?" active":"")} onClick={this.onClick.bind(this)}>
       <Icon>cast</Icon>
     </span>;

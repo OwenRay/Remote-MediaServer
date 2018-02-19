@@ -42,7 +42,8 @@ class Html5VideoRenderer extends BaseRenderer {
   }
 
   onPlay() {
-    console.log(ChromeCast.getVolume());
+    /* @todo get volume */
+    this.props.onVolumeChange(ChromeCast.getVolume());
   }
 
   backDrop() {
