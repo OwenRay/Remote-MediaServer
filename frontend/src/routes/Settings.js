@@ -21,7 +21,6 @@ class Settings extends Component {
    * triggered when the settings model changes
    */
   change() {
-    console.log("change!!!!");
     const {api} = store.getState();
     if (!api.setting) {
       return;
@@ -87,7 +86,7 @@ class Settings extends Component {
    * save settings, called when submit is clicked
    */
   onSubmit() {
-    var o = this.state.settings;
+    const o = this.state.settings;
     o._type = "settings";
     store.dispatch(apiActions.write(o));
   }
@@ -97,10 +96,9 @@ class Settings extends Component {
    * @param lib
    */
   onLibrarySave(lib) {
-    var o = this.state.settings;
-    console.log(o, lib);
-    var existing = false;
-    for(var key in o.libraries) {
+    const o = this.state.settings;
+    let existing = false;
+    for(let key in o.libraries) {
       if(lib.uuid===o.libraries[key].uuid) {
         o.libraries[key] = lib;
         existing = true;
@@ -130,9 +128,8 @@ class Settings extends Component {
     if (!this.state || !this.state.settings) {
       return (<p>Loading</p>);
     }
-    console.log("render settings", this.state);
 
-    var listItems = this.state.settings.libraries.map((lib) =>
+    const listItems = this.state.settings.libraries.map((lib) =>
       <CollectionItem onClick={(e) => {
         e.stopPropagation();
         e.preventDefault();
@@ -146,8 +143,9 @@ class Settings extends Component {
       </CollectionItem>
     );
 
+    let deletingModal;
     if (this.state.removing) {
-      var deletingModal =
+      deletingModal =
         <Modal
           id="deleteModal"
           actions={[

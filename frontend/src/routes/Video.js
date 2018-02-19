@@ -172,7 +172,6 @@ class Video extends Component {
     }
 
     const o = {seek:this.state.progress};
-    console.log(o, this.state);
     o[what] = channel;
     this.setState(o);
   }

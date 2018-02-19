@@ -15,8 +15,7 @@ class SeekBar extends Component {
   }
 
   moveTime(e) {
-    console.log(e);
-    var left = e.pageX - this.tracker.getBoundingClientRect().left;
+    const left = e.pageX - this.tracker.getBoundingClientRect().left;
     this.setState({mouseX:e.clientX, hint:left/this.tracker.offsetWidth*this.props.max});
   }
 
