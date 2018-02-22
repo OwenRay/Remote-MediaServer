@@ -26,7 +26,7 @@ install:
   - npm install
 script:
   - jshint --show-non-errors --verbose --config .jshintrc backend/
-  - nodeunit tests
+  - npm run test
   - mkdir -p dist
   - cd dist && npm pack ../ && cd ..
 deploy:

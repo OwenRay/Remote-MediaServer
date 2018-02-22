@@ -18,7 +18,7 @@ class TmdbImageHandler extends IImageHandler
             w = "w1280";
         }else if(this.type===IImageHandler.TYPE_POSTER_SMALL)
         {
-            w = "w150";
+            w = "w154";
             this.type = "poster";
 
         }

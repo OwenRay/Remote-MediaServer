@@ -42,6 +42,7 @@ $tabs-bg-color: $primary-color-dark !default;
 @import "materialize-css/sass/materialize.scss";
 @import "_video.scss";
 @import "_detail.scss";
+@import "../../node_modules/libjass/libjass.css";
 
 body, .modal-content{
   background-color:$primary-color-dark;
@@ -52,11 +53,18 @@ html, body{
   overflow-x: hidden;
 }
 
-.modal .modal-footer{
-  background-color:$primary-color;
+.modal .modal-footer {
+  background-color: $primary-color;
   .modal-action {
     color: white;
+    margin-left: 10px;
   }
+}
+
+.hideNav .modal{
+  top: 50%;
+  margin-top: -103px;
+  max-height: inherit;
 }
 
 .card .card-content .card-title{
@@ -464,4 +472,16 @@ nav {
 
 button.marked{
   color:$secondary-color-light;
+}
+
+.cast{
+  position: absolute;
+  right:5px;
+  top:5px;
+  cursor: pointer;
+  transition: opacity .5s;
+}
+
+.hidden .cast{
+  opacity: 0;
 }

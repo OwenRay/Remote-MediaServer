@@ -6,9 +6,11 @@ import React, {Component} from 'react';
 import {Button, Icon} from 'react-materialize';
 import {NavLink} from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Redirect } from 'react-router';
 
 class MediaItemTile extends Component {
   componentDidMount() {
+    this.mounted = true;
     this.componentWillReceiveProps(this.props);
   }
 
@@ -17,8 +19,9 @@ class MediaItemTile extends Component {
       return;
     }
     if(nextProps.mediaItem.index) {
-      if(this.waitingForPromise)
+      if(this.waitingForPromise) {
         return;
+      }
       this.waitingForPromise = true;
       nextProps.requestData(nextProps.mediaItem.index)
         .then(this.gotData.bind(this));
@@ -29,13 +32,13 @@ class MediaItemTile extends Component {
   }
 
   componentWillUnmount() {
+    this.mounted = false;
     this.waitingForPromise = false;
   }
 
   async gotData(data) {
     if(this.waitingForPromise) {
       this.waitingForPromise = false;
-      console.log(data.playPosition);
       if(data.playPosition) {
         data.playPos = (await data.playPosition()).position;
       }
@@ -53,6 +56,10 @@ class MediaItemTile extends Component {
     }
   }
 
+  play() {
+    this.setState({playClicked:true});
+  }
+
   render() {
     if(!this.state) {
       return (
@@ -60,6 +67,10 @@ class MediaItemTile extends Component {
           <Icon>movie</Icon>
         </div>
       );
+    }
+
+    if(this.state.playClicked) {
+      return (<Redirect to={"/item/view/"+this.state.id}/>);
     }
 
     return (
@@ -75,8 +86,8 @@ class MediaItemTile extends Component {
             floating
             className="play"
             icon='play_arrow'
-            action='play'>
-            <NavLink to={"/item/view/" + this.state.id}/>
+            action='play'
+            onClick={this.play.bind(this)}>
           </Button>
           <span className="title">{this.state.title}</span>
           <span className="year">{this.state.year}</span>

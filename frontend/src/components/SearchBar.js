@@ -5,7 +5,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {Button, Icon, Input, Row} from 'react-materialize';
-import store from "../../stores/settingsStore";
+import store from "../helpers/stores/settingsStore";
 import {deserialize} from 'redux-jsonapi';
 
 class SearchBar extends Component
@@ -44,7 +44,6 @@ class SearchBar extends Component
         this.didScroll();
       }
     }
-    console.log(props.filters);
     this.setState({filters:props.filters});
   }
 

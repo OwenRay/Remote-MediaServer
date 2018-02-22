@@ -1,6 +1,5 @@
 import { camelize } from 'humps';
 import pluralize from 'pluralize';
-import store from './apiStore';
 import { apiActions } from 'redux-jsonapi';
 
 function deserializeRelationships(resources = [], store) {
@@ -15,7 +14,7 @@ async function deserializeRelationship(resource = {}, store) {
   if (api[camelize(type)] && api[camelize(type)][resource.id]) {
     return deserialize({ ...api[camelize(type)][resource.id], meta: { loaded: true } }, api);
   }
-  console.log(api);
+
   const req = (await store.dispatch(
       apiActions.read(
         {

@@ -6,12 +6,12 @@ import TopBar from '../components/TopBar';
 import {Button, Icon, Tabs, Tab, Modal} from 'react-materialize';
 import ReactTooltip from 'react-tooltip';
 import BodyClassName from 'react-body-classname';
-import store from '../../stores/apiStore';
+import store from '../helpers/stores/apiStore';
 import { apiActions, deserialize} from 'redux-jsonapi';
 import ReadableDuration from "../components/ReadableDuration";
 import MediaItemRow from "../components/mediaItem/MediaItemRow";
-import {NavLink} from 'react-router-dom';
 import MediaInfo from '../components/mediaItem/MediaInfo';
+import { Redirect } from 'react-router';
 
 class Detail extends Component {
   constructor() {
@@ -38,7 +38,6 @@ class Detail extends Component {
         }
       )
     );
-    console.log(item.resources[0]);
     let i = deserialize(item.resources[0], store);
     this.itemModel = i;
     const readAction = apiActions.read(
@@ -161,11 +160,19 @@ class Detail extends Component {
     }
   }
 
+  play() {
+    this.setState({playClicked:true});
+  }
+
   render() {
     const s = this.state;
     if(!s||!s.item) {
       return null;
     }
+    if(this.state.playClicked) {
+        return (<Redirect push to={"/item/view/"+s.item.id}/>);
+    }
+
     return (
       <div>
           <BodyClassName className="hideNav"></BodyClassName>
@@ -177,7 +184,7 @@ class Detail extends Component {
             <Modal
               header={this.state.item.title}
               fixedFooter
-              trigger={<Button onClick={this.toggleDetails} data-tip="Info" icon="info_outline"></Button>}>
+              trigger={<Button onClick={this.toggleDetails} data-tip="Info" icon="info_outline"/>}>
               <MediaInfo item={this.state.item}/>
             </Modal>
 
@@ -191,9 +198,7 @@ class Detail extends Component {
 
                 <div className="poster" style={this.poster()}/>
 
-                <Button large floating id="play" icon="play_arrow">
-                  <NavLink to={"/item/view/"+s.item.id}/>
-                </Button>
+                <Button large floating id="play" icon="play_arrow" onClick={this.play.bind(this)}/>
 
               </div>
             </main>
