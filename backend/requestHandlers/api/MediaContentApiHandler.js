@@ -91,7 +91,7 @@ class SubtitleApiHandler extends RequestHandler
                     if(deleteAfterServe) {
                         fs.unlink(directory+":"+file, ()=>{});
                     }
-                    this.serveSubtitle(videoFilePath, os.tmpdir(), filename, true)
+                    this.serveSubtitle(videoFilePath, os.tmpdir(), filename, true);
                 }.bind(this));
             fs.createReadStream(directory + "/" + file)
                 .pipe(srt2vtt())
@@ -106,7 +106,7 @@ class SubtitleApiHandler extends RequestHandler
                     if(deleteAfterServe) {
                         fs.unlink(directory+":"+file, ()=>{});
                     }
-                    this.serveSubtitle(videoFilePath, os.tmpdir(), filename, true)
+                    this.serveSubtitle(videoFilePath, os.tmpdir(), filename, true);
                 }.bind(this));
             fs.createReadStream(directory + "/" + file)
                 .pipe(ass2vtt())
