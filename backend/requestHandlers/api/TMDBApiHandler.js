@@ -26,8 +26,9 @@ class TMDBApiHandler extends RequestHandler {
                         genreCache.push(res[key]);
                     }
                     for(let key in res2) {
-                        if(!haveIds[res2[key].id])
+                        if(!haveIds[res2[key].id]) {
                             genreCache.push(res2[key]);
+                        }
                     }
                     genreCache.sort(
                         (a,b) => {

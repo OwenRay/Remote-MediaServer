@@ -1,3 +1,4 @@
+/*jshint loopfunc: true */
 "use strict";
 
 const fs = require("fs");
@@ -102,35 +103,28 @@ class Database {
         for(let key in filters)
         {
             type = "normal";
-            if(filters[key]==="false") {
-                filters[key] = false;
-            }else if(filters[key]==="true"){
-                filters[key] = true;
-            }else {
-                const a = filters[key][0] === "%";
-                const b = filters[key][filters[key].length - 1] === "%";
-                if (a && b) {
-                    type = "search";
-                    filters[key] = filters[key].substring(1, filters[key].length - 1);
-                } else if (a) {
-                    type = "endsWith";
-                    filters[key] = filters[key].substring(1);
-                } else if (b) {
-                    type = "startsWith";
-                    filters[key] = filters[key].substring(0, filters[key].length - 1);
-                }else if(filters[key][0]==="<") {
-                    type = "lt";
-                    filters[key] = filters[key].substring(1);
-                }else if(filters[key][0]===">") {
-                    type = "gt";
-                    filters[key] = parseFloat(filters[key].substring(1));
-                }else if(filters[key].match(/^[0-9.]+\>\<?[0-9.]+$/)) {
-                    type = "ltgt";
-                    filters[key] = filters[key].split("><").map(v=>parseFloat(v));
-                }
-                if(type!=="ltgt") {
-                    filters[key] = parseFloat(filters[key].toLowerCase());
-                }
+            const a = filters[key][0] === "%";
+            const b = filters[key][filters[key].length - 1] === "%";
+            if (a && b) {
+                type = "search";
+                filters[key] = filters[key].substring(1, filters[key].length - 1);
+            } else if (a) {
+                type = "endsWith";
+                filters[key] = filters[key].substring(1);
+            } else if (b) {
+                type = "startsWith";
+                filters[key] = filters[key].substring(0, filters[key].length - 1);
+            }else if(filters[key][0]==="<") {
+                type = "lt";
+                filters[key] = filters[key].substring(1);
+            }else if(filters[key][0]===">") {
+                type = "gt";
+                filters[key] = parseFloat(filters[key].substring(1));
+            }else if(filters[key].match(/^[0-9.]+><?[0-9.]+$/)) {
+                type = "ltgt";
+                filters[key] = filters[key].split("><").map(flt=>parseFloat(flt));
+            }else{
+                filters[key] = (filters[key]+"").toLocaleLowerCase();
             }
             filterProps[key] = type;
         }
@@ -178,13 +172,13 @@ class Database {
     matches(value, filter, filterProp)
     {
         if(["lt","gt","ltgt"].includes(filterProp)) {
-            if(!value)
-                value=0;
+            if(!value) {
+                value = 0;
+            }
             value=parseFloat(value);
-        }else if(["array"].includes(typeof(value))) {
+        }else if(!Array.isArray(value)) {
             value = (value + "").toLowerCase();
         }
-
 
         switch(filterProp)
         {
@@ -202,7 +196,8 @@ class Database {
                 return value>filter[0]&&value<filter[1];
             case "normal":
                 if(Array.isArray(value)) {
-                    return value.includes(filter);
+                    return value.includes(filter)||
+                           value.includes(parseInt(filter));
                 }
                 return value===filter;
         }

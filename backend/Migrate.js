@@ -20,7 +20,7 @@ class Migrate
             const p = items[key].relationships&&items[key].relationships["play-position"];
             if(p) {
                 const i = Database.getById("play-position", p.data.id);
-                i.attributes.watched = i.attributes.position>items[key].attributes.fileduration*.97;
+                i.attributes.watched = i.attributes.position>items[key].attributes.fileduration*0.97;
             }
         }
     }
