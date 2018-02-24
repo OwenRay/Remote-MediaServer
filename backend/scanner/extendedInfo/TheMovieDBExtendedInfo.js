@@ -4,7 +4,8 @@
  */
 const IExtendedInfo = require("./IExtendedInfo");
 const Prom = require("node-promise").Promise;
-const MovieDB = require('moviedb')('0699a1db883cf76d71187d9b24c8dd8e');
+const Settings = require("../../Settings");
+const MovieDB = require('moviedb')(Settings.getValue("tmdb_apikey"));
 const path = require('path');
 const Database = require("../../Database");
 const Log = require("../../helpers/Log");
@@ -115,11 +116,9 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
         const waitFor = 300 - (new Date().getTime() - TheMovieDBExtendedInfo.lastRequest);
         if(waitFor<20)
         {
-            //console.log("do not wait:", waitFor);
             makeCall();
         }else
         {
-            //console.log("make call with delay:", waitFor);
             setTimeout(makeCall, waitFor);
         }
         return promise;

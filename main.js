@@ -15,4 +15,5 @@ console.log("chdir", dir);
 process.chdir(dir);
 
 require("./backend/scanner/MovieScanner.js");
+require("./backend/Migrate").run();
 require("./backend/HttpServer").start();

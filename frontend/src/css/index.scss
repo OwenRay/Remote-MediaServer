@@ -61,6 +61,13 @@ html, body{
   }
 }
 
+.card-action {
+  text-align: center;
+  .btn:first-child {
+    margin-right: 10px;
+  }
+}
+
 .hideNav .modal{
   top: 50%;
   margin-top: -103px;
@@ -78,6 +85,9 @@ html, body{
 
 .brand-logo{
   margin:0px 20px;
+  img{
+    vertical-align: text-bottom;
+  }
 }
 
 .quickOptions {
@@ -348,7 +358,6 @@ nav{
   bottom:0px;
   right:0px;
   left:0px;
-  //left:100%;
   position:absolute;
   z-index:100;
   visibility: hidden;
@@ -464,6 +473,9 @@ nav {
       color:white !important;
     }
   }
+  .active{
+    border-bottom:1px solid $secondary-color;
+  }
 }
 
 .button-collapse{
@@ -484,4 +496,97 @@ button.marked{
 
 .hidden .cast{
   opacity: 0;
+}
+
+#openFilters{
+  right:10px;
+  bottom:10px;
+  position: absolute;
+  .input-field.col label{
+    left:0;
+  }
+}
+
+.side-nav{
+  height: auto;
+  bottom:0px;
+  .top {
+    position: absolute;
+    bottom: 60px;
+    top:0;
+    left:0;
+    right:0;
+    overflow: auto;
+    .row {
+      padding: 20px;
+      margin: 0px;
+      border-bottom: solid 1px $primary-color-dark;
+      border-top: solid 1px $primary-color-light;
+      .input-field {
+        padding: 0;
+        float: none;
+      }
+      .switch {
+        text-align: right;
+      }
+      label {
+        left: 0;
+      }
+      input {
+        margin: 0px;
+      }
+    }
+  }
+  >div >.row{
+    background: $primary-color-dark;
+    .col{
+      padding:0px 5px;
+    }
+    button {
+      width: 100%;
+    }
+    margin:0px;
+    padding:10px;
+    position: fixed;
+    bottom:0px;
+    right:0px;
+    left:0px;
+    overflow: hidden;
+  }
+}
+
+.rc-slider {
+  .rc-slider-rail {
+    background: $primary-color-dark;
+    border:solid 1px $primary-color-light;
+  }
+  .rc-slider-track{
+    background: $secondary-color;
+  }
+  .rc-slider-handle, .rc-slider-handle:focus{
+    background:$secondary-color;
+    border:none;
+    box-shadow: none;
+    span{
+      display: block;
+      position: absolute;
+      top:-30px;
+      left:50%;
+      width:30px;
+      margin-left:-15px;
+      padding:0px 2px;
+      text-align: center;
+      font-size:12px;
+      background: $primary-color-dark;
+      border:solid 1px $primary-color-light;
+      color:white;
+      line-height: 20px;
+      //left:13px;
+    }
+  }
+}
+
+.homeLogo{
+  text-align: center;
+  padding:40px 0px;
 }

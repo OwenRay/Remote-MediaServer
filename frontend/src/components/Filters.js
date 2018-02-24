@@ -1,0 +1,184 @@
+import React, {Component} from 'react';
+/* global $ */
+import {Button, Col, Input, Row, SideNav} from "react-materialize";
+import {Handle, Range} from 'rc-slider';
+import 'rc-slider/assets/index.css';
+
+let genres;
+$.getJSON("/api/tmdb/genres", o=>genres=o)
+
+class ButtonMenu extends Component {
+  constructor() {
+    super();
+    this.onChange = this.onChange.bind(this);
+    this.onSliderChange = this.onSliderChange.bind(this);
+    this.hideSideNav = this.hideSideNav.bind(this);
+    this.resetFilters = this.resetFilters.bind(this);
+    this.onOpen = this.onOpen.bind(this);
+    this.state = {filters:{},open:false};
+  }
+
+  componentDidMount() {
+    //I'm really sorry about this, I know I'm not supossed to do this...
+    // but here's the thing;
+    // Some of the form components don't react very well to their values changing externally
+    // So... I thought I might just render the contents when the sidenav is open
+    // But somehow the onopen/onclose events are broken, so thats why I listen to clicks
+    $("#openFilters").click(this.onOpen);
+  }
+
+  componentWillReceiveProps(props) {
+    const f = this.state.filters;
+    for(let key in props.filters) {
+      if(["false","true"].includes(props.filters[key])) {
+        f[key] = props.filters[key]==="true";
+      }else{
+        f[key] = props.filters[key];
+      }
+    }
+    this.setState({filters:f});
+  }
+
+  hideSideNav() {
+    $(this.sideNav).sideNav('hide');
+    this.setState({"open":false});
+  }
+
+  onSliderChange(name, value) {
+    const o = this.state;
+    o.filters[name] = value.join("><");
+    this.setState(o);
+
+    if(this.props.onChange) {
+      this.props.onChange(o.filters);
+    }
+  }
+
+  onChange(e) {
+    const o = this.state;
+    o.filters[e.target.name] = e.target.value;
+    if(o.filters[e.target.name]==="") {
+      delete o.filters[e.target.name];
+    }
+    this.setState(o);
+
+    if(this.props.onChange) {
+      this.props.onChange(o.filters);
+    }
+  }
+
+  handle(props) {
+    props.dragging = props.dragging+"";
+    return  <Handle key={"handle"+props.className} {...props} >
+      {props.dragging!=="false"?<span>{props.value}</span>:""}
+    </Handle>
+  }
+
+  resetFilters() {
+    this.setState({filters:{}});
+    this.props.onChange({});
+    this.hideSideNav();
+  }
+
+  onOpen() {
+    this.setState({open:true});
+  }
+
+  content() {
+    if(!this.state.open) {
+      return null;
+    }
+    const f = this.state.filters;
+    const rangeValue = f["vote-average"]?
+      f["vote-average"].split("><").map(v=>parseFloat(v)):
+      [1,10];
+    return (
+      <div>
+        <div className="top">
+          <Row>
+            <Input
+              value={f["play-position.watched"]+""}
+              type='select'
+              label='Watched'
+              name="play-position.watched"
+              onChange={this.onChange}>
+              <option value=''>Watched & unwatched</option>
+              <option value='true'>Watched only</option>
+              <option value='false'>Unwatched only</option>
+            </Input>
+          </Row>
+          <Row>
+            <Input
+              value={f["genre-ids"]}
+              name="genre-ids"
+              type='select'
+              label='Genre'
+              onChange={this.onChange}>
+              <option value="">All</option>
+              {genres.map(
+                genre => <option key={genre.id} value={genre.id}>{genre.name}</option>
+              )}
+            </Input>
+          </Row>
+          <Row>
+            <label>Rating</label>
+            <Range
+              handle={this.handle}
+              step={.1}
+              onChange={v=>this.onSliderChange("vote-average", v)}
+              value={rangeValue}
+              min={1}
+              max={10}/>
+          </Row>
+          {/*<Row>
+            <label>Runtime</label>
+            <Range
+              handle={this.handle}
+              step={.1}
+              onChange={v=>this.onSliderChange("vote-average", v)}
+              value={rangeValue}
+              min={1}
+              max={10}/>
+          </Row>
+          <Row>
+            <label>Year</label>
+            <Range
+              handle={this.handle}
+              step={.1}
+              onChange={v=>this.onSliderChange("vote-average", v)}
+              value={rangeValue}
+              min={1}
+              max={10}/>
+          </Row>*/}
+        </div>
+        <Row>
+          <Col s={6}>
+            <Button onClick={this.hideSideNav}>Close</Button>
+          </Col>
+          <Col s={6}>
+            <Button onClick={this.resetFilters}>Reset</Button>
+          </Col>
+        </Row>
+      </div>
+    );
+  }
+
+  render() {
+
+    return (
+      <SideNav
+        ref={ref=>window.sideNav=this.sideNav=ref}
+        trigger={<Button id="openFilters" ref={ref=>window.button=ref} floating icon="tune"/>}
+        options={{
+          edge:"right",
+          draggable:true,
+          onOpen:this.onOpen,
+          onClose:this.onClose
+        }}>
+        {this.content()}
+      </SideNav>
+    )
+  }
+}
+
+export default ButtonMenu;

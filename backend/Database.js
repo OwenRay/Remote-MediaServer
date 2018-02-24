@@ -9,6 +9,7 @@ class Database {
     constructor() {
         this.ids = {};
         this.tables = {};
+        this.version = 0;
         this.writeTimeout = null;
     }
 
@@ -95,6 +96,9 @@ class Database {
         // %test%       match test somwhere in the string
         // test%        starts with test
         // %test        ends with test
+        // >1           greater then 1
+        // <1           less then 1
+        // 2><6         value between 2 and 6
         for(let key in filters)
         {
             type = "normal";
@@ -114,8 +118,19 @@ class Database {
                 } else if (b) {
                     type = "startsWith";
                     filters[key] = filters[key].substring(0, filters[key].length - 1);
+                }else if(filters[key][0]==="<") {
+                    type = "lt";
+                    filters[key] = filters[key].substring(1);
+                }else if(filters[key][0]===">") {
+                    type = "gt";
+                    filters[key] = parseFloat(filters[key].substring(1));
+                }else if(filters[key].match(/^[0-9.]+\>\<?[0-9.]+$/)) {
+                    type = "ltgt";
+                    filters[key] = filters[key].split("><").map(v=>parseFloat(v));
                 }
-                filters[key] = filters[key].toLowerCase();
+                if(type!=="ltgt") {
+                    filters[key] = parseFloat(filters[key].toLowerCase());
+                }
             }
             filterProps[key] = type;
         }
@@ -125,7 +140,6 @@ class Database {
         for (const item in filters) { // jshint ignore:line
             numFilters++;
         }
-        Log.debug(filters);
 
         const items = [];
         for(let itemKey in table)
@@ -163,12 +177,15 @@ class Database {
 
     matches(value, filter, filterProp)
     {
-        if(typeof(filter) !== "boolean") {
+        if(["lt","gt","ltgt"].includes(filterProp)) {
+            if(!value)
+                value=0;
+            value=parseFloat(value);
+        }else if(["array"].includes(typeof(value))) {
             value = (value + "").toLowerCase();
-            filter = (filter + "").toLowerCase();
-        }else{
-            //console.log("bool");
         }
+
+
         switch(filterProp)
         {
             case "endsWith":
@@ -177,7 +194,16 @@ class Database {
                 return value.indexOf(filter)===0;
             case "search":
                 return value.indexOf(filter)>=0;
+            case "lt":
+                return value<filter;
+            case "gt":
+                return value>filter;
+            case "ltgt":
+                return value>filter[0]&&value<filter[1];
             case "normal":
+                if(Array.isArray(value)) {
+                    return value.includes(filter);
+                }
                 return value===filter;
         }
     }

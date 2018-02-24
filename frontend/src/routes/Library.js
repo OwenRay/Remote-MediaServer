@@ -8,6 +8,8 @@ import MediaItem from "../components/mediaItem/MediaItemTile";
 import { Collection, AutoSizer} from 'react-virtualized';
 import SearchBar from "../components/SearchBar";
 import {debounce} from 'throttle-debounce';
+import Filters from "../components/Filters";
+
 
 class Library extends Component {
   constructor() {
@@ -37,7 +39,7 @@ class Library extends Component {
       .forEach(o=>{
         const parts = o.split("=");
         if(parts[0]&&parts[1]) {
-          filters[parts[0]] = parts[1];
+          filters[parts[0]] = decodeURIComponent(parts[1]);
         }
       });
 
@@ -206,10 +208,13 @@ class Library extends Component {
   onChange(o) {
     this.setState({filters:o});
     let url = "";
-    for (let key in this.state.filters) {
-      url += key + "=" + this.state.filters[key] + "&";
+    for (let key in o) {
+      url += key + "=" + o[key] + "&";
     }
-    this.props.history.push("?" + url);
+    clearTimeout(this.waitForUpdate);
+    this.waitForUpdate = setTimeout(()=>{
+      this.props.history.push("?" + url);
+    }, 500);
   }
 
   render() {
@@ -236,6 +241,8 @@ class Library extends Component {
           <SearchBar filters={this.state.filters} scroller={this.collection} onChange={this.onChange.bind(this)}/>
           {collection}
         </div>
+        <Filters filters={this.state.filters} scroller={this.collection} onChange={this.onChange.bind(this)}/>
+
       </div>
     );
   }

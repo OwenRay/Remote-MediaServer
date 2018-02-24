@@ -67,7 +67,7 @@ class Detail extends Component {
       item:i,
       episodes:seasons,
       seasons:Object.keys(seasons),
-      watched:i.playPosition&&(await i.playPosition()).position>(i.fileduration|1)*.97
+      watched:i.playPosition&&(await i.playPosition()).watched
     });
   }
 
@@ -146,6 +146,7 @@ class Detail extends Component {
     }
     pos._type = 'play-positions';
     pos.position = this.state.watched?0:this.state.item.fileduration|1;
+    pos.watched = !this.state.watched;
     this.setState({watched:!this.state.watched});
     let posResult = await store.dispatch(apiActions.write(pos));
 

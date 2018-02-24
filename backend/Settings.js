@@ -9,6 +9,7 @@ const settingsObj = {
     "ffmpeg_binary": process.cwd() + "/ffmpeg",
     "ffprobe_binary": process.cwd() + "/ffprobe",
     "libraries": [],
+    "tmdb_apikey": "0699a1db883cf76d71187d9b24c8dd8e",
     "videoFileTypes": [
         "mkv",
         "mp4",

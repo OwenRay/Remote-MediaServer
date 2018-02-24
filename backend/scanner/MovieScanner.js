@@ -191,7 +191,6 @@ class MovieScanner
         let count = items.length;
         for(let c = 0; c<count; c++) {
             if(items[c].attributes.extra) {
-                //console.log("isExtra", items[c]);
                 items.push(items.splice(c, 1)[0]);
                 count--;
                 c--;

@@ -4,7 +4,8 @@
  */
 const IExtendedInfo = require("./IExtendedInfo");
 const Prom = require("node-promise").Promise;
-const MovieDB = require('moviedb')('0699a1db883cf76d71187d9b24c8dd8e');
+const Settings = require("../../Settings");
+const MovieDB = require('moviedb')(Settings.getValue("tmdb_apikey"));
 const Database = require("../../Database");
 const TheMovieDBExtendedInfo = require("./TheMovieDBExtendedInfo");
 const NodeCache = new (require("node-cache"))();

@@ -64,7 +64,9 @@ class DatabaseApiHandler extends RequestHandler
         let sort = null;
         let distinct = null;
         let join = null;
+        const relationConditions = {};
 
+        //parse all the query items
         if(query['page[limit]'])
         {
             limit = parseInt(query['page[limit]']);
@@ -91,22 +93,37 @@ class DatabaseApiHandler extends RequestHandler
             delete query.join;
         }
 
+        //all the query items left become "where conditions"
         for(let key in query)
         {
+            if(key.indexOf(".")!==-1) {
+                const s =key.split(".");
+                if(!relationConditions[s[0]]) {
+                    relationConditions[s[0]] = {};
+                }
+                relationConditions[s[0]][s[1]] = query[key];
+                delete query[key];
+
+            }
             if(!query[key])
             {
                 delete query[key];
             }
         }
 
+
         if (!isNaN(itemId)) {
+            //find single item
             data = Database.getById(singularType, itemId);
         } else if (Object.keys(query).length>0) {
+            //find items with given filters
             data = Database.findByMatchFilters(singularType, query);
         }else{
+            //get all items
             data = Database.getAll(singularType);
         }
 
+        //parse sort params, example params: key:ASC,key2:DESC
         let sort_array = [];
         if(sort)
         {
@@ -115,10 +132,7 @@ class DatabaseApiHandler extends RequestHandler
                 sort_array[key] = sort_array[key].split(":");
             }
         }
-
-        const sortFunction = function (a, b) {
-            //for(var key = 0; key<sort_array.length; sort++) {
-            //    sort = sort_array[key];
+        const sortFunction = function(a, b) {
             for (let key in sort_array) {
                 const sort = sort_array[key][0];
                 let direction = sort_array[key].length > 1 ? sort_array[key][1] : "ASC";
@@ -139,38 +153,72 @@ class DatabaseApiHandler extends RequestHandler
                 }
             }
             return 0;
-            //}
-            //return 0;
         };
 
-        if(distinct)
+
+
+
+        //add relationships
+        let included = [];
+        if(join)
         {
-            const got = [];
-            for(let c = 0; c<data.length; c++) {
+            for(let key = 0; key<data.length; key++)
+            {
+                let meetsConditions = true;
+                let relObject;
+                const rel = data[key].relationships?data[key].relationships[join]:null;
+                if(rel) {
+                    relObject = Database.getById(join, rel.data.id);
+                }
+
+                if(relationConditions[join]!==undefined) {
+                    for (let what in relationConditions[join]) {
+                        if(!relObject) {
+                            if(relationConditions[join][what]==="true") {
+                                meetsConditions = false;
+                                break;
+                            }
+                        }else if (relObject.attributes[what] + "" !== relationConditions[join][what]) {
+                            meetsConditions = false;
+                            break;
+                        }
+                    }
+                }
+
+                if(!meetsConditions) {
+                    data.splice(key, 1);
+                    key--;
+                }
+            }
+        }
+
+        //make sure all the items have a unique "distinct" value
+        //and get relationships
+        const rels = {};
+        const got = [];
+        if(distinct) {
+            for (let c = 0; c < data.length; c++) {
                 const val = data[c].attributes[distinct];
-                if(got[val]!==undefined)
-                {
+                if (got[val] !== undefined) {
                     const score = sortFunction(data[c], got[val]);
-                    if(score>0) {
+                    if (score > 0) {
                         data.splice(c, 1);
                         c--;
                         continue;
-                    }else{
+                    } else {
                         data.splice(data.indexOf(got[val]), 1);
                     }
                     c--;
-                    //.delete data[key];
                 }
                 got[val] = data[c];
             }
         }
 
-        if(sort)
-        {
+        if(sort) {
             data = data.sort(sortFunction);
         }
 
-
+        //build return data
         const metadata = {};
         if(offset||limit)
         {
@@ -179,23 +227,17 @@ class DatabaseApiHandler extends RequestHandler
             data = data.splice(offset, limit);
         }
 
-        let included = [];
-        if(join)
-        {
-            const ids = {};
-            for(let key in data)
-            {
-                if(data[key].relationships&&data[key].relationships[join])
-                {
-                    const rel = data[key].relationships[join];
-                    ids[rel.data.id] = true;
+        if(join) {
+            for (let c = 0; c < data.length; c++) {
+                const rel = data[c].relationships ? data[c].relationships[join] : null;
+                if (rel) {
+                    if (!rels[rel.data.id]) {
+                        rels[rel.data.id] = Database.getById(join, rel.data.id);
+                    }
                 }
             }
-            for(let key in ids)
-            {
-                included.push(Database.getById(join, key));
-            }
         }
+        included = Object.values(rels);
 
         this.respond(data, metadata, included);
         return true;

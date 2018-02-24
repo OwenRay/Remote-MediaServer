@@ -50,7 +50,6 @@ class Mpeg4PlayHandler extends RequestHandler {
         this.context.body = new PassThrough();
         this.context.body.on("close", ()=>{
             this.ffmpeg.kill();
-           console.log("onclose");
         });
         this.resolve();
     }

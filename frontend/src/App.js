@@ -33,9 +33,12 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Navbar options={{ closeOnClick: true }} brand={this.state.name} right>
+        <Navbar
+          options={{ closeOnClick: true }}
+          brand={<div><img alt="Remote MediaServer" src="/assets/img/logo_small.png" height={25}/> {this.state.name}</div>}
+          right>
           <li>
-            <NavLink to="/">
+            <NavLink to="/" exact={true}>
               <Icon left>home</Icon>
               Home
             </NavLink>
@@ -54,7 +57,7 @@ class App extends Component {
           </li>
         </Navbar>
         <Route path="/" component={Home} exact={true}/>
-        <Route path="/Library" component={Library}/>
+        <Route path="/Library" component={Library} exact={true}/>
         <Route path="/Settings" component={Settings}/>
         <Route path="/item/detail/:id" component={Detail}/>
         <Route path="/item/view/:id" component={Video}/>
