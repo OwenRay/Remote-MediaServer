@@ -1,5 +1,4 @@
 import React from 'react';
-import Subtitles from "../Subtitles";
 import BaseRenderer from "./BaseRenderer";
 
 class Html5VideoRenderer extends BaseRenderer {
@@ -10,6 +9,16 @@ class Html5VideoRenderer extends BaseRenderer {
   componentWillReceiveProps(newProps) {
     if(newProps.volume!==this.props.volume) {
       this.vidRef.volume = newProps.volume;
+    }
+
+    if(newProps.subtitle!==this.props.subtitle) {
+      for (let item of this.vidRef.textTracks) {
+        if (item.id === newProps.subtitle){
+          item.mode = item.mode === "showing"?"hidden":"showing";
+        } else {
+          item.mode = "hidden";
+        }
+      }
     }
 
     if(newProps.paused!==this.props.paused) {
@@ -53,12 +62,9 @@ class Html5VideoRenderer extends BaseRenderer {
           ref={this.gotVidRef.bind(this)}
           src={this.getVideoUrl()}
           preload="none"
-          autoPlay/>
-        <Subtitles
-          vidRef={this.vidRef}
-          item={this.state.mediaItem}
-          file={this.state.subtitle}
-          progress={this.state.progress} />
+          autoPlay>
+          {this.props.subtitles.map(sub => <track kind={"subtitles"} src={"/api/mediacontent/subtitle/" + this.state.mediaItem.id + "/" + sub.value} id={sub.value} key={sub.value} mode="hidden"/>)}
+        </video>
       </div>
     );
   }
