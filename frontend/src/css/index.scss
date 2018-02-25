@@ -42,7 +42,6 @@ $tabs-bg-color: $primary-color-dark !default;
 @import "materialize-css/sass/materialize.scss";
 @import "_video.scss";
 @import "_detail.scss";
-@import "../../node_modules/libjass/libjass.css";
 
 body, .modal-content{
   background-color:$primary-color-dark;
