@@ -1,46 +1,40 @@
 const RequestHandler = require("../RequestHandler");
 const httpServer = require("../../HttpServer");
 const Settings = require("../../Settings");
-const MovieDB = require('moviedb')(Settings.getValue("tmdb_apikey"));
+const MovieDB = require('moviedb-api');
+const movieDB = new MovieDB({
+    consume:true,
+    apiKey:Settings.getValue("tmdb_apikey")
+});
 let genreCache;
 
 class TMDBApiHandler extends RequestHandler {
-    handleRequest() {
+    async handleRequest() {
         if(genreCache) {
             this.context.body = genreCache;
             return;
         }
 
-        return new Promise((resolve, reject) =>{
-            MovieDB.genreMovieList((err,res)=>{
-                MovieDB.genreTvList((err2,res2)=> {
-                    if (err || err2) {
-                        reject();
-                    }
-                    let haveIds = [];
-                    res = res.genres;
-                    res2 = res2.genres;
-                    genreCache = [];
-                    for(let key in res) {
-                        haveIds[res[key].id] = true;
-                        genreCache.push(res[key]);
-                    }
-                    for(let key in res2) {
-                        if(!haveIds[res2[key].id]) {
-                            genreCache.push(res2[key]);
-                        }
-                    }
-                    genreCache.sort(
-                        (a,b) => {
-                            return a.name.localeCompare(b.name);
-                        }
-                    );
+        const res = (await movieDB.genreMovieList()).genres;
+        const res2 = (await movieDB.genreTvList()).genres;
+        let haveIds = [];
+        genreCache = [];
+        for(let key in res) {
+            haveIds[res[key].id] = true;
+            genreCache.push(res[key]);
+        }
+        for(let key in res2) {
+            if(!haveIds[res2[key].id]) {
+                genreCache.push(res2[key]);
+            }
+        }
+        genreCache.sort(
+            (a,b) => {
+                return a.name.localeCompare(b.name);
+            }
+        );
 
-                    this.context.body = genreCache;
-                    resolve();
-                });
-            });
-        });
+        this.context.body = genreCache;
     }
 }
 

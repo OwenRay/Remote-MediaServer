@@ -9,17 +9,12 @@ const path = require('path');
 
 class ExtrasExtendedInfo extends IExtendedInfo
 {
-    extendInfo(args)
+    extendInfo(mediaItem, library)
     {
-        const mediaItem = args[0];
-        const library = args[1];
-        const promise = new Prom();
         if(!mediaItem.attributes.extra||mediaItem.attributes["external-id"]) {
-            promise.resolve(args);
-            return promise;
+            return;
         }
         //If external id has not been detected yet and items is an extra
-
         let items;
 
         //find all items with the same path, filtering out this item
@@ -45,10 +40,6 @@ class ExtrasExtendedInfo extends IExtendedInfo
         }else{
             mediaItem.attributes.extra = false;
         }
-        Database.update("media-item", mediaItem);
-        promise.resolve([mediaItem, library]);
-
-        return promise;
     }
 }
 

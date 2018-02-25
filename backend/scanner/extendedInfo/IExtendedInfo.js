@@ -11,7 +11,7 @@ class IExtendedInfo
      * @param params
      * @return Prom
      */
-    extendInfo()
+    async extendInfo(mediaItem, library)
     {
     }
 }

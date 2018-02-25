@@ -19,16 +19,18 @@ class ButtonMenu extends Component {
   }
 
   componentDidMount() {
-    //I'm really sorry about this, I know I'm not supossed to do this...
+    //I'm really sorry about this, I know I'm not supposed to do this...
     // but here's the thing;
     // Some of the form components don't react very well to their values changing externally
     // So... I thought I might just render the contents when the sidenav is open
-    // But somehow the onopen/onclose events are broken, so thats why I listen to clicks
+    // But somehow the onopen/onclose events are broken, so that's why I listen to clicks
     $("#openFilters").click(this.onOpen);
+    $(".drag-target[data-sidenav="+this.sideNav.id+"]").on("touchstart", this.onOpen);
   }
 
   componentWillReceiveProps(props) {
-    const f = this.state.filters;
+    console.log("receive props", props);
+    const f = {};
     for(let key in props.filters) {
       if(["false","true"].includes(props.filters[key])) {
         f[key] = props.filters[key]==="true";
@@ -36,7 +38,7 @@ class ButtonMenu extends Component {
         f[key] = props.filters[key];
       }
     }
-    this.setState({filters:f});
+    this.setState({filters:f, filterValues:props.filterValues});
   }
 
   hideSideNav() {
@@ -46,6 +48,9 @@ class ButtonMenu extends Component {
 
   onSliderChange(name, value) {
     const o = this.state;
+    if(name==="fileduration") {
+      value = value.map(v=>v*60);
+    }
     o.filters[name] = value.join("><");
     this.setState(o);
 
@@ -89,9 +94,18 @@ class ButtonMenu extends Component {
       return null;
     }
     const f = this.state.filters;
+    const fv = this.state.filterValues;
     const rangeValue = f["vote-average"]?
       f["vote-average"].split("><").map(v=>parseFloat(v)):
       [1,10];
+    const timeValue = f["fileduration"]?
+      f["fileduration"].split("><").map(v=>parseInt(v)/60):
+      [0,300];
+    const yearValue = f["year"]?
+      f["year"].split("><").map(v=>parseInt(v)):
+      [1900,new Date().getFullYear()];
+
+    console.log(fv, f);
     return (
       <div>
         <div className="top">
@@ -121,6 +135,32 @@ class ButtonMenu extends Component {
             </Input>
           </Row>
           <Row>
+            <Input
+              value={f["mpaa"]}
+              name="mpaa"
+              type='select'
+              label='Age rating'
+              onChange={this.onChange}>
+              <option value="">All</option>
+              {fv.mpaa.map(
+                rating => <option key={rating} value={rating}>{rating}</option>
+              )}
+            </Input>
+          </Row>
+          <Row>
+            <Input
+              value={f["actors"]}
+              name="actors"
+              type='select'
+              label='Actors'
+              onChange={this.onChange}>
+              <option value="">All</option>
+              {fv.actors.map(
+                actor => <option key={actor} value={actor}>{actor}</option>
+              )}
+            </Input>
+          </Row>
+          <Row>
             <label>Rating</label>
             <Range
               handle={this.handle}
@@ -130,26 +170,26 @@ class ButtonMenu extends Component {
               min={1}
               max={10}/>
           </Row>
-          {/*<Row>
+          <Row>
             <label>Runtime</label>
             <Range
               handle={this.handle}
-              step={.1}
-              onChange={v=>this.onSliderChange("vote-average", v)}
-              value={rangeValue}
-              min={1}
-              max={10}/>
+              step={1}
+              onChange={v=>this.onSliderChange("fileduration", v)}
+              value={timeValue}
+              min={0}
+              max={300}/>
           </Row>
           <Row>
             <label>Year</label>
             <Range
               handle={this.handle}
-              step={.1}
-              onChange={v=>this.onSliderChange("vote-average", v)}
-              value={rangeValue}
-              min={1}
-              max={10}/>
-          </Row>*/}
+              step={1}
+              onChange={v=>this.onSliderChange("year", v)}
+              value={yearValue}
+              min={1900}
+              max={new Date().getFullYear()}/>
+          </Row>
         </div>
         <Row>
           <Col s={6}>
@@ -167,8 +207,8 @@ class ButtonMenu extends Component {
 
     return (
       <SideNav
-        ref={ref=>window.sideNav=this.sideNav=ref}
-        trigger={<Button id="openFilters" ref={ref=>window.button=ref} floating icon="tune"/>}
+        ref={ref=>this.sideNav=ref}
+        trigger={<Button id="openFilters" floating icon="tune"/>}
         options={{
           edge:"right",
           draggable:true,

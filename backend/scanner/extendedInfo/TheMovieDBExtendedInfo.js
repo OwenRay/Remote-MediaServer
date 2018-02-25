@@ -5,68 +5,32 @@
 const IExtendedInfo = require("./IExtendedInfo");
 const Prom = require("node-promise").Promise;
 const Settings = require("../../Settings");
-const MovieDB = require('moviedb')(Settings.getValue("tmdb_apikey"));
 const path = require('path');
 const Database = require("../../Database");
 const Log = require("../../helpers/Log");
+const MovieDB = require('moviedb-api');
+const movieDB = new MovieDB({
+    consume:true,
+    apiKey:Settings.getValue("tmdb_apikey")
+});
 
 const discardRegex = new RegExp('\\W|-|_|([0-9]+p)|(LKRG)', "g");
 
+
 class TheMovieDBExtendedInfo extends IExtendedInfo
 {
-    extendInfo(args, tryCount)
+    async extendInfo(mediaItem, library, tryCount = 0)
     {
-        const mediaItem = args[0];
-        const library = args[1];
         if(!tryCount)
         {
             tryCount = 0;
         }
 
-        const promise = new Prom();
-
-        if(mediaItem.attributes.gotExtendedInfo)
-        {
-            promise.resolve([mediaItem, library]);
-            return promise;
+        if(mediaItem.attributes.gotExtendedInfo>=2) {
+            return
         }
         Log.debug("process tmdb", mediaItem.id);
 
-        const callback = function (err, res) {
-            if (!err) {
-                res = library.type !== "tv" ?
-                    (res.results && res.results.length > 0 ? res.results[0] : null)
-                    : res;
-            }
-            if (res) {
-                if (library.type === "tv") {
-                    res["external-episode-id"] = res.id;
-                    res["episode-title"] = res.name;
-                    delete res.name;
-                }
-                else {
-                    res["external-id"] = res.id;
-                }
-                delete res.id;
-                for (let key in res) {
-                    mediaItem.attributes[key.replace(/_/g, "-")] = res[key];
-                }
-                let date = res.release_date ? res.release_date : res.first_air_date;
-                date = date ? date : res.air_date;
-
-                mediaItem.attributes["release-date"] = date;
-                if (date) {
-                    mediaItem.attributes.year = date.split("-")[0];
-                }
-                mediaItem.attributes.gotExtendedInfo = true;
-                Database.update("media-item", mediaItem);
-            } else if (tryCount < 2) {
-
-                this.extendInfo([mediaItem, library], tryCount + 1).then(promise.resolve);
-                return;
-            }
-            promise.resolve([mediaItem, library]);
-        }.bind(this);
 
         //If the movie cannot be found:
         // 1. try again without year,
@@ -90,11 +54,11 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
                 break;
         }
 
-        let searchMethod = MovieDB.searchMovie;
+        let searchMethod = movieDB.searchMovie;
         switch(library.type)
         {
             case "tv":
-                searchMethod = MovieDB.tvEpisodeInfo;
+                searchMethod = movieDB.tvSeasonEpisode;
                 params = {};
                 params.id = mediaItem.attributes["external-id"];
                 params.season_number = mediaItem.attributes.season;
@@ -102,26 +66,64 @@ class TheMovieDBExtendedInfo extends IExtendedInfo
                 params.episode_number = mediaItem.attributes.episode;
                 break;
         }
+        searchMethod = searchMethod.bind(movieDB);
 
-        searchMethod = searchMethod.bind(MovieDB);
-        function makeCall()
-        {
-            searchMethod(
-                params,
-                callback
-            );
-            TheMovieDBExtendedInfo.lastRequest = new Date().getTime();
+        let res = await searchMethod(params);
+
+        res = library.type !== "tv" ?
+            (res.results && res.results.length > 0 ? res.results[0] : null)
+            : res;
+
+        if (res) {
+            if (library.type === "tv") {
+                res["external-episode-id"] = res.id;
+                res["episode-title"] = res.name;
+                delete res.name;
+            } else {
+                res["external-id"] = res.id;
+            }
+
+            if(library.type==="movie") {
+                const {crew, date} = await this.getMoreMovieInfo(res.id);
+                mediaItem.attributes.actors = crew.cast.map(actor => actor.name);
+                mediaItem.attributes.mpaa = date.certification;
+            }
+
+            delete res.id;
+            for (let key in res) {
+                mediaItem.attributes[key.replace(/_/g, "-")] = res[key];
+            }
+            let releaseDate = res.release_date ? res.release_date : res.first_air_date;
+            releaseDate = releaseDate ? releaseDate : res.air_date;
+
+            mediaItem.attributes["release-date"] = releaseDate;
+            if (releaseDate) {
+                mediaItem.attributes.year = releaseDate.split("-")[0];
+            }
+            mediaItem.attributes.gotExtendedInfo=2;
+
+        } else if (tryCount < 2) {
+            await this.extendInfo(mediaItem, library, tryCount + 1);
         }
-        //to make sure the api only gets called every 300ms
-        const waitFor = 300 - (new Date().getTime() - TheMovieDBExtendedInfo.lastRequest);
-        if(waitFor<20)
-        {
-            makeCall();
-        }else
-        {
-            setTimeout(makeCall, waitFor);
+    }
+
+    async getMoreMovieInfo(id) {
+        let crew = await movieDB.movieCredits({id});
+        let date;
+        let dates = await movieDB.movieRelease_dates({id});
+
+        //is there a US release? get it. otherwise whichever's first
+        dates = dates.results;
+        for (let key in dates) {
+            if (dates[key].iso_3166_1 === "US") {
+                date = dates[key].release_dates.pop();
+                break;
+            }
         }
-        return promise;
+        if (!date && dates.length) {
+            date = dates[0].release_dates.pop();
+        }
+        return {crew, date};
     }
 }
 

@@ -178,6 +178,8 @@ class Database {
             value=parseFloat(value);
         }else if(!Array.isArray(value)) {
             value = (value + "").toLowerCase();
+        }else {
+            value = value.map(v=>v.toLocaleLowerCase());
         }
 
         switch(filterProp)

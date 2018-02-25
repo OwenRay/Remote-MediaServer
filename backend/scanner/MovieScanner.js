@@ -5,7 +5,6 @@ const Database = require("../Database");
 const MediaItemHelper = require("../helpers/MediaItemHelper");
 const fs = require("fs");
 const Prom = require("node-promise").Promise;
-
 const TheMovieDBExtendedInfo = require("./extendedInfo/TheMovieDBExtendedInfo");
 const FFProbeExtendedInfo = require("./extendedInfo/FFProbeExtendedInfo");
 const ParseFileNameExtendedInfo = require("./extendedInfo/ParseFileNameExtendedInfo");
@@ -183,7 +182,7 @@ class MovieScanner
         }
     }
 
-    checkForExtendedInfo()
+    async checkForExtendedInfo()
     {
         Log.info("checking for extended info...");
         const items = Database.findBy("media-item", "libraryId", this.library.uuid);
@@ -205,28 +204,15 @@ class MovieScanner
             new ExtrasExtendedInfo()
         ];
 
-        const loadNext = function () {
-            Log.debug("extendInfo, next");
-            if (items.length === 0) {
-                Log.info("done scanning");
-                this.scanNext();
-                return;
-            }
-
+        while(items.length) {
             const item = items.pop();
-
-            let prevPromise;
             for (let c = 0; c < extendedInfoItems.length; c++) {
-                if (prevPromise) {
-                    prevPromise = prevPromise.then(extendedInfoItems[c].extendInfo.bind(extendedInfoItems[c]));
-                } else {
-                    prevPromise = extendedInfoItems[c].extendInfo([item, this.library]);
-                }
+                await extendedInfoItems[c].extendInfo(item, this.library);
             }
-            prevPromise.then(loadNext);
+            Database.update("media-item", item);
+        }
 
-        }.bind(this);
-        loadNext();
+        this.scanNext();
     }
 }
 

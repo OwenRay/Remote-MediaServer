@@ -11,10 +11,8 @@ const Log = require("../../helpers/Log");
 
 class ParseFileNameExtendedInfo extends IExtendedInfo
 {
-    extendInfo(args, tryCount)
+    async extendInfo(mediaItem, library, tryCount = 0)
     {
-        const mediaItem = args[0];
-        const library = args[1];
         if(!tryCount)
         {
             tryCount = 0;
@@ -61,42 +59,33 @@ class ParseFileNameExtendedInfo extends IExtendedInfo
             searchQuery = folder.base.replace(/ /g, '.') + "-" + filePath.base.replace(/ /g, '.');
         }
 
-        Guessit.parseName(
+        try {
+            const data = await Guessit.parseName(
                 searchQuery,
-                {options:"-t "+library.type+" "+extraGuessitOptions.join(" ")}
-            ).then(
-                function (data) {
-                    if (tryCount === 1 && data.title) {
-                        data.title = data.title.replace(folder.base + '-', '');
-                    }
-                    if (data.title) {
-                        if(season)
-                        {
-                            data.season = season;
-                        }
-                        if(serieName)
-                        {
-                            mediaItem.attributes["episode-title"] = data["episode-title"]?data["episode-title"]:data.title;
-                            data.title = serieName;
-                        }
-                        mediaItem.attributes.season = data.season;
-                        mediaItem.attributes.episode = data.episode;
-                        mediaItem.attributes.title = data.title;
-                        mediaItem.attributes.type = library.type;
-                        Database.update("media-item", mediaItem);
-                        return promise.resolve([mediaItem, library]);
-                    }
-                    if(tryCount>=1)
-                    {
-                        return promise.resolve([mediaItem, library]);
-                    }
-                    this.extendInfo([mediaItem, library], tryCount + 1).then(promise.resolve);
-                }.bind(this),
-                function() {
-                    promise.resolve([mediaItem, library]);
-                }
+                {options: "-t " + library.type + " " + extraGuessitOptions.join(" ")}
             );
-        return promise;
+            if (tryCount === 1 && data.title) {
+                data.title = data.title.replace(folder.base + '-', '');
+            }
+            if (data.title) {
+                if (season) {
+                    data.season = season;
+                }
+                if (serieName) {
+                    mediaItem.attributes["episode-title"] = data["episode-title"] ? data["episode-title"] : data.title;
+                    data.title = serieName;
+                }
+                mediaItem.attributes.season = data.season;
+                mediaItem.attributes.episode = data.episode;
+                mediaItem.attributes.title = data.title;
+                mediaItem.attributes.type = library.type;
+                return;
+            }
+            if (tryCount >= 1) {
+                return;
+            }
+            await this.extendInfo(mediaItem, library, tryCount + 1);
+        }catch(e){}
     }
 }
 

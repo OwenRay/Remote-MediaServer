@@ -83,6 +83,9 @@ class Library extends Component {
 
     queryParams.distinct = "external-id";
     queryParams.join = "play-position";
+    if(offset===0) {
+      queryParams.filterValues="actors,mpaa";
+    }
     queryParams.extra = false;
 
     store.dispatch(apiActions.read(
@@ -91,7 +94,6 @@ class Library extends Component {
     )).then((res) => {
       const i = res.resources;
       const firstTime = !items.length;
-
 
       for (let key in i) {
         const index = parseInt(offset+parseInt(key, 10), 10);
@@ -113,6 +115,7 @@ class Library extends Component {
 
       if(firstTime) {
         this.setState({
+          filterValues:res.meta.filterValues,
           media:items,
           rowCount:res.meta.totalItems
         });
@@ -211,6 +214,7 @@ class Library extends Component {
     for (let key in o) {
       url += key + "=" + o[key] + "&";
     }
+    console.log(o);
     clearTimeout(this.waitForUpdate);
     this.waitForUpdate = setTimeout(()=>{
       this.props.history.push("?" + url);
@@ -241,7 +245,7 @@ class Library extends Component {
           <SearchBar filters={this.state.filters} scroller={this.collection} onChange={this.onChange.bind(this)}/>
           {collection}
         </div>
-        <Filters filters={this.state.filters} scroller={this.collection} onChange={this.onChange.bind(this)}/>
+        <Filters filters={this.state.filters} filterValues={this.state.filterValues} onChange={this.onChange.bind(this)}/>
 
       </div>
     );

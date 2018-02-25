@@ -64,6 +64,7 @@ class DatabaseApiHandler extends RequestHandler
         let sort = null;
         let distinct = null;
         let join = null;
+        let filterValues = null;
         const relationConditions = {};
 
         //parse all the query items
@@ -91,6 +92,10 @@ class DatabaseApiHandler extends RequestHandler
         {
             join = query.join;
             delete query.join;
+        }
+        if(query.filterValues) {
+            filterValues = query.filterValues.split(",");
+            delete query.filterValues;
         }
 
         //all the query items left become "where conditions"
@@ -157,7 +162,6 @@ class DatabaseApiHandler extends RequestHandler
 
 
 
-
         //add relationships
         let included = [];
         if(join)
@@ -192,6 +196,24 @@ class DatabaseApiHandler extends RequestHandler
             }
         }
 
+        //build the possible filter values.
+        if(filterValues) {
+            const values = {};
+            filterValues.forEach(a=>{
+                const items = {};
+                data.forEach(i=>{
+                    i = i.attributes[a];
+                    if(Array.isArray(i)) {
+                        i.forEach(entry=>items[entry]=true);
+                        return;
+                    }
+                    items[i]=true;
+                });
+                values[a] = Object.keys(items).sort();
+            });
+            filterValues = values;
+        }
+
         //make sure all the items have a unique "distinct" value
         //and get relationships
         const rels = {};
@@ -219,7 +241,7 @@ class DatabaseApiHandler extends RequestHandler
         }
 
         //build return data
-        const metadata = {};
+        const metadata = {filterValues};
         if(offset||limit)
         {
             metadata.totalPages = Math.ceil(data.length/limit);
