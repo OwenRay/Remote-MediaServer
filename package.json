@@ -7,10 +7,10 @@
   },
   "scripts": {
     "prepublish": "node scripts/prepublish.js",
-    "test": "nodeunit tests/"
+    "test": "eslint --config .eslintrc backend/ && nodeunit tests/"
   },
   "dependencies": {
-    "guessit-wrapper": "^1.0.0",
+    "q": "^1.5.1",
     "koa": "^2.3.0",
     "koa-cors": "0.0.16",
     "koa-router": "^7.1.1",
@@ -25,9 +25,16 @@
     "server-destroy": "^1.0.1",
     "srt-to-ass": "^0.1.9",
     "unzip2": "^0.2.5",
-    "filewatcher": "^3.0.1"
+    "filewatcher": "^3.0.1",
+    "glob": "^7.1.2"
   },
   "devDependencies": {
-    "nodeunit": "^0.11.2"
+    "nodeunit": "^0.11.2",
+    "eslint": "^4.18.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-react": "^7.7.0",
+    "ajv": "^6.2.0"
   }
 }
