@@ -110,7 +110,9 @@ class TheMovieDBExtendedInfo extends IExtendedInfo {
       [date] = dates;
     }
 
-    date = date.release_dates.pop();
+    if (date) {
+      date = date.release_dates.pop();
+    }
 
     return { crew, date };
   }
