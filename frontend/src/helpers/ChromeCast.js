@@ -80,11 +80,27 @@ class ChromeCast{
     }
   }
 
-  setMedia(media, contentType) {
+  setMedia(media, contentType, subtitles, subtitle, id) {
     if(!this.session) {
       return;
     }
+    let activeTracks = [];
+    this.tracks = [];
+    for (let i in subtitles) {
+      let track = new chrome.cast.media.Track(i, chrome.cast.media.TrackType.TEXT);
+      track.trackContentId = '/api/mediacontent/subtitle/' + id + '/' + subtitles[i].value;
+      track.trackContentType = 'text/vtt';
+      track.subtype = chrome.cast.media.TextTrackType.SUBTITLES;
+      track.name = subtitles[i].value;
+      track.customData = null;
+      if (subtitle === subtitles[i].id) {
+        activeTracks.push(i);
+      }
+      this.tracks.push(track);
+    }
     const mediaInfo = new chrome.cast.media.MediaInfo(media, contentType);
+    mediaInfo.textTrackStyle = new chrome.cast.media.TextTrackStyle();
+    mediaInfo.tracks = this.tracks;
     const request = new chrome.cast.media.LoadRequest(mediaInfo);
     this.session.loadMedia(
       request,
@@ -93,7 +109,8 @@ class ChromeCast{
         this.trigger(this.EVENT_ONPLAY);
       }
     );
-
+    let tracksInfoRequest = new chrome.cast.media.EditTracksInfoRequest(activeTracks);
+    this.session.media.editTracksInfo(tracksInfoRequest);
   }
 
   setVolume(volume) {

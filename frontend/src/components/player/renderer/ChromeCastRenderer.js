@@ -4,7 +4,7 @@ import ChromeCast from "../../../helpers/ChromeCast";
 
 
 
-class Html5VideoRenderer extends BaseRenderer {
+class ChromeCastRenderer extends BaseRenderer {
   constructor() {
     super();
     this.onPlay = this.onPlay.bind(this);
@@ -56,8 +56,10 @@ class Html5VideoRenderer extends BaseRenderer {
       s.mediaItem.id!==prevState.mediaItem.id||
       s.seek!==prevState.seek||
       s.audioChannel!==prevState.audioChannel||
-      s.videoChannel!==prevState.videoChannel) {
-      ChromeCast.setMedia("http://"+document.location.host+this.getVideoUrl(), "video/mp4");
+      s.videoChannel!==prevState.videoChannel||
+      s.subtitle!==prevState.subtitle||
+      s.subtitles!==prevState.subtitles) {
+      ChromeCast.setMedia("http://"+document.location.host+this.getVideoUrl(), "video/mp4", s.subtitles, s.subtitle, this.mediaItem.id);
     }
   }
 
@@ -73,4 +75,4 @@ class Html5VideoRenderer extends BaseRenderer {
 }
 
 
-export default Html5VideoRenderer;
+export default ChromeCastRenderer;
