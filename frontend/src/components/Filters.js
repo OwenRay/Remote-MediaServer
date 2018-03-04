@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 /* global $ */
-import {Button, Col, Input, Row, SideNav} from "react-materialize";
+import {Button, Col, Input, Row, SideNav, Autocomplete} from "react-materialize";
 import {Handle, Range} from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
@@ -11,7 +11,7 @@ class ButtonMenu extends Component {
   constructor() {
     super();
     this.onChange = this.onChange.bind(this);
-    this.onSliderChange = this.onSliderChange.bind(this);
+    this.onValueChange = this.onValueChange.bind(this);
     this.hideSideNav = this.hideSideNav.bind(this);
     this.resetFilters = this.resetFilters.bind(this);
     this.onOpen = this.onOpen.bind(this);
@@ -29,7 +29,6 @@ class ButtonMenu extends Component {
   }
 
   componentWillReceiveProps(props) {
-    console.log("receive props", props);
     const f = {};
     for(let key in props.filters) {
       if(["false","true"].includes(props.filters[key])) {
@@ -46,12 +45,12 @@ class ButtonMenu extends Component {
     this.setState({"open":false});
   }
 
-  onSliderChange(name, value) {
+  onValueChange(name, value) {
     const o = this.state;
     if(name==="fileduration") {
       value = value.map(v=>v*60);
     }
-    o.filters[name] = value.join("><");
+    o.filters[name] = Array.isArray(value)?value.join("><"):value;
     this.setState(o);
 
     if(this.props.onChange) {
@@ -60,6 +59,7 @@ class ButtonMenu extends Component {
   }
 
   onChange(e) {
+    console.log(arguments);
     const o = this.state;
     o.filters[e.target.name] = e.target.value;
     if(o.filters[e.target.name]==="") {
@@ -99,13 +99,15 @@ class ButtonMenu extends Component {
       f["vote-average"].split("><").map(v=>parseFloat(v)):
       [1,10];
     const timeValue = f["fileduration"]?
-      f["fileduration"].split("><").map(v=>parseInt(v)/60):
+      f["fileduration"].split("><").map(v=>parseInt(v, 10)/60):
       [0,300];
     const yearValue = f["year"]?
-      f["year"].split("><").map(v=>parseInt(v)):
+      f["year"].split("><").map(v=>parseInt(v, 10)):
       [1900,new Date().getFullYear()];
 
-    console.log(fv, f);
+    const actorsData = {};
+    fv.actors.forEach(actor=>actorsData[actor] = null);
+
     return (
       <div>
         <div className="top">
@@ -148,24 +150,21 @@ class ButtonMenu extends Component {
             </Input>
           </Row>
           <Row>
-            <Input
+            <Autocomplete
               value={f["actors"]}
               name="actors"
               type='select'
-              label='Actors'
-              onChange={this.onChange}>
-              <option value="">All</option>
-              {fv.actors.map(
-                actor => <option key={actor} value={actor}>{actor}</option>
-              )}
-            </Input>
+              title='Actors'
+              onAutocomplete={val=>this.onValueChange("actors", val)}
+              data={actorsData}
+            />
           </Row>
           <Row>
             <label>Rating</label>
             <Range
               handle={this.handle}
               step={.1}
-              onChange={v=>this.onSliderChange("vote-average", v)}
+              onChange={v=>this.onValueChange("vote-average", v)}
               value={rangeValue}
               min={1}
               max={10}/>
@@ -175,7 +174,7 @@ class ButtonMenu extends Component {
             <Range
               handle={this.handle}
               step={1}
-              onChange={v=>this.onSliderChange("fileduration", v)}
+              onChange={v=>this.onValueChange("fileduration", v)}
               value={timeValue}
               min={0}
               max={300}/>
@@ -185,7 +184,7 @@ class ButtonMenu extends Component {
             <Range
               handle={this.handle}
               step={1}
-              onChange={v=>this.onSliderChange("year", v)}
+              onChange={v=>this.onValueChange("year", v)}
               value={yearValue}
               min={1900}
               max={new Date().getFullYear()}/>

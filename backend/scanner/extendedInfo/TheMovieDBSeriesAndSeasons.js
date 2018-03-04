@@ -34,23 +34,28 @@ class TheMovieDBSeriesAndSeasons extends IExtendedInfo {
 
     nodeCache.set(`1:${mediaItem.attributes.title}`, res);
     [res] = res.results;
-    res['external-id'] = res.id;
-    delete res.id;
-    Object.keys(res).forEach((key) => { mediaItem.attributes[key.replace(/_/g, '-')] = res[key]; });
+    if (res) {
+      res['external-id'] = res.id;
+      delete res.id;
+      Object.keys(res).forEach((key) => {
+        mediaItem.attributes[key.replace(/_/g, '-')] = res[key];
+      });
 
-    const date = res.release_date ? res.release_date : res.first_air_date;
-    [mediaItem.attributes.year] = date.split('-');
-
+      const date = res.release_date ? res.release_date : res.first_air_date;
+      [mediaItem.attributes.year] = date.split('-');
+    }
     // find season info
     cache = nodeCache.get(`2:${mediaItem.attributes.title}:${mediaItem.attributes.season}`);
     res = cache || await movieDB.tvSeason({
       id: mediaItem.attributes['external-id'],
       season_number: mediaItem.attributes.season,
     });
-    nodeCache.set(`2:${mediaItem.attributes.title}:${mediaItem.attributes.season}`, res);
+    if (res) {
+      nodeCache.set(`2:${mediaItem.attributes.title}:${mediaItem.attributes.season}`, res);
 
-    delete res.episodes;
-    mediaItem.attributes.seasonInfo = res;
+      delete res.episodes;
+      mediaItem.attributes.seasonInfo = res;
+    }
 
     try {
       // get credits

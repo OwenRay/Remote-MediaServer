@@ -581,7 +581,6 @@ button.marked{
       border:solid 1px $primary-color-light;
       color:white;
       line-height: 20px;
-      //left:13px;
     }
   }
 }
@@ -589,4 +588,11 @@ button.marked{
 .homeLogo{
   text-align: center;
   padding:40px 0px;
+}
+
+.autocomplete-content{
+  margin-top:-2px;
+  li .highlight{
+    color:$secondary-color;
+  }
 }

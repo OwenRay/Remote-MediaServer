@@ -79,8 +79,12 @@ class TheMovieDBExtendedInfo extends IExtendedInfo {
 
       if (library.type === 'movie') {
         const { crew, date } = await TheMovieDBExtendedInfo.getMoreMovieInfo(res.id);
-        mediaItem.attributes.actors = crew.cast.map(actor => actor.name);
-        mediaItem.attributes.mpaa = date.certification;
+        if (crew && crew.cast) {
+          mediaItem.attributes.actors = crew.cast.map(actor => actor.name);
+        }
+        if (date) {
+          mediaItem.attributes.mpaa = date.certification;
+        }
       }
 
       delete res.id;
