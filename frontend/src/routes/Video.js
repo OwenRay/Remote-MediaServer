@@ -234,7 +234,7 @@ class Video extends Component {
             subtitle={this.state.subtitle}
             volume={this.state.volume}
             paused={this.state.paused}
-            subtitles={this.state.mediaContent["subtitles"]}
+            subtitles={this.state.mediaContent!==undefined?this.state.mediaContent["subtitles"]:[]}
             onVolumeChange={this.volumeChange.bind(this)}
             />
         </div>
