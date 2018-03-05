@@ -101,12 +101,13 @@ class ChromeCast{
     const mediaInfo = new chrome.cast.media.MediaInfo(media, contentType);
     mediaInfo.textTrackStyle = new chrome.cast.media.TextTrackStyle();
     mediaInfo.tracks = this.tracks;
-    mediaInfo.activeTrackIds = activeTracks;
     const request = new chrome.cast.media.LoadRequest(mediaInfo);
+    var tracksInfoRequest = new chrome.cast.media.EditTracksInfoRequest(activeTracks);
     this.session.loadMedia(
       request,
       media=>{
         this.media=media;
+        this.media.editTracksInfo(tracksInfoRequest, () => console.log("Requested subtitles"), (err) => console.log(err));
         this.trigger(this.EVENT_ONPLAY);
       }
     );
