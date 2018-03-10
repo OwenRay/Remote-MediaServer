@@ -15,6 +15,7 @@ const Static = require('koa-static');
 const cors = require('koa-cors');
 const cache = require('node-file-cache');
 const destroyable = require('server-destroy');
+const bodyParser = require('koa-bodyparser');
 
 
 class HttpServer {
@@ -39,6 +40,7 @@ class HttpServer {
       require(path.resolve(file));
     });
 
+    this.server.use(bodyParser());
     this.server.use(this.router.routes());
     this.server.use(this.router.allowedMethods());
 

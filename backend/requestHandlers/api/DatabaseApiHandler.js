@@ -19,35 +19,26 @@ class DatabaseApiHandler extends RequestHandler {
       case 'POST':
       case 'PUT':
         this.handlePost(singularType);
-        return new Promise((resolve) => {
-          this.resolve = resolve;
-        });
+        break;
       default:
         this.handleGet(this.context.query, singularType, this.context.params.id);
         break;
     }
-    return null;
+    return true;
   }
 
   handlePost(singularType) {
-    let body = [];
+    const i = this.context.request.body.data;
+    const item = Database.getById(singularType, i.id);
 
-    this.context.req.on('data', (chunk) => {
-      body.push(chunk);
-    }).on('end', () => {
-      body = JSON.parse(`${body}`);
-      const i = body.data;
-      const item = Database.getById(singularType, i.id);
+    if (item) {
+      item.attributes = Object.assign(item.attributes, i.attributes);
+      item.relationships = i.relationships;
+      this.respond(Database.update(singularType, item));
+      return;
+    }
 
-      if (item) {
-        item.attributes = Object.assign(item.attributes, i.attributes);
-        item.relationships = i.relationships;
-        this.respond(Database.update(singularType, item));
-        return;
-      }
-
-      this.respond(Database.setObject(singularType, i.attributes));
-    });
+    this.respond(Database.setObject(singularType, i.attributes));
   }
 
   handleGet(query, singularType, itemId) {
@@ -149,11 +140,10 @@ class DatabaseApiHandler extends RequestHandler {
         }
 
         if (relationConditions[join] !== undefined) {
-          meetsConditions = relationConditions[join].every((what, conditionKey) => {
+          meetsConditions = Object.keys(relationConditions[join]).every((conditionKey) => {
+            const what = relationConditions[join][conditionKey];
             if (!relObject) {
-              if (what === 'true') {
-                return false;
-              }
+              return what !== 'true';
             }
             return `${relObject.attributes[conditionKey]}` === what;
           });

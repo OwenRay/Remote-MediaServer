@@ -5,30 +5,16 @@
 
 const RequestHandler = require('../RequestHandler');
 const Settings = require('../../Settings.js');
-const Log = require('../../helpers/Log');
 
 class SettingsApiHandler extends RequestHandler {
   handleRequest() {
     this.response.header['Content-Type'] = 'text/json';
 
     if (this.request.method === 'PATCH') {
-      return new Promise((resolve) => {
-        let body = '';
-        this.context.req.on('data', (data) => {
-          body += data;
-        }).on('end', () => {
-          try {
-            const data = JSON.parse(body);
-            const attrs = data.data.attributes;
-            Object.keys(attrs).forEach(key => Settings.setValue(key, attrs[key]));
-            Settings.save();
-          } catch (e) {
-            Log.exception('Exception', e);
-          }
-          this.respond();
-          resolve();
-        });
-      });
+      const data = this.context.request.body;
+      const attrs = data.data.attributes;
+      Object.keys(attrs).forEach(key => Settings.setValue(key, attrs[key]));
+      Settings.save();
     }
     this.respond();
 
