@@ -8,9 +8,14 @@ class Home extends Component {
 
   render() {
     return (
-      <Card>
-        This will be the landingpage, enabling you to continue watching where you left of... some time in the future...
-      </Card>
+      <div>
+        <Card>
+          This will be the landingpage, enabling you to continue watching where you left of... some time in the future...
+        </Card>
+        <div className="homeLogo">
+          <img alt="Remote" src="/assets/img/logo.png" height={200}/>
+        </div>
+      </div>
     );
   }
 }

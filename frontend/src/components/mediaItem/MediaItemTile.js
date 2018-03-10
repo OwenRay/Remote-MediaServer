@@ -70,7 +70,7 @@ class MediaItemTile extends Component {
     }
 
     if(this.state.playClicked) {
-      return (<Redirect to={"/item/view/"+this.state.id}/>);
+      return (<Redirect push to={"/item/view/"+this.state.id}/>);
     }
 
     return (

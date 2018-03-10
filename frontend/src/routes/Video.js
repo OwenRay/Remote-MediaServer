@@ -95,6 +95,7 @@ class Video extends Component {
 
   async savePosition() {
     this.pos.position = this.state.progress;
+    this.pos.watched = this.state.progress>this.state.item.fileduration*.97;
     let posResult = await store.dispatch(apiActions.write(this.pos));
 
     if(!this.pos.id) {
