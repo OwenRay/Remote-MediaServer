@@ -80,6 +80,19 @@ class ChromeCast{
     }
   }
 
+  updateSubtitle(subtitle) {
+    let activeTracks = [];
+    for (let i in this.tracks) {
+      i = parseInt(i);
+      if (subtitle === this.tracks[i].name) {
+        activeTracks.push(this.tracks[i].trackId);
+      }
+    }
+    console.log(activeTracks);
+    let tracksInfoRequest = new chrome.cast.media.EditTracksInfoRequest(activeTracks);
+    this.media.editTracksInfo(tracksInfoRequest, () => console.log("Requested subtitles"), (err) => console.log(err));
+  }
+
   setMedia(media, contentType, subtitles, subtitle, id) {
     if(!this.session) {
       return;
@@ -87,6 +100,7 @@ class ChromeCast{
     let activeTracks = [];
     this.tracks = [];
     for (let i in subtitles) {
+      i = parseInt(i);
       let track = new chrome.cast.media.Track(i, chrome.cast.media.TrackType.TEXT);
       track.trackContentId = 'http://' + document.location.host + '/api/mediacontent/subtitle/' + id + '/' + subtitles[i].value;
       track.trackContentType = 'text/vtt';

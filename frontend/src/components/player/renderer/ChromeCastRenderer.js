@@ -57,9 +57,11 @@ class ChromeCastRenderer extends BaseRenderer {
       s.seek!==prevState.seek||
       s.audioChannel!==prevState.audioChannel||
       s.videoChannel!==prevState.videoChannel||
-      s.subtitle!==prevState.subtitle||
       s.subtitles!==prevState.subtitles) {
       ChromeCast.setMedia("http://"+document.location.host+this.getVideoUrl(), "video/mp4", s.subtitles, s.subtitle, s.mediaItem.id);
+    }
+    if (prevState&&s.subtitle!==prevState.subtitle) {
+      ChromeCast.updateSubtitle(s.subtitle);
     }
   }
 
