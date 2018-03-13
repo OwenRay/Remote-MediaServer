@@ -2,6 +2,7 @@ const Settings = require('../Settings');
 const Database = require('../Database');
 const MediaItemHelper = require('../helpers/MediaItemHelper');
 const fs = require('fs');
+const chokidar = require('chokidar');
 const Log = require('../helpers/Log');
 const extendedInfoQueue = require('./ExtendedInfoQueue').getInstance();
 
@@ -25,13 +26,13 @@ class MovieScanner {
   }
 
   startWatching(lib) {
-    return fs.watch(lib.folder, { recursive: true }, (type, file) => {
-      this.onWatch(type, file, lib);
+    return chokidar.watch(lib.folder).on('all', (type, file) => {
+      this.onWatch(file, lib);
     });
   }
 
-  onWatch(type, file, library) {
-    file = MovieScanner.normalizeFileName(library.folder, `${library.folder}/${file}`);
+  onWatch(file, library) {
+    file = MovieScanner.normalizeFileName(library.folder, `${file}`);
     const [item] = Database.findBy('media-item', 'filepath', file);
 
     fs.stat(file, (err, stat) => {
