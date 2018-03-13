@@ -2,7 +2,7 @@ const Settings = require('../Settings');
 const Database = require('../Database');
 const MediaItemHelper = require('../helpers/MediaItemHelper');
 const fs = require('fs');
-const watchr = require('watchr');
+const { spawn } = require('child_process');
 const Log = require('../helpers/Log');
 const extendedInfoQueue = require('./ExtendedInfoQueue').getInstance();
 
@@ -26,16 +26,15 @@ class MovieScanner {
   }
 
   startWatching(lib) {
-    return watchr.open(
-      lib.folder,
-      (type, file) => {
-        this.onWatch(file, lib);
-      },
-      (err) => {
-        if (err) Log.debug('watch failed on', lib, 'with error', err);
-        else Log.debug('watch successful on', lib);
-      },
+    const proc = spawn(
+      'node',
+      [`${__dirname}/FilewatchWorker.js`, lib.folder],
+      { stdio: [0, 1, 'ipc'] },
     );
+    proc.on('message', (file) => {
+      this.onWatch(file, lib);
+    });
+    return proc;
   }
 
   onWatch(file, library) {
