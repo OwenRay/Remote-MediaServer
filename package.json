@@ -19,7 +19,6 @@
     "moviedb-api": "^0.0.3",
     "node-cache": "^3.2.1",
     "node-file-cache": "^1.0.2",
-    "node-promise": "^0.5.12",
     "node-uuid": "^1.4.7",
     "pluralize": "^1.2.1",
     "server-destroy": "^1.0.1",

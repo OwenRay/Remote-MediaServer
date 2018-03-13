@@ -105,9 +105,11 @@ class SubtitleApiHandler extends RequestHandler {
     this.response.end('[]');
   }
 
-  onReadDir(err, result) {
+  async onReadDir(err, result) {
     if (err) {
       this.resolve();
+      this.returnEmpty();
+      return;
     }
     const subtitles = result
       .filter(file => supportedSubtitleFormats.indexOf(path.extname(file)) !== -1)
@@ -115,29 +117,27 @@ class SubtitleApiHandler extends RequestHandler {
     const response = { subtitles };
 
 
-    FFProbe.getInfo(this.filePath).then((data) => {
-      const { streams } = data;
-      streams.forEach((str) => {
-        let name = str.tags ? str.tags.language : str.codec_long_name;
-        if (!name) {
-          name = str.tags.title;
+    const { streams } = await FFProbe.getInfo(this.filePath);
+    streams.forEach((str) => {
+      let name = str.tags ? str.tags.language : str.codec_long_name;
+      if (!name) {
+        name = str.tags.title;
+      }
+      name = name || str.codec_name;
+      if (supportedSubtitleFormats.indexOf(`.${str.codec_name}`) !== -1) {
+        response.subtitles.push({
+          label: `Built in: ${name}`,
+          value: `:${str.index}.${str.codec_name}`,
+        });
+      } else {
+        if (!response[str.codec_type]) {
+          response[str.codec_type] = [];
         }
-        name = name || str.codec_name;
-        if (supportedSubtitleFormats.indexOf(`.${str.codec_name}`) !== -1) {
-          response.subtitles.push({
-            label: `Built in: ${name}`,
-            value: `:${str.index}.${str.codec_name}`,
-          });
-        } else {
-          if (!response[str.codec_type]) {
-            response[str.codec_type] = [];
-          }
-          response[str.codec_type].push({
-            label: name,
-            value: str.index,
-          });
-        }
-      });
+        response[str.codec_type].push({
+          label: name,
+          value: str.index,
+        });
+      }
       this.context.body = response;
       this.resolve();
     });
