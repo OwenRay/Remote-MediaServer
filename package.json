@@ -10,6 +10,7 @@
     "test": "eslint --config .eslintrc backend/ && nodeunit tests/"
   },
   "dependencies": {
+    "chokidar": "^2.0.2",
     "glob": "^7.1.2",
     "koa": "^2.3.0",
     "koa-bodyparser": "^4.2.0",
@@ -25,8 +26,7 @@
     "q": "^1.5.1",
     "server-destroy": "^1.0.1",
     "srt-to-ass": "^0.1.9",
-    "unzip2": "^0.2.5",
-    "watchr": "^4.0.1"
+    "unzip2": "^0.2.5"
   },
   "devDependencies": {
     "nodeunit": "^0.11.2",
