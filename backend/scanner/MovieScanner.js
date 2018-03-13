@@ -2,7 +2,7 @@ const Settings = require('../Settings');
 const Database = require('../Database');
 const MediaItemHelper = require('../helpers/MediaItemHelper');
 const fs = require('fs');
-const chokidar = require('chokidar');
+const watchr = require('watchr');
 const Log = require('../helpers/Log');
 const extendedInfoQueue = require('./ExtendedInfoQueue').getInstance();
 
@@ -26,9 +26,16 @@ class MovieScanner {
   }
 
   startWatching(lib) {
-    return chokidar.watch(lib.folder).on('all', (type, file) => {
-      this.onWatch(file, lib);
-    });
+    return watchr.open(
+      lib.folder,
+      (type, file) => {
+        this.onWatch(file, lib);
+      },
+      (err) => {
+        if (err) Log.debug('watch failed on', lib, 'with error', err);
+        else Log.debug('watch successful on', lib);
+      },
+    );
   }
 
   onWatch(file, library) {
