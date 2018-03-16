@@ -11,5 +11,6 @@ chokidar.watch(
     useFsEvents: true,
   },
 ).on('all', (type, file) => {
+  Log.debug('worker found file', file);
   process.send(file);
 });

@@ -12,6 +12,7 @@ class MovieScanner {
     this.scanning = -1;
     this.types = Settings.getValue('videoFileTypes');
     this.startWatchingAll();
+    this.scan();
     Settings.addObserver('libraries', this.onLibrariesChange.bind(this));
   }
 
