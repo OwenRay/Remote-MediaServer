@@ -1,30 +1,62 @@
-
-
 const Settings = require('../Settings');
 const Database = require('../Database');
 const MediaItemHelper = require('../helpers/MediaItemHelper');
 const fs = require('fs');
-const Prom = require('node-promise').Promise;
-const TheMovieDBExtendedInfo = require('./extendedInfo/TheMovieDBExtendedInfo');
-const FFProbeExtendedInfo = require('./extendedInfo/FFProbeExtendedInfo');
-const ParseFileNameExtendedInfo = require('./extendedInfo/ParseFileNameExtendedInfo');
-const TheMovieDBSeriesAndSeasons = require('./extendedInfo/TheMovieDBSeriesAndSeasons');
-const ExtrasExtendedInfo = require('./extendedInfo/ExtrasExtendedInfo');
+const { spawn } = require('child_process');
 const Log = require('../helpers/Log');
+const extendedInfoQueue = require('./ExtendedInfoQueue').getInstance();
 
 class MovieScanner {
   constructor() {
     this.library = null;
     this.scanning = -1;
-    this.scan();
-    Settings.addObserver('libraries', this.scan.bind(this));
+    this.types = Settings.getValue('videoFileTypes');
+    this.startWatchingAll();
+    if (Settings.getValue('startscan')) this.scan();
+    Settings.addObserver('libraries', this.onLibrariesChange.bind(this));
+    Settings.addObserver('filewatcher', this.startWatchingAll.bind(this));
   }
 
-  setScanTimeout() {
-    if (this.scanTimeout) {
-      clearTimeout(this.scanTimeout);
+  onLibrariesChange() {
+    this.startWatchingAll();
+    this.scan();
+  }
+
+  startWatchingAll() {
+    if (this.watchers) {
+      this.watchers.forEach(watcher => watcher.kill());
     }
-    this.scanTimeout = setTimeout(this.scan.bind(this), Settings.getValue('scanInterval') * 1000);
+    this.watchers = Settings.getValue('libraries')
+      .map(this.startWatching.bind(this));
+  }
+
+  startWatching(lib) {
+    const proc = spawn(
+      'node',
+      [`${__dirname}/FilewatchWorker.js`, lib.folder, Settings.getValue('filewatcher')],
+      { stdio: [0, 1, 'ipc'] },
+    );
+    proc.on('message', (file) => {
+      this.onWatch(file, lib);
+    });
+    return proc;
+  }
+
+  onWatch(file, library) {
+    file = MovieScanner.normalizeFileName(library.folder, `${file}`);
+    const [item] = Database.findBy('media-item', 'filepath', file);
+
+    fs.stat(file, (err, stat) => {
+      if (err) {
+        if (err.code === 'ENOENT' && item) {
+          Database.deleteObject('media-item', item.id);
+        }
+        return;
+      }
+      if (this.willInclude(file, stat)) {
+        MovieScanner.addFileToDatabase(library, file);
+      }
+    });
   }
 
   scan() {
@@ -35,7 +67,6 @@ class MovieScanner {
     }
     this.scanRequested = false;
     Log.info('start scanner');
-    this.setScanTimeout();
     MovieScanner.checkForMediaItemsWithMissingFiles();
     MovieScanner.checkForMediaItemsWithMissingLibrary();
     this.scanNext();
@@ -72,7 +103,7 @@ class MovieScanner {
     });
   }
 
-  scanNext() {
+  async scanNext() {
     this.scanning += 1;
     if (this.scanning >= Settings.getValue('libraries').length) {
       this.scanning = -1;
@@ -82,55 +113,51 @@ class MovieScanner {
       return;
     }
 
-    this.types = Settings.getValue('videoFileTypes');
     this.library = Settings.getValue('libraries')[this.scanning];
     Log.info('start scan', this.library);
 
-    this.getFilesFromDir(`${this.library.folder}/`)
-      .then(this.checkForExtendedInfo.bind(this));
+    await this.getFilesFromDir(`${this.library.folder}/`);
+    this.scanNext();
   }
 
   getFilesFromDir(dir) {
-    const promise = new Prom();
-
-    fs.readdir(dir, (err, files) => {
-      if (err) {
-        Log.warning('error dir listing', err);
-        return;
-      }
-      this.procesFiles(dir, files).then(promise.resolve);
+    return new Promise((resolve) => {
+      fs.readdir(dir, (err, files) => {
+        if (err) {
+          Log.warning('error dir listing', err);
+          return;
+        }
+        this.procesFiles(dir, files).then(resolve);
+      });
     });
-
-    return promise;
   }
 
   procesFiles(dir, files) {
-    const promise = new Prom();
-
-    const next = () => {
-      if (!files.length) {
-        promise.resolve();
-        return;
-      }
-      const file = dir + files.pop();
-      fs.stat(file, (err, stats) => {
-        if (err) {
-          Log.warning(`err stating ${file}`);
+    return new Promise((resolve) => {
+      const next = () => {
+        if (!files.length) {
+          resolve();
+          return;
+        }
+        const file = dir + files.pop();
+        fs.stat(file, (err, stats) => {
+          if (err) {
+            Log.warning(`err stating ${file}`);
+            next();
+            return;
+          }
+          if (stats.isDirectory()) {
+            this.getFilesFromDir(`${file}/`).then(next);
+            return;
+          }
+          if (this.willInclude(file, stats)) {
+            MovieScanner.addFileToDatabase(this.library, file);
+          }
           next();
-          return;
-        }
-        if (stats.isDirectory()) {
-          this.getFilesFromDir(`${file}/`).then(next);
-          return;
-        }
-        if (this.willInclude(file, stats)) {
-          this.addFileToDatabase(file);
-        }
-        next();
-      });
-    };
-    next();
-    return promise;
+        });
+      };
+      next();
+    });
   }
 
   willInclude(file, fileRef) {
@@ -142,16 +169,14 @@ class MovieScanner {
     return this.types.some(i => i === type);
   }
 
-  addFileToDatabase(file) {
-    file = file.substr(this.library.folder.length);
-    file = file.replace('\\', '/').replace('//', '/');
-    file = this.library.folder.replace(/^(.*?)(\\|\/)?$/, '$1') + file;
+  static addFileToDatabase(library, file) {
+    file = MovieScanner.normalizeFileName(library.folder, file);
     if (!Database.findBy('media-item', 'filepath', file).length) {
       Log.info('found new file', file);
       const obj = {
         filepath: file,
-        libraryId: this.library.uuid,
-        mediaType: this.library.type,
+        libraryId: library.uuid,
+        mediaType: library.type,
         date_added: new Date().getTime(),
       };
       if (file.match(/.*sample.*/)) {
@@ -160,42 +185,14 @@ class MovieScanner {
       } else if (file.match(/.*trailer.*/)) {
         obj.extra = true;
       }
-      Database.setObject('media-item', obj);
+      extendedInfoQueue.push(Database.setObject('media-item', obj));
     }
   }
 
-  async checkForExtendedInfo() {
-    Log.info('checking for extended info...');
-    const items = Database.findBy('media-item', 'libraryId', this.library.uuid);
-    // order trailers and samples to the back
-    let count = items.length;
-    for (let c = 0; c < count; c += 1) {
-      if (items[c].attributes.extra) {
-        items.push(items.splice(c, 1)[0]);
-        count -= 1;
-        c -= 1;
-      }
-    }
-
-    const extendedInfoItems = [
-      FFProbeExtendedInfo,
-      ParseFileNameExtendedInfo,
-      TheMovieDBSeriesAndSeasons,
-      TheMovieDBExtendedInfo,
-      ExtrasExtendedInfo,
-    ];
-
-    while (items.length) {
-      const item = items.pop();
-      for (let c = 0; c < extendedInfoItems.length; c += 1) {
-        // eslint-disable-next-line no-await-in-loop
-        await extendedInfoItems[c].extendInfo(item, this.library);
-      }
-      Database.update('media-item', item);
-    }
-    Log.info('done checking extended info');
-
-    this.scanNext();
+  static normalizeFileName(lib, file) {
+    file = file.substr(lib.length);
+    file = file.replace('\\', '/').replace('//', '/');
+    return lib.replace(/^(.*?)(\\|\/)?$/, '$1') + file;
   }
 }
 

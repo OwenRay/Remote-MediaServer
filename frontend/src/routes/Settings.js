@@ -2,18 +2,17 @@
  * Created by owenray on 6/30/2017.
  */
 /* global $ */
-import React, {Component} from 'react';
-import {Tabs, Tab, Card, Input, Row, Button, Icon, Collection, CollectionItem, Modal} from 'react-materialize';
-import store from "../helpers/stores/settingsStore";
-import {apiActions, deserialize} from 'redux-jsonapi';
-import LibraryDialog from "../components/LibraryDialog";
+import React, { Component } from 'react';
+import { Tabs, Tab, Card, Input, Row, Button, Icon, Collection, CollectionItem, Modal } from 'react-materialize';
+import store from '../helpers/stores/settingsStore';
+import { apiActions, deserialize } from 'redux-jsonapi';
+import LibraryDialog from '../components/LibraryDialog';
 
 class Settings extends Component {
-
   componentDidMount() {
     store.subscribe(this.change.bind(this));
     this.onChange = this.onChange.bind(this);
-    this.setState({"activeTab": 0});
+    this.setState({ activeTab: 0 });
     this.change();
   }
 
@@ -21,25 +20,23 @@ class Settings extends Component {
    * triggered when the settings model changes
    */
   change() {
-    const {api} = store.getState();
+    const { api } = store.getState();
     if (!api.setting) {
       return;
     }
-    this.setState(
-      {
-        settings: deserialize(api.setting[1], store)
-      }
-    );
+    this.setState({
+      settings: deserialize(api.setting[1], store),
+    });
   }
 
   /**
    * @param e
    * called when user types in field, applies typed value to state
    */
-  onChange(e) {
-    const {settings} = this.state;
-    settings[e.target.name] = e.target.value;
-    this.setState({settings});
+  onChange(e, value) {
+    const { settings } = this.state;
+    settings[e.target.name] = value;
+    this.setState({ settings });
   }
 
   /**
@@ -47,7 +44,7 @@ class Settings extends Component {
    * Called when creating a new library or when clicking an existing one
    */
   librarySelect(lib) {
-    this.setState({"create": lib});
+    this.setState({ create: lib });
   }
 
   /**
@@ -58,14 +55,14 @@ class Settings extends Component {
    */
   removeLib(lib, confirm) {
     if (confirm === undefined) {
-      this.setState({removing: lib});
+      this.setState({ removing: lib });
     } else {
       $('#deleteModal').modal('close');
       if (confirm) {
         this.state.settings.libraries.splice(this.state.settings.libraries.indexOf(lib), 1);
         this.onSubmit();
       }
-      this.setState({removing: null});
+      this.setState({ removing: null });
     }
   }
 
@@ -73,11 +70,11 @@ class Settings extends Component {
    * Make sure the deletmodal opens when it's rendered
    */
   componentDidUpdate() {
-    $("#deleteModal").modal({
-      'complete': () => {
-        console.log("hier?");
-        this.setState({removing: null});
-      }
+    $('#deleteModal').modal({
+      complete: () => {
+        console.log('hier?');
+        this.setState({ removing: null });
+      },
     })
       .modal('open');
   }
@@ -87,7 +84,7 @@ class Settings extends Component {
    */
   onSubmit() {
     const o = this.state.settings;
-    o._type = "settings";
+    o._type = 'settings';
     store.dispatch(apiActions.write(o));
   }
 
@@ -98,17 +95,17 @@ class Settings extends Component {
   onLibrarySave(lib) {
     const o = this.state.settings;
     let existing = false;
-    for(let key in o.libraries) {
-      if(lib.uuid===o.libraries[key].uuid) {
+    for (const key in o.libraries) {
+      if (lib.uuid === o.libraries[key].uuid) {
         o.libraries[key] = lib;
         existing = true;
         break;
       }
     }
-    if(!existing) {
+    if (!existing) {
       o.libraries.push(lib);
     }
-    this.setState({"settings": o});
+    this.setState({ settings: o });
     this.onSubmit();
   }
 
@@ -116,12 +113,12 @@ class Settings extends Component {
    * Gets called when the library dialog closes
    */
   onLibraryClose() {
-    this.setState({"create": null});
+    this.setState({ create: null });
   }
 
   onTabChange(tab) {
-    console.log("ontabchange", tab);
-    this.setState({activeTab: parseInt(tab, 10) % 10});
+    console.log('ontabchange', tab);
+    this.setState({ activeTab: parseInt(tab, 10) % 10 });
   }
 
   render() {
@@ -129,78 +126,110 @@ class Settings extends Component {
       return (<p>Loading</p>);
     }
 
-    const listItems = this.state.settings.libraries.map((lib) =>
-      <CollectionItem onClick={(e) => {
+    const listItems = this.state.settings.libraries.map(lib =>
+      (<CollectionItem
+        onClick={(e) => {
         e.stopPropagation();
         e.preventDefault();
-        this.librarySelect(lib)
-      }} key={"key" + lib.uuid}>
+        this.librarySelect(lib);
+      }}
+        key={`key${lib.uuid}`}
+      >
         {lib.name}
-        <Button icon="delete" onClick={(e) => {
+        <Button
+          icon="delete"
+          onClick={(e) => {
           e.stopPropagation();
           this.removeLib(lib);
-        }}/>
-      </CollectionItem>
-    );
+        }}
+        />
+       </CollectionItem>));
 
     let deletingModal;
     if (this.state.removing) {
       deletingModal =
-        <Modal
+        (<Modal
           id="deleteModal"
           actions={[
             <Button modal="close">close</Button>,
             <Button onClick={() => this.removeLib(this.state.removing, true)} modal="confirm">confirm</Button>,
-          ]}>
+          ]}
+        >
           <h4>Deleting "{this.state.removing.name}"</h4>
           Are you sure your want to delete "{this.state.removing.name}"?
-        </Modal>;
+         </Modal>);
     }
+    console.log(this.state.settings);
 
     return (
       <div>
         <Tabs
           key="settingstabs"
           onChange={this.onTabChange.bind(this)}
-          className="tabs-fixed-width">
+          className="tabs-fixed-width"
+        >
           <Tab
             key="1"
             active={this.state.activeTab === 0}
-            title="Server settings">
-          </Tab>
+            title="Server settings"
+          />
           <Tab
             key="2"
             active={this.state.activeTab === 1}
-            title="Media library">
-          </Tab>
+            title="Media library"
+          />
         </Tabs>
         {this.state.activeTab === 0 ?
           <Card
             title="Server settings"
-            actions={[<Button key="save" onClick={this.onSubmit.bind(this)}><Icon left>save</Icon>Save</Button>]}>
+            actions={[<Button key="save" onClick={this.onSubmit.bind(this)}><Icon left>save</Icon>Save</Button>]}
+          >
             <Row>
               <Input
                 name="name"
                 onChange={this.onChange.bind(this)}
                 defaultValue={this.state.settings.name}
-                label='Server name'
-                s={12}/>
+                icon="label"
+                label="Server name"
+                s={12}
+              />
               <Input
                 name="port"
                 onChange={this.onChange.bind(this)}
-                defaultValue={this.state.settings.port + ""}
-                label='Port'
-                s={12}/>
+                defaultValue={`${this.state.settings.port}`}
+                icon="input"
+                label="Port"
+                s={12}
+              />
+              <Input
+                s={12}
+                name="filewatcher"
+                onChange={this.onChange.bind(this)}
+                type="select"
+                label="File watcher"
+                defaultValue={this.state.settings.filewatcher}
+                icon="remove_red_eye">
+                <option value="native">Use native filesystem events</option>
+                <option value="polling">Alternative (Polling)</option>
+              </Input>
+              <Input
+                type="checkbox"
+                name="startscan"
+                onChange={this.onChange.bind(this)}
+                label="Full rescan on start"
+                checked={this.state.settings.startscan}
+              />
             </Row>
-          </Card> : ""}
+          </Card> : ''}
         {this.state.activeTab === 1 ?
           <Card
             title="Media library"
-            actions={[<Button key="new" onClick={() => this.librarySelect({})}><Icon left>add</Icon>Add new</Button>]}>
+            actions={[<Button key="new" onClick={() => this.librarySelect({})}><Icon left>add</Icon>Add new</Button>]}
+          >
             <Collection>
               {listItems}
             </Collection>
-          </Card> : ""}
+          </Card> : ''}
 
         {deletingModal}
         {this.state.create && <LibraryDialog

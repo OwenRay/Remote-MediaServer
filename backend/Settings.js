@@ -34,6 +34,8 @@ const settingsObj = {
     host: 'guessit.theremote.io',
     port: 5000,
   },
+  startscan: false,
+  filewatcher: 'native',
   scanInterval: 3600,
 };
 
@@ -62,7 +64,8 @@ const Settings = {
     const originalValue = settingsObj[key];
     settingsObj[key] = value;
 
-    if (originalValue !== value) {
+    // quick lazy way to do a deep compare
+    if (JSON.stringify(originalValue) !== JSON.stringify(value)) {
       this.triggerObservers(key);
     }
   },
