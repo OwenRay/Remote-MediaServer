@@ -12,24 +12,28 @@ class MovieScanner {
     this.scanning = -1;
     this.types = Settings.getValue('videoFileTypes');
     this.startWatchingAll();
-    this.scan();
+    if (Settings.getValue('startscan')) this.scan();
     Settings.addObserver('libraries', this.onLibrariesChange.bind(this));
+    Settings.addObserver('filewatcher', this.startWatchingAll.bind(this));
   }
 
   onLibrariesChange() {
-    this.watchers.forEach(watcher => watcher.close());
     this.startWatchingAll();
     this.scan();
   }
 
   startWatchingAll() {
-    this.watchers = Settings.getValue('libraries').map(this.startWatching.bind(this));
+    if (this.watchers) {
+      this.watchers.forEach(watcher => watcher.kill());
+    }
+    this.watchers = Settings.getValue('libraries')
+      .map(this.startWatching.bind(this));
   }
 
   startWatching(lib) {
     const proc = spawn(
       'node',
-      [`${__dirname}/FilewatchWorker.js`, lib.folder],
+      [`${__dirname}/FilewatchWorker.js`, lib.folder, Settings.getValue('filewatcher')],
       { stdio: [0, 1, 'ipc'] },
     );
     proc.on('message', (file) => {

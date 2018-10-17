@@ -1,15 +1,18 @@
 const chokidar = require('chokidar');
 const Log = require('../helpers/Log');
 
-Log.debug('started filewatch worker for:', process.argv[2]);
+const watcherType = process.argv[3];
+const options = {
+  ignoreInitial: true,
+  usePolling: watcherType === 'polling',
+  awaitWriteFinish: true,
+  useFsEvents: watcherType === 'native',
+};
+
+Log.debug(`started ${process.argv[3]} filewatch worker for:`, process.argv[2]);
 chokidar.watch(
   process.argv[2],
-  {
-    ignoreInitial: true,
-    usePolling: false,
-    awaitWriteFinish: true,
-    useFsEvents: true,
-  },
+  options,
 ).on('all', (type, file) => {
   Log.debug('worker found file', file);
   process.send(file);
