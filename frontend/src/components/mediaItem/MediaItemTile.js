@@ -93,7 +93,7 @@ class MediaItemTile extends Component {
             className="play"
             icon="play_arrow"
             action="play"
-            onClick={this.play.bind}
+            onClick={this.play}
           />
           <span className="title">{this.state.title}</span>
           <span className="year">{this.state.year}</span>

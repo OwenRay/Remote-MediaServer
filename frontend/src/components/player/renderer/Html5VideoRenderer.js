@@ -3,6 +3,12 @@ import Subtitles from '../Subtitles';
 import BaseRenderer from './BaseRenderer';
 
 class Html5VideoRenderer extends BaseRenderer {
+  constructor() {
+    super();
+    this.onProgress = this.onProgress.bind(this);
+    this.reInit = this.reInit.bind(this);
+  }
+
   componentDidMount() {
     this.componentWillReceiveProps(this.props);
   }
@@ -23,12 +29,20 @@ class Html5VideoRenderer extends BaseRenderer {
     this.setState(newProps);
   }
 
+  componentWillUnmount() {
+    if (!this.vidRef) return;
+
+    this.vidRef.removeEventListener('timeupdate', this.onProgress);
+    this.vidRef.removeEventListener('error', this.reInit);
+    this.vidRef.removeEventListener('ended', this.reInit);
+  }
+
   gotVidRef(vidRef) {
     if (!vidRef || this.vidRef === vidRef) { return; }
     this.vidRef = vidRef;
-    vidRef.ontimeupdate = this.onProgress.bind(this);
-    vidRef.onerror = this.reInit.bind(this);
-    vidRef.onended = this.reInit.bind(this);
+    vidRef.addEventListener('timeupdate', this.onProgress);
+    vidRef.addEventListener('error', this.reInit);
+    vidRef.addEventListener('ended', this.reInit);
   }
 
   reInit() {
