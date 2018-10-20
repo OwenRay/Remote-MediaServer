@@ -1,6 +1,6 @@
 import React from 'react';
-import Subtitles from "../Subtitles";
-import BaseRenderer from "./BaseRenderer";
+import Subtitles from '../Subtitles';
+import BaseRenderer from './BaseRenderer';
 
 class Html5VideoRenderer extends BaseRenderer {
   componentDidMount() {
@@ -8,14 +8,14 @@ class Html5VideoRenderer extends BaseRenderer {
   }
 
   componentWillReceiveProps(newProps) {
-    if(newProps.volume!==this.props.volume) {
+    if (newProps.volume !== this.props.volume) {
       this.vidRef.volume = newProps.volume;
     }
 
-    if(newProps.paused!==this.props.paused) {
-      if(newProps.paused) {
+    if (newProps.paused !== this.props.paused) {
+      if (newProps.paused) {
         this.vidRef.pause();
-      }else{
+      } else {
         this.vidRef.play();
       }
     }
@@ -24,8 +24,7 @@ class Html5VideoRenderer extends BaseRenderer {
   }
 
   gotVidRef(vidRef) {
-    if (!vidRef || this.vidRef === vidRef)
-      return;
+    if (!vidRef || this.vidRef === vidRef) { return; }
     this.vidRef = vidRef;
     vidRef.ontimeupdate = this.onProgress.bind(this);
     vidRef.onerror = this.reInit.bind(this);
@@ -33,18 +32,18 @@ class Html5VideoRenderer extends BaseRenderer {
   }
 
   reInit() {
-    if(this.state.progress<this.state.mediaItem.fileduration*0.99) {
-      this.setState({seek:this.state.progress, loading:true});
+    if (this.state.progress < this.state.mediaItem.fileduration * 0.99) {
+      this.setState({ seek: this.state.progress, loading: true });
     }
   }
 
   onProgress() {
-    this.setState({progress:this.props.seek+this.vidRef.currentTime});
+    this.setState({ progress: this.props.seek + this.vidRef.currentTime });
     this.props.onProgress(this.state.progress);
   }
 
   render() {
-    if(!this.state) {
+    if (!this.state) {
       return null;
     }
     return (
@@ -53,12 +52,14 @@ class Html5VideoRenderer extends BaseRenderer {
           ref={this.gotVidRef.bind(this)}
           src={this.getVideoUrl()}
           preload="none"
-          autoPlay/>
+          autoPlay
+        />
         <Subtitles
           vidRef={this.vidRef}
           item={this.state.mediaItem}
           file={this.state.subtitle}
-          progress={this.state.progress} />
+          progress={this.state.progress}
+        />
       </div>
     );
   }

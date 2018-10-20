@@ -1,27 +1,30 @@
 const humps = require('humps');
-const dc = humps.decamelize;
-humps.decamelize = (a,b={}) => {
-  b.separator = "-";
-  return dc(a,b);
-};
-const decamelize = humps.decamelize;
-const o = {separator:"-"};
 
-function serializeRelationships(resources = []) {
-  return resources.map((resource) => serializeRelationship(resource));
-}
+const { decamelize } = humps;
+humps.decamelize = (a, b = {}) => {
+  b.separator = '-';
+  return decamelize(a, b);
+};
+const o = { separator: '-' };
+
 
 function serializeRelationship({ id, _type } = {}) {
   return { id, type: _type };
 }
 
-function serialize({ id, _type, _meta, ...otherAttributes }) {
-  let resource = {};
+function serializeRelationships(resources = []) {
+  return resources.map(resource => serializeRelationship(resource));
+}
 
-  if (id) resource = { ...resource, id };
-  resource = { ...resource, type: _type }
+function serialize({
+  id, _type, _meta, ...otherAttributes
+}) {
+  let resrc = {};
 
-  resource = Object.keys(otherAttributes).reduce((resource, key) => {
+  if (id) resrc = { ...resrc, id };
+  resrc = { ...resrc, type: _type };
+
+  resrc = Object.keys(otherAttributes).reduce((resource, key) => {
     if (typeof otherAttributes[key] === 'function') {
       const data = otherAttributes[key].call();
 
@@ -55,10 +58,10 @@ function serialize({ id, _type, _meta, ...otherAttributes }) {
         [decamelize(key, o)]: otherAttributes[key],
       },
     };
-  }, resource);
+  }, resrc);
 
-  if (_meta) resource = { ...resource, meta: _meta };
-  return resource;
+  if (_meta) resrc = { ...resrc, meta: _meta };
+  return resrc;
 }
 
 require('redux-jsonapi/dist/serializers').serialize = serialize;

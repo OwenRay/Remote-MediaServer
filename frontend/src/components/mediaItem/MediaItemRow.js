@@ -3,13 +3,13 @@
  */
 
 import React from 'react';
-import {Icon} from 'react-materialize';
-import {NavLink} from 'react-router-dom';
+import { Icon } from 'react-materialize';
+import { NavLink } from 'react-router-dom';
 import MediaItemTile from './MediaItemTile';
 
 class MediaItemRow extends MediaItemTile {
   render() {
-    if(!this.state) {
+    if (!this.state) {
       return (
         <div className="collection-item">
           <Icon>movie</Icon>
@@ -18,7 +18,7 @@ class MediaItemRow extends MediaItemTile {
     }
 
     return (
-      <NavLink to={"/item/detail/" + this.state.id} className="collection-item">
+      <NavLink to={`/item/detail/${this.state.id}`} className="collection-item">
         {this.state.episode} - {this.state.episodeTitle}
         {this.playPos()}
       </NavLink>

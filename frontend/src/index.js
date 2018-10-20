@@ -1,3 +1,4 @@
+/* global document */
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -7,15 +8,16 @@ import serializer from "./helpers/stores/serialize";
 // eslint-disable-next-line
 import deserializer from "./helpers/stores/deserialize";
 
-import {BrowserRouter} from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 
 import App from './App';
+
 require('./css/index.css');
 
 ReactDOM.render(
   <BrowserRouter>
     <App />
   </BrowserRouter>,
-  document.getElementById('root')
+  document.getElementById('root'),
 );
-//registerServiceWorker();
+// registerServiceWorker();

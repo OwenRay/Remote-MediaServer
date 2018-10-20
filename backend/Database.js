@@ -91,7 +91,7 @@ class Database {
         const b = f[f.length - 1] === '%';
         if (a && b) {
           type = 'search';
-          value = f.substring(1, f.length - 1);
+          value = f.substring(1, f.length - 1).toLocaleLowerCase();
         } else if (a) {
           type = 'endsWith';
           value = f.substring(1);

@@ -1,36 +1,34 @@
-import React, {Component} from 'react';
-import {Button} from "react-materialize";
+import React, { Component } from 'react';
+import { Button } from 'react-materialize';
 
 class ButtonMenu extends Component {
-
   shouldComponentUpdate() {
     return false;
   }
 
   onSelect(item) {
-    this.props.onSelect(this.props.type, item.value)
+    this.props.onSelect(this.props.type, item.value);
   }
 
   render() {
-    const items = this.props.items;
-    const type = this.props.type;
-    if(!items||items.length<=1) {
-      return (<div></div>);
+    const { items, type } = this.props;
+    if (!items || items.length <= 1) {
+      return (<div />);
     }
     return (
       <Button
-        icon={{video:"videocam", audio:"audiotrack", subtitles:"subtitles"}[type]}
+        icon={{ video: 'videocam', audio: 'audiotrack', subtitles: 'subtitles' }[type]}
         fab="vertical"
-        floating>
+        floating
+      >
         <div className="collection">
-          {items.map((item,key)=>
-            <a className="collection-item" key={key} onClick={()=>{this.onSelect(item)}}>
+          {items.map(item =>
+            (<a className="collection-item" key={item.value} onClick={() => { this.onSelect(item); }}>
               {item.label}
-            </a>
-          )}
+             </a>))}
         </div>
       </Button>
-    )
+    );
   }
 }
 

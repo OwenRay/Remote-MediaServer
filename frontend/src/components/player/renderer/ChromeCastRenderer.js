@@ -1,7 +1,7 @@
+/* global document */
 import React from 'react';
-import BaseRenderer from "./BaseRenderer";
-import ChromeCast from "../../../helpers/ChromeCast";
-
+import BaseRenderer from './BaseRenderer';
+import ChromeCast from '../../../helpers/ChromeCast';
 
 
 class Html5VideoRenderer extends BaseRenderer {
@@ -11,14 +11,14 @@ class Html5VideoRenderer extends BaseRenderer {
   }
 
   componentWillReceiveProps(newProps) {
-    if(newProps.volume!==this.props.volume) {
+    if (newProps.volume !== this.props.volume) {
       ChromeCast.setVolume(newProps.volume);
     }
 
-    if(newProps.paused!==this.props.paused) {
-      if(newProps.paused) {
+    if (newProps.paused !== this.props.paused) {
+      if (newProps.paused) {
         ChromeCast.pause();
-      }else{
+      } else {
         ChromeCast.play();
       }
     }
@@ -38,7 +38,7 @@ class Html5VideoRenderer extends BaseRenderer {
   }
 
   refreshOffset() {
-    this.props.onProgress(this.state.seek+ChromeCast.getOffset());
+    this.props.onProgress(this.state.seek + ChromeCast.getOffset());
   }
 
   onPlay() {
@@ -47,27 +47,27 @@ class Html5VideoRenderer extends BaseRenderer {
   }
 
   backDrop() {
-    return {backgroundImage:"url(/img/"+this.state.mediaItem.id+"_backdrop.jpg)"};
+    return { backgroundImage: `url(/img/${this.state.mediaItem.id}_backdrop.jpg)` };
   }
 
   componentDidUpdate(props, prevState) {
     const s = this.state;
-    if(!prevState||
-      s.mediaItem.id!==prevState.mediaItem.id||
-      s.seek!==prevState.seek||
-      s.audioChannel!==prevState.audioChannel||
-      s.videoChannel!==prevState.videoChannel) {
-      ChromeCast.setMedia("http://"+document.location.host+this.getVideoUrl(), "video/mp4");
+    if (!prevState ||
+      s.mediaItem.id !== prevState.mediaItem.id ||
+      s.seek !== prevState.seek ||
+      s.audioChannel !== prevState.audioChannel ||
+      s.videoChannel !== prevState.videoChannel) {
+      ChromeCast.setMedia(`http://${document.location.host}${this.getVideoUrl()}`, 'video/mp4');
     }
   }
 
 
   render() {
-    if(!this.state) {
+    if (!this.state) {
       return null;
     }
     return (
-      <div className="wrapper" style={this.backDrop()}/>
+      <div className="wrapper" style={this.backDrop()} />
     );
   }
 }

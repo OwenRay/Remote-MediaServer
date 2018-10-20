@@ -122,7 +122,9 @@
   padding:0px 2px;
   background:transparentize($primary-color-dark, .2);
   z-index:99;
-
+  .right > div{
+    display:inline-block;
+  }
   button{
     height:32px;
     line-height:28px;
@@ -132,6 +134,7 @@
     background: transparent !important;
     border:none;
     font-size: 20px;
+    display:inline-block;
     i {
       margin:0px;
     }
