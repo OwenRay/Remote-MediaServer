@@ -24,6 +24,7 @@ class HLSPlayHandler extends RequestHandler {
             this.request.headers['user-agent'].indexOf('Safari') === -1)) {
       return false;
     }
+
     if (this.request.headers['x-playback-session-id'] && !query.session) {
       this.context.query.session = this.request.headers['x-playback-session-id'];
     }
@@ -60,7 +61,7 @@ class HLSPlayHandler extends RequestHandler {
     this.ffmpeg = new FFMpeg(mediaItem, this.m3u8)
       .setPlayOffset(params.offset)
       .addOutputArguments([
-        '-hls_time', 5,
+        '-hls_time', 10,
         '-hls_list_size', 0,
         '-hls_base_url', `${this.request.url.split('?')[0]}?format=hls&session=${this.session}&segment=`,
         '-bsf:v', 'h264_mp4toannexb',
@@ -83,9 +84,8 @@ class HLSPlayHandler extends RequestHandler {
   }
 
   timedOut() {
-    if (this.proc) {
-      this.proc.kill();
-    }
+    this.ffmpeg.resume();
+    this.ffmpeg.kill();
     Log.debug('session timeout!');
     this.onClose();
 
@@ -125,6 +125,7 @@ class HLSPlayHandler extends RequestHandler {
         }, 1000);
         return null;
       }
+
       this.serveFirstHls(context, resolve);
       return null;
     });
@@ -183,7 +184,7 @@ class HLSPlayHandler extends RequestHandler {
       if (err) {
         return;
       }
-      const limit = 10;
+      const limit = 6;
       if (files.length > limit && !this.ffmpeg.paused) {
         this.ffmpeg.pause();
       } else if (files.length <= limit && this.ffmpeg.paused) {

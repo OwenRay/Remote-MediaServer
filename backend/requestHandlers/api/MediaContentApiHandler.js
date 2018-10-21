@@ -2,19 +2,14 @@
  * Created by owenray on 31-3-2017.
  */
 
-
 const RequestHandler = require('../RequestHandler');
 const fs = require('fs');
 const db = require('../../Database');
 const path = require('path');
-const sub = require('srt-to-ass');
-const os = require('os');
 const FileRequestHandler = require('../FileRequestHandler');
 const FFProbe = require('../../helpers/FFProbe');
-const { spawn } = require('child_process');
-const Settings = require('../../Settings');
-const Log = require('../../helpers/Log');
 const httpServer = require('../../HttpServer');
+const Subtitles = require('../../helpers/Subtitles');
 
 const supportedSubtitleFormats = ['.srt', '.ass', '.subrip'];
 
@@ -29,10 +24,10 @@ class SubtitleApiHandler extends RequestHandler {
     const directory = path.dirname(this.filePath);
 
     if (this.context.params.file) {
-      this.serveSubtitle(this.filePath, directory, this.context.params.file);
-    } else {
-      this.serveList(directory);
+      return this.serveSubs(item.id, this.filePath, directory, this.context.params.file);
     }
+    this.serveList(directory);
+
     return new Promise((resolve) => {
       this.resolve = resolve;
     });
@@ -42,63 +37,17 @@ class SubtitleApiHandler extends RequestHandler {
     fs.readdir(directory, this.onReadDir.bind(this));
   }
 
-  serveSubtitle(videoFilePath, directory, file, deleteAfterServe) {
-    const extension = path.extname(file);
-    let tmpFile;
-    if (file[0] === ':') {
-      let filename = file.substr(1);
-      if (filename.endsWith('subrip')) {
-        filename += '.srt';
+  serveSubs(id, filepath, dir, filename) {
+    return new Promise(async (resolve) => {
+      let f = await Subtitles.getVtt(id, filepath, dir, filename);
+      let deleteAfter = false;
+      if (this.context.query.offset) {
+        deleteAfter = true;
+        f = await Subtitles.getTimeShiftedTmpFile(f, this.context.query.offset);
       }
-      tmpFile = `${os.tmpdir()}/${filename}`;
-      const args = [
-        '-y',
-        '-i', videoFilePath,
-        '-map', `0${file.split('.').shift()}`,
-        tmpFile,
-      ];
-
-      const proc = spawn(
-        Settings.getValue('ffmpeg_binary'),
-        args,
-      );
-      proc.stdout.on('data', (data) => {
-        Log.info('ffmpeg result:', `${data}`);
-      });
-      proc.stderr.on('data', (data) => {
-        Log.info('ffmpeg result:', `${data}`);
-      });
-      proc.on(
-        'close',
-        () => {
-          this.serveSubtitle(videoFilePath, os.tmpdir(), filename, true);
-        },
-      );
-
-      return null;
-    }
-
-    if (extension === '.srt' || extension === '.subrip') {
-      const filename = `${file}.${Math.random()}.ass`;
-      tmpFile = `${os.tmpdir()}/${filename}`;
-      sub.convert(
-        `${directory}/${file}`,
-        tmpFile,
-        {},
-        () => {
-          if (deleteAfterServe) {
-            fs.unlink(`${directory}:${file}`, () => {});
-          }
-          this.serveSubtitle(videoFilePath, os.tmpdir(), filename, true);
-        },
-      );
-      return null;
-    }
-    file = `${directory}/${file}`;
-
-
-    return new FileRequestHandler(this.context)
-      .serveFile(file, deleteAfterServe, this.resolve);
+      new FileRequestHandler(this.context)
+        .serveFile(f, deleteAfter, resolve);
+    });
   }
 
   returnEmpty() {

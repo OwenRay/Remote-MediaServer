@@ -37,8 +37,8 @@ BaseRenderer.defaultProps = {
   seek: 0,
   volume: 1,
   paused: false,
-  audioChannel: 0,
-  videoChannel: 0,
+  audioChannel: undefined,
+  videoChannel: undefined,
   subtitle: null,
 };
 

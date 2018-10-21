@@ -4,7 +4,7 @@ import BaseRenderer from './BaseRenderer';
 import ChromeCast from '../../../helpers/ChromeCast';
 
 
-class Html5VideoRenderer extends BaseRenderer {
+class ChromeCastRenderer extends BaseRenderer {
   constructor() {
     super();
     this.onPlay = this.onPlay.bind(this);
@@ -56,8 +56,23 @@ class Html5VideoRenderer extends BaseRenderer {
       s.mediaItem.id !== prevState.mediaItem.id ||
       s.seek !== prevState.seek ||
       s.audioChannel !== prevState.audioChannel ||
-      s.videoChannel !== prevState.videoChannel) {
-      ChromeCast.setMedia(`http://${document.location.host}${this.getVideoUrl()}`, 'video/mp4');
+      s.videoChannel !== prevState.videoChannel ||
+      s.subtitles !== prevState.subtitles) {
+      console.log(s.subtitles);
+      const subtitles = s.subtitles.map(sub => (
+        `http://${document.location.host}/api/mediacontent/subtitle/` +
+        `${this.state.mediaItem.id}/${sub.value}?offset=${s.seek * -1000}`
+      ));
+      ChromeCast.setMedia(
+        `http://${document.location.host}${this.getVideoUrl()}`,
+        'video/mp4',
+        subtitles,
+        s.subtitles.findIndex(sub => sub.value === s.subtitle),
+      );
+      return;
+    }
+    if (prevState && s.subtitle !== prevState.subtitle) {
+      ChromeCast.updateSubtitle(s.subtitles.findIndex(sub => sub.value === s.subtitle));
     }
   }
 
@@ -73,4 +88,4 @@ class Html5VideoRenderer extends BaseRenderer {
 }
 
 
-export default Html5VideoRenderer;
+export default ChromeCastRenderer;

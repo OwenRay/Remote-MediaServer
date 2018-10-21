@@ -1,5 +1,4 @@
 import React from 'react';
-import Subtitles from '../Subtitles';
 import BaseRenderer from './BaseRenderer';
 
 class Html5VideoRenderer extends BaseRenderer {
@@ -7,6 +6,8 @@ class Html5VideoRenderer extends BaseRenderer {
     super();
     this.onProgress = this.onProgress.bind(this);
     this.reInit = this.reInit.bind(this);
+    this.onTrackLoad = this.onTrackLoad.bind(this);
+    this.onTrackRef = this.onTrackRef.bind(this);
   }
 
   componentDidMount() {
@@ -16,6 +17,23 @@ class Html5VideoRenderer extends BaseRenderer {
   componentWillReceiveProps(newProps) {
     if (newProps.volume !== this.props.volume) {
       this.vidRef.volume = newProps.volume;
+    }
+
+    if (newProps.subtitle !== this.props.subtitle) {
+      if (this.activeTrack) {
+        this.activeTrack.mode = 'hidden';
+      }
+      const tracks = this.vidRef.textTracks;
+      this.activeTrack = Object.keys(tracks).find(i => tracks[i].id === newProps.subtitle);
+      if (this.activeTrack) {
+        this.activeTrack = tracks[this.activeTrack];
+        this.activeTrack.mode = 'showing';
+        this.setOffset(newProps.seek);
+      }
+    }
+
+    if (this.props.seek !== newProps.seek && this.activeTrack) {
+      this.setOffset(newProps.seek);
     }
 
     if (newProps.paused !== this.props.paused) {
@@ -39,6 +57,7 @@ class Html5VideoRenderer extends BaseRenderer {
 
   gotVidRef(vidRef) {
     if (!vidRef || this.vidRef === vidRef) { return; }
+
     this.vidRef = vidRef;
     vidRef.addEventListener('timeupdate', this.onProgress);
     vidRef.addEventListener('error', this.reInit);
@@ -51,9 +70,29 @@ class Html5VideoRenderer extends BaseRenderer {
     }
   }
 
+  onTrackLoad() {
+    this.setOffset(this.props.seek);
+  }
+
   onProgress() {
     this.setState({ progress: this.props.seek + this.vidRef.currentTime });
     this.props.onProgress(this.state.progress);
+  }
+
+  onTrackRef(ref) {
+    if (!ref) return;
+    ref.addEventListener('load', this.onTrackLoad);
+  }
+
+  setOffset(offset) {
+    if (!this.activeTrack.subtitleOffset) this.activeTrack.subtitleOffset = 0;
+    const items = Array.from(this.activeTrack.cues);
+    if (!items.length) return;
+    items.forEach((cue) => {
+      cue.startTime -= offset - this.activeTrack.subtitleOffset;
+      cue.endTime -= offset - this.activeTrack.subtitleOffset;
+    });
+    this.activeTrack.subtitleOffset = offset;
   }
 
   render() {
@@ -63,17 +102,23 @@ class Html5VideoRenderer extends BaseRenderer {
     return (
       <div className="wrapper">
         <video
+          id="video"
           ref={this.gotVidRef.bind(this)}
           src={this.getVideoUrl()}
           preload="none"
           autoPlay
-        />
-        <Subtitles
-          vidRef={this.vidRef}
-          item={this.state.mediaItem}
-          file={this.state.subtitle}
-          progress={this.state.progress}
-        />
+        >
+          {this.props.subtitles.map(sub => (
+            !sub.value ? '' :
+            <track
+              ref={this.onTrackRef}
+              kind="subtitles"
+              src={`/api/mediacontent/subtitle/${this.state.mediaItem.id}/${sub.value}`}
+              id={sub.value}
+              key={sub.value}
+              mode="hidden"
+            />))}
+        </video>
       </div>
     );
   }

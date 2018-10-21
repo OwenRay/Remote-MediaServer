@@ -60,8 +60,9 @@ class ChromeCast {
     this.trigger(this.EVENT_CASTING_CHANGE, [true]);
   }
 
-  trigger(event, args) {
+  trigger(event, args = []) {
     if (this.events[event]) {
+      console.log(this.events[event], args);
       this.events[event].forEach((e) => { e(...args); });
     }
   }
@@ -77,16 +78,36 @@ class ChromeCast {
     this.events[event] = this.events[event].filter(e => e !== callback);
   }
 
-  setMedia(media, contentType) {
+  updateSubtitle(subtitle) {
+    const activeTracks = [subtitle];
+    console.log(activeTracks);
+    const tracksInfoRequest = new chrome.cast.media.EditTracksInfoRequest(activeTracks);
+    this.media.editTracksInfo(tracksInfoRequest, () => console.log('Requested subtitles'), err => console.log(err));
+  }
+
+  setMedia(media, contentType, subtitles, activeSubtitle) {
     if (!this.session) {
       return;
     }
     const mediaInfo = new chrome.cast.media.MediaInfo(media, contentType);
+    mediaInfo.textTrackStyle = new chrome.cast.media.TextTrackStyle();
     const request = new chrome.cast.media.LoadRequest(mediaInfo);
-    console.log(request, mediaInfo);
+    if (activeSubtitle >= 0) request.activeTrackIds = [activeSubtitle];
+
+    mediaInfo.tracks = subtitles.map((sub, i) => {
+      const track = new chrome.cast.media.Track(i, chrome.cast.media.TrackType.TEXT);
+      track.trackContentId = sub;
+      track.trackContentType = 'text/vtt';
+      track.subtype = chrome.cast.media.TextTrackType.SUBTITLES;
+      track.name = `sub_${i}`;
+      track.customData = null;
+      return track;
+    });
+
     this.session.loadMedia(
       request,
       (m) => {
+        console.log('media!', m);
         this.media = m;
         this.trigger(this.EVENT_ONPLAY);
       },

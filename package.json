@@ -10,8 +10,11 @@
     "test": "eslint --config .eslintrc backend/ && nodeunit tests/"
   },
   "dependencies": {
+    "ass-to-vtt": "^1.1.1",
     "chokidar": "^2.0.4",
+    "filewatcher": "^3.0.1",
     "glob": "^7.1.2",
+    "guessit-wrapper": "^1.0.0",
     "koa": "^2.3.0",
     "koa-bodyparser": "^4.2.0",
     "koa-cors": "0.0.16",
@@ -27,7 +30,9 @@
     "q": "^1.5.1",
     "server-destroy": "^1.0.1",
     "srt-to-ass": "^0.1.9",
-    "unzip2": "^0.2.5"
+    "srt-to-vtt": "^1.1.1",
+    "unzip2": "^0.2.5",
+    "vtt-shift": "^0.1.0"
   },
   "devDependencies": {
     "ajv": "^6.2.0",

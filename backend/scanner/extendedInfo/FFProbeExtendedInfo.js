@@ -20,8 +20,11 @@ class FFProbeExtendedInfo extends IExtendedInfo {
       return;
     }
 
-    mediaItem.attributes.width = fileData.streams[0].width;
-    mediaItem.attributes.height = fileData.streams[0].height;
+    const videoStream = fileData.streams.find(s => s.codec_type === 'video');
+    if (videoStream) {
+      mediaItem.attributes.width = videoStream.width;
+      mediaItem.attributes.height = videoStream.height;
+    }
     mediaItem.attributes.fileduration = parseFloat(fileData.format.duration);
     mediaItem.attributes.filesize = parseInt(fileData.format.size, 10);
     mediaItem.attributes.bitrate = fileData.format.bit_rate;
