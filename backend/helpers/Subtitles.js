@@ -16,7 +16,6 @@ const converters = {
 
 class Subtitles {
   static async getVtt(mediaId, videoFilePath, directory, file) {
-    console.log('LOADING SUB!', arguments);
     let f = await Subtitles.getCachedPath(mediaId, file);
     if (f) {
       return f;
