@@ -2,24 +2,28 @@
  * Created by owenray on 19/07/2017.
  */
 
-import React, {Component} from 'react';
-import {Button, Icon} from 'react-materialize';
-import {NavLink} from 'react-router-dom';
+import React, { Component } from 'react';
+import { Button, Icon } from 'react-materialize';
+import { NavLink, Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Redirect } from 'react-router';
 
 class MediaItemTile extends Component {
+  constructor() {
+    super();
+    this.play = this.play.bind(this);
+  }
+
   componentDidMount() {
     this.mounted = true;
     this.componentWillReceiveProps(this.props);
   }
 
-  componentWillReceiveProps (nextProps) {
-    if(!nextProps.mediaItem) {
+  componentWillReceiveProps(nextProps) {
+    if (!nextProps.mediaItem) {
       return;
     }
-    if(nextProps.mediaItem.index) {
-      if(this.waitingForPromise) {
+    if (nextProps.mediaItem.index) {
+      if (this.waitingForPromise) {
         return;
       }
       this.waitingForPromise = true;
@@ -37,9 +41,9 @@ class MediaItemTile extends Component {
   }
 
   async gotData(data) {
-    if(this.waitingForPromise) {
+    if (this.waitingForPromise) {
       this.waitingForPromise = false;
-      if(data.playPosition) {
+      if (data.playPosition) {
         data.playPos = (await data.playPosition()).position;
       }
       this.setState(data);
@@ -50,18 +54,19 @@ class MediaItemTile extends Component {
     if (this.state.playPosition) {
       return (
         <div className="percent-played">
-          <div style={{width: this.state.playPos / this.state.fileduration * 100 + "%"}}/>
+          <div style={{ width: `${(this.state.playPos / this.state.fileduration) * 100}%` }} />
         </div>
       );
     }
+    return '';
   }
 
   play() {
-    this.setState({playClicked:true});
+    this.setState({ playClicked: true });
   }
 
   render() {
-    if(!this.state) {
+    if (!this.state) {
       return (
         <div style={this.props.style} className="grid-item loading">
           <Icon>movie</Icon>
@@ -69,8 +74,8 @@ class MediaItemTile extends Component {
       );
     }
 
-    if(this.state.playClicked) {
-      return (<Redirect to={"/item/view/"+this.state.id}/>);
+    if (this.state.playClicked) {
+      return (<Redirect push to={`/item/view/${this.state.id}`} />);
     }
 
     return (
@@ -78,17 +83,18 @@ class MediaItemTile extends Component {
         <div
           className="poster"
           data-poster-image={this.state.id}
-          style={{"backgroundImage": "url(/img/" + this.state.id + "_postersmall.jpg)"}}/>
-        <NavLink to={"/item/detail/" + this.state.id}/>
+          style={{ backgroundImage: `url(/img/${this.state.id}_postersmall.jpg)` }}
+        />
+        <NavLink to={`/item/detail/${this.state.id}`} />
         <div className="detail">
           {this.playPos()}
           <Button
             floating
             className="play"
-            icon='play_arrow'
-            action='play'
-            onClick={this.play.bind(this)}>
-          </Button>
+            icon="play_arrow"
+            action="play"
+            onClick={this.play}
+          />
           <span className="title">{this.state.title}</span>
           <span className="year">{this.state.year}</span>
         </div>
@@ -100,8 +106,16 @@ class MediaItemTile extends Component {
 MediaItemTile.propTypes = {
   mediaItem: PropTypes.oneOfType([
     PropTypes.string,
-    PropTypes.object
-  ]),
+    PropTypes.object,
+  ]).isRequired,
+  requestData: PropTypes.func,
+  style: PropTypes.object,
+};
+
+
+MediaItemTile.defaultProps = {
+  style: {},
+  requestData: null,
 };
 
 export default MediaItemTile;

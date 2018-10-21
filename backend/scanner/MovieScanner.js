@@ -1,235 +1,200 @@
-"use strict";
+const Settings = require('../Settings');
+const Database = require('../Database');
+const MediaItemHelper = require('../helpers/MediaItemHelper');
+const fs = require('fs');
+const { spawn } = require('child_process');
+const Log = require('../helpers/Log');
+const extendedInfoQueue = require('./ExtendedInfoQueue').getInstance();
 
-const Settings = require("../Settings");
-const Database = require("../Database");
-const MediaItemHelper = require("../helpers/MediaItemHelper");
-const fs = require("fs");
-const Prom = require("node-promise").Promise;
+class MovieScanner {
+  constructor() {
+    this.library = null;
+    this.scanning = -1;
+    this.types = Settings.getValue('videoFileTypes');
+    this.startWatchingAll();
+    if (Settings.getValue('startscan')) this.scan();
+    Settings.addObserver('libraries', this.onLibrariesChange.bind(this));
+    Settings.addObserver('filewatcher', this.startWatchingAll.bind(this));
+  }
 
-const TheMovieDBExtendedInfo = require("./extendedInfo/TheMovieDBExtendedInfo");
-const FFProbeExtendedInfo = require("./extendedInfo/FFProbeExtendedInfo");
-const ParseFileNameExtendedInfo = require("./extendedInfo/ParseFileNameExtendedInfo");
-const TheMovieDBSeriesAndSeasons = require("./extendedInfo/TheMovieDBSeriesAndSeasons");
-const ExtrasExtendedInfo = require("./extendedInfo/ExtrasExtendedInfo");
-const Log = require("../helpers/Log");
+  onLibrariesChange() {
+    this.startWatchingAll();
+    this.scan();
+  }
 
-class MovieScanner
-{
+  startWatchingAll() {
+    if (this.watchers) {
+      this.watchers.forEach(watcher => watcher.kill());
+    }
+    this.watchers = Settings.getValue('libraries')
+      .map(this.startWatching.bind(this));
+  }
 
-    constructor()
-    {
-        this.library = null;
-        this.scanning = -1;
+  startWatching(lib) {
+    const proc = spawn(
+      'node',
+      [`${__dirname}/FilewatchWorker.js`, lib.folder, Settings.getValue('filewatcher')],
+      { stdio: [0, 1, 'ipc'] },
+    );
+    proc.on('message', (file) => {
+      this.onWatch(file, lib);
+    });
+    return proc;
+  }
+
+  onWatch(file, library) {
+    file = MovieScanner.normalizeFileName(library.folder, `${file}`);
+    const [item] = Database.findBy('media-item', 'filepath', file);
+
+    fs.stat(file, (err, stat) => {
+      if (err) {
+        if (err.code === 'ENOENT' && item) {
+          Database.deleteObject('media-item', item.id);
+        }
+        return;
+      }
+      if (this.willInclude(file, stat)) {
+        MovieScanner.addFileToDatabase(library, file);
+      }
+    });
+  }
+
+  scan() {
+    if (this.scanning !== -1) {
+      Log.info('Scan in progress');
+      this.scanRequested = true;
+      return;
+    }
+    this.scanRequested = false;
+    Log.info('start scanner');
+    MovieScanner.checkForMediaItemsWithMissingFiles();
+    MovieScanner.checkForMediaItemsWithMissingLibrary();
+    this.scanNext();
+  }
+
+  static checkForMediaItemsWithMissingFiles() {
+    const items = Database.getAll('media-item');
+    function next() {
+      if (!items.length) {
+        return;
+      }
+      fs.stat(MediaItemHelper.getFullFilePath(items[0]), (err) => {
+        if (err) {
+          Log.info('item missing, removing', MediaItemHelper.getFullFilePath(items[0]), items[0].id);
+          Database.deleteObject('media-item', items[0].id);
+        }
+        items.shift();
+        next();
+      });
+    }
+    next();
+  }
+
+  static checkForMediaItemsWithMissingLibrary() {
+    const libraries = Settings.getValue('libraries');
+    const libIds = libraries.map(l => l.uuid);
+
+    const items = Database.getAll('media-item');
+    Object.keys(items).forEach((key) => {
+      const item = items[key];
+      if (libIds.indexOf(item.attributes.libraryId) === -1) {
+        Database.deleteObject('media-item', item.id);
+      }
+    });
+  }
+
+  async scanNext() {
+    this.scanning += 1;
+    if (this.scanning >= Settings.getValue('libraries').length) {
+      this.scanning = -1;
+      if (this.scanRequested) {
         this.scan();
-        Settings.addObserver("libraries", this.scan.bind(this));
+      }
+      return;
     }
 
-    setScanTimeout()
-    {
-        if(this.scanTimeout) {
-            clearTimeout(this.scanTimeout);
+    this.library = Settings.getValue('libraries')[this.scanning];
+    Log.info('start scan', this.library);
+
+    await this.getFilesFromDir(`${this.library.folder}/`);
+    this.scanNext();
+  }
+
+  getFilesFromDir(dir) {
+    return new Promise((resolve) => {
+      fs.readdir(dir, (err, files) => {
+        if (err) {
+          Log.warning('error dir listing', err);
+          return;
         }
-        this.scanTimeout = setTimeout(this.scan.bind(this), Settings.getValue("scanInterval")*1000);
-    }
+        this.procesFiles(dir, files).then(resolve);
+      });
+    });
+  }
 
-    scan()
-    {
-        if(this.scanning!==-1)
-        {
-            Log.info("Scan in progress");
-            this.scanRequested = true;
+  procesFiles(dir, files) {
+    return new Promise((resolve) => {
+      const next = () => {
+        if (!files.length) {
+          resolve();
+          return;
+        }
+        const file = dir + files.pop();
+        fs.stat(file, (err, stats) => {
+          if (err) {
+            Log.warning(`err stating ${file}`);
+            next();
             return;
-        }
-        this.scanRequested = false;
-        Log.info("start scanner");
-        this.setScanTimeout();
-        this.checkForMediaItemsWithMissingFiles();
-        this.checkForMediaItemsWithMissingLibrary();
-        this.scanNext();
-    }
-
-    checkForMediaItemsWithMissingFiles()
-    {
-        const items = Database.getAll("media-item");
-        function next() {
-            if(!items.length) {
-                return;
-            }
-            fs.stat(MediaItemHelper.getFullFilePath(items[0]), function (err) {
-                if (err) {
-                    Log.info("item missing, removing", MediaItemHelper.getFullFilePath(items[0]), items[0].id);
-                    Database.deleteObject("media-item", items[0].id);
-                }
-                items.shift();
-                next();
-            });
-        }
-        next();
-    }
-
-    checkForMediaItemsWithMissingLibrary()
-    {
-        const libraries = Settings.getValue("libraries");
-        const libIds = [];
-        for(let c = 0; c<libraries.length; c++)
-        {
-            libIds.push(libraries[c].uuid);
-        }
-
-        const items = Database.getAll("media-item");
-        for(let c = 0; c<items.length; c++)
-        {
-            if(libIds.indexOf(items[c].attributes.libraryId)===-1)
-            {
-                Database.deleteObject("media-item", items[c].id);
-            }
-        }
-    }
-
-    scanNext()
-    {
-        this.scanning++;
-        if(this.scanning>=Settings.getValue("libraries").length)
-        {
-            this.scanning = -1;
-            if(this.scanRequested) {
-                this.scan();
-            }
+          }
+          if (stats.isDirectory()) {
+            this.getFilesFromDir(`${file}/`).then(next);
             return;
-        }
-
-        this.types = Settings.getValue("videoFileTypes");
-        this.library = Settings.getValue("libraries")[this.scanning];
-        Log.info("start scan", this.library);
-
-        this.getFilesFromDir(this.library.folder+"/")
-            .then(this.checkForExtendedInfo.bind(this));
-    }
-
-    getFilesFromDir(dir) {
-        const promise = new Prom();
-
-        fs.readdir(dir, (err, files) => {
-            if(err) {
-                Log.warning("error dir listing", err);
-                return;
-            }
-            this.procesFiles(dir, files).then(promise.resolve);
+          }
+          if (this.willInclude(file, stats)) {
+            MovieScanner.addFileToDatabase(this.library, file);
+          }
+          next();
         });
+      };
+      next();
+    });
+  }
 
-        return promise;
+  willInclude(file, fileRef) {
+    if (fileRef.isDirectory()) {
+      return false;
     }
+    const f = file.split('.');
+    const type = f[f.length - 1];
+    return this.types.some(i => i === type);
+  }
 
-    procesFiles(dir, files) {
-        const promise = new Prom();
-
-        const next = function () {
-            if (!files.length) {
-                return promise.resolve();
-            }
-            const file = dir + files.pop();
-            fs.stat(file, function (err, stats) {
-                if (err) {
-                    Log.warning("err stating " + file);
-                    next();
-                    return;
-                }
-                if (stats.isDirectory()) {
-                    return this.getFilesFromDir(file + "/").then(next);
-                }
-                if (this.willInclude(file, stats)) {
-                    this.addFileToDatabase(file);
-                }
-                next();
-            }.bind(this));
-        }.bind(this);
-        next();
-        return promise;
+  static addFileToDatabase(library, file) {
+    file = MovieScanner.normalizeFileName(library.folder, file);
+    if (!Database.findBy('media-item', 'filepath', file).length) {
+      Log.info('found new file', file);
+      const obj = {
+        filepath: file,
+        libraryId: library.uuid,
+        mediaType: library.type,
+        date_added: new Date().getTime(),
+      };
+      if (file.match(/.*sample.*/)) {
+        obj.sample = true;
+        obj.extra = true;
+      } else if (file.match(/.*trailer.*/)) {
+        obj.extra = true;
+      }
+      extendedInfoQueue.push(Database.setObject('media-item', obj));
     }
+  }
 
-    willInclude(file, fileRef)
-    {
-        if(fileRef.isDirectory()) {
-            return false;
-        }
-        const f = file.split(".");
-        const type = f[f.length - 1];
-        for(let c = 0; c<this.types.length; c++) {
-            if (this.types[c] === type) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    addFileToDatabase(file) {
-        file = file.substr(this.library.folder.length);
-        file = file.replace("\\", "/").replace("//", "/");
-        file=this.library.folder.replace(/^(.*?)(\\|\/)?$/, "$1")+file;
-        if(!Database.findBy("media-item", "filepath", file).length) {
-            Log.info("found new file", file);
-            const obj = {
-                filepath: file,
-                libraryId: this.library.uuid,
-                mediaType: this.library.type,
-                date_added: new Date().getTime()
-            };
-            if(file.match(/.*sample.*/)){
-                obj.sample = obj.extra = true;
-            }else if(file.match(/.*trailer.*/)){
-                obj.sample = obj.extra = true;
-            }
-            Database.setObject("media-item", obj);
-        }
-    }
-
-    checkForExtendedInfo()
-    {
-        Log.info("checking for extended info...");
-        const items = Database.findBy("media-item", "libraryId", this.library.uuid);
-        //order trailers and samples to the back
-        let count = items.length;
-        for(let c = 0; c<count; c++) {
-            if(items[c].attributes.extra) {
-                //console.log("isExtra", items[c]);
-                items.push(items.splice(c, 1)[0]);
-                count--;
-                c--;
-            }
-        }
-
-        const extendedInfoItems = [
-            new FFProbeExtendedInfo(),
-            new ParseFileNameExtendedInfo(),
-            new TheMovieDBSeriesAndSeasons(),
-            new TheMovieDBExtendedInfo(),
-            new ExtrasExtendedInfo()
-        ];
-
-        const loadNext = function () {
-            Log.debug("extendInfo, next");
-            if (items.length === 0) {
-                Log.info("done scanning");
-                this.scanNext();
-                return;
-            }
-
-            const item = items.pop();
-
-            let prevPromise;
-            for (let c = 0; c < extendedInfoItems.length; c++) {
-                if (prevPromise) {
-                    prevPromise = prevPromise.then(extendedInfoItems[c].extendInfo.bind(extendedInfoItems[c]));
-                } else {
-                    prevPromise = extendedInfoItems[c].extendInfo([item, this.library]);
-                }
-            }
-            prevPromise.then(loadNext);
-
-        }.bind(this);
-        loadNext();
-    }
+  static normalizeFileName(lib, file) {
+    file = file.substr(lib.length);
+    file = file.replace('\\', '/').replace('//', '/');
+    return lib.replace(/^(.*?)(\\|\/)?$/, '$1') + file;
+  }
 }
 
-//MovieScanner is a singleton!
+// MovieScanner is a singleton!
 module.exports = new MovieScanner();

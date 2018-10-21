@@ -1,10 +1,8 @@
-"use strict";
 
-class MediaItemHelper
-{
-    static getFullFilePath(mediaItem)
-    {
-        /*var libraries = Settings.getValue("libraries");
+
+class MediaItemHelper {
+  static getFullFilePath(mediaItem) {
+    /* var libraries = Settings.getValue("libraries");
         var library;
         for(var key in libraries)
         {
@@ -14,9 +12,9 @@ class MediaItemHelper
             }
         }
         if(!library)
-            return "";*/
-        return mediaItem.attributes.filepath;
-    }
+            return ""; */
+    return mediaItem.attributes.filepath;
+  }
 }
 
 module.exports = MediaItemHelper;

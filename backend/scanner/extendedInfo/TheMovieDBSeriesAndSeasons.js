@@ -1,114 +1,96 @@
-"use strict";
+
+
 /**
  * Created by owenray on 18-09-16.
  */
-const IExtendedInfo = require("./IExtendedInfo");
-const Prom = require("node-promise").Promise;
-const MovieDB = require('moviedb')('0699a1db883cf76d71187d9b24c8dd8e');
-const Database = require("../../Database");
-const TheMovieDBExtendedInfo = require("./TheMovieDBExtendedInfo");
-const NodeCache = new (require("node-cache"))();
-const Log = require("../../helpers/Log");
+const IExtendedInfo = require('./IExtendedInfo');
+const Settings = require('../../Settings');
+const NodeCache = require('node-cache');
+const Log = require('../../helpers/Log');
+const MovieDB = require('moviedb-api');
 
-class TheMovieDBSeriesAndSeasons extends IExtendedInfo
-{
-    extendInfo(args, round)
-    {
-        const mediaItem = args[0];
-        const library = args[1];
-        if(!round)
-        {
-            round = 0;
-        }
+const nodeCache = new NodeCache();
 
-        const promise = new Prom();
+const movieDB = new MovieDB({
+  consume: true,
+  apiKey: Settings.getValue('tmdb_apikey'),
+});
 
-        if(mediaItem.attributes.gotSeriesAndSeasonInfo&&round===0)
-        {
-            promise.resolve([mediaItem, library]);
-            return promise;
-        }
-
-        if(library.type!=="tv")
-        {
-            promise.resolve([mediaItem, library]);
-        }else{
-            Log.debug("process serie", mediaItem.id);
-            let result, waitFor;
-            switch(round)
-            {
-                case 0://find series
-                    result = function(err, res)
-                    {
-                        NodeCache.set("1:"+mediaItem.attributes.title, res);
-                        if(!err&&res.results.length>0) {
-                            res = res.results[0];
-                            res["external-id"] = res.id;
-                            delete res.id;
-                            for (let key in res) {
-                                mediaItem.attributes[key.replace(/_/g, "-")] = res[key];
-                            }
-                            const date = res.release_date ? res.release_date : res.first_air_date;
-                            mediaItem.attributes.year = date.split("-")[0];
-                            mediaItem.attributes.gotSeriesAndSeasonInfo = true;
-                            Database.update("media-item", mediaItem);
-                            return this.extendInfo([mediaItem, library], round+1).then(promise.resolve);
-                        }
-                        promise.resolve([mediaItem, library]);
-                    }.bind(this);
-                    const cache = NodeCache.get("1:" + mediaItem.attributes.title);
-                    if(cache) {
-                        result(null, cache);
-                        break;
-                    }
-
-                    waitFor = 300 - (new Date().getTime() - TheMovieDBExtendedInfo.lastRequest);
-                    if(waitFor<0)
-                    {
-                        waitFor = 0;
-                    }
-                    setTimeout(function() {
-                        TheMovieDBExtendedInfo.lastRequest = new Date().getTime();
-                        MovieDB.searchTv({query: mediaItem.attributes.title}, result);
-                    }, waitFor);
-                    break;
-                case 1://find season info
-                    result = function(err, res)
-                    {
-                        NodeCache.set("2:"+mediaItem.attributes.title+":"+mediaItem.attributes.season, res);
-                        if(!err) {
-                            delete res.episodes;
-                            mediaItem.seasonInfo = res;
-                            Database.update("media-item", mediaItem);
-                        }
-                        promise.resolve([mediaItem, library]);
-                    };
-                    const cached = NodeCache.get("2:" + mediaItem.attributes.title + ":" + mediaItem.attributes.season);
-                    if(cached)
-                    {
-                        Log.debug("get series from cache2!");
-                        result(null, cached);
-                        break;
-                    }
-
-                    waitFor = 300-(new Date().getTime()-TheMovieDBExtendedInfo.lastRequest);
-                    if(waitFor<0)
-                    {
-                        waitFor = 0;
-                    }
-                    setTimeout(function() {
-                        TheMovieDBExtendedInfo.lastRequest = new Date().getTime();
-                        MovieDB.tvSeasonInfo({
-                            "id": mediaItem.attributes["external-id"],
-                            "season_number": mediaItem.attributes.season
-                        }, result);
-                    }, waitFor);
-                    break;
-            }
-        }
-
-        return promise;
+class TheMovieDBSeriesAndSeasons extends IExtendedInfo {
+  static async extendInfo(mediaItem, library) {
+    if (library.type !== 'tv') {
+      return;
     }
+    if (mediaItem.attributes.gotSeriesAndSeasonInfo >= 2) {
+      return;
+    }
+
+
+    Log.debug('process serie', mediaItem.id);
+
+    // find series info
+    let cache = nodeCache.get(`1:${mediaItem.attributes.title}`);
+    let res = cache || await movieDB.searchTv({ query: mediaItem.attributes.title });
+
+    nodeCache.set(`1:${mediaItem.attributes.title}`, res);
+    [res] = res.results;
+    if (res) {
+      res['external-id'] = res.id;
+      delete res.id;
+      Object.keys(res).forEach((key) => {
+        mediaItem.attributes[key.replace(/_/g, '-')] = res[key];
+      });
+
+      const date = res.release_date ? res.release_date : res.first_air_date;
+      [mediaItem.attributes.year] = date.split('-');
+    }
+    // find season info
+    cache = nodeCache.get(`2:${mediaItem.attributes.title}:${mediaItem.attributes.season}`);
+    res = cache || await movieDB.tvSeason({
+      id: mediaItem.attributes['external-id'],
+      season_number: mediaItem.attributes.season,
+    });
+    if (res) {
+      nodeCache.set(`2:${mediaItem.attributes.title}:${mediaItem.attributes.season}`, res);
+
+      delete res.episodes;
+      mediaItem.attributes.seasonInfo = res;
+    }
+
+    try {
+      // get credits
+      cache = nodeCache.get(`3:${mediaItem.attributes.title}:${mediaItem.attributes.season}`);
+      res = cache || await movieDB.tvCredits({
+        id: mediaItem.attributes['external-id'],
+      });
+      nodeCache.set(`3:${mediaItem.attributes.title}:${mediaItem.attributes.season}`, res);
+      mediaItem.attributes.actors = res.cast.map(actor => actor.name);
+    } catch (e) {
+      Log.debug(e);
+    }
+
+    try {
+      // get credits
+      cache = nodeCache.get(`4:${mediaItem.attributes.title}:${mediaItem.attributes.season}`);
+      res = cache || await movieDB.tvContent_ratings({
+        id: mediaItem.attributes['external-id'],
+      });
+      nodeCache.set(`4:${mediaItem.attributes.title}:${mediaItem.attributes.season}`, res);
+      // is there a US release? get it. otherwise whichever's first
+      res = res.results;
+      let r = res.find(d => d.iso_3166_1 === 'US');
+      if (!r && res.length) {
+        [r] = res;
+      }
+
+      if (r) {
+        mediaItem.attributes.mpaa = r.rating;
+      }
+    } catch (e) {
+      Log.debug(e);
+    }
+    mediaItem.attributes.gotSeriesAndSeasonInfo = 2;
+  }
 }
 
 

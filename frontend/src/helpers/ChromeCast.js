@@ -1,12 +1,14 @@
-/* global chrome */
+/* eslint-disable no-underscore-dangle */
 
-class ChromeCast{
-  EVENT_CASTING_CHANGE = "CASTING_CHANGE";
-  EVENT_ONPLAY = "EVENT_ONPLAY";
+/* global chrome,window */
 
+class ChromeCast {
   constructor() {
+    this.EVENT_CASTING_INIT = 'CASTING_INIT';
+    this.EVENT_CASTING_CHANGE = 'CASTING_CHANGE';
+    this.EVENT_ONPLAY = 'EVENT_ONPLAY';
     this.events = {};
-    window['__onGCastApiAvailable'] = this.onApiAvailable.bind(this);
+    window.__onGCastApiAvailable = this.onApiAvailable.bind(this);
   }
 
   onApiAvailable(available) {
@@ -14,16 +16,17 @@ class ChromeCast{
       return;
     }
     const apiConfig = new chrome.cast.ApiConfig(
-      new chrome.cast.SessionRequest("07EA9E92"),
+      new chrome.cast.SessionRequest('07EA9E92'),
       this.onSession.bind(this),
       this.onReceiver.bind(this),
-      chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+      chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
     );
 
     chrome.cast.initialize(apiConfig, this.onInit.bind(this));
   }
 
   onInit() {
+    this.trigger(this.EVENT_CASTING_INIT, []);
   }
 
   onSession(session) {
@@ -32,7 +35,7 @@ class ChromeCast{
   }
 
   onReceiver(e) {
-    if(e==="available") {
+    if (e === 'available') {
       this._available = true;
     }
   }
@@ -46,7 +49,7 @@ class ChromeCast{
   }
 
   stopCasting() {
-    if(this.session) {
+    if (this.session) {
       this.session.leave();
       this.trigger(this.EVENT_CASTING_CHANGE, [false]);
     }
@@ -57,81 +60,63 @@ class ChromeCast{
     this.trigger(this.EVENT_CASTING_CHANGE, [true]);
   }
 
-  trigger(event, args) {
-    if(this.events[event]) {
-      for(let key in this.events[event]) {
-        this.events[event][key].apply(null, args);
-      }
+  trigger(event, args = []) {
+    if (this.events[event]) {
+      console.log(this.events[event], args);
+      this.events[event].forEach((e) => { e(...args); });
     }
   }
 
   addListener(event, callback) {
-    if(!this.events[event]) {
+    if (!this.events[event]) {
       this.events[event] = [];
     }
     this.events[event].push(callback);
   }
 
   removeListener(event, callback) {
-    for(let key in this.events[event]) {
-      if(this.events[event][key]===callback) {
-        this.events[event].splice(key, 1);
-      }
-    }
+    this.events[event] = this.events[event].filter(e => e !== callback);
   }
 
   updateSubtitle(subtitle) {
-    let activeTracks = [];
-    for (let i in this.tracks) {
-      i = parseInt(i);
-      if (subtitle === this.tracks[i].name) {
-        activeTracks.push(this.tracks[i].trackId);
-      }
-    }
+    const activeTracks = [subtitle];
     console.log(activeTracks);
-    let tracksInfoRequest = new chrome.cast.media.EditTracksInfoRequest(activeTracks);
-    this.media.editTracksInfo(tracksInfoRequest, () => console.log("Requested subtitles"), (err) => console.log(err));
+    const tracksInfoRequest = new chrome.cast.media.EditTracksInfoRequest(activeTracks);
+    this.media.editTracksInfo(tracksInfoRequest, () => console.log('Requested subtitles'), err => console.log(err));
   }
 
-  setMedia(media, contentType, subtitles, subtitle, id) {
-    if(!this.session) {
+  setMedia(media, contentType, subtitles, activeSubtitle) {
+    if (!this.session) {
       return;
-    }
-    let activeTracks = [];
-    this.tracks = [];
-    for (let i in subtitles) {
-      i = parseInt(i);
-      let track = new chrome.cast.media.Track(i, chrome.cast.media.TrackType.TEXT);
-      track.trackContentId = 'http://' + document.location.host + '/api/mediacontent/subtitle/' + id + '/' + subtitles[i].value;
-      track.trackContentType = 'text/vtt';
-      track.subtype = chrome.cast.media.TextTrackType.SUBTITLES;
-      track.name = subtitles[i].value;
-      track.customData = null;
-      if (subtitle === subtitles[i].value) {
-        activeTracks.push(i);
-      }
-      this.tracks.push(track);
     }
     const mediaInfo = new chrome.cast.media.MediaInfo(media, contentType);
     mediaInfo.textTrackStyle = new chrome.cast.media.TextTrackStyle();
-    mediaInfo.tracks = this.tracks;
     const request = new chrome.cast.media.LoadRequest(mediaInfo);
-    let tracksInfoRequest = new chrome.cast.media.EditTracksInfoRequest(activeTracks);
+    if (activeSubtitle >= 0) request.activeTrackIds = [activeSubtitle];
+
+    mediaInfo.tracks = subtitles.map((sub, i) => {
+      const track = new chrome.cast.media.Track(i, chrome.cast.media.TrackType.TEXT);
+      track.trackContentId = sub;
+      track.trackContentType = 'text/vtt';
+      track.subtype = chrome.cast.media.TextTrackType.SUBTITLES;
+      track.name = `sub_${i}`;
+      track.customData = null;
+      return track;
+    });
+
     this.session.loadMedia(
       request,
-      media=>{
-        this.media=media;
-        this.media.editTracksInfo(tracksInfoRequest, () => console.log("Requested subtitles"), (err) => console.log(err));
+      (m) => {
+        console.log('media!', m);
+        this.media = m;
         this.trigger(this.EVENT_ONPLAY);
-      }
+      },
     );
   }
 
   setVolume(volume) {
-    if(this.media) {
-      const request = new chrome.cast.media.VolumeRequest(
-        new chrome.cast.Volume(volume)
-      );
+    if (this.media) {
+      const request = new chrome.cast.media.VolumeRequest(new chrome.cast.Volume(volume));
       this.media.setVolume(request);
     }
   }
@@ -141,13 +126,13 @@ class ChromeCast{
   }
 
   play() {
-    if(this.media) {
+    if (this.media) {
       this.media.play();
     }
   }
 
   pause() {
-    if(this.media) {
+    if (this.media) {
       this.media.pause();
     }
   }
@@ -157,7 +142,7 @@ class ChromeCast{
   }
 
   getOffset() {
-    if(!this.media) {
+    if (!this.media) {
       return 0;
     }
     return this.media.getEstimatedTime();

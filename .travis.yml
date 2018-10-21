@@ -1,17 +1,6 @@
 language: node_js
 node_js:
-  - "6.10.2"
-compiler: gcc
-env:
-  - CXX=g++-4.8
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - gcc-4.8
-      - g++-4.8
-  firefox: latest
+  - "8"
 before_install:
   - rvm install 2.2.5
   - nvm --version
@@ -20,12 +9,9 @@ before_install:
   - gcc --version
   - g++ --version
 install:
-  - npm install -g nodeunit
-  - npm install -g jshint
   - cd frontend && npm install && cd ../
   - npm install
 script:
-  - jshint --show-non-errors --verbose --config .jshintrc backend/
   - npm run test
   - mkdir -p dist
   - cd dist && npm pack ../ && cd ..

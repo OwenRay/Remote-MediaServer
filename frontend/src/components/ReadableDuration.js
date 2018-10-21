@@ -1,12 +1,7 @@
-import React, {Component} from 'react';
+import React from 'react';
 
-class ReadableDuration extends Component {
-
-
-  render() {
-
-    return <span>{Math.round(this.props.children/60)+"m"}</span>;
-  }
+function readableDuration(props) {
+  return <span>{`${Math.round(props.children / 60)}m`}</span>;
 }
 
-export default ReadableDuration;
+export default readableDuration;

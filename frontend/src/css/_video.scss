@@ -6,6 +6,18 @@
   bottom:0px;
   top:0px;
   overflow:hidden;
+  video{
+    height:100%;
+    width:100%;
+    padding-bottom:60px;
+    transition: padding-bottom .5s;
+  }
+  &.hidden{
+    cursor: none;
+    video{
+      padding:0px;
+    }
+  }
   .wrapper{
     position:absolute;
     left:0px;
@@ -14,13 +26,6 @@
     top:0px;
     background-size: cover;
     background-position: center center;
-  }
-  video{
-    height:100%;
-    width:100%;
-    &.hidden{
-      cursor: none;
-    }
   }
 
   .preloader-wrapper, >.btn-large, >.btn-large[disabled=false]{
@@ -233,4 +238,9 @@
 
 .cast.active{
   color:$secondary-color-dark;
+}
+
+#continueWatching{
+  top:50%;
+  margin-top:-100px;
 }

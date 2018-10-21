@@ -2009,11 +2009,11 @@ a {
 .z-depth-0 {
   box-shadow: none !important; }
 
-.z-depth-1, nav, .card-panel, .card, .toast, .btn, .btn-large, .btn-floating, .dropdown-content, .collapsible, .side-nav, .btn[disabled=false], [disabled=false].btn-large,
+.z-depth-1, nav, .card-panel, .card, .toast, .btn, .btn-large, .btn-floating, .dropdown-content, .collapsible, .side-nav, .btn[disabled=false], .btn-large[disabled=false],
 .btn-floating[disabled=false] {
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2); }
 
-.z-depth-1-half, .btn:hover, .btn-large:hover, .btn-floating:hover, .btn[disabled=false]:hover, [disabled=false].btn-large:hover,
+.z-depth-1-half, .btn:hover, .btn-large:hover, .btn-floating:hover, .btn[disabled=false]:hover, .btn-large[disabled=false]:hover,
 .btn-floating[disabled=false]:hover {
   box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.14), 0 1px 7px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -1px rgba(0, 0, 0, 0.2); }
 
@@ -2248,7 +2248,8 @@ table {
 thead {
   border-bottom: 1px solid #d0d0d0; }
 
-td, th {
+td,
+th {
   padding: 15px 5px;
   display: table-cell;
   text-align: left;
@@ -3711,7 +3712,7 @@ small {
 .btn-large:disabled,
 .btn-flat:disabled,
 .btn[disabled],
-[disabled].btn-large,
+.btn-large[disabled],
 .btn-floating[disabled],
 .btn-large[disabled],
 .btn-flat[disabled] {
@@ -3730,7 +3731,7 @@ small {
   .btn-large:disabled:hover,
   .btn-flat:disabled:hover,
   .btn[disabled]:hover,
-  [disabled].btn-large:hover,
+  .btn-large[disabled]:hover,
   .btn-floating[disabled]:hover,
   .btn-large[disabled]:hover,
   .btn-flat[disabled]:hover {
@@ -4481,56 +4482,56 @@ textarea.materialize-textarea {
 
 /* Validation Sass Placeholders */
 input.valid:not([type]), input.valid:not([type]):focus,
-input[type=text].valid:not(.browser-default),
-input[type=text].valid:not(.browser-default):focus,
-input[type=password].valid:not(.browser-default),
-input[type=password].valid:not(.browser-default):focus,
-input[type=email].valid:not(.browser-default),
-input[type=email].valid:not(.browser-default):focus,
-input[type=url].valid:not(.browser-default),
-input[type=url].valid:not(.browser-default):focus,
-input[type=time].valid:not(.browser-default),
-input[type=time].valid:not(.browser-default):focus,
-input[type=date].valid:not(.browser-default),
-input[type=date].valid:not(.browser-default):focus,
-input[type=datetime].valid:not(.browser-default),
-input[type=datetime].valid:not(.browser-default):focus,
-input[type=datetime-local].valid:not(.browser-default),
-input[type=datetime-local].valid:not(.browser-default):focus,
-input[type=tel].valid:not(.browser-default),
-input[type=tel].valid:not(.browser-default):focus,
-input[type=number].valid:not(.browser-default),
-input[type=number].valid:not(.browser-default):focus,
-input[type=search].valid:not(.browser-default),
-input[type=search].valid:not(.browser-default):focus,
+input.valid[type=text]:not(.browser-default),
+input.valid[type=text]:not(.browser-default):focus,
+input.valid[type=password]:not(.browser-default),
+input.valid[type=password]:not(.browser-default):focus,
+input.valid[type=email]:not(.browser-default),
+input.valid[type=email]:not(.browser-default):focus,
+input.valid[type=url]:not(.browser-default),
+input.valid[type=url]:not(.browser-default):focus,
+input.valid[type=time]:not(.browser-default),
+input.valid[type=time]:not(.browser-default):focus,
+input.valid[type=date]:not(.browser-default),
+input.valid[type=date]:not(.browser-default):focus,
+input.valid[type=datetime]:not(.browser-default),
+input.valid[type=datetime]:not(.browser-default):focus,
+input.valid[type=datetime-local]:not(.browser-default),
+input.valid[type=datetime-local]:not(.browser-default):focus,
+input.valid[type=tel]:not(.browser-default),
+input.valid[type=tel]:not(.browser-default):focus,
+input.valid[type=number]:not(.browser-default),
+input.valid[type=number]:not(.browser-default):focus,
+input.valid[type=search]:not(.browser-default),
+input.valid[type=search]:not(.browser-default):focus,
 textarea.materialize-textarea.valid,
 textarea.materialize-textarea.valid:focus, .select-wrapper.valid > input.select-dropdown {
   border-bottom: 1px solid white;
   box-shadow: 0 1px 0 0 white; }
 
 input.invalid:not([type]), input.invalid:not([type]):focus,
-input[type=text].invalid:not(.browser-default),
-input[type=text].invalid:not(.browser-default):focus,
-input[type=password].invalid:not(.browser-default),
-input[type=password].invalid:not(.browser-default):focus,
-input[type=email].invalid:not(.browser-default),
-input[type=email].invalid:not(.browser-default):focus,
-input[type=url].invalid:not(.browser-default),
-input[type=url].invalid:not(.browser-default):focus,
-input[type=time].invalid:not(.browser-default),
-input[type=time].invalid:not(.browser-default):focus,
-input[type=date].invalid:not(.browser-default),
-input[type=date].invalid:not(.browser-default):focus,
-input[type=datetime].invalid:not(.browser-default),
-input[type=datetime].invalid:not(.browser-default):focus,
-input[type=datetime-local].invalid:not(.browser-default),
-input[type=datetime-local].invalid:not(.browser-default):focus,
-input[type=tel].invalid:not(.browser-default),
-input[type=tel].invalid:not(.browser-default):focus,
-input[type=number].invalid:not(.browser-default),
-input[type=number].invalid:not(.browser-default):focus,
-input[type=search].invalid:not(.browser-default),
-input[type=search].invalid:not(.browser-default):focus,
+input.invalid[type=text]:not(.browser-default),
+input.invalid[type=text]:not(.browser-default):focus,
+input.invalid[type=password]:not(.browser-default),
+input.invalid[type=password]:not(.browser-default):focus,
+input.invalid[type=email]:not(.browser-default),
+input.invalid[type=email]:not(.browser-default):focus,
+input.invalid[type=url]:not(.browser-default),
+input.invalid[type=url]:not(.browser-default):focus,
+input.invalid[type=time]:not(.browser-default),
+input.invalid[type=time]:not(.browser-default):focus,
+input.invalid[type=date]:not(.browser-default),
+input.invalid[type=date]:not(.browser-default):focus,
+input.invalid[type=datetime]:not(.browser-default),
+input.invalid[type=datetime]:not(.browser-default):focus,
+input.invalid[type=datetime-local]:not(.browser-default),
+input.invalid[type=datetime-local]:not(.browser-default):focus,
+input.invalid[type=tel]:not(.browser-default),
+input.invalid[type=tel]:not(.browser-default):focus,
+input.invalid[type=number]:not(.browser-default),
+input.invalid[type=number]:not(.browser-default):focus,
+input.invalid[type=search]:not(.browser-default),
+input.invalid[type=search]:not(.browser-default):focus,
 textarea.materialize-textarea.invalid,
 textarea.materialize-textarea.invalid:focus, .select-wrapper.invalid > input.select-dropdown {
   border-bottom: 1px solid #F44336;
@@ -6948,6 +6949,15 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
   bottom: 0px;
   top: 0px;
   overflow: hidden; }
+  .video video {
+    height: 100%;
+    width: 100%;
+    padding-bottom: 60px;
+    transition: padding-bottom .5s; }
+  .video.hidden {
+    cursor: none; }
+    .video.hidden video {
+      padding: 0px; }
   .video .wrapper {
     position: absolute;
     left: 0px;
@@ -6956,11 +6966,6 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
     top: 0px;
     background-size: cover;
     background-position: center center; }
-  .video video {
-    height: 100%;
-    width: 100%; }
-    .video video.hidden {
-      cursor: none; }
   .video .preloader-wrapper, .video > .btn-large, .video > .btn-large[disabled=false] {
     position: absolute;
     left: 50%;
@@ -7123,6 +7128,10 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
 .cast.active {
   color: #6c5f00; }
 
+#continueWatching {
+  top: 50%;
+  margin-top: -100px; }
+
 .movie-detail-backdrop {
   position: absolute;
   top: 0px;
@@ -7225,6 +7234,8 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
   padding: 0px 2px;
   background: rgba(10, 12, 26, 0.8);
   z-index: 99; }
+  .top-bar .right > div {
+    display: inline-block; }
   .top-bar button {
     height: 32px;
     line-height: 28px;
@@ -7233,7 +7244,8 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
     text-align: center;
     background: transparent !important;
     border: none;
-    font-size: 20px; }
+    font-size: 20px;
+    display: inline-block; }
     .top-bar button i {
       margin: 0px; }
   .top-bar #back-btn {
@@ -7262,9 +7274,12 @@ html, body {
     color: white;
     margin-left: 10px; }
 
+.card-action {
+  text-align: center; }
+  .card-action .btn:first-child, .card-action .btn-large:first-child {
+    margin-right: 10px; }
+
 .hideNav .modal {
-  top: 50%;
-  margin-top: -103px;
   max-height: inherit; }
 
 .card .card-content .card-title {
@@ -7275,6 +7290,8 @@ html, body {
 
 .brand-logo {
   margin: 0px 20px; }
+  .brand-logo img {
+    vertical-align: text-bottom; }
 
 .quickOptions {
   padding: 0px 10px;
@@ -7529,7 +7546,7 @@ nav {
 input:not([type]), input[type=text], input[type=password], input[type=email], input[type=url], input[type=time], input[type=date], input[type=datetime], input[type=datetime-local], input[type=tel], input[type=number], input[type=search], textarea.materialize-textarea {
   transition: none; }
 
-.btn[disabled=false], [disabled=false].btn-large,
+.btn[disabled=false], .btn-large[disabled=false],
 .btn-large[disabled=false],
 .btn-floating[disabled=false] {
   text-decoration: none;
@@ -7541,7 +7558,7 @@ input:not([type]), input[type=text], input[type=password], input[type=email], in
   cursor: pointer;
   pointer-events: all !important;
   position: relative; }
-  .btn[disabled=false]:hover, [disabled=false].btn-large:hover,
+  .btn[disabled=false]:hover, .btn-large[disabled=false]:hover,
   .btn-large[disabled=false]:hover,
   .btn-floating[disabled=false]:hover {
     background-color: #d2ba00 !important; }
@@ -7567,6 +7584,8 @@ nav {
     float: left; }
     nav .side-nav li i {
       color: white !important; }
+  nav .active {
+    border-bottom: 1px solid #b8a300; }
 
 .button-collapse {
   cursor: pointer; }
@@ -7583,3 +7602,83 @@ button.marked {
 
 .hidden .cast {
   opacity: 0; }
+
+#openFilters {
+  right: 10px;
+  bottom: 10px;
+  position: absolute; }
+  #openFilters .input-field.col label {
+    left: 0; }
+
+.side-nav {
+  height: auto;
+  bottom: 0px; }
+  .side-nav .top {
+    position: absolute;
+    bottom: 60px;
+    top: 0;
+    left: 0;
+    right: 0;
+    overflow: auto; }
+    .side-nav .top .row {
+      padding: 20px;
+      margin: 0px;
+      border-bottom: solid 1px #0a0c1a;
+      border-top: solid 1px #534c67; }
+      .side-nav .top .row .input-field {
+        padding: 0;
+        float: none; }
+      .side-nav .top .row .switch {
+        text-align: right; }
+      .side-nav .top .row label {
+        left: 0; }
+      .side-nav .top .row input {
+        margin: 0px; }
+  .side-nav > div > .row {
+    background: #0a0c1a;
+    margin: 0px;
+    padding: 10px;
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    overflow: hidden; }
+    .side-nav > div > .row .col {
+      padding: 0px 5px; }
+    .side-nav > div > .row button {
+      width: 100%; }
+
+.rc-slider .rc-slider-rail {
+  background: #0a0c1a;
+  border: solid 1px #534c67; }
+
+.rc-slider .rc-slider-track {
+  background: #b8a300; }
+
+.rc-slider .rc-slider-handle, .rc-slider .rc-slider-handle:focus {
+  background: #b8a300;
+  border: none;
+  box-shadow: none; }
+  .rc-slider .rc-slider-handle span, .rc-slider .rc-slider-handle:focus span {
+    display: block;
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    width: 30px;
+    margin-left: -15px;
+    padding: 0px 2px;
+    text-align: center;
+    font-size: 12px;
+    background: #0a0c1a;
+    border: solid 1px #534c67;
+    color: white;
+    line-height: 20px; }
+
+.homeLogo {
+  text-align: center;
+  padding: 40px 0px; }
+
+.autocomplete-content {
+  margin-top: -2px; }
+  .autocomplete-content li .highlight {
+    color: #b8a300; }

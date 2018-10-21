@@ -1,173 +1,99 @@
 /**
  * Created by owenray on 31-3-2017.
  */
-"use strict";
-const RequestHandler = require("../RequestHandler");
-const fs = require("fs");
-const db = require("../../Database");
+
+const RequestHandler = require('../RequestHandler');
+const fs = require('fs');
+const db = require('../../Database');
 const path = require('path');
-const ass2vtt = require('ass-to-vtt');
-const srt2vtt = require('srt-to-vtt');
-const os = require('os');
-const FileRequestHandler = require("../FileRequestHandler");
-const FFProbe = require("../../helpers/FFProbe");
-const spawn = require('child_process').spawn;
-const Settings = require("../../Settings");
-const Log = require("../../helpers/Log");
-const httpServer = require("../../HttpServer");
+const FileRequestHandler = require('../FileRequestHandler');
+const FFProbe = require('../../helpers/FFProbe');
+const httpServer = require('../../HttpServer');
+const Subtitles = require('../../helpers/Subtitles');
 
-const supportedSubtitleFormats = [".srt", ".ass", ".subrip"];
+const supportedSubtitleFormats = ['.srt', '.ass', '.subrip'];
 
-class SubtitleApiHandler extends RequestHandler
-{
-    handleRequest()
-    {
-        var item = db.getById("media-item", this.context.params.id);
-        if(!item) {
-            return;
-        }
+class SubtitleApiHandler extends RequestHandler {
+  handleRequest() {
+    const item = db.getById('media-item', this.context.params.id);
+    if (!item) {
+      return null;
+    }
 
-        const filePath = this.filePath = item.attributes.filepath;
-        const directory = path.dirname(filePath);
+    this.filePath = item.attributes.filepath;
+    const directory = path.dirname(this.filePath);
 
-        if(this.context.params.file)
-        {
-            this.serveSubtitle(filePath, directory, this.context.params.file);
-        }else{
-            this.serveList(directory);
-        }
-        return new Promise(resolve=>{
-           this.resolve = resolve;
+    if (this.context.params.file) {
+      return this.serveSubs(item.id, this.filePath, directory, this.context.params.file);
+    }
+    this.serveList(directory);
+
+    return new Promise((resolve) => {
+      this.resolve = resolve;
+    });
+  }
+
+  serveList(directory) {
+    fs.readdir(directory, this.onReadDir.bind(this));
+  }
+
+  serveSubs(id, filepath, dir, filename) {
+    return new Promise(async (resolve) => {
+      let f = await Subtitles.getVtt(id, filepath, dir, filename);
+      let deleteAfter = false;
+      if (this.context.query.offset) {
+        deleteAfter = true;
+        f = await Subtitles.getTimeShiftedTmpFile(f, this.context.query.offset);
+      }
+      new FileRequestHandler(this.context)
+        .serveFile(f, deleteAfter, resolve);
+    });
+  }
+
+  returnEmpty() {
+    this.response.end('[]');
+  }
+
+  async onReadDir(err, result) {
+    if (err) {
+      this.resolve();
+      this.returnEmpty();
+      return;
+    }
+    const subtitles = result
+      .filter(file => supportedSubtitleFormats.indexOf(path.extname(file)) !== -1)
+      .map(file => ({ label: file, value: file }));
+    const response = { subtitles };
+
+
+    const { streams } = await FFProbe.getInfo(this.filePath);
+    streams.forEach((str) => {
+      let name = str.tags ? str.tags.language : str.codec_long_name;
+      if (!name) {
+        name = str.tags.title;
+      }
+      name = name || str.codec_name;
+      if (supportedSubtitleFormats.indexOf(`.${str.codec_name}`) !== -1) {
+        response.subtitles.push({
+          label: `Built in: ${name}`,
+          value: `:${str.index}.${str.codec_name}`,
         });
-    }
-
-    serveList(directory){
-        fs.readdir(directory, this.onReadDir.bind(this));
-    }
-
-    serveSubtitle(videoFilePath, directory, file, deleteAfterServe) {
-        const extension = path.extname(file);
-        let tmpFile;
-        if(file[0]===":") {
-            var filename = file.substr(1);
-            if(filename.endsWith("subrip")) {
-                filename += ".srt";
-            }
-            tmpFile = os.tmpdir()+"/"+filename;
-            const args = [
-                "-y",
-                "-i", videoFilePath,
-                "-map", "0" + file.split(".").shift(),
-                tmpFile
-            ];
-
-            const proc = spawn(
-                Settings.getValue("ffmpeg_binary"),
-                args);
-            proc.stdout.on('data', function(data)
-            {
-                Log.info("ffmpeg result:", `${data}`);
-            });
-            proc.stderr.on('data', function(data)
-            {
-                Log.info("ffmpeg result:", `${data}`);
-            });
-            proc.on(
-                'close',
-                function(){
-                    this.serveSubtitle(videoFilePath, os.tmpdir(), filename, true);
-                }.bind(this)
-            );
-
-            return;
+      } else {
+        if (!response[str.codec_type]) {
+          response[str.codec_type] = [];
         }
-        console.log(file);
-        if(extension===".srt"||extension===".subrip") {
-            let filename = file+"."+Math.random()+".vtt";
-            tmpFile = os.tmpdir()+"/"+filename;
-            let writeFile = fs.createWriteStream(tmpFile);
-            writeFile.on('close',
-                function(){
-                    if(deleteAfterServe) {
-                        fs.unlink(directory+":"+file, ()=>{});
-                    }
-                    this.serveSubtitle(videoFilePath, os.tmpdir(), filename, true);
-                }.bind(this));
-            fs.createReadStream(directory + "/" + file)
-                .pipe(srt2vtt())
-                .pipe(writeFile);
-            return;
-        } else if (extension===".ass") {
-            let filename = file+"."+Math.random()+".vtt";
-            tmpFile = os.tmpdir()+"/"+filename;
-            let writeFile = fs.createWriteStream(tmpFile);
-            writeFile.on('close',
-                function(){
-                    if(deleteAfterServe) {
-                        fs.unlink(directory+":"+file, ()=>{});
-                    }
-                    this.serveSubtitle(videoFilePath, os.tmpdir(), filename, true);
-                }.bind(this));
-            fs.createReadStream(directory + "/" + file)
-                .pipe(ass2vtt())
-                .pipe(writeFile);
-            return;
-        } else{
-            file = directory+"/"+file;
-        }
-
-        return new FileRequestHandler(this.context)
-            .serveFile(file, deleteAfterServe, this.resolve);
-    }
-
-    returnEmpty(){
-        this.response.end("[]");
-    }
-
-    onReadDir(err, result) {
-        if(err) {
-            this.resolve();
-        }
-        const response = {subtitles:[]};
-        for(let key in result) {
-            if(supportedSubtitleFormats.indexOf(path.extname(result[key]))!==-1) {
-                response.subtitles.push({
-                    label:result[key],
-                    value:result[key],
-                });
-            }
-        }
-
-        FFProbe.getInfo(this.filePath).then(function(data){
-            const streams = data.streams;
-            for(let key in streams) {
-                var str = streams[key];
-                var name = str.tags?
-                            (str.tags.title?str.tags.title:str.tags.language):
-                            str.codec_long_name;
-                name = name?name:str.codec_name;
-                if(supportedSubtitleFormats.indexOf("."+str.codec_name)!==-1) {
-                    response.subtitles.push({
-                        "label": "Built in: " + name,
-                        "value": ":"+str.index + "." + str.codec_name
-                    });
-                }else{
-                    if(!response[str.codec_type]) {
-                        response[str.codec_type] = [];
-                    }
-                    response[str.codec_type].push({
-                            "label":name,
-                            "value":str.index,
-                        });
-                }
-            }
-            this.context.body = response;
-            this.resolve();
-        }.bind(this));
-    }
+        response[str.codec_type].push({
+          label: name,
+          value: str.index,
+        });
+      }
+      this.context.body = response;
+      this.resolve();
+    });
+  }
 }
 
-httpServer.registerRoute("get", "/api/mediacontent/:id", SubtitleApiHandler);
-httpServer.registerRoute("get", "/api/mediacontent/subtitle/:id/:file", SubtitleApiHandler);
+httpServer.registerRoute('get', '/api/mediacontent/:id', SubtitleApiHandler);
+httpServer.registerRoute('get', '/api/mediacontent/subtitle/:id/:file', SubtitleApiHandler);
 
 module.exports = SubtitleApiHandler;
