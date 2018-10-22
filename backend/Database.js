@@ -4,12 +4,14 @@ const fs = require('fs');
 const uuid = require('node-uuid');
 const Log = require('./helpers/Log.js');
 
+const TYPES = ['media-item', 'play-position'];
+
 class Database {
   constructor() {
+    this.writeTimeout = {};
     this.ids = {};
     this.tables = {};
     this.version = 0;
-    this.writeTimeout = null;
   }
 
   checkTable(type) {
@@ -35,7 +37,8 @@ class Database {
     o.type = type;
     o.attributes = obj;
     this.tables[type][o.id] = o;
-    this.save();
+    this.save(type);
+    this.save('ids');
     return o;
   }
 
@@ -44,14 +47,14 @@ class Database {
     if (this.tables[type][id]) {
       delete this.tables[type][id];
     }
-    this.save();
+    this.save(type);
   }
 
   update(type, obj) {
     this.checkTable(type);
 
     this.tables[type][obj.id] = obj;
-    this.save();
+    this.save(type);
     return obj;
   }
 
@@ -185,32 +188,37 @@ class Database {
 
   load() {
     try {
-      if (fs.existsSync('db')) {
-        const items = JSON.parse(fs.readFileSync('db', 'utf8'));
-        Object.keys(items).forEach((key) => { this[key] = items[key]; });
-      }
+      this.tables = TYPES.map(type => JSON.parse(fs.readFileSync(`store/${type}`, 'utf8')));
+      this.ids = JSON.parse(fs.readFileSync('store/ids', 'utf8'));
+      this.version = JSON.parse(fs.readFileSync('store/version', 'utf8'));
     } catch (e) {
       Log.exception(e);
     }
   }
 
-  save() {
-    if (this.writeTimeout) {
-      clearTimeout(this.writeTimeout);
+  save(type) {
+    if (this.writeTimeout[type]) {
+      clearTimeout(this.writeTimeout[type]);
     }
-    this.writeTimeout = setTimeout(this.doSave.bind(this), 3000);
+    this.writeTimeout[type] = setTimeout(() => {
+      this.doSave(type);
+    }, 3000);
   }
 
-  doSave(callback) {
+  doSave(type, callback) {
     Log.debug('Did write db');
-    if (this.writeTimeout) {
-      clearTimeout(this.writeTimeout);
+    if (this.writeTimeout[type]) {
+      clearTimeout(this.writeTimeout[type]);
     }
-    this.writeTimeout = null;
+    this.writeTimeout[type] = null;
     if (!callback) {
       callback = () => {};
     }
-    fs.writeFile('db', JSON.stringify(this), callback);
+    fs.writeFile(
+      `store/${type}`,
+      JSON.stringify(this.tables[type] ? this.tables[type] : this[type]),
+      callback,
+    );
   }
 }
 
