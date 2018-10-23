@@ -11,7 +11,7 @@ class Database {
     this.writeTimeout = {};
     this.ids = {};
     this.tables = {};
-    this.version = 0;
+    this.version = 2;
   }
 
   checkTable(type) {
@@ -188,12 +188,11 @@ class Database {
 
   load() {
     try {
-      this.tables = TYPES.map((type) => {
+      TYPES.forEach((type) => {
         try {
-          return JSON.parse(fs.readFileSync(`store/${type}`, 'utf8'));
+          this.tables[type] = JSON.parse(fs.readFileSync(`store/${type}`, 'utf8'));
         } catch (e) {
           Log.exception('error loading db files', e);
-          return {};
         }
       });
       this.ids = JSON.parse(fs.readFileSync('store/ids', 'utf8'));
