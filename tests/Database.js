@@ -23,14 +23,16 @@ module.exports = {
   },
   testWrite(test) {
     test.expect(1);
-    Database.doSave(() => {
-      test.ok(fs.statSync('db'));
+    Database.doSave('media-item', () => {
+      test.ok(fs.statSync('store/media-item'));
       test.done();
     });
   },
   tearDown(callback) {
     try {
-      fs.unlinkSync('db');
+      fs.unlinkSync('store/media-item');
+      fs.unlinkSync('store/ids');
+      fs.unlinkSync('store/table');
     } catch (e) {}
     callback();
   },

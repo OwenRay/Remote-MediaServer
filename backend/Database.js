@@ -188,7 +188,14 @@ class Database {
 
   load() {
     try {
-      this.tables = TYPES.map(type => JSON.parse(fs.readFileSync(`store/${type}`, 'utf8')));
+      this.tables = TYPES.map((type) => {
+        try {
+          return JSON.parse(fs.readFileSync(`store/${type}`, 'utf8'));
+        } catch (e) {
+          Log.exception('error loading db files', e);
+          return {};
+        }
+      });
       this.ids = JSON.parse(fs.readFileSync('store/ids', 'utf8'));
       this.version = JSON.parse(fs.readFileSync('store/version', 'utf8'));
     } catch (e) {
