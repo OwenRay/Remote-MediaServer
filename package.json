@@ -32,7 +32,8 @@
     "srt-to-ass": "^0.1.9",
     "srt-to-vtt": "^1.1.1",
     "unzip2": "^0.2.5",
-    "vtt-shift": "^0.1.0"
+    "vtt-shift": "^0.1.0",
+    "go-ipfs-dep": "^0.4.17"
   },
   "devDependencies": {
     "ajv": "^6.2.0",

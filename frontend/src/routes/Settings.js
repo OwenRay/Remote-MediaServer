@@ -214,6 +214,7 @@ class Settings extends Component {
                 <option value="native">Use native filesystem events</option>
                 <option value="polling">Alternative (Polling)</option>
               </Input>
+              <Input icon="share" s={12} label="Share key" value={this.state.settings.sharekey} />
               <Input
                 type="checkbox"
                 name="startscan"
@@ -232,7 +233,6 @@ class Settings extends Component {
               {listItems}
             </Collection>
           </Card> : ''}
-
         {deletingModal}
         {this.state.create && <LibraryDialog
           onSave={this.onLibrarySave}

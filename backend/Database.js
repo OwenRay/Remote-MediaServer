@@ -11,6 +11,7 @@ class Database {
     this.writeTimeout = {};
     this.ids = {};
     this.tables = {};
+    this.dataProviders = [];
     this.version = 2;
   }
 
@@ -58,12 +59,8 @@ class Database {
     return obj;
   }
 
-  fileExists(type, id) {
-    return !!this.tables[type] && !!this.tables[type][id];
-  }
-
   findBy(type, key, value) {
-    const table = this.tables[type];
+    const table = this.getAll(type);
     if (!table) {
       return [];
     }
@@ -73,7 +70,7 @@ class Database {
   }
 
   findByMatchFilters(tableType, filters) {
-    const items = this.tables[tableType];
+    const items = this.getAll(tableType);
     if (!items) {
       return [];
     }
@@ -177,13 +174,18 @@ class Database {
     if (!this.tables[type]) {
       return null;
     }
-    return this.tables[type][id];
+    const item = this.tables[type][id];
+    if (item) return item;
+    return this.getAll(type).find(i => i.id === id);
   }
 
   getAll(type) {
-    Log.debug('getall');
     this.checkTable(type);
-    return Object.values(this.tables[type]);
+    let items = Object.values(this.tables[type]);
+    this.dataProviders.forEach((func) => {
+      items = items.concat(func(type));
+    });
+    return items;
   }
 
   load() {
@@ -192,13 +194,14 @@ class Database {
         try {
           this.tables[type] = JSON.parse(fs.readFileSync(`store/${type}`, 'utf8'));
         } catch (e) {
-          Log.exception('error loading db files', e);
+          Log.debug(`database file ${type} doees not exist`);
         }
       });
       this.ids = JSON.parse(fs.readFileSync('store/ids', 'utf8'));
       this.version = JSON.parse(fs.readFileSync('store/version', 'utf8'));
     } catch (e) {
-      Log.exception(e);
+      Log.debug('some database file does not exist');
+      this.save('version');
     }
   }
 
@@ -225,6 +228,10 @@ class Database {
       JSON.stringify(this.tables[type] ? this.tables[type] : this[type]),
       callback,
     );
+  }
+
+  addDataProvider(func) {
+    this.dataProviders.push(func);
   }
 }
 

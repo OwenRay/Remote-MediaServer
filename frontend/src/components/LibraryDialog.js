@@ -80,6 +80,24 @@ class LibraryDialog extends Component {
     this.setState({ folder: val });
   }
 
+  ipfsOrOther() {
+    if(this.state.type==='ipfs') {
+      return <Input value={this.state.uuid} name="uuid" onChange={this.onChange} s={12} label="Code" />;
+    }
+    return (
+      <div>
+        <Input
+          type="checkbox"
+          name="ipfs"
+          onChange={this.onChange}
+          label="Share this library"
+          checked={this.state.ipfs}
+        />
+        <ServerFileBrowser value={this.state.folder} onChange={this.fileBrowserChange} label="Directory" />
+      </div>
+    );
+  }
+
   render() {
     return (
       <Modal
@@ -97,9 +115,10 @@ class LibraryDialog extends Component {
             <option value="tv">TV Shows</option>
             <option value="movie">Movies</option>
             <option value="library_music">Music</option>
+            <option value="ipfs">External Library</option>
           </Input>
           <Input defaultValue={this.state.name} onChange={this.onChange} name="name" s={12} label="Name" />
-          <ServerFileBrowser value={this.state.folder} onChange={this.fileBrowserChange} label="Directory" />
+          {this.ipfsOrOther()}
         </Row>
       </Modal>
     );

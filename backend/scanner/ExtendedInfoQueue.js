@@ -23,6 +23,7 @@ class ExtendedInfoQueue {
     return ExtendedInfoQueue.instance;
   }
   constructor() {
+    this.onDrainCallbacks = [];
     this.queue = [];
     this.running = false;
   }
@@ -58,9 +59,14 @@ class ExtendedInfoQueue {
       }
       Database.update('media-item', item);
     }
+    this.onDrainCallbacks.forEach(cb => cb());
     Log.info('done checking extended info');
 
     this.running = false;
+  }
+
+  setOnDrain(cb) {
+    this.onDrainCallbacks.push(cb);
   }
 }
 

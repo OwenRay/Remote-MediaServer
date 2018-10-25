@@ -54,12 +54,7 @@ class SubtitleApiHandler extends RequestHandler {
     this.response.end('[]');
   }
 
-  async onReadDir(err, result) {
-    if (err) {
-      this.resolve();
-      this.returnEmpty();
-      return;
-    }
+  async onReadDir(err, result = []) {
     const subtitles = result
       .filter(file => supportedSubtitleFormats.indexOf(path.extname(file)) !== -1)
       .map(file => ({ label: file, value: file }));

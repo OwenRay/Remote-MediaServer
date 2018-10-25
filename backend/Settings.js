@@ -37,6 +37,7 @@ const settingsObj = {
   startscan: false,
   filewatcher: 'native',
   scanInterval: 3600,
+  ipfsgateway: '/ip4/127.0.0.1/tcp/8234',
 };
 
 const Settings = {

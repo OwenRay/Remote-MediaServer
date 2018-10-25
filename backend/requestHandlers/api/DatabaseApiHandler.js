@@ -86,8 +86,7 @@ class DatabaseApiHandler extends RequestHandler {
         }
       });
 
-
-    if (parseInt(itemId, 10)) {
+    if (itemId) {
       // find single item
       data = Database.getById(singularType, itemId);
     } else if (Object.keys(query).length > 0) {
