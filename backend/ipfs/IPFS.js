@@ -28,7 +28,7 @@ class IPFS {
   }
 
   exec(...args) {
-    return spawn(this.BIN, ['-c', '../.ipfs.remote'].concat(args));
+    return spawn(this.BIN, ['-c', `${process.cwd()}/ipfs`].concat(args));
   }
 
   execAndReturnOutput(...args) {

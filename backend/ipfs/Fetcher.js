@@ -13,12 +13,21 @@ class Fetcher {
 
   onReady() {
     this.refreshDatabase();
+    // refresh every 15 mins
+    setInterval(this.refreshDatabase.bind(this), 15 * 60 * 1000);
     Settings.addObserver('libraries', this.refreshDatabase.bind(this));
   }
 
-  refreshDatabase() {
+  async refreshDatabase() {
+    if (this.refreshing) return;
+    this.refreshing = true;
     const libs = Settings.getValue('libraries').filter(lib => lib.type === 'ipfs');
-    libs.forEach(this.fetchLib.bind(this));
+    try {
+      await Promise.all(libs.map(this.fetchLib.bind(this)));
+    } catch (e) {
+      Log.debug(e);
+    }
+    this.refreshing = false;
   }
 
   async fetchLib(lib) {

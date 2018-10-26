@@ -76,18 +76,14 @@ class FileProcessor {
         item.id = `${key}-${item.id}`;
         item.attributes.libraryId = key;
         item.attributes.filepath = `ipfs/${item.attributes.ipfs}`;
+        delete item.relationships;
         return item;
       });
   }
 
   async processNextItem() {
+    this.publishDatabase();
     if (!this.itemProcessQueue.length) {
-      await IPFS.getAndSaveKey();
-      fs.writeFile(
-        'ipfs/db',
-        JSON.stringify(FileProcessor.getAllSharedItems()),
-        IPFS.publishDatabase.bind(IPFS),
-      );
       this.processingItems = false;
       return;
     }
@@ -101,13 +97,34 @@ class FileProcessor {
       return;
     }
     const path = `ipfs/${lib.uuid}/${item.attributes.filepath.replace(lib.folder, '')}`;
-    const hash = await FileProcessor.addFile(path);
-    if (hash) {
-      Log.debug('Added file to ipfs', path, hash);
-      item.attributes.ipfs = hash;
-      Database.update('media-item', item);
+    try {
+      const hash = await FileProcessor.addFile(path);
+      if (hash) {
+        Log.debug('Added file to ipfs', path, hash);
+        item.attributes.ipfs = hash;
+        Database.update('media-item', item);
+      }
+    } catch (e) {
+      Log.warning('failed to add ipfs file:', e);
     }
     this.processNextItem();
+  }
+
+  publishDatabase() {
+    if (this.publishTimeout) {
+      clearTimeout(this.publishTimeout);
+    }
+    this.publishTimeout = setTimeout(FileProcessor.doPublishDatabase.bind(this), 60000);
+  }
+
+  static async doPublishDatabase() {
+    Log.debug('start write and publish ipfs database');
+    await IPFS.getAndSaveKey();
+    fs.writeFile(
+      'ipfs/db',
+      JSON.stringify(FileProcessor.getAllSharedItems()),
+      IPFS.publishDatabase.bind(IPFS),
+    );
   }
 
   static async addFile(path) {
