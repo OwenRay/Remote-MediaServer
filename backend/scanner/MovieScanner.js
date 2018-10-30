@@ -26,7 +26,7 @@ class MovieScanner {
 
   static getLibraries() {
     return Settings.getValue('libraries')
-      .filter(lib => lib.type !== 'ipfs');
+      .filter(lib => lib.type !== 'shared');
   }
 
   startWatchingAll() {

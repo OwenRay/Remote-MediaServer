@@ -82,9 +82,12 @@ class SearchBar extends Component {
       <Row>
         <Input s={3} name="libraryId" type="select" label="Library:" value={this.state.filters.libraryId} onChange={this.onChange}>
           <option value="">All libraries</option>
-          {this.state.settings.libraries.map(lib => (
-            <option key={lib.uuid} value={lib.uuid}>{lib.name}</option>
-          ))}
+          {this.state.settings.libraries.map((lib) => {
+            let { uuid } = lib;
+            if (lib.type = 'shared') [uuid] = uuid.split('-');
+
+            return <option key={uuid} value={uuid}>{lib.name}</option>;
+          })}
         </Input>
         <div className="col search s6">
           <Input s={12} name="title" type="text" label="" defaultValue={this.state.filters.title} onChange={this.onChange} />

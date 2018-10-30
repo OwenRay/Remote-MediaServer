@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "ass-to-vtt": "^1.1.1",
+    "bittorrent-dht": "^9.0.0",
     "chokidar": "^2.0.4",
+    "ed25519-supercop": "^1.2.0",
     "filewatcher": "^3.0.1",
     "glob": "^7.1.2",
     "guessit-wrapper": "^1.0.0",
@@ -33,7 +35,7 @@
     "srt-to-vtt": "^1.1.1",
     "unzip2": "^0.2.5",
     "vtt-shift": "^0.1.0",
-    "go-ipfs-dep": "^0.4.17"
+    "ip": "^1.1.5"
   },
   "devDependencies": {
     "ajv": "^6.2.0",

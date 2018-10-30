@@ -15,4 +15,4 @@ process.chdir(dir);
 require('./backend/scanner/MovieScanner.js');
 require('./backend/Migrate').run();
 require('./backend/HttpServer').start();
-require('./backend/ipfs');
+require('./backend/sharing');

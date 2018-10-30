@@ -128,7 +128,9 @@ class Settings extends Component {
       return (<p>Loading</p>);
     }
 
-    const listItems = this.state.settings.libraries.map(lib => (
+    const { settings } = this.state;
+
+    const listItems = settings.libraries.map(lib => (
       <CollectionItem
         onClick={(e) => {
           e.stopPropagation();
@@ -189,7 +191,7 @@ class Settings extends Component {
               <Input
                 name="name"
                 onChange={this.onChange}
-                defaultValue={this.state.settings.name}
+                defaultValue={settings.name}
                 icon="label"
                 label="Server name"
                 s={12}
@@ -197,30 +199,53 @@ class Settings extends Component {
               <Input
                 name="port"
                 onChange={this.onChange}
-                defaultValue={`${this.state.settings.port}`}
+                defaultValue={`${settings.port}`}
                 icon="input"
                 label="Port"
                 s={12}
               />
+              <Row>
+                <Input
+                  name="sharehost"
+                  onChange={this.onChange}
+                  defaultValue={`${settings.sharehost}`}
+                  icon="input"
+                  label="Sharing host (empty for autodetect)"
+                  s={6}
+                />
+                <Input
+                  name="shareport"
+                  onChange={this.onChange}
+                  defaultValue={`${settings.shareport}`}
+                  icon="input"
+                  label="Sharing port"
+                  s={6}
+                />
+              </Row>
               <Input
                 s={12}
                 name="filewatcher"
                 onChange={this.onChange}
                 type="select"
                 label="File watcher"
-                defaultValue={this.state.settings.filewatcher}
+                defaultValue={settings.filewatcher}
                 icon="remove_red_eye"
               >
                 <option value="native">Use native filesystem events</option>
                 <option value="polling">Alternative (Polling)</option>
               </Input>
-              <Input icon="share" s={12} label="Share key" value={this.state.settings.sharekey} />
+              <Input
+                icon="share"
+                s={12}
+                label="Share key"
+                value={`${settings.sharekey}-${settings.dbKey}-${settings.dbNonce}`}
+              />
               <Input
                 type="checkbox"
                 name="startscan"
                 onChange={this.onChange}
                 label="Full rescan on start"
-                checked={this.state.settings.startscan}
+                checked={settings.startscan}
               />
             </Row>
           </Card> : ''}

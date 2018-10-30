@@ -1,13 +1,22 @@
 const fs = require('fs');
 const uuid = require('node-uuid');
+const crypto = require('crypto');
 
 const settingsObj = {
-  port: 8080,
+  port: 8234,
   name: 'My Media Server',
   ffmpeg_binary: `${process.cwd()}/ffmpeg`,
   ffprobe_binary: `${process.cwd()}/ffprobe`,
   libraries: [],
   tmdb_apikey: '0699a1db883cf76d71187d9b24c8dd8e',
+  dhtbootstrap: [
+    'theremote.io:8235',
+  ],
+  dhtoffset: 0,
+  dbKey: crypto.randomBytes(24).toString('hex'),
+  dbNonce: crypto.randomBytes(16).toString('hex'),
+  shareport: 8235,
+  sharehost: '',
   videoFileTypes: [
     'mkv',
     'mp4',
@@ -37,7 +46,6 @@ const settingsObj = {
   startscan: false,
   filewatcher: 'native',
   scanInterval: 3600,
-  ipfsgateway: '/ip4/127.0.0.1/tcp/8234',
 };
 
 const Settings = {
@@ -53,6 +61,12 @@ const Settings = {
     return settingsObj[key];
   },
 
+  /**
+   * returns true if value changed
+   * @param key
+   * @param value
+   * @returns {boolean}
+   */
   setValue(key, value) {
     if (key === 'libraries') {
       value.forEach((lib) => {
@@ -68,7 +82,9 @@ const Settings = {
     // quick lazy way to do a deep compare
     if (JSON.stringify(originalValue) !== JSON.stringify(value)) {
       this.triggerObservers(key);
+      return true;
     }
+    return false;
   },
 
   getAll() {
