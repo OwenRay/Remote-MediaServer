@@ -182,7 +182,7 @@ class Database {
   getAll(type, skipDataProviders = false) {
     this.checkTable(type);
     let items = Object.values(this.tables[type]);
-    if(skipDataProviders) return items;
+    if (skipDataProviders) return items;
     this.dataProviders.forEach((func) => {
       items = items.concat(func(type));
     });

@@ -2,7 +2,6 @@ const DHT = require('bittorrent-dht');
 const Log = require('../helpers/Log');
 const Settings = require('../Settings');
 const ed = require('ed25519-supercop');
-const os = require('os');
 const ip = require('ip');
 
 
@@ -119,7 +118,7 @@ class EDHT {
     }
   }
 
-  async share(value) {
+  share(value) {
     return new Promise((resolve) => {
       this.dht.put(value, (er, hash) => {
         resolve(hash);
@@ -127,19 +126,19 @@ class EDHT {
     });
   }
 
-  async findPeers(hash) {
+  findPeers(hash) {
     const hash64 = hash.toString('hex');
     return new Promise((resolve) => {
-      this.dht.lookup(hash, (er) => {
+      this.dht.lookup(hash, () => {
         resolve(this.peers[hash64]);
       });
     });
   }
 
-  async announce(hash) {
+  announce(hash) {
     const hash64 = hash.toString('hex');
     return new Promise((resolve) => {
-      this.dht.announce(hash, Settings.getValue('shareport'), (er) => {
+      this.dht.announce(hash, Settings.getValue('shareport'), () => {
         resolve(this.peers[hash64]);
       });
     });

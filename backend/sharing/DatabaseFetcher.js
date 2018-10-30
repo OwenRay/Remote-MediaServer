@@ -7,7 +7,6 @@ const TcpClient = require('./TcpClient');
 // @todo handle library delete
 class DatabaseFetcher {
   constructor() {
-    console.log('start fetcher');
     Database.addDataProvider(this.provide.bind(this));
     this.cached = { 'media-item': {} };
     EDHT.setOnreadyListener(this.onReady.bind(this));

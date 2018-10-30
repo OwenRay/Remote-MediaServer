@@ -2,7 +2,6 @@ const crypto = require('crypto');
 const Log = require('../helpers/Log');
 
 class Crypt {
-
   static encrypt(stream, key, nonce) {
     const cypher = crypto.createCipheriv('aes192', key, nonce);
     cypher.on('error', (e) => {

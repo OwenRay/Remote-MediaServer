@@ -95,12 +95,10 @@ class FileProcessor {
       if (!filesize || !fileduration) {
         return this.announceNext(resolve);
       }
-      const parts = fileduration / 300;
+      const parts = Math.ceil(fileduration / 300);
       item.attributes.shareparts = parts;
-      const hashes = [];
-      for (let c = 0; c <= parts; c += 1) {
-        hashes.push(await EDHT.share(`${Settings.getValue('sharekey')}-${item.attributes.id}-${c}`));
-      }
+      let hashes = new Array(parts).fill('');
+      hashes = await Promise.all(hashes.map((val, index) => EDHT.share(`${Settings.getValue('sharekey')}-${item.attributes.id}-${index}`)));
       this.hashes[item.id] = hashes;
       item.attributes.shared = true;
       item.attributes.nonce = crypto.randomBytes(16).toString('hex');
@@ -109,7 +107,7 @@ class FileProcessor {
 
     Promise.all(this.hashes[item.id].map(hash => EDHT.announce(hash)));
 
-    this.announceNext(resolve);
+    return this.announceNext(resolve);
   }
 
   getReadStream(id, hash) {
