@@ -10,7 +10,7 @@ module.exports = {
 
   testConnection(test) {
     test.expect(1);
-    http.get('http://localhost:8080/index.html', (res) => {
+    http.get('http://localhost:8234/index.html', (res) => {
       test.strictEqual(res.statusCode, 200);
       test.done();
     });
