@@ -12,6 +12,10 @@ class TcpServer {
     this.server.listen(Settings.getValue('shareport'));
   }
 
+  /**
+   * @todo  doesn't always disconnect??
+   * @param socket
+   */
   static connected(socket) {
     Log.debug('sharing, new peer connection');
     socket.on('error', (e) => {
@@ -20,7 +24,6 @@ class TcpServer {
     readline
       .createInterface(socket)
       .on('line', (line) => {
-        Log.debug('received', line);
         if (line === Settings.getValue('sharekey')) {
           Log.debug('serve database');
           const db = fs.createReadStream('share/db');
@@ -30,25 +33,22 @@ class TcpServer {
             Buffer.from(Settings.getValue('dbNonce'), 'hex'),
           );
           stream.pipe(socket);
-          stream.on('close', () => {
-            Log.debug('finished servering database, closing stream');
+        } else if (line.split('-').length >= 3) {
+          const [hash, , id] = line.split('-');
+          const stream = FileProcessor.getReadStream(id, hash);
+          if (!stream) {
             socket.end();
+            return;
+          }
+          Log.debug('piping file to socket');
+          stream.pipe(socket);
+          socket.on('close', () => {
+            Log.debug(socket.bytesWritten);
+            stream.end();
           });
-          return;
-        }
-
-        const [hash, , id] = line.split('-');
-        const stream = FileProcessor.getReadStream(id, hash);
-        if (!stream) {
+        } else {
           socket.end();
-          return;
         }
-        Log.debug('piping file to socket');
-        stream.pipe(socket);
-        socket.on('close', () => {
-          Log.debug(socket.bytesWritten);
-          stream.end();
-        });
       });
   }
 }

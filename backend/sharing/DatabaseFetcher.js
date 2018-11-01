@@ -37,6 +37,7 @@ class DatabaseFetcher {
     const client = new TcpClient(ref, key, nonce);
     await client.getFile();
     let items = JSON.parse(await client.getContents());
+    Log.debug('fetched database', lib.uuid);
     items = items.map((item) => {
       item.attributes.filepath = `http://localhost:${Settings.getValue('port')}${item.attributes.filepath}`;
       return item;

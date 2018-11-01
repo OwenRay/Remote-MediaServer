@@ -11,7 +11,12 @@ class Crypt {
   }
 
   static decrypt(key, nonce) {
-    return crypto.createDecipheriv('aes192', key, nonce);
+    const cypher = crypto.createDecipheriv('aes192', key, nonce);
+
+    cypher.on('error', (e) => {
+      Log.debug('cypher emitted error', e);
+    });
+    return cypher;
   }
 }
 

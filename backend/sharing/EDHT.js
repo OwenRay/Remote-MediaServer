@@ -30,10 +30,10 @@ class EDHT {
     dht.listen(Settings.getValue('shareport'), () => { Log.info('dht listening', this.dht.address()); });
     dht.on('ready', this.onReady.bind(this));
     dht.on('peer', this.onPeer.bind(this));
-    dht.on('warning', (e) => { Log.info('dht warn', e); });
-    dht.on('error', (e) => { Log.info('dht err', e); });
+    dht.on('warning', (e) => { Log.debug('dht warn', e); });
+    dht.on('error', (e) => { Log.warning('dht err', e); });
 
-    setInterval(this.publishDatabase.bind(this), 10000);
+    setInterval(this.publishDatabase.bind(this), 60 * 60 * 1000);
   }
 
   checkForKeys() {
@@ -93,7 +93,7 @@ class EDHT {
       };
 
       this.dht.put(opts, (err, hash) => {
-        this.dht.announce(hash);
+        this.announce(hash);
         hash = hash.toString('hex');
         Settings.setValue('dhtoffset', offset);
         Settings.setValue('sharekey', hash);

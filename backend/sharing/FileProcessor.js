@@ -12,7 +12,6 @@ const Crypt = require('./Crypt');
  */
 class FileProcessor {
   constructor() {
-    this.hashes = [];
     Settings.addObserver('libraries', this.publishDatabase.bind(this));
     EDHT.setOnreadyListener(this.onReady.bind(this));
     extendedInfoQueue.setOnDrain(this.publishDatabase.bind(this));
@@ -20,15 +19,31 @@ class FileProcessor {
 
   onReady() {
     this.publishDatabase();
-    setInterval(this.reannounce.bind(this), 10000);
+    this.reannounce();
+    setInterval(this.reannounce.bind(this), 30 * 60 * 1000);
   }
 
-  reannounce() {
-    this.hashes.forEach(moreHashes => moreHashes.forEach(hash => EDHT.announce(hash)));
-    this.hashes.forEach(moreHashes => moreHashes.forEach(hash => EDHT.share(hash)));
+  async reannounce() {
+    if (this.announcing) return;
+    this.announcing = true;
+    await this.doReannounce(FileProcessor.getAllSharedItems());
   }
 
-  getAllSharedItems() {
+  async doReannounce(items) {
+    if (!items.length) {
+      this.announcing = false;
+      return;
+    }
+    const item = items.pop();
+    try {
+      await Promise.all(item.attributes.hashes.map(hash => EDHT.announce(Buffer.from(hash, 'hex'))));
+    } catch (e) {
+      Log.debug(e);
+    }
+    this.doReannounce(items);
+  }
+
+  static getAllSharedItems() {
     const key = Settings.getValue('sharekey');
     const items = Database
       .getAll('media-item', true)
@@ -36,7 +51,6 @@ class FileProcessor {
 
     return JSON.parse(JSON.stringify(items))
       .map((item) => {
-        item.attributes.hashes = this.hashes[item.id].map(hash => hash.toString('hex'));
         item.id = `${key}-${item.id}`;
         item.attributes.libraryId = key;
         item.attributes.extension = item.attributes.filepath.replace(/^.*\.(.*)$/, '$1');
@@ -64,7 +78,7 @@ class FileProcessor {
     Log.debug('start write and publish edht database');
     fs.writeFile(
       'share/db',
-      JSON.stringify(this.getAllSharedItems()),
+      JSON.stringify(FileProcessor.getAllSharedItems()),
       EDHT.publishDatabase.bind(EDHT),
     );
     this.publishing = false;
@@ -90,7 +104,7 @@ class FileProcessor {
 
     const item = this.toProcess.pop();
 
-    if (!item.attributes.shared || !this.hashes[item.id]) {
+    if (!item.attributes.shared || !item.attributes.hashes) {
       const { filesize, fileduration } = item.attributes;
       if (!filesize || !fileduration) {
         return this.announceNext(resolve);
@@ -99,28 +113,28 @@ class FileProcessor {
       item.attributes.shareparts = parts;
       let hashes = new Array(parts).fill('');
       hashes = await Promise.all(hashes.map((val, index) => EDHT.share(`${Settings.getValue('sharekey')}-${item.attributes.id}-${index}`)));
-      this.hashes[item.id] = hashes;
+      item.attributes.hashes = hashes.map(hash => hash.toString('hex'));
       item.attributes.shared = true;
       item.attributes.nonce = crypto.randomBytes(16).toString('hex');
       Database.update('media-item', item);
-    }
 
-    Promise.all(this.hashes[item.id].map(hash => EDHT.announce(hash)));
+      await Promise.all(item.attributes.hashes.map(hash => EDHT.announce(hash)));
+    }
 
     return this.announceNext(resolve);
   }
 
   getReadStream(id, hash) {
-    Log.debug('new request for file', id, hash);
+    Log.debug('new request for file', id, hash, this.announcing);
     const item = Database.getById('media-item', id);
-    const hashes = this.hashes[id];
-    if (!hashes || !item) {
-      Log.debug('items or hashes not found', item, hashes);
+    if (!item || !item.attributes.hashes) {
+      Log.debug('items or hashes not found');
       return null;
     }
+    const { hashes } = item.attributes;
     const { filesize } = item.attributes;
     const chunkSize = Math.ceil(filesize / hashes.length);
-    const start = hashes.map(h => h.toString('hex')).indexOf(hash) * chunkSize;
+    const start = hashes.indexOf(hash) * chunkSize;
 
     if (start < 0) {
       Log.debug('hash not found between', hashes);
