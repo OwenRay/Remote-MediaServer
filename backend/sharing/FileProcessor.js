@@ -6,6 +6,9 @@ const fs = require('fs');
 const EDHT = require('./EDHT');
 const crypto = require('crypto');
 const Crypt = require('./Crypt');
+const { promisify } = require('util');
+
+const stat = promisify(fs.stat);
 
 /**
  * @todo, cache hashes locally
@@ -124,12 +127,17 @@ class FileProcessor {
     return this.announceNext(resolve);
   }
 
-  getReadStream(id, hash) {
+  async getReadStream(id, hash) {
     Log.debug('new request for file', id, hash, this.announcing);
     const item = Database.getById('media-item', id);
-    if (!item || !item.attributes.hashes) {
-      Log.debug('items or hashes not found');
-      return null;
+    if (!item || !item.attributes.hashes || item.attributes.hashes.indexOf(hash) === -1) {
+      try {
+        await stat(`share/${hash}`);
+        return fs.createReadStream(`share/${hash}`);
+      } catch (e) {
+        Log.debug('items or hashes not found');
+        return null;
+      }
     }
     const { hashes } = item.attributes;
     const { filesize } = item.attributes;

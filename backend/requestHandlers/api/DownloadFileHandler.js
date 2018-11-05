@@ -15,15 +15,16 @@ class DownloadFileHandler extends RequestHandler {
     if (range) {
       offset = parseInt(range.split('=')[1].split('-')[0], 10);
     }
-    this.context.set('Accept-Ranges', 'none');
+    this.context.set('Accept-Ranges', 'bytes');
 
     this.context.type = 'video/webm';
     const lib = MediaItemHelper.getLibrary(item);
     if (lib.type === 'shared') {
-      this.context.body = new MediaFetcher(item).startStream();
+      const s = new MediaFetcher(item);
+      s.setContextHeaders(this.context, offset);
+      this.context.body = s.startStream(offset);
       return;
     }
-    this.context.set('Accept-Ranges', 'bytes');
     this.context.set('Content-Length', item.attributes.filesize - offset);
 
     const { filepath } = item.attributes;

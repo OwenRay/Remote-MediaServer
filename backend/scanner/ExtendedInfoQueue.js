@@ -42,6 +42,10 @@ class ExtendedInfoQueue {
     }
   }
 
+  concat(items) {
+    items.forEach(item => this.push(item));
+  }
+
   async start() {
     const libs = {};
     Settings.getValue('libraries').forEach((library) => {

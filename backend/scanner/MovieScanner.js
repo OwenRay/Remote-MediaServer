@@ -74,13 +74,14 @@ class MovieScanner {
     }
     this.scanRequested = false;
     Log.info('start scanner');
+    // check all files for possible extra info.
     MovieScanner.checkForMediaItemsWithMissingFiles();
     MovieScanner.checkForMediaItemsWithMissingLibrary();
     this.scanNext();
   }
 
   static checkForMediaItemsWithMissingFiles() {
-    const items = Database.getAll('media-item');
+    const items = Database.getAll('media-item', true);
     function next() {
       if (!items.length) {
         return;
@@ -100,7 +101,7 @@ class MovieScanner {
   static checkForMediaItemsWithMissingLibrary() {
     const libIds = MovieScanner.getLibraries().map(l => l.uuid);
 
-    const items = Database.getAll('media-item');
+    const items = Database.getAll('media-item', true);
     Object.keys(items).forEach((key) => {
       const item = items[key];
       if (libIds.indexOf(item.attributes.libraryId) === -1) {

@@ -18,7 +18,6 @@ class EDHT {
     this.dht = new DHT({
       verify: ed.verify,
       host: this.host,
-      // bootstrap: [],
       bootstrap: Settings.getValue('dhtbootstrap'),
       nodeId: Settings.getValue('nodeid') ? Buffer.from(Settings.getValue('nodeid'), 'hex') : '',
     });
@@ -30,7 +29,7 @@ class EDHT {
     dht.listen(Settings.getValue('shareport'), () => { Log.info('dht listening', this.dht.address()); });
     dht.on('ready', this.onReady.bind(this));
     dht.on('peer', this.onPeer.bind(this));
-    dht.on('warning', (e) => { Log.debug('dht warn', e); });
+    // dht.on('warning', (e) => { Log.debug('dht warn', e); });
     dht.on('error', (e) => { Log.warning('dht err', e); });
 
     setInterval(this.publishDatabase.bind(this), 60 * 60 * 1000);
@@ -112,6 +111,7 @@ class EDHT {
   removePeerObserver(hash, cb) {
     hash = hash.toString('hex');
     const arr = this.peerObservers[hash];
+    if (!arr) return;
     const index = arr.indexOf(cb);
     if (index !== -1) {
       arr.splice(index, 1);

@@ -23,7 +23,7 @@ class TcpServer {
     });
     readline
       .createInterface(socket)
-      .on('line', (line) => {
+      .on('line', async (line) => {
         if (line === Settings.getValue('sharekey')) {
           Log.debug('serve database');
           const db = fs.createReadStream('share/db');
@@ -35,16 +35,18 @@ class TcpServer {
           stream.pipe(socket);
         } else if (line.split('-').length >= 3) {
           const [hash, , id] = line.split('-');
-          const stream = FileProcessor.getReadStream(id, hash);
+          const stream = await FileProcessor.getReadStream(id, hash);
           if (!stream) {
             socket.end();
             return;
           }
+          stream.on('finish', () => {
+            stream.unpipe(socket);
+          });
           Log.debug('piping file to socket');
           stream.pipe(socket);
           socket.on('close', () => {
-            Log.debug(socket.bytesWritten);
-            stream.end();
+            if (typeof stream.end === 'function') stream.end();
           });
         } else {
           socket.end();

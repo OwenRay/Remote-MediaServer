@@ -37,15 +37,18 @@ class TcpConnection {
     Log.debug('try to download file from', this.peer, reference, extra);
     EDHT.announce(reference);
 
-    Log.debug('connected to server!');
+    Log.debug('connected to server!', this.peer);
     this.client.write(`${reference}${extra}\r\n`);
 
-    this.client.pipe(writeOut).on('finish', () => {
+    let finished = 0;
+    writeOut.forEach(s => this.client.pipe(s));
+    writeOut.forEach(s => s.on('finish', () => {
+      finished += 1;
       if (this.errored) {
         return;
       }
-      this.onResult(this, true);
-    });
+      if (finished === writeOut.length) this.onResult(this, true);
+    }));
   }
 }
 

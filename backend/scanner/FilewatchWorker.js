@@ -5,7 +5,10 @@ const watcherType = process.argv[3];
 const options = {
   ignoreInitial: true,
   usePolling: watcherType === 'polling',
-  awaitWriteFinish: true,
+  awaitWriteFinish: {
+    stabilityThreshold: 6000,
+    pollInterval: 100,
+  },
   useFsEvents: watcherType === 'native',
 };
 

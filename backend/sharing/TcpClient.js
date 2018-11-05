@@ -2,7 +2,6 @@ const EDHT = require('./EDHT');
 const Crypt = require('./Crypt');
 const fs = require('fs');
 const Log = require('../helpers/Log');
-const { PassThrough } = require('stream');
 const TcpConnection = require('./TcpConnection');
 
 class TcpClient {
@@ -13,10 +12,10 @@ class TcpClient {
     this.nonce = Buffer.from(nonce, 'hex');
     this.onPeer = this.onPeer.bind(this);
     this.cachePath = `share/${reference}`;
-    this.writeOut = fs.createWriteStream(this.cachePath, { flags: 'w' });
+    this.writeOut = [];
   }
 
-  getFile() {
+  downloadFile() {
     this.start();
     return new Promise((resolve) => {
       this.resolve = resolve;
@@ -24,16 +23,31 @@ class TcpClient {
   }
 
   streamFile(onDone, extraInfo) {
-    this.start();
     this.extraInfo = extraInfo;
-    this.writeOut = new PassThrough();
-    return this.writeOut.pipe(Crypt.decrypt(this.key, this.nonce));
+    const s = Crypt.decrypt(this.key, this.nonce);
+    this.writeOut.push(s);
+    this.start();
+    return s;
   }
 
   start() {
-    EDHT.addPeerObserver(this.reference, this.onPeer);
-    this.requestPeers();
-    this.findPeerInterval = setInterval(this.requestPeers.bind(this), 10000);
+    fs.stat(this.cachePath, (err) => {
+      if (!err && this.writeOut.length) {
+        fs.createReadStream(this.cachePath)
+          .pipe(this.writeOut[0]);
+        this.writeOut[0].on('finish', () => {
+          if (this.resolve) this.resolve(this.cachePath);
+        });
+      } else if (!err) {
+        this.resolve();
+      } else {
+        Log.debug('downloaded', this.reference);
+        this.writeOut.push(fs.createWriteStream(`${this.cachePath}.incomplete`, { flags: 'w' }));
+        EDHT.addPeerObserver(this.reference, this.onPeer);
+        this.requestPeers();
+        this.findPeerInterval = setInterval(this.requestPeers.bind(this), 10000);
+      }
+    });
   }
 
   stop() {
@@ -118,11 +132,15 @@ class TcpClient {
     this.ended = true;
     clearInterval(this.findPeerInterval);
     EDHT.removePeerObserver(this.reference, this.onPeer);
-    if (this.resolve) this.resolve(this.cachePath);
 
     if (!success) {
-      fs.unlink(this.cachePath, () => {
+      fs.unlink(`${this.cachePath}.incomplete`, () => {
         Log.debug('removed incomplete download');
+      });
+    } else {
+      fs.rename(`${this.cachePath}.incomplete`, this.cachePath, () => {
+        Log.debug('chunk downloaded');
+        if (this.resolve) this.resolve(this.cachePath);
       });
     }
   }

@@ -35,7 +35,7 @@ class DatabaseFetcher {
     Log.debug('try to fetch!!', lib.uuid);
     const [ref, key, nonce] = lib.uuid.split('-');
     const client = new TcpClient(ref, key, nonce);
-    await client.getFile();
+    await client.downloadFile();
     let items = JSON.parse(await client.getContents());
     Log.debug('fetched database', lib.uuid);
     items = items.map((item) => {
