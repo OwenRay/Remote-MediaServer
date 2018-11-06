@@ -9,12 +9,12 @@ class TMDBApiHandler extends RequestHandler {
     MovieScanner.scan();
     const items = Database.getAll('media-item', true);
     if (this.context.query.ffprobe) {
-      items.forEach((item) => { item.gotfileinfo = false; });
+      items.forEach(({ attributes }) => { attributes.gotfileinfo = false; });
     }
     if (this.context.query.tmdb) {
-      items.forEach((item) => {
-        item.gotExtendedInfo = 0;
-        item.gotSeriesAndSeasonInfo = 0;
+      items.forEach(({ attributes }) => {
+        attributes.gotExtendedInfo = 0;
+        attributes.gotSeriesAndSeasonInfo = 0;
       });
     }
     ExtendedInfoQueue.getInstance().concat(items);

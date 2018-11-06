@@ -21,8 +21,12 @@ class FFMpeg {
   }
 
   run() {
-    FFProbe.getInfo(this.file)
-      .then(this.gotInfo.bind(this), this.onError);
+    if (this.mediaItem.attributes.streams && this.mediaItem.attributes.format) {
+      this.gotInfo(this.mediaItem.attributes);
+    } else {
+      FFProbe.getInfo(this.file)
+        .then(this.gotInfo.bind(this), this.onError);
+    }
     return this;
   }
 
@@ -145,7 +149,7 @@ class FFMpeg {
       this.offset = 0;
     }
 
-    if (this.offset) {
+    if (this.offset && this.offset !== '0') {
       this.addInputArguments(['-ss', this.offset]);
       this.addOutputArguments(['-ss', 0]);
     }

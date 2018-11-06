@@ -28,14 +28,15 @@ class Mpeg4PlayHandler extends RequestHandler {
     if (this.context.query.videoChannel) {
       this.ffmpeg.setVideoChannel(this.context.query.videoChannel);
     }
-    this.ffmpeg.run();
+    const promise = new Promise((resolve) => {
+      this.resolve = resolve;
+    });
 
+    this.ffmpeg.run();
     this.bufferedChuncks = 0;
     Log.debug(`starting to play:${this.file}`);
 
-    return new Promise((resolve) => {
-      this.resolve = resolve;
-    });
+    return promise;
   }
 
   onFFMpegReady() {

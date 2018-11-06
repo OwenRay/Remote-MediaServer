@@ -20,6 +20,7 @@ class SubtitleApiHandler extends RequestHandler {
       return null;
     }
 
+    this.item = item;
     this.filePath = item.attributes.filepath;
     const directory = path.dirname(this.filePath);
 
@@ -60,8 +61,9 @@ class SubtitleApiHandler extends RequestHandler {
       .map(file => ({ label: file, value: file }));
     const response = { subtitles };
 
+    let { streams } = this.item.attributes;
+    if (!streams) streams = await FFProbe.getInfo(this.filePath).streams;
 
-    const { streams } = await FFProbe.getInfo(this.filePath);
     streams.forEach((str) => {
       let name = str.tags ? str.tags.language : str.codec_long_name;
       if (!name) {

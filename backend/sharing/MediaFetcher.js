@@ -1,6 +1,7 @@
 const TcpClient = require('./TcpClient');
 const { PassThrough } = require('stream');
 const MediaItemHelper = require('../helpers/MediaItemHelper');
+const Log = require('../helpers/Log');
 
 /**
  * @todo handle downloads in background
@@ -18,6 +19,7 @@ class MediaFetcher {
   }
 
   startStream(offset) {
+    Log.debug('starting to download from offset: ', offset);
     this.offset = Math.floor(offset / this.chunksize);
     this.skipBytes = offset - (this.offset * this.chunksize);
     this.output = new PassThrough();

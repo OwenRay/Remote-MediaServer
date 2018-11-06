@@ -40,9 +40,6 @@ class TcpServer {
             socket.end();
             return;
           }
-          stream.on('finish', () => {
-            stream.unpipe(socket);
-          });
           Log.debug('piping file to socket');
           stream.pipe(socket);
           socket.on('close', () => {

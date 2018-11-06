@@ -115,7 +115,7 @@ class FileProcessor {
       const parts = Math.ceil(fileduration / 300);
       item.attributes.shareparts = parts;
       let hashes = new Array(parts).fill('');
-      hashes = await Promise.all(hashes.map((val, index) => EDHT.share(`${Settings.getValue('sharekey')}-${item.attributes.id}-${index}`)));
+      hashes = await Promise.all(hashes.map((val, index) => EDHT.share(`${Settings.getValue('sharekey')}-${item.id}-${index}`)));
       item.attributes.hashes = hashes.map(hash => hash.toString('hex'));
       item.attributes.shared = true;
       item.attributes.nonce = crypto.randomBytes(16).toString('hex');

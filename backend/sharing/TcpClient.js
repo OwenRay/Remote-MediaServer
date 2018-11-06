@@ -31,6 +31,7 @@ class TcpClient {
   }
 
   start() {
+    EDHT.announce(this.reference);
     fs.stat(this.cachePath, (err) => {
       if (!err && this.writeOut.length) {
         fs.createReadStream(this.cachePath)
