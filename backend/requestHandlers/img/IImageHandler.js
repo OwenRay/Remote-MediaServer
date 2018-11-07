@@ -20,6 +20,7 @@ class IImageHandler extends RequestHandler {
       return;
     }
     const item = context.params.image.split('_');
+    context.set('Cache-control', 'max-age=86400');
 
     [, this.type] = item;
     this.item = Database.getById('media-item', item[0]);

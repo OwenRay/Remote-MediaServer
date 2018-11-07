@@ -92,6 +92,7 @@ class FileProcessor {
       // first make sure we have a clientid
       await EDHT.publishDatabase();
       const libIds = Settings.getValue('libraries')
+        .filter(lib => lib.shared && lib.shared !== 'off')
         .map(lib => lib.uuid);
       this.toProcess = Database.getAll('media-item', true)
         .filter(item => libIds.indexOf(item.attributes.libraryId) !== -1);
@@ -130,7 +131,10 @@ class FileProcessor {
   async getReadStream(id, hash) {
     Log.debug('new request for file', id, hash, this.announcing);
     const item = Database.getById('media-item', id);
-    if (!item || !item.attributes.hashes || item.attributes.hashes.indexOf(hash) === -1) {
+    if (!item ||
+      !item.attributes.shared ||
+      !item.attributes.hashes ||
+      item.attributes.hashes.indexOf(hash) === -1) {
       try {
         await stat(`share/${hash}`);
         return fs.createReadStream(`share/${hash}`);
