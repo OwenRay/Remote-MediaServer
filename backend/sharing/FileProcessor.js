@@ -6,6 +6,7 @@ const fs = require('fs');
 const EDHT = require('./EDHT');
 const crypto = require('crypto');
 const Crypt = require('./Crypt');
+const DebugApiHandler = require('../requestHandlers/api/DebugApiHandler');
 const { promisify } = require('util');
 
 const stat = promisify(fs.stat);
@@ -15,6 +16,7 @@ const stat = promisify(fs.stat);
  */
 class FileProcessor {
   constructor() {
+    DebugApiHandler.registerDebugInfoProvider('sharing', this.debugInfo.bind(this));
     Settings.addObserver('libraries', this.publishDatabase.bind(this));
     EDHT.setOnreadyListener(this.onReady.bind(this));
     extendedInfoQueue.setOnDrain(this.publishDatabase.bind(this));
@@ -162,6 +164,14 @@ class FileProcessor {
       Buffer.from(Settings.getValue('dbKey'), 'hex'),
       Buffer.from(item.attributes.nonce, 'hex'),
     );
+  }
+
+  debugInfo() {
+    return {
+      announcing: this.announcing,
+      publishQueueSize: this.toProcess ? this.toProcess.length : 0,
+      publishing: this.publishing,
+    };
   }
 }
 

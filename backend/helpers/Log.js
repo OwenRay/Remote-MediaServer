@@ -21,6 +21,7 @@ class Log {
   }
 
   static log(level, message) {
+    message.unshift(new Date());
     if (level >= Settings.getValue('verbosity')) {
       switch (level) {
         case Log.LEVEL.WARNING:

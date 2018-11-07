@@ -4,11 +4,13 @@ const MediaItemHelper = require('../helpers/MediaItemHelper');
 const fs = require('fs');
 const { spawn } = require('child_process');
 const Log = require('../helpers/Log');
+const DebugApiHandler = require('../requestHandlers/api/DebugApiHandler');
 const extendedInfoQueue = require('./ExtendedInfoQueue').getInstance();
 
 // @todo skip ipfs scanning
 class MovieScanner {
   constructor() {
+    DebugApiHandler.registerDebugInfoProvider('scanner', this.debugInfo.bind(this));
     this.library = null;
     this.scanning = -1;
     this.types = Settings.getValue('videoFileTypes');
@@ -210,6 +212,10 @@ class MovieScanner {
 
   setOnFileFound(cb) {
     this.onFileFoundCallbacks.push(cb);
+  }
+
+  debugInfo() {
+    return { currentLibrary: this.library, scanning: this.scanning };
   }
 }
 
