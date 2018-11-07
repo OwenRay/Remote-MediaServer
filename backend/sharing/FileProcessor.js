@@ -136,6 +136,7 @@ class FileProcessor {
       !item.attributes.hashes ||
       item.attributes.hashes.indexOf(hash) === -1) {
       try {
+        if (!hash.match(/^[0-9a-f]{40}$/)) return null;
         await stat(`share/${hash}`);
         return fs.createReadStream(`share/${hash}`);
       } catch (e) {
