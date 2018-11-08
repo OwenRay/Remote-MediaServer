@@ -16,10 +16,11 @@ class TcpClient {
   }
 
   downloadFile() {
-    this.start();
-    return new Promise((resolve) => {
+    const promise = new Promise((resolve) => {
       this.resolve = resolve;
     });
+    this.start();
+    return promise;
   }
 
   streamFile(onDone, extraInfo) {
@@ -43,7 +44,9 @@ class TcpClient {
         this.resolve();
       } else {
         Log.debug('downloaded', this.reference);
-        this.writeOut.push(fs.createWriteStream(`${this.cachePath}.incomplete`, { flags: 'w' }));
+        const writeCache = fs.createWriteStream(`${this.cachePath}.incomplete`, { flags: 'w' });
+        writeCache.on('error', (e) => { Log.warning('share cache warn:', e); });
+        this.writeOut.push(writeCache);
         EDHT.addPeerObserver(this.reference, this.onPeer);
         this.requestPeers();
         this.findPeerInterval = setInterval(this.requestPeers.bind(this), 10000);

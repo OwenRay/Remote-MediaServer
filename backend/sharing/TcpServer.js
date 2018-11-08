@@ -27,7 +27,7 @@ class TcpServer {
       .createInterface(socket)
       .on('line', async (line) => {
         clearTimeout(timeout);
-        if (line === Settings.getValue('sharekey')) {
+        if (line === Settings.getValue('currentSharedDB')) {
           Log.debug('serve database');
           const db = fs.createReadStream('share/db');
           const stream = Crypt.encrypt(
@@ -36,7 +36,7 @@ class TcpServer {
             Buffer.from(Settings.getValue('dbNonce'), 'hex'),
           );
           stream.pipe(socket);
-        } else if (line.split('-').length >= 3) {
+        } else {
           const [hash, , id] = line.split('-');
           const stream = await FileProcessor.getReadStream(id, hash);
           if (!stream) {
@@ -48,8 +48,6 @@ class TcpServer {
           socket.on('close', () => {
             if (typeof stream.end === 'function') stream.end();
           });
-        } else {
-          socket.end();
         }
       });
   }

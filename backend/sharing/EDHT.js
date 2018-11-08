@@ -72,6 +72,7 @@ class EDHT {
 
   onReady() {
     this.ready = true;
+    this.publishDatabase();
     this.readyListeners.forEach(cb => cb());
   }
 
@@ -96,10 +97,18 @@ class EDHT {
     }
   }
 
-  async publishDatabase() {
-    return new Promise((resolve) => {
-      const offset = Settings.getValue('dhtoffset') + 1;
-      const value = Buffer.alloc(200).fill('IHaveADatabase');
+  publishDatabase(changed = false) {
+    return new Promise(async (resolve) => {
+      let offset = Settings.getValue('dhtoffset');
+      if (changed) {
+        offset += 1;
+        Settings.setValue('dhtoffset', offset);
+      }
+
+      const value = await this.share(this.keypair.publicKey.toString('base64') + offset);
+      Settings.setValue('currentSharedDB', value.toString('hex'));
+      if (changed) Settings.save();
+
       const opts = {
         k: this.keypair.publicKey,
         seq: offset,
@@ -108,7 +117,6 @@ class EDHT {
       };
 
       this.dht.put(opts, (err, hash) => {
-        this.announce(hash);
         hash = hash.toString('hex');
         Settings.setValue('dhtoffset', offset);
         Settings.setValue('sharekey', hash);
@@ -132,6 +140,14 @@ class EDHT {
     if (index !== -1) {
       arr.splice(index, 1);
     }
+  }
+
+  getValue(key) {
+    return new Promise((resolve) => {
+      this.dht.get(key, (er, val) => {
+        resolve(val);
+      });
+    });
   }
 
   share(value) {

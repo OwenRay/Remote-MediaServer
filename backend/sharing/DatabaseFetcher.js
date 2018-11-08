@@ -34,7 +34,12 @@ class DatabaseFetcher {
   async fetchLib(lib) {
     Log.debug('try to fetch!!', lib.uuid);
     const [ref, key, nonce] = lib.uuid.split('-');
-    const client = new TcpClient(ref, key, nonce);
+    const value = await EDHT.getValue(Buffer.from(ref, 'hex'));
+    if (value.v.length !== 20) {
+      Log.exception('Something is wrong with library', lib);
+      return;
+    }
+    const client = new TcpClient(value.v.toString('hex'), key, nonce);
     await client.downloadFile();
     let items = JSON.parse(await client.getContents());
     Log.debug('fetched database', lib.uuid);

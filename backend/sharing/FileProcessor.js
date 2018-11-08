@@ -41,7 +41,7 @@ class FileProcessor {
     }
     const item = items.pop();
     try {
-      await Promise.all(item.attributes.hashes.map(hash => EDHT.announce(Buffer.from(hash, 'hex'))));
+      await Promise.all(FileProcessor.putItem(item));
     } catch (e) {
       Log.debug(e);
     }
@@ -78,56 +78,61 @@ class FileProcessor {
   async doPublishDatabase() {
     if (this.publishing) return;
     this.publishing = true;
-    await this.publishDatabaseFiles();
-
-    Log.debug('start write and publish edht database');
-    fs.writeFile(
-      'share/db',
-      JSON.stringify(FileProcessor.getAllSharedItems()),
-      EDHT.publishDatabase.bind(EDHT),
-    );
+    const changed = await this.publishDatabaseFiles();
+    if (changed) {
+      Log.debug('start write and publish edht database');
+      fs.writeFile(
+        'share/db',
+        JSON.stringify(FileProcessor.getAllSharedItems()),
+        () => {
+          EDHT.publishDatabase(true);
+        },
+      );
+    }
     this.publishing = false;
   }
 
   publishDatabaseFiles() {
+    const libIds = Settings.getValue('libraries')
+      .filter(lib => lib.shared && lib.shared !== 'off')
+      .map(lib => lib.uuid);
+    this.toProcess = Database.getAll('media-item', true)
+      .filter(({ attributes }) => (
+        libIds.indexOf(attributes.libraryId) !== -1 &&
+        !attributes.shared &&
+        !attributes.hashes &&
+        attributes.filesize &&
+        attributes.fileduration
+      ));
+    if (!this.toProcess.length) return false;
+
     return new Promise(async (resolve) => {
       // first make sure we have a clientid
       await EDHT.publishDatabase();
-      const libIds = Settings.getValue('libraries')
-        .filter(lib => lib.shared && lib.shared !== 'off')
-        .map(lib => lib.uuid);
-      this.toProcess = Database.getAll('media-item', true)
-        .filter(item => libIds.indexOf(item.attributes.libraryId) !== -1);
-
       this.announceNext(resolve);
     });
   }
 
   async announceNext(resolve) {
     if (!this.toProcess.length) {
-      return resolve();
+      return resolve(true);
     }
 
     const item = this.toProcess.pop();
-
-    if (!item.attributes.shared || !item.attributes.hashes) {
-      const { filesize, fileduration } = item.attributes;
-      if (!filesize || !fileduration) {
-        return this.announceNext(resolve);
-      }
-      const parts = Math.ceil(fileduration / 300);
-      item.attributes.shareparts = parts;
-      let hashes = new Array(parts).fill('');
-      hashes = await Promise.all(hashes.map((val, index) => EDHT.share(`${Settings.getValue('sharekey')}-${item.id}-${index}`)));
-      item.attributes.hashes = hashes.map(hash => hash.toString('hex'));
-      item.attributes.shared = true;
-      item.attributes.nonce = crypto.randomBytes(16).toString('hex');
-      Database.update('media-item', item);
-
-      await Promise.all(item.attributes.hashes.map(hash => EDHT.announce(hash)));
-    }
+    const hashes = await Promise.all(FileProcessor.putItem(item));
+    item.attributes.hashes = hashes.map(hash => hash.toString('hex'));
+    item.attributes.shareparts = hashes.length;
+    item.attributes.nonce = crypto.randomBytes(16).toString('hex');
+    item.attributes.shared = true;
+    Database.update('media-item', item);
 
     return this.announceNext(resolve);
+  }
+
+  static putItem(item) {
+    const parts = Math.ceil(item.attributes.fileduration / 300);
+    const hashes = new Array(parts).fill('');
+    return hashes.map((val, index) => EDHT.share(`${Settings.getValue('sharekey')}-${item.id}-${index}`));
   }
 
   async getReadStream(id, hash) {
