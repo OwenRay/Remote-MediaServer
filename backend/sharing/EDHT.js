@@ -3,10 +3,25 @@ const Log = require('../helpers/Log');
 const Settings = require('../Settings');
 const ed = require('ed25519-supercop');
 const ip = require('ip');
+const DebugApiHandler = require('../requestHandlers/api/DebugApiHandler');
+const bencode = require('bencode');
+
+const enc = bencode.encode;
+const dec = bencode.decode;
+bencode.encode = (data) => {
+  const encoded = enc(data);
+  const buffer = Buffer.alloc(encoded.length + 2);
+  buffer.write('rm');
+  encoded.copy(buffer, 2);
+  return buffer;
+};
+
+bencode.decode = buffer => dec(buffer, 2);
 
 
 class EDHT {
   constructor() {
+    DebugApiHandler.registerDebugInfoProvider('sharing', this.debugInfo.bind(this));
     this.readyListeners = [];
     this.peers = {};
     this.peerObservers = {};
@@ -20,6 +35,7 @@ class EDHT {
       host: this.host,
       bootstrap: Settings.getValue('dhtbootstrap'),
       nodeId: Settings.getValue('nodeid') ? Buffer.from(Settings.getValue('nodeid'), 'hex') : '',
+      maxValues: 50000,
     });
     const { dht } = this;
 
@@ -29,7 +45,7 @@ class EDHT {
     dht.listen(Settings.getValue('shareport'), () => { Log.info('dht listening', this.dht.address()); });
     dht.on('ready', this.onReady.bind(this));
     dht.on('peer', this.onPeer.bind(this));
-    // dht.on('warning', (e) => { Log.debug('dht warn', e); });
+    dht.on('warning', (e) => { Log.debug('dht warn', e); });
     dht.on('error', (e) => { Log.warning('dht err', e); });
 
     setInterval(this.publishDatabase.bind(this), 60 * 60 * 1000);
@@ -142,6 +158,10 @@ class EDHT {
         resolve(this.peers[hash64]);
       });
     });
+  }
+
+  debugInfo() {
+    return { dht: this.dht.toJSON() };
   }
 }
 

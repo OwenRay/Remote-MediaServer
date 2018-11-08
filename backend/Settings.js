@@ -4,6 +4,7 @@ const crypto = require('crypto');
 
 const settingsObj = {
   port: 8234,
+  bind: '0.0.0.0',
   name: 'My Media Server',
   ffmpeg_binary: `${process.cwd()}/ffmpeg`,
   ffprobe_binary: `${process.cwd()}/ffprobe`,

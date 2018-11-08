@@ -55,7 +55,7 @@ class HttpServer {
     this.server.use(new Static(`${__dirname}/../frontend/build`));
 
     // Lets start our server
-    this.serverInstance = this.server.listen(Settings.getValue('port'), this.onConnected);
+    this.serverInstance = this.server.listen(Settings.getValue('port'), Settings.getValue('bind'), this.onConnected);
     destroyable(this.serverInstance);
   }
 
