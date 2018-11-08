@@ -21,9 +21,12 @@ class TcpServer {
     socket.on('error', (e) => {
       Log.debug('error in share socket connection', e);
     });
+    const timeout = setTimeout(() => { socket.end(); }, 5000);
+
     readline
       .createInterface(socket)
       .on('line', async (line) => {
+        clearTimeout(timeout);
         if (line === Settings.getValue('sharekey')) {
           Log.debug('serve database');
           const db = fs.createReadStream('share/db');
