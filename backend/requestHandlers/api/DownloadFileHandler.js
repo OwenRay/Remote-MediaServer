@@ -17,7 +17,7 @@ class DownloadFileHandler extends RequestHandler {
     }
     this.context.set('Accept-Ranges', 'bytes');
 
-    this.context.type = 'video/webm';
+    this.context.type = mime.lookup(item.attributes.extension);
     const lib = MediaItemHelper.getLibrary(item);
     if (lib.type === 'shared') {
       const s = new MediaFetcher(item);

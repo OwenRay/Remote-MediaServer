@@ -145,17 +145,18 @@ class FFMpeg {
     if (aCodec !== 'copy') {
       this.addOutputArguments(['-ac', 2, '-ab', '192k']);
     }
-    if (!this.offset) {
+    if (!this.offset || this.offset === '0') {
       this.offset = 0;
+      this.addInputArguments(['-seekable', '0']);
     }
 
-    if (this.offset && this.offset !== '0') {
+    if (this.offset) {
       this.addInputArguments(['-ss', this.offset]);
       this.addOutputArguments(['-ss', 0]);
     }
 
     while (this.outputArgs.length) {
-      args.splice(19, 0, this.outputArgs.pop());
+      args.splice(21, 0, this.outputArgs.pop());
     }
     while (this.inputArgs.length) {
       args.splice(0, 0, this.inputArgs.pop());

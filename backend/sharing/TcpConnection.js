@@ -47,7 +47,7 @@ class TcpConnection {
       if (this.errored) {
         return;
       }
-      if (finished === writeOut.length) this.onResult(this, true);
+      if (finished === writeOut.length) this.onResult(this, this.client.bytesRead > 0);
     }));
   }
 }

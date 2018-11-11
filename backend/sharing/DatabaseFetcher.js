@@ -44,7 +44,7 @@ class DatabaseFetcher {
     let items = JSON.parse(await client.getContents());
     Log.debug('fetched database', lib.uuid);
     items = items.map((item) => {
-      item.attributes.filepath = `http://localhost:${Settings.getValue('port')}${item.attributes.filepath}`;
+      item.attributes.filepath = `http://127.0.0.1:${Settings.getValue('port')}${item.attributes.filepath}`;
       return item;
     });
     this.cached['media-item'][lib.uuid] = items;
