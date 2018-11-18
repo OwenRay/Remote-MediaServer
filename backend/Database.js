@@ -4,7 +4,7 @@ const fs = require('fs');
 const uuid = require('node-uuid');
 const Log = require('./helpers/Log.js');
 
-const TYPES = ['media-item', 'play-position'];
+const TYPES = ['media-item', 'play-position', 'chunks'];
 
 class Database {
   constructor() {

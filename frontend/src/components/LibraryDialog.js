@@ -24,6 +24,10 @@ class LibraryDialog extends Component {
     this.setState(this.props.editing);
   }
 
+  componentDidMount() {
+    this.componentDidUpdate();
+  }
+
   /**
    * make sure the modal is always open
    */

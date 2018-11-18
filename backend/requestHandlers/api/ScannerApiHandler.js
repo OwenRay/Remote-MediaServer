@@ -11,6 +11,9 @@ class TMDBApiHandler extends RequestHandler {
     if (this.context.query.ffprobe) {
       items.forEach(({ attributes }) => { attributes.gotfileinfo = false; });
     }
+    if (this.context.query.reshare) {
+      items.forEach(({ attributes }) => { attributes.shared = false; });
+    }
     if (this.context.query.tmdb) {
       items.forEach(({ attributes }) => {
         attributes.gotExtendedInfo = 0;

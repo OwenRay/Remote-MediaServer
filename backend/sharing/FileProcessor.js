@@ -41,7 +41,7 @@ class FileProcessor {
     }
     const item = items.pop();
     try {
-      await Promise.all(FileProcessor.putItem(item));
+      await FileProcessor.putItem(item);
     } catch (e) {
       Log.debug(e);
     }
@@ -119,9 +119,7 @@ class FileProcessor {
     }
 
     const item = this.toProcess.pop();
-    const hashes = await Promise.all(FileProcessor.putItem(item));
-    item.attributes.hashes = hashes.map(hash => hash.toString('hex'));
-    item.attributes.shareparts = hashes.length;
+    item.attributes.hashes = await FileProcessor.putItem(item);
     item.attributes.nonce = crypto.randomBytes(16).toString('hex');
     item.attributes.shared = true;
     Database.update('media-item', item);
@@ -130,45 +128,96 @@ class FileProcessor {
   }
 
   static putItem(item) {
-    const parts = Math.ceil(item.attributes.fileduration / 300);
+    const { filesize } = item.attributes;
+    const parts = Math.ceil(item.attributes.fileduration / 200);
     const hashes = new Array(parts).fill('');
-    return hashes.map((val, index) => EDHT.share(`${Settings.getValue('sharekey')}-${item.id}-${index}`));
+    // last chunks is smaller then the rest to help ffmpeg seeking
+    let regularChunksSize = filesize;
+    let lastChunkSize = regularChunksSize;
+    if (parts > 1) {
+      regularChunksSize = Math.ceil((filesize - 1000000) / (parts - 1));
+      lastChunkSize = filesize - (regularChunksSize * (parts - 1));
+    }
+
+
+    return Promise.all(hashes.map(async (val, index) => {
+      const buf = [
+        Buffer.from(Settings.getValue('sharekey'), 'hex'),
+        Buffer.alloc(6),
+      ];
+      buf[1].writeInt32BE(item.id);
+      buf[1].writeInt16BE(index, 4);
+      let hash = await EDHT.share(Buffer.concat(buf));
+      hash = hash.toString('hex');
+
+      const size = index === parts - 1 ? lastChunkSize : regularChunksSize;
+      const offset = index * regularChunksSize;
+      return { hash, size, offset };
+    }));
   }
 
   async getReadStream(id, hash) {
     Log.debug('new request for file', id, hash, this.announcing);
     const item = Database.getById('media-item', id);
-    if (!item ||
-      !item.attributes.shared ||
-      !item.attributes.hashes ||
-      item.attributes.hashes.indexOf(hash) === -1) {
+    let hashObj;
+    if (item) {
+      const { hashes } = item.attributes;
+      if (hashes) {
+        hashObj = hashes.find(h => h.hash === hash);
+      }
+    }
+    if (!item || !item.attributes.shared || !hashObj) {
+      // @todo this.registerDownload
       try {
         if (!hash.match(/^[0-9a-f]{40}$/)) return null;
         await stat(`share/${hash}`);
+        FileProcessor.registerDownload(hash);
         return fs.createReadStream(`share/${hash}`);
       } catch (e) {
         Log.debug('items or hashes not found');
         return null;
       }
     }
-    const { hashes } = item.attributes;
-    const { filesize } = item.attributes;
-    const chunkSize = Math.ceil(filesize / hashes.length);
-    const start = hashes.indexOf(hash) * chunkSize;
 
-    if (start < 0) {
-      Log.debug('hash not found between', hashes);
-      return null;
-    }
-    let end = (start + chunkSize) - 1;
-    if (end >= filesize) end = undefined;
-    Log.debug('serving up', id, start, end, filesize);
-    const filestream = fs.createReadStream(item.attributes.filepath, { start, end });
+    const end = (hashObj.offset + hashObj.size) - 1;
+    Log.debug('serving up', id, hashObj.offset, end);
+    const filestream = fs.createReadStream(
+      item.attributes.filepath,
+      { start: hashObj.offset, end },
+    );
     return Crypt.encrypt(
       filestream,
       Buffer.from(Settings.getValue('dbKey'), 'hex'),
       Buffer.from(item.attributes.nonce, 'hex'),
     );
+  }
+
+  /**
+   * @todo periodically rebroadcast downloaded files
+   * @param hash hex hash of file
+   * @param size in bytes (not needed for existing chunks)
+   */
+  static registerDownload(hash, size = 0) {
+    let chunkObj = Database.findBy('chunks', 'hash', hash);
+    if (!chunkObj) { // first download
+      chunkObj = { attributes: { hash, requested: 1, size } };
+      Database.setObject('chunks', chunkObj);
+      let totalSize = Database.getAll('chunks').reduce((acc, { attributes }) => acc + attributes.size, 0);
+      totalSize /= 1000000;
+      // to much space used?
+      while (totalSize > Settings.getValue('sharespace')) {
+        // get least requested
+        const delChunk = Database.getAll('chunks').reduce((acc, i) => (
+          i.attributes.requested > acc.attributes.requested ? i : acc
+        ));
+        fs.unlink(`share/${delChunk.hash}`, () => Log.debug('deleted', delChunk.hash));
+        Database.deleteObject('chunks', delChunk);
+      }
+      return;
+    }
+
+    chunkObj.attributes.requested += 1;
+    Database.update('chunks', chunkObj);
   }
 
   debugInfo() {

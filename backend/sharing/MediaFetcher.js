@@ -13,15 +13,15 @@ class MediaFetcher {
     this.onReadable = this.onReadable.bind(this);
     this.item = item;
     this.offset = 0;
-    this.chunksize = Math.ceil(this.item.attributes.filesize / this.item.attributes.hashes.length);
+    this.hashes = this.item.attributes.hashes;
     const lib = MediaItemHelper.getLibrary(item);
     [, this.key] = lib.uuid.split('-');
   }
 
   startStream(offset) {
     Log.debug('starting to download from offset: ', offset);
-    this.offset = Math.floor(offset / this.chunksize);
-    this.skipBytes = offset - (this.offset * this.chunksize);
+    this.offset = this.hashes.findIndex(h => h.offset + h.size < offset);
+    this.skipBytes = offset - this.hashes[this.offset].offset;
     this.output = new PassThrough();
     this.output.on('close', this.end.bind(this));
     this.downloadNext();
@@ -36,16 +36,17 @@ class MediaFetcher {
   }
 
   downloadNext() {
-    if (this.offset >= this.item.attributes.shareparts) {
+    if (this.offset >= this.hashes.length) {
       this.ended = true;
       this.output.end();
       return;
     }
     if (this.ended) return;
     this.tcpClient = new TcpClient(
-      this.item.attributes.hashes[this.offset],
+      this.hashes[this.offset].hash,
       this.key,
       this.item.attributes.nonce,
+      this.hashes[this.offset].size,
     );
     this.input = this.tcpClient.streamFile(this.downloadNext.bind(this), this.item.id);
     if (this.skipBytes) {

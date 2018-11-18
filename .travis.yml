@@ -15,7 +15,7 @@ script:
   - npm run test
   - mkdir -p dist
   - cd dist && npm pack ../ && cd ..
-  - npm build
+  - npm run build
 deploy:
   provider: s3
   access_key_id: "AKIAIHYANWLHBG5FRLZQ"

@@ -35,6 +35,7 @@ class DatabaseFetcher {
     Log.debug('try to fetch!!', lib.uuid);
     const [ref, key, nonce] = lib.uuid.split('-');
     const value = await EDHT.getValue(Buffer.from(ref, 'hex'));
+    // @todo delete old database if necessary
     if (value.v.length !== 20) {
       Log.exception('Something is wrong with library', lib);
       return;

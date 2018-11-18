@@ -40,11 +40,6 @@ class ButtonMenu extends Component {
     this.setState({ filters: f, filterValues: props.filterValues });
   }
 
-  hideSideNav() {
-    $(this.sideNav).sideNav('hide');
-    this.setState({ open: false });
-  }
-
   onValueChange(name, value) {
     const o = this.state;
     if (name === 'fileduration') {
@@ -58,8 +53,11 @@ class ButtonMenu extends Component {
     }
   }
 
+  onOpen() {
+    this.setState({ open: true });
+  }
+
   onChange(e) {
-    console.log(arguments);
     const o = this.state;
     o.filters[e.target.name] = e.target.value;
     if (o.filters[e.target.name] === '') {
@@ -72,21 +70,24 @@ class ButtonMenu extends Component {
     }
   }
 
+  hideSideNav() {
+    $(this.sideNav).sideNav('hide');
+    this.setState({ open: false });
+  }
+
   handle(props) {
     props.dragging += '';
-    return (<Handle key={`handle${props.className}`} {...props} >
-      {props.dragging !== 'false' ? <span>{props.value}</span> : ''}
-            </Handle>);
+    return (
+      <Handle key={`handle${props.className}`} {...props} >
+        {props.dragging !== 'false' ? <span>{props.value}</span> : ''}
+      </Handle>
+    );
   }
 
   resetFilters() {
     this.setState({ filters: {} });
     this.props.onChange({});
     this.hideSideNav();
-  }
-
-  onOpen() {
-    this.setState({ open: true });
   }
 
   content() {
@@ -106,7 +107,7 @@ class ButtonMenu extends Component {
       [1900, new Date().getFullYear()];
 
     const actorsData = {};
-    fv.actors.forEach(actor => actorsData[actor] = null);
+    fv.actors.forEach((actor) => { actorsData[actor] = null; });
 
     return (
       <div>
@@ -207,8 +208,8 @@ class ButtonMenu extends Component {
   render() {
     return (
       <SideNav
-        ref={ref => this.sideNav = ref}
-        trigger={<Button id="openFilters" floating icon="tune" />}
+        ref={(ref) => { this.sideNav = ref; }}
+        trigger={<Button className="bottom-right-fab" floating icon="tune" />}
         options={{
           edge: 'right',
           draggable: true,

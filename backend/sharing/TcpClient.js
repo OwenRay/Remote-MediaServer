@@ -3,10 +3,12 @@ const Crypt = require('./Crypt');
 const fs = require('fs');
 const Log = require('../helpers/Log');
 const TcpConnection = require('./TcpConnection');
+const FileProcessor = require('./FileProcessor');
 
 class TcpClient {
-  constructor(reference, key, nonce) {
+  constructor(reference, key, nonce, expectedSize = 0) {
     this.connections = [];
+    this.expectedSize = expectedSize;
     this.reference = Buffer.from(reference, 'hex');
     this.key = Buffer.from(key, 'hex');
     this.nonce = Buffer.from(nonce, 'hex');
@@ -130,18 +132,23 @@ class TcpClient {
     });
   }
 
-  complete(success) {
+  async complete(success) {
     Log.debug('finished downloading', this.reference.toString('hex'));
     this.connections.forEach(con => con.end());
     this.ended = true;
     clearInterval(this.findPeerInterval);
     EDHT.removePeerObserver(this.reference, this.onPeer);
+    if (this.expectedSize) {
+      const stat = await fs.stat(`${this.cachePath}.incomplete`);
+      if (stat.size !== this.expectedSize) success = false;
+    }
 
     if (!success) {
       fs.unlink(`${this.cachePath}.incomplete`, () => {
         Log.debug('removed incomplete download');
       });
     } else {
+      FileProcessor.registerDownload(this.reference, this.expectedSize);
       fs.rename(`${this.cachePath}.incomplete`, this.cachePath, () => {
         Log.debug('chunk downloaded');
         if (this.resolve) this.resolve(this.cachePath);

@@ -18,6 +18,7 @@ const settingsObj = {
   dbNonce: crypto.randomBytes(16).toString('hex'),
   shareport: 8235,
   sharehost: '',
+  sharespace: 15,
   videoFileTypes: [
     'mkv',
     'mp4',

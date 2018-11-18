@@ -7282,6 +7282,9 @@ html, body {
 .hideNav .modal {
   max-height: inherit; }
 
+.card {
+  clear: both; }
+
 .card .card-content .card-title {
   color: white !important; }
 
@@ -7603,12 +7606,15 @@ button.marked {
 .hidden .cast {
   opacity: 0; }
 
-#openFilters {
+.bottom-right-fab {
   right: 10px;
   bottom: 10px;
-  position: absolute; }
-  #openFilters .input-field.col label {
+  position: fixed; }
+  .bottom-right-fab .input-field.col label {
     left: 0; }
+
+.input-field label {
+  white-space: nowrap; }
 
 .side-nav {
   height: auto;
@@ -7682,3 +7688,12 @@ button.marked {
   margin-top: -2px; }
   .autocomplete-content li .highlight {
     color: #b8a300; }
+
+.card-content .rc-slider {
+  margin-top: 34px; }
+
+.advancedItem {
+  display: none; }
+
+.advanced .advancedItem {
+  display: block; }
