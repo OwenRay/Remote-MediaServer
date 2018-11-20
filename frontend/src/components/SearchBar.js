@@ -84,7 +84,6 @@ class SearchBar extends Component {
           <option value="">All libraries</option>
           {this.state.settings.libraries.map((lib) => {
             let { uuid } = lib;
-            console.log(lib);
             if (lib.type === 'shared') [uuid] = uuid.split('-');
 
             return <option key={uuid} value={uuid}>{lib.name}</option>;

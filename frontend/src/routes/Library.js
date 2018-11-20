@@ -74,17 +74,13 @@ class Library extends Component {
   }
 
   onResize({ width }) {
-    if (this.resizeTimeout) {
-      clearTimeout(this.resizeTimeout);
+    if (!width) return;
+    this.colls = Math.floor(width / 165);
+    this.offsetLeft = ((window.innerWidth - (this.colls * 165)) / 2) - 15;
+    if (this.collection) {
+      this.collection.recomputeCellSizesAndPositions();
     }
-    this.resizeTimeout = setTimeout(() => {
-      this.colls = Math.floor(width / 165);
-      this.offsetLeft = ((window.innerWidth - (this.colls * 165)) / 2) - 15;
-      if (this.collection) {
-        this.collection.recomputeCellSizesAndPositions();
-      }
-      this.forceUpdate();
-    }, 300);
+    this.forceUpdate();
   }
 
   loadMore(offset, limit) {
@@ -152,6 +148,8 @@ class Library extends Component {
           media: items,
           rowCount: res.meta.totalItems,
         });
+        this.collection.recomputeCellSizesAndPositions();
+        this.collection.forceUpdate();
       }
     });
   }

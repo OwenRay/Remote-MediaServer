@@ -56,6 +56,7 @@ class FileProcessor {
 
     return JSON.parse(JSON.stringify(items))
       .map((item) => {
+        item.originalId = item.id;
         item.id = `${key}-${item.id}`;
         item.attributes.libraryId = key;
         item.attributes.extension = item.attributes.filepath.replace(/^.*\.(.*)$/, '$1');
@@ -99,8 +100,7 @@ class FileProcessor {
     this.toProcess = Database.getAll('media-item', true)
       .filter(({ attributes }) => (
         libIds.indexOf(attributes.libraryId) !== -1 &&
-        !attributes.shared &&
-        !attributes.hashes &&
+        (!attributes.shared || !attributes.hashes) &&
         attributes.filesize &&
         attributes.fileduration
       ));
@@ -145,7 +145,7 @@ class FileProcessor {
         Buffer.from(Settings.getValue('sharekey'), 'hex'),
         Buffer.alloc(6),
       ];
-      buf[1].writeInt32BE(item.id);
+      buf[1].writeInt32BE(item.originalId || item.id);
       buf[1].writeInt16BE(index, 4);
       let hash = await EDHT.share(Buffer.concat(buf));
       hash = hash.toString('hex');
@@ -171,7 +171,7 @@ class FileProcessor {
       try {
         if (!hash.match(/^[0-9a-f]{40}$/)) return null;
         await stat(`share/${hash}`);
-        FileProcessor.registerDownload(hash);
+        this.registerDownload(hash);
         return fs.createReadStream(`share/${hash}`);
       } catch (e) {
         Log.debug('items or hashes not found');
@@ -193,12 +193,14 @@ class FileProcessor {
   }
 
   /**
-   * @todo periodically rebroadcast downloaded files
+   * @todo (related to this) periodically rebroadcast downloaded files
+   *
    * @param hash hex hash of file
    * @param size in bytes (not needed for existing chunks)
    */
-  static registerDownload(hash, size = 0) {
-    let chunkObj = Database.findBy('chunks', 'hash', hash);
+  // eslint-disable-next-line class-methods-use-this
+  registerDownload(hash, size = 0) {
+    let [chunkObj] = Database.findBy('chunks', 'hash', hash);
     if (!chunkObj) { // first download
       chunkObj = { attributes: { hash, requested: 1, size } };
       Database.setObject('chunks', chunkObj);

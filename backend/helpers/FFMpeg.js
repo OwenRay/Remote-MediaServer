@@ -147,7 +147,7 @@ class FFMpeg {
     }
     if (!this.offset || this.offset === '0') {
       this.offset = 0;
-      this.addInputArguments(['-seekable', '0']);
+      if (this.file.indexOf('http') === 0) this.addInputArguments(['-seekable', '0']);
     }
 
     if (this.offset) {

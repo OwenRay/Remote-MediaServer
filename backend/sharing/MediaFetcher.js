@@ -19,8 +19,8 @@ class MediaFetcher {
   }
 
   startStream(offset) {
-    Log.debug('starting to download from offset: ', offset);
-    this.offset = this.hashes.findIndex(h => h.offset + h.size < offset);
+    this.offset = this.hashes.findIndex(h => offset <= h.offset + h.size);
+    Log.debug('starting to download from offset: ', offset, `${this.offset}/${this.hashes.length - 1}`);
     this.skipBytes = offset - this.hashes[this.offset].offset;
     this.output = new PassThrough();
     this.output.on('close', this.end.bind(this));

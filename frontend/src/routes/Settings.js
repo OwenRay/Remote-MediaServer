@@ -9,7 +9,6 @@ import { apiActions, deserialize } from 'redux-jsonapi';
 import Slider from 'rc-slider';
 import store from '../helpers/stores/settingsStore';
 import LibraryDialog from '../components/LibraryDialog';
-import { Route } from 'react-router-dom';
 
 class Settings extends Component {
   constructor() {
@@ -287,6 +286,7 @@ class Settings extends Component {
         </Card>
         <Card
           title="Media libraries"
+          actions={[<Button key="new" onClick={() => this.librarySelect({})}><Icon left>add</Icon>Add new</Button>]}
         >
           <Collection>
             {listItems}

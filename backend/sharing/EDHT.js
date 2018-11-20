@@ -35,7 +35,7 @@ class EDHT {
       host: this.host,
       bootstrap: Settings.getValue('dhtbootstrap'),
       nodeId: Settings.getValue('nodeid') ? Buffer.from(Settings.getValue('nodeid'), 'hex') : '',
-      maxValues: 50000,
+      maxValues: 200000,
     });
     const { dht } = this;
 
