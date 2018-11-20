@@ -4,9 +4,6 @@ const fs = require('fs');
 const Log = require('../helpers/Log');
 const TcpConnection = require('./TcpConnection');
 const FileProcessor = require('./FileProcessor');
-const util = require('util');
-
-const fsstat = util.promisify(fs.stat);
 
 class TcpClient {
   constructor(reference, key, nonce, expectedSize = 0) {
@@ -141,10 +138,6 @@ class TcpClient {
     this.ended = true;
     clearInterval(this.findPeerInterval);
     EDHT.removePeerObserver(this.reference, this.onPeer);
-    if (this.expectedSize) {
-      const stat = await fsstat(`${this.cachePath}.incomplete`);
-      if (stat.size !== this.expectedSize) success = false;
-    }
 
     if (!success) {
       fs.unlink(`${this.cachePath}.incomplete`, () => {

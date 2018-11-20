@@ -32,6 +32,7 @@ class FileProcessor {
     if (this.announcing) return;
     this.announcing = true;
     await this.doReannounce(FileProcessor.getAllSharedItems());
+    await Database.getAll('chunks').map(({ attributes }) => EDHT.announce(attributes.hash));
   }
 
   async doReannounce(items) {
@@ -148,6 +149,7 @@ class FileProcessor {
       buf[1].writeInt32BE(item.originalId || item.id);
       buf[1].writeInt16BE(index, 4);
       let hash = await EDHT.share(Buffer.concat(buf));
+      EDHT.announce(hash);
       hash = hash.toString('hex');
 
       const size = index === parts - 1 ? lastChunkSize : regularChunksSize;
@@ -200,10 +202,11 @@ class FileProcessor {
    */
   // eslint-disable-next-line class-methods-use-this
   registerDownload(hash, size = 0) {
-    let [chunkObj] = Database.findBy('chunks', 'hash', hash);
+    if (typeof hash !== 'string') hash = hash.toString('hex');
+
+    const [chunkObj] = Database.findBy('chunks', 'hash', hash);
     if (!chunkObj) { // first download
-      chunkObj = { attributes: { hash, requested: 1, size } };
-      Database.setObject('chunks', chunkObj);
+      Database.setObject('chunks', { hash, requested: 1, size });
       let totalSize = Database.getAll('chunks').reduce((acc, { attributes }) => acc + attributes.size, 0);
       totalSize /= 1000000;
       // to much space used?

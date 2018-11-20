@@ -12,6 +12,7 @@ const settingsObj = {
   tmdb_apikey: '0699a1db883cf76d71187d9b24c8dd8e',
   dhtbootstrap: [
     'theremote.io:8235',
+    'whileip.com:8235',
   ],
   dhtoffset: 0,
   dbKey: crypto.randomBytes(24).toString('hex'),
