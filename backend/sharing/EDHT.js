@@ -106,6 +106,7 @@ class EDHT {
       }
 
       const value = await this.share(this.keypair.publicKey.toString('base64') + offset);
+      this.announce(value);
       Settings.setValue('currentSharedDB', value.toString('hex'));
       if (changed) Settings.save();
 
@@ -117,6 +118,7 @@ class EDHT {
       };
 
       this.dht.put(opts, (err, hash) => {
+        this.announce(hash);
         hash = hash.toString('hex');
         Settings.setValue('dhtoffset', offset);
         Settings.setValue('sharekey', hash);

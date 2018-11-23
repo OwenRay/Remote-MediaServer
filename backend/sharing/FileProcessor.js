@@ -208,7 +208,7 @@ class FileProcessor {
     if (!chunkObj) { // first download
       Database.setObject('chunks', { hash, requested: 1, size });
       let totalSize = Database.getAll('chunks').reduce((acc, { attributes }) => acc + attributes.size, 0);
-      totalSize /= 1000000;
+      totalSize /= 1000000000;
       // to much space used?
       while (totalSize > Settings.getValue('sharespace')) {
         // get least requested
@@ -216,7 +216,7 @@ class FileProcessor {
           i.attributes.requested > acc.attributes.requested ? i : acc
         ));
         fs.unlink(`share/${delChunk.hash}`, () => Log.debug('deleted', delChunk.hash));
-        Database.deleteObject('chunks', delChunk);
+        Database.deleteObject('chunks', delChunk.id);
       }
       return;
     }
