@@ -11,9 +11,6 @@ const { promisify } = require('util');
 
 const stat = promisify(fs.stat);
 
-/**
- * @todo, cache hashes locally
- */
 class FileProcessor {
   constructor() {
     DebugApiHandler.registerDebugInfoProvider('sharing', this.debugInfo.bind(this));
@@ -169,7 +166,6 @@ class FileProcessor {
       }
     }
     if (!item || !item.attributes.shared || !hashObj) {
-      // @todo this.registerDownload
       try {
         if (!hash.match(/^[0-9a-f]{40}$/)) return null;
         await stat(`share/${hash}`);
@@ -195,8 +191,6 @@ class FileProcessor {
   }
 
   /**
-   * @todo (related to this) periodically rebroadcast downloaded files
-   *
    * @param hash hex hash of file
    * @param size in bytes (not needed for existing chunks)
    */

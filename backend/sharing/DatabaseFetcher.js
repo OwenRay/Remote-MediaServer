@@ -53,7 +53,6 @@ class DatabaseFetcher {
     let items = JSON.parse(await client.getContents());
     Log.debug('fetched database', lib.uuid);
 
-    const diffs = this.diffs[ref];
     items = items.map((item) => {
       item.attributes.filepath = `http://127.0.0.1:${Settings.getValue('port')}${item.attributes.filepath}`;
       return item;
@@ -78,7 +77,6 @@ class DatabaseFetcher {
     const libId = item.attributes.libraryId;
     const localLib = this.cached['media-item'][libId];
     if (item.type !== 'media-item' || !localLib) {
-      Log.debug('no overw');
       return false;
     }
 

@@ -7,7 +7,6 @@ const Log = require('../helpers/Log');
 const DebugApiHandler = require('../requestHandlers/api/DebugApiHandler');
 const extendedInfoQueue = require('./ExtendedInfoQueue').getInstance();
 
-// @todo skip ipfs scanning
 class MovieScanner {
   constructor() {
     DebugApiHandler.registerDebugInfoProvider('scanner', this.debugInfo.bind(this));
