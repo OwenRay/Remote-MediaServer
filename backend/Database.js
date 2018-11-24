@@ -12,6 +12,7 @@ class Database {
     this.ids = {};
     this.tables = {};
     this.dataProviders = [];
+    this.updateOverwriters = [];
     this.version = 2;
   }
 
@@ -52,8 +53,10 @@ class Database {
   }
 
   update(type, obj) {
+    if (this.updateOverwriters.reduce((red, f) => f(obj) || red, false)) {
+      return obj;
+    }
     this.checkTable(type);
-
     this.tables[type][obj.id] = obj;
     this.save(type);
     return obj;
@@ -174,9 +177,11 @@ class Database {
     if (!this.tables[type]) {
       return null;
     }
-    const item = this.tables[type][id];
-    if (item) return item;
-    return this.getAll(type).find(i => i.id === id);
+    let item = this.tables[type][id];
+    if (!item) item = this.getAll(type).find(i => i.id === id);
+    if (!item) return null;
+    // clone item before returning
+    return JSON.parse(JSON.stringify(item));
   }
 
   getAll(type, skipDataProviders = false) {
@@ -233,6 +238,14 @@ class Database {
 
   addDataProvider(func) {
     this.dataProviders.push(func);
+  }
+
+  /**
+   *
+   * @param func should return true if update has been overwritten by func
+   */
+  addUpdateOverwriter(func) {
+    this.updateOverwriters.push(func);
   }
 }
 
