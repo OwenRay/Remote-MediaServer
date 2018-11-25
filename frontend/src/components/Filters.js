@@ -14,18 +14,7 @@ class ButtonMenu extends Component {
     this.onValueChange = this.onValueChange.bind(this);
     this.hideSideNav = this.hideSideNav.bind(this);
     this.resetFilters = this.resetFilters.bind(this);
-    this.onOpen = this.onOpen.bind(this);
-    this.state = { filters: {}, open: false };
-  }
-
-  componentDidMount() {
-    // I'm really sorry about this, I know I'm not supposed to do this...
-    // but here's the thing;
-    // Some of the form components don't react very well to their values changing externally
-    // So... I thought I might just render the contents when the sidenav is open
-    // But somehow the onopen/onclose events are broken, so that's why I listen to clicks
-    $('#openFilters').click(this.onOpen);
-    $(`.drag-target[data-sidenav=${this.sideNav.id}]`).on('touchstart', this.onOpen);
+    this.state = { filters: {}, open: true };
   }
 
   componentWillReceiveProps(props) {
@@ -53,10 +42,6 @@ class ButtonMenu extends Component {
     }
   }
 
-  onOpen() {
-    this.setState({ open: true });
-  }
-
   onChange(e) {
     const o = this.state;
     o.filters[e.target.name] = e.target.value;
@@ -72,7 +57,6 @@ class ButtonMenu extends Component {
 
   hideSideNav() {
     $(this.sideNav).sideNav('hide');
-    this.setState({ open: false });
   }
 
   handle(props) {
@@ -91,11 +75,11 @@ class ButtonMenu extends Component {
   }
 
   content() {
-    if (!this.state.open) {
-      return null;
-    }
     const f = this.state.filters;
     const fv = this.state.filterValues;
+    if (!this.state.open || !f || !fv) {
+      return null;
+    }
     const rangeValue = f['vote-average'] ?
       f['vote-average'].split('><').map(v => parseFloat(v)) :
       [1, 10];
@@ -212,9 +196,7 @@ class ButtonMenu extends Component {
         trigger={<Button className="bottom-right-fab" floating icon="tune" />}
         options={{
           edge: 'right',
-          draggable: true,
-          onOpen: this.onOpen,
-          onClose: this.onClose,
+          draggable: true
         }}
       >
         {this.content()}

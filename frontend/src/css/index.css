@@ -7234,6 +7234,9 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
   padding: 0px 2px;
   background: rgba(10, 12, 26, 0.8);
   z-index: 99; }
+  .top-bar a img {
+    height: 15px;
+    vertical-align: text-bottom; }
   .top-bar .right > div {
     display: inline-block; }
   .top-bar button {

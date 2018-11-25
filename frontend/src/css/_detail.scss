@@ -122,6 +122,11 @@
   padding:0px 2px;
   background:transparentize($primary-color-dark, .2);
   z-index:99;
+  a img {
+    height:15px;
+    vertical-align: text-bottom;
+  }
+
   .right > div{
     display:inline-block;
   }

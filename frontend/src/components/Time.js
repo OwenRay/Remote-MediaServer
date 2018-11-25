@@ -2,7 +2,7 @@ import React from 'react';
 
 function buttonMenu(props) {
   let seconds = `${Math.floor(props.children % 60)}`;
-  let minutes = `${Math.floor(props.children / 60)}`;
+  let minutes = `${Math.floor((props.children % 3600) / 60)}`;
   const hours = Math.floor(props.children / 60 / 60);
   if (seconds.length < 2) {
     seconds = `0${seconds}`;

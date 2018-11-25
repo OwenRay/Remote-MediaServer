@@ -55,10 +55,11 @@ class Detail extends Component {
     episodes = episodes.resources.map(o => deserialize(o, store));
     const seasons = [];
     episodes.forEach((e) => {
-      if (!seasons[e.season]) {
-        seasons[e.season] = [];
+      const s = e.season || 0;
+      if (!seasons[s]) {
+        seasons[s] = [];
       }
-      seasons[e.season].push(e);
+      seasons[s].push(e);
     });
 
     this.setState({
@@ -92,7 +93,7 @@ class Detail extends Component {
             {this.mediaInfo()}
           </Tab>
           {this.state.seasons.map(season => (
-            <Tab key={season} title={`Season ${season}`}>
+            <Tab key={season} title={!season || season === "0" ? "Extras" : `Season ${season}`}>
               <div className="scrollable">
                 <h1>{this.state.item.title}</h1>
                 <div className="collection">
@@ -170,11 +171,17 @@ class Detail extends Component {
     if (this.state.playClicked) {
       return (<Redirect push to={`/item/view/${s.item.id}`} />);
     }
-
+    console.log(this.itemModel);
     return (
       <div>
         <BodyClassName className="hideNav" />
         <TopBar showBackButton>
+          {this.itemModel.externalId ? (
+            <a href={`/api/redirectToIMDB/${this.itemModel.id}`} target="_blank">
+              <img alt="IMDB" src="/assets/img/imdb.svg" />
+            </a>) :
+            ''
+          }
           {s.watched ?
             <Button onClick={this.toggleWatched} data-tip="Mark unwatched" className="marked"><Icon>done</Icon></Button> :
             <Button onClick={this.toggleWatched} data-tip="Mark watched"><Icon>done</Icon></Button>
