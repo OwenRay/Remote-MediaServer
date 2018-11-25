@@ -13,7 +13,7 @@ class Migrate {
   }
 
   static version0() {
-    const items = Database.getAll('media-item');
+    const items = Database.getAll('media-item', true);
     items.forEach((item) => {
       const p = item.relationships && item.relationships['play-position'];
       if (p) {

@@ -6,6 +6,7 @@ const ExtrasExtendedInfo = require('./extendedInfo/ExtrasExtendedInfo');
 const Database = require('../Database');
 const Log = require('../helpers/Log');
 const Settings = require('../Settings');
+const DebugApiHandler = require('../requestHandlers/api/DebugApiHandler');
 
 const extendedInfoItems = [
   FFProbeExtendedInfo,
@@ -19,10 +20,16 @@ class ExtendedInfoQueue {
   static getInstance() {
     if (!ExtendedInfoQueue.instance) {
       ExtendedInfoQueue.instance = new ExtendedInfoQueue();
+      DebugApiHandler.registerDebugInfoProvider(
+        'scanner',
+        ExtendedInfoQueue.instance.debugInfo.bind(ExtendedInfoQueue.instance),
+      );
     }
     return ExtendedInfoQueue.instance;
   }
+
   constructor() {
+    this.onDrainCallbacks = [];
     this.queue = [];
     this.running = false;
   }
@@ -39,6 +46,10 @@ class ExtendedInfoQueue {
     if (!this.running) {
       this.timeout = setTimeout(this.start.bind(this), 5000);
     }
+  }
+
+  concat(items) {
+    items.forEach(item => this.push(item));
   }
 
   async start() {
@@ -58,9 +69,18 @@ class ExtendedInfoQueue {
       }
       Database.update('media-item', item);
     }
+    this.onDrainCallbacks.forEach(cb => cb());
     Log.info('done checking extended info');
 
     this.running = false;
+  }
+
+  setOnDrain(cb) {
+    this.onDrainCallbacks.push(cb);
+  }
+
+  debugInfo() {
+    return { extendedInfoQuelength: this.queue.length };
   }
 }
 

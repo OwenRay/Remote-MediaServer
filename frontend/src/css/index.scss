@@ -71,6 +71,10 @@ html, body{
   max-height: inherit;
 }
 
+.card{
+  clear:both;
+}
+
 .card .card-content .card-title{
   color:white !important;
 }
@@ -495,13 +499,17 @@ button.marked{
   opacity: 0;
 }
 
-#openFilters{
+.bottom-right-fab {
   right:10px;
   bottom:10px;
-  position: absolute;
+  position: fixed;
   .input-field.col label{
     left:0;
   }
+}
+
+.input-field label{
+  white-space: nowrap;
 }
 
 .side-nav{
@@ -592,4 +600,16 @@ button.marked{
   li .highlight{
     color:$secondary-color;
   }
+}
+
+.card-content .rc-slider{
+  margin-top: 34px;
+}
+
+.advancedItem {
+  display: none;
+}
+
+.advanced .advancedItem {
+  display: block;
 }

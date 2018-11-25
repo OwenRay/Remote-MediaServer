@@ -28,6 +28,8 @@ class FFProbeExtendedInfo extends IExtendedInfo {
     mediaItem.attributes.fileduration = parseFloat(fileData.format.duration);
     mediaItem.attributes.filesize = parseInt(fileData.format.size, 10);
     mediaItem.attributes.bitrate = fileData.format.bit_rate;
+    mediaItem.attributes.format = fileData.format;
+    mediaItem.attributes.streams = fileData.streams;
     mediaItem.attributes.gotfileinfo = true;
   }
 }

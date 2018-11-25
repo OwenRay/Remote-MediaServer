@@ -4,8 +4,9 @@
  */
 /* global $ */
 import React, { Component } from 'react';
-import { Tabs, Tab, Card, Input, Row, Button, Icon, Collection, CollectionItem, Modal } from 'react-materialize';
+import { Card, Input, Row, Col, Button, Icon, Collection, CollectionItem, Modal } from 'react-materialize';
 import { apiActions, deserialize } from 'redux-jsonapi';
+import Slider from 'rc-slider';
 import store from '../helpers/stores/settingsStore';
 import LibraryDialog from '../components/LibraryDialog';
 
@@ -40,10 +41,11 @@ class Settings extends Component {
   /**
    * save settings, called when submit is clicked
    */
-  onSubmit() {
+  async onSubmit() {
     const o = this.state.settings;
     o._type = 'settings';
-    store.dispatch(apiActions.write(o));
+    await store.dispatch(apiActions.write(o));
+    window.Materialize.toast('Settings saved', 3000);
   }
 
   /**
@@ -78,8 +80,9 @@ class Settings extends Component {
    * called when user types in field, applies typed value to state
    */
   onChange(e, value) {
+    console.log(e.target.name, arguments);
     const { settings } = this.state;
-    settings[e.target.name] = value;
+    settings[e.target ? e.target.name : e] = value;
     this.setState({ settings });
   }
 
@@ -101,6 +104,7 @@ class Settings extends Component {
    * Called when creating a new library or when clicking an existing one
    */
   librarySelect(lib) {
+    console.log(this.state);
     this.setState({ create: lib });
   }
 
@@ -128,11 +132,15 @@ class Settings extends Component {
       return (<p>Loading</p>);
     }
 
-    const listItems = this.state.settings.libraries.map(lib => (
+    const { settings } = this.state;
+
+    const listItems = settings.libraries.map(lib => (
       <CollectionItem
         onClick={(e) => {
+          console.log('click!!');
           e.stopPropagation();
           e.preventDefault();
+          console.log('clicked', e, lib);
           this.librarySelect(lib);
         }}
         key={`key${lib.uuid}`}
@@ -163,82 +171,133 @@ class Settings extends Component {
     }
 
     return (
-      <div>
-        <Tabs
-          key="settingstabs"
-          onChange={this.onTabChange}
-          className="tabs-fixed-width"
+      <div className={settings.advanced ? 'advanced' : ''}>
+        <Button
+          className="bottom-right-fab"
+          key="save"
+          floating
+          onClick={this.onSubmit}
+          icon="save"
+        />
+        <Row style={{ margin: 20, float: 'right' }}>
+          <Input
+            type="checkbox"
+            checked={settings.advanced}
+            onChange={this.onChange}
+            name="advanced"
+            label="Show advanced"
+          />
+        </Row>
+        <Card
+          title="Server settings"
         >
-          <Tab
-            key="1"
-            active={this.state.activeTab === 0}
-            title="Server settings"
-          />
-          <Tab
-            key="2"
-            active={this.state.activeTab === 1}
-            title="Media library"
-          />
-        </Tabs>
-        {this.state.activeTab === 0 ?
-          <Card
-            title="Server settings"
-            actions={[<Button key="save" onClick={this.onSubmit}><Icon left>save</Icon>Save</Button>]}
-          >
-            <Row>
-              <Input
-                name="name"
-                onChange={this.onChange}
-                defaultValue={this.state.settings.name}
-                icon="label"
-                label="Server name"
-                s={12}
+          <Row>
+            <Input
+              name="name"
+              onChange={this.onChange}
+              defaultValue={settings.name}
+              icon="label"
+              label="Server name"
+              s={12}
+            />
+          </Row>
+          <Row className="advancedItem">
+            <Input
+              name="port"
+              onChange={this.onChange}
+              defaultValue={`${settings.port}`}
+              icon="input"
+              label="Port"
+              s={12}
+            />
+          </Row>
+          <Row className="advancedItem">
+            <Input
+              s={12}
+              name="filewatcher"
+              onChange={this.onChange}
+              type="select"
+              label="File watcher"
+              defaultValue={settings.filewatcher}
+              icon="remove_red_eye"
+            >
+              <option value="native">Use native filesystem events</option>
+              <option value="polling">Alternative (Polling)</option>
+            </Input>
+          </Row>
+          <Row>
+            <Input
+              type="checkbox"
+              name="startscan"
+              onChange={this.onChange}
+              label="Full rescan on start"
+              checked={settings.startscan}
+            />
+          </Row>
+        </Card>
+        <Card
+          title="Share settings"
+        >
+          <Row className="advancedItem">
+            <Input
+              name="sharehost"
+              onChange={this.onChange}
+              defaultValue={`${settings.sharehost}`}
+              icon="input"
+              label="Sharing host (empty for autodetect)"
+              s={6}
+            />
+            <Input
+              name="shareport"
+              onChange={this.onChange}
+              defaultValue={`${settings.shareport}`}
+              icon="input"
+              label="Sharing port (make sure this port is reachable)"
+              s={6}
+            />
+          </Row>
+          <Row s={12} className="input-field">
+            <Input
+              s={4}
+              name="sharespace"
+              onChange={this.onChange}
+              label="Space reserved for shared files"
+              defaultValue={settings.sharespace}
+              icon="space"
+            />
+            <Col s={8}>
+              <Slider
+                onChange={v => this.onChange('sharespace', v)}
+                step={1}
+                value={settings.sharespace}
+                min={1}
+                max={1000}
               />
-              <Input
-                name="port"
-                onChange={this.onChange}
-                defaultValue={`${this.state.settings.port}`}
-                icon="input"
-                label="Port"
-                s={12}
-              />
-              <Input
-                s={12}
-                name="filewatcher"
-                onChange={this.onChange}
-                type="select"
-                label="File watcher"
-                defaultValue={this.state.settings.filewatcher}
-                icon="remove_red_eye"
-              >
-                <option value="native">Use native filesystem events</option>
-                <option value="polling">Alternative (Polling)</option>
-              </Input>
-              <Input
-                type="checkbox"
-                name="startscan"
-                onChange={this.onChange}
-                label="Full rescan on start"
-                checked={this.state.settings.startscan}
-              />
-            </Row>
-          </Card> : ''}
-        {this.state.activeTab === 1 ?
-          <Card
-            title="Media library"
-            actions={[<Button key="new" onClick={() => this.librarySelect({})}><Icon left>add</Icon>Add new</Button>]}
-          >
-            <Collection>
-              {listItems}
-            </Collection>
-          </Card> : ''}
-
+            </Col>
+          </Row>
+          <Row s={12}>
+            <Input
+              icon="share"
+              s={12}
+              label="Share key"
+              value={`${settings.sharekey}-${settings.dbKey}-${settings.dbNonce}`}
+            />
+          </Row>
+        </Card>
+        <Card
+          title="Media libraries"
+          actions={[<Button key="new" onClick={() => this.librarySelect({})}><Icon left>add</Icon>Add new</Button>]}
+        >
+          <Collection>
+            {listItems}
+          </Collection>
+          {this.state.create && <LibraryDialog
+            onSave={this.onLibrarySave}
+            onClose={this.onLibraryClose}
+            editing={this.state.create}
+          />}
+        </Card>
         {deletingModal}
-        {this.state.create && <LibraryDialog
-          onSave={this.onLibrarySave}
-          onClose={this.onLibraryClose}
-          editing={this.state.create}
-        />}
       </div>
     );
   }

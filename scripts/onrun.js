@@ -26,6 +26,9 @@ if (!fs.existsSync('subs')) {
 if (!fs.existsSync('store')) {
   fs.mkdirSync('store');
 }
+if (!fs.existsSync('share')) {
+  fs.mkdirSync('share');
+}
 
 if (!fs.existsSync(`${dir}ffmpeg`) && !fs.existsSync(`${dir}ffmpeg.exe`)) {
   console.log('downloading ffmpeg');

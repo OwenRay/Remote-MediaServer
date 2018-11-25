@@ -4,13 +4,16 @@ const MediaItemHelper = require('../helpers/MediaItemHelper');
 const fs = require('fs');
 const { spawn } = require('child_process');
 const Log = require('../helpers/Log');
+const DebugApiHandler = require('../requestHandlers/api/DebugApiHandler');
 const extendedInfoQueue = require('./ExtendedInfoQueue').getInstance();
 
 class MovieScanner {
   constructor() {
+    DebugApiHandler.registerDebugInfoProvider('scanner', this.debugInfo.bind(this));
     this.library = null;
     this.scanning = -1;
     this.types = Settings.getValue('videoFileTypes');
+    this.onFileFoundCallbacks = [];
     this.startWatchingAll();
     if (Settings.getValue('startscan')) this.scan();
     Settings.addObserver('libraries', this.onLibrariesChange.bind(this));
@@ -22,11 +25,16 @@ class MovieScanner {
     this.scan();
   }
 
+  static getLibraries() {
+    return Settings.getValue('libraries')
+      .filter(lib => lib.type !== 'shared');
+  }
+
   startWatchingAll() {
     if (this.watchers) {
       this.watchers.forEach(watcher => watcher.kill());
     }
-    this.watchers = Settings.getValue('libraries')
+    this.watchers = MovieScanner.getLibraries()
       .map(this.startWatching.bind(this));
   }
 
@@ -54,7 +62,7 @@ class MovieScanner {
         return;
       }
       if (this.willInclude(file, stat)) {
-        MovieScanner.addFileToDatabase(library, file);
+        this.addFileToDatabase(library, file);
       }
     });
   }
@@ -67,13 +75,14 @@ class MovieScanner {
     }
     this.scanRequested = false;
     Log.info('start scanner');
+    // check all files for possible extra info.
     MovieScanner.checkForMediaItemsWithMissingFiles();
     MovieScanner.checkForMediaItemsWithMissingLibrary();
     this.scanNext();
   }
 
   static checkForMediaItemsWithMissingFiles() {
-    const items = Database.getAll('media-item');
+    const items = Database.getAll('media-item', true);
     function next() {
       if (!items.length) {
         return;
@@ -91,10 +100,9 @@ class MovieScanner {
   }
 
   static checkForMediaItemsWithMissingLibrary() {
-    const libraries = Settings.getValue('libraries');
-    const libIds = libraries.map(l => l.uuid);
+    const libIds = MovieScanner.getLibraries().map(l => l.uuid);
 
-    const items = Database.getAll('media-item');
+    const items = Database.getAll('media-item', true);
     Object.keys(items).forEach((key) => {
       const item = items[key];
       if (libIds.indexOf(item.attributes.libraryId) === -1) {
@@ -105,7 +113,7 @@ class MovieScanner {
 
   async scanNext() {
     this.scanning += 1;
-    if (this.scanning >= Settings.getValue('libraries').length) {
+    if (this.scanning >= MovieScanner.getLibraries().length) {
       this.scanning = -1;
       if (this.scanRequested) {
         this.scan();
@@ -113,18 +121,22 @@ class MovieScanner {
       return;
     }
 
-    this.library = Settings.getValue('libraries')[this.scanning];
+    this.library = MovieScanner.getLibraries()[this.scanning];
     Log.info('start scan', this.library);
 
-    await this.getFilesFromDir(`${this.library.folder}/`);
+    try {
+      await this.getFilesFromDir(`${this.library.folder}/`);
+    } catch (e) {
+      Log.warning('error scanning', e);
+    }
     this.scanNext();
   }
 
   getFilesFromDir(dir) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       fs.readdir(dir, (err, files) => {
         if (err) {
-          Log.warning('error dir listing', err);
+          reject(err);
           return;
         }
         this.procesFiles(dir, files).then(resolve);
@@ -151,7 +163,7 @@ class MovieScanner {
             return;
           }
           if (this.willInclude(file, stats)) {
-            MovieScanner.addFileToDatabase(this.library, file);
+            this.addFileToDatabase(this.library, file);
           }
           next();
         });
@@ -169,7 +181,7 @@ class MovieScanner {
     return this.types.some(i => i === type);
   }
 
-  static addFileToDatabase(library, file) {
+  addFileToDatabase(library, file) {
     file = MovieScanner.normalizeFileName(library.folder, file);
     if (!Database.findBy('media-item', 'filepath', file).length) {
       Log.info('found new file', file);
@@ -185,7 +197,9 @@ class MovieScanner {
       } else if (file.match(/.*trailer.*/)) {
         obj.extra = true;
       }
-      extendedInfoQueue.push(Database.setObject('media-item', obj));
+      const item = Database.setObject('media-item', obj);
+      extendedInfoQueue.push(item);
+      this.onFileFoundCallbacks.forEach(cb => cb(item));
     }
   }
 
@@ -193,6 +207,14 @@ class MovieScanner {
     file = file.substr(lib.length);
     file = file.replace('\\', '/').replace('//', '/');
     return lib.replace(/^(.*?)(\\|\/)?$/, '$1') + file;
+  }
+
+  setOnFileFound(cb) {
+    this.onFileFoundCallbacks.push(cb);
+  }
+
+  debugInfo() {
+    return { currentLibrary: this.library, scanning: this.scanning };
   }
 }
 

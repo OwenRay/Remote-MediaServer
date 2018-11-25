@@ -3,7 +3,6 @@
  */
 
 
-// const http = require('http');
 const Settings = require('./Settings');
 const Log = require('./helpers/Log');
 const glob = require('glob');
@@ -16,6 +15,7 @@ const cors = require('koa-cors');
 const cache = require('node-file-cache');
 const destroyable = require('server-destroy');
 const bodyParser = require('koa-bodyparser');
+const opn = require('opn');
 
 
 class HttpServer {
@@ -55,7 +55,7 @@ class HttpServer {
     this.server.use(new Static(`${__dirname}/../frontend/build`));
 
     // Lets start our server
-    this.serverInstance = this.server.listen(Settings.getValue('port'), this.onConnected);
+    this.serverInstance = this.server.listen(Settings.getValue('port'), Settings.getValue('bind'), HttpServer.onConnected);
     destroyable(this.serverInstance);
   }
 
@@ -65,6 +65,7 @@ class HttpServer {
   }
 
   static onConnected() {
+    opn(`http://127.0.0.1:${Settings.getValue('port')}`);
     Log.info('Server listening on: http://localhost:%s', Settings.getValue('port'));
   }
 

@@ -4,13 +4,15 @@ const fs = require('fs');
 const uuid = require('node-uuid');
 const Log = require('./helpers/Log.js');
 
-const TYPES = ['media-item', 'play-position'];
+const TYPES = ['media-item', 'play-position', 'chunks'];
 
 class Database {
   constructor() {
     this.writeTimeout = {};
     this.ids = {};
     this.tables = {};
+    this.dataProviders = [];
+    this.updateOverwriters = [];
     this.version = 2;
   }
 
@@ -51,19 +53,17 @@ class Database {
   }
 
   update(type, obj) {
+    if (this.updateOverwriters.reduce((red, f) => f(obj) || red, false)) {
+      return obj;
+    }
     this.checkTable(type);
-
     this.tables[type][obj.id] = obj;
     this.save(type);
     return obj;
   }
 
-  fileExists(type, id) {
-    return !!this.tables[type] && !!this.tables[type][id];
-  }
-
   findBy(type, key, value) {
-    const table = this.tables[type];
+    const table = this.getAll(type);
     if (!table) {
       return [];
     }
@@ -73,7 +73,7 @@ class Database {
   }
 
   findByMatchFilters(tableType, filters) {
-    const items = this.tables[tableType];
+    const items = this.getAll(tableType);
     if (!items) {
       return [];
     }
@@ -177,13 +177,21 @@ class Database {
     if (!this.tables[type]) {
       return null;
     }
-    return this.tables[type][id];
+    let item = this.tables[type][id];
+    if (!item) item = this.getAll(type).find(i => i.id === id);
+    if (!item) return null;
+    // clone item before returning
+    return JSON.parse(JSON.stringify(item));
   }
 
-  getAll(type) {
-    Log.debug('getall');
+  getAll(type, skipDataProviders = false) {
     this.checkTable(type);
-    return Object.values(this.tables[type]);
+    let items = Object.values(this.tables[type]);
+    if (skipDataProviders) return items;
+    this.dataProviders.forEach((func) => {
+      items = items.concat(func(type));
+    });
+    return items;
   }
 
   load() {
@@ -192,13 +200,14 @@ class Database {
         try {
           this.tables[type] = JSON.parse(fs.readFileSync(`store/${type}`, 'utf8'));
         } catch (e) {
-          Log.exception('error loading db files', e);
+          Log.debug(`database file ${type} doees not exist`);
         }
       });
       this.ids = JSON.parse(fs.readFileSync('store/ids', 'utf8'));
       this.version = JSON.parse(fs.readFileSync('store/version', 'utf8'));
     } catch (e) {
-      Log.exception(e);
+      Log.debug('some database file does not exist');
+      this.save('version');
     }
   }
 
@@ -225,6 +234,18 @@ class Database {
       JSON.stringify(this.tables[type] ? this.tables[type] : this[type]),
       callback,
     );
+  }
+
+  addDataProvider(func) {
+    this.dataProviders.push(func);
+  }
+
+  /**
+   *
+   * @param func should return true if update has been overwritten by func
+   */
+  addUpdateOverwriter(func) {
+    this.updateOverwriters.push(func);
   }
 }
 

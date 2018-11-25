@@ -5,7 +5,6 @@
  */
 const IImageHandler = require('./IImageHandler');
 const fs = require('fs');
-const Log = require('../../helpers/Log');
 const httpServer = require('../../HttpServer');
 
 class ImageCacheHandler extends IImageHandler {
@@ -17,7 +16,6 @@ class ImageCacheHandler extends IImageHandler {
     try {
       fs.statSync(filename);
     } catch (e) {
-      Log.debug(e);
       return null;
     }
 

@@ -21,8 +21,12 @@ class FFMpeg {
   }
 
   run() {
-    FFProbe.getInfo(this.file)
-      .then(this.gotInfo.bind(this), this.onError);
+    if (this.mediaItem.attributes.streams && this.mediaItem.attributes.format) {
+      this.gotInfo(this.mediaItem.attributes);
+    } else {
+      FFProbe.getInfo(this.file)
+        .then(this.gotInfo.bind(this), this.onError);
+    }
     return this;
   }
 
@@ -141,8 +145,9 @@ class FFMpeg {
     if (aCodec !== 'copy') {
       this.addOutputArguments(['-ac', 2, '-ab', '192k']);
     }
-    if (!this.offset) {
+    if (!this.offset || this.offset === '0') {
       this.offset = 0;
+      if (this.file.indexOf('http') === 0) this.addInputArguments(['-seekable', '0']);
     }
 
     if (this.offset) {
@@ -151,7 +156,7 @@ class FFMpeg {
     }
 
     while (this.outputArgs.length) {
-      args.splice(19, 0, this.outputArgs.pop());
+      args.splice(21, 0, this.outputArgs.pop());
     }
     while (this.inputArgs.length) {
       args.splice(0, 0, this.inputArgs.pop());

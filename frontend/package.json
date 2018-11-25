@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:8080",
+  "proxy": "http://localhost:8234",
   "dependencies": {
     "bluebird": "^3.5.0",
     "humps": "^1.1.0",

@@ -27,7 +27,7 @@ class TmdbImageHandler extends IImageHandler {
     }
 
     const img = `http://image.tmdb.org/t/p/${w}/${this.item.attributes[`${this.type}-path`]}`;
-    Log.log(`img${img}`);
+    Log.debug(`img${img}`);
     const p = new Promise((resolve) => {
       http.get(img, (response) => {
         const bytes = [];

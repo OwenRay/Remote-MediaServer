@@ -24,6 +24,10 @@ class LibraryDialog extends Component {
     this.setState(this.props.editing);
   }
 
+  componentDidMount() {
+    this.componentDidUpdate();
+  }
+
   /**
    * make sure the modal is always open
    */
@@ -80,6 +84,24 @@ class LibraryDialog extends Component {
     this.setState({ folder: val });
   }
 
+  sharedOrOther() {
+    if (this.state.type === 'shared') {
+      return <Input value={this.state.uuid} name="uuid" onChange={this.onChange} s={12} label="Code" />;
+    }
+    return (
+      <div>
+        <Input
+          type="checkbox"
+          name="shared"
+          onChange={this.onChange}
+          label="Share this library"
+          checked={this.state.shared}
+        />
+        <ServerFileBrowser value={this.state.folder} onChange={this.fileBrowserChange} label="Directory" />
+      </div>
+    );
+  }
+
   render() {
     return (
       <Modal
@@ -97,9 +119,10 @@ class LibraryDialog extends Component {
             <option value="tv">TV Shows</option>
             <option value="movie">Movies</option>
             <option value="library_music">Music</option>
+            <option value="shared">External Library</option>
           </Input>
           <Input defaultValue={this.state.name} onChange={this.onChange} name="name" s={12} label="Name" />
-          <ServerFileBrowser value={this.state.folder} onChange={this.fileBrowserChange} label="Directory" />
+          {this.sharedOrOther()}
         </Row>
       </Modal>
     );

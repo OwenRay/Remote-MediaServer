@@ -1,4 +1,4 @@
-
+const Settings = require('../Settings');
 
 class MediaItemHelper {
   static getFullFilePath(mediaItem) {
@@ -14,6 +14,11 @@ class MediaItemHelper {
         if(!library)
             return ""; */
     return mediaItem.attributes.filepath;
+  }
+
+  static getLibrary(item) {
+    return Settings.getValue('libraries')
+      .find(l => l.uuid.split('-')[0] === item.attributes.libraryId);
   }
 }
 
