@@ -17,6 +17,9 @@ class TmdbImageHandler extends IImageHandler {
     let w = 'w300';
     if (this.type === IImageHandler.TYPE_BACKDROP) {
       w = 'w1280';
+    } else if (this.type === IImageHandler.TYPE_POSTER_LARGE) {
+      w = 'w1280';
+      this.type = 'poster';
     } else if (this.type === IImageHandler.TYPE_POSTER_SMALL) {
       w = 'w154';
       this.type = 'poster';

@@ -148,8 +148,10 @@ class Library extends Component {
           media: items,
           rowCount: res.meta.totalItems,
         });
-        this.collection.recomputeCellSizesAndPositions();
-        this.collection.forceUpdate();
+        if (this.collection) {
+          this.collection.recomputeCellSizesAndPositions();
+          this.collection.forceUpdate();
+        }
       }
     });
   }

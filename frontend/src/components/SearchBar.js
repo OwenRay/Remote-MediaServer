@@ -90,7 +90,7 @@ class SearchBar extends Component {
           })}
         </Input>
         <div className="col search s6">
-          <Input s={12} name="title" type="text" label="" defaultValue={this.state.filters.title} onChange={this.onChange} />
+          <Input s={12} name="title" type="text" label="" value={this.state.filters.title} onChange={this.onChange} />
           <Button className="mdi-action-search"><Icon>search</Icon></Button>
         </div>
         <Input s={3} name="sort" type="select" label="Sort by:" value={this.state.filters.sort} onChange={this.onChange}>

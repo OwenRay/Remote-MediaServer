@@ -1,6 +1,7 @@
 import React from 'react';
 import { Table } from 'react-materialize';
 import ReadableDuration from '../ReadableDuration';
+import FileSize from '../FileSize';
 
 function mediaInfo(props) {
   const i = props.item;
@@ -20,10 +21,10 @@ function mediaInfo(props) {
           <th>Duration:</th><td><ReadableDuration>{i.fileduration}</ReadableDuration></td>
         </tr>
         <tr>
-          <th>Bitrate:</th><td>{i.bitrate}</td>
+          <th>Bitrate:</th><td><FileSize>{i.bitrate}</FileSize>ps</td>
         </tr>
         <tr>
-          <th>Filesize:</th><td>{i.filesize}</td>
+          <th>Filesize:</th><td><FileSize>{i.filesize}</FileSize></td>
         </tr>
         <tr>
           <th>Date added:</th><td>{new Date(i.dateAdded).toDateString()}</td>

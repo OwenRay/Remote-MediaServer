@@ -53,6 +53,7 @@ class Detail extends Component {
 
     let episodes = await store.dispatch(readAction);
     episodes = episodes.resources.map(o => deserialize(o, store));
+    episodes = episodes.filter(o => o._type === 'media-item');
     const seasons = [];
     episodes.forEach((e) => {
       const s = e.season || 0;
@@ -64,6 +65,7 @@ class Detail extends Component {
 
     this.setState({
       item: i,
+      showTabs: episodes.length > 1,
       episodes: seasons,
       seasons: Object.keys(seasons),
       watched: i.playPosition && (await i.playPosition()).watched,
@@ -76,14 +78,31 @@ class Detail extends Component {
   poster() {
     return { backgroundImage: `url(/img/${this.state.item.id}_poster.jpg)` };
   }
-
-  showTabs() {
-    return this.state.item.type === 'tv' && this.state.seasons;
+  posterLarge() {
+    return { backgroundImage: `url(/img/${this.state.item.id}_posterlarge.jpg)` };
   }
 
   seasonTabs() {
-    if (!this.showTabs()) {
-      return null;
+    if (this.state.item.type !== 'tv') {
+      return (
+        <div id="tabs">
+          <Tabs defaultValue="0">
+            <Tab key={-1} active title="Movie info">
+              {this.mediaInfo()}
+            </Tab>
+            <Tab title="Versions">
+              <div className="scrollable">
+                <h1>{this.state.item.title}</h1>
+                <div className="collection">
+                  {this.state.episodes[0].map(item => (
+                    <MediaItemRow key={item.id} ref={item.id} mediaItem={item} />
+                  ))}
+                </div>
+              </div>
+            </Tab>
+          </Tabs>
+        </div>
+      );
     }
 
     return (
@@ -93,7 +112,7 @@ class Detail extends Component {
             {this.mediaInfo()}
           </Tab>
           {this.state.seasons.map(season => (
-            <Tab key={season} title={!season || season === "0" ? "Extras" : `Season ${season}`}>
+            <Tab key={season} title={!season || season === '0' ? 'Extras' : `Season ${season}`}>
               <div className="scrollable">
                 <h1>{this.state.item.title}</h1>
                 <div className="collection">
@@ -171,13 +190,15 @@ class Detail extends Component {
     if (this.state.playClicked) {
       return (<Redirect push to={`/item/view/${s.item.id}`} />);
     }
-    console.log(this.itemModel);
     return (
       <div>
         <BodyClassName className="hideNav" />
         <TopBar showBackButton>
           {this.itemModel.externalId ? (
-            <a href={`/api/redirectToIMDB/${this.itemModel.id}`} target="_blank">
+            <a
+              rel="noopener noreferrer"
+              href={`/api/redirectToIMDB/${this.itemModel.id}`}
+              target="_blank">
               <img alt="IMDB" src="/assets/img/imdb.svg" />
             </a>) :
             ''
@@ -197,10 +218,11 @@ class Detail extends Component {
           <ReactTooltip place="bottom" effect="solid" />
         </TopBar>
         <div style={this.backDrop()} className="movie-detail-backdrop" />
+        <div style={this.posterLarge()} className="movie-detail-backdrop poster" />
         <div>
           <main>
             <div className="container detail">
-              {this.showTabs() ? this.seasonTabs() : this.mediaInfo()}
+              {s.showTabs ? this.seasonTabs() : this.mediaInfo()}
 
               <div className="poster" style={this.poster()} />
 

@@ -11,6 +11,11 @@ const Log = require('../../helpers/Log');
 const httpServer = require('../../HttpServer');
 const ImageCacheHandler = require('./ImageCacheHandler');
 
+const sizes = {};
+sizes[IImageHandler.TYPE_POSTER] = { w: 300, h: 450 };
+sizes[IImageHandler.TYPE_POSTER_SMALL] = { w: 300, h: 450 };
+sizes[IImageHandler.TYPE_POSTER_LARGE] = { w: 1280, h: 2000 };
+
 class FFProbeImageHandler extends IImageHandler {
   handleRequest() {
     let offset = 0;
@@ -30,9 +35,7 @@ class FFProbeImageHandler extends IImageHandler {
     let size = `${crop.width}x${crop.height}`;
 
     if (this.type !== IImageHandler.TYPE_BACKDROP) {
-      const targetSize = this.type === IImageHandler.TYPE_POSTER ?
-        { w: 300, h: 450 } :
-        { w: 150, h: 218 };
+      const targetSize = sizes[this.type];
 
       size = `${targetSize.w}x${targetSize.h}`;
       if (targetSize.w / targetSize.h > crop.width / crop.height) {

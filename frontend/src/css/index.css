@@ -7198,7 +7198,7 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
     bottom: 0px; }
     .detail #tabs > .row > .col:first-child {
       top: 0px;
-      padding-right: 130px; }
+      padding-right: 115px; }
 
 .container.detail {
   border-top: solid 1px #6c5f00;
@@ -7263,6 +7263,24 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
     top: 15px; }
     .top-bar .back i {
       font-size: 30px; }
+
+.movie-detail-backdrop.poster {
+  display: none; }
+
+@media only screen and (max-width: 650px) {
+  .detail #tabs {
+    left: 35px; }
+    .detail #tabs .scrollable {
+      padding-left: 10px;
+      left: 0px; }
+  .detail .poster {
+    display: none; }
+  .detail .scrollable {
+    left: 70px; }
+  .movie-detail-backdrop {
+    display: none; }
+  .movie-detail-backdrop.poster {
+    display: block; } }
 
 body, .modal-content {
   background-color: #0a0c1a;

@@ -6,8 +6,19 @@ import React from 'react';
 import { Icon } from 'react-materialize';
 import { NavLink } from 'react-router-dom';
 import MediaItemTile from './MediaItemTile';
+import FileSize from '../FileSize';
 
 class MediaItemRow extends MediaItemTile {
+  title() {
+    const { state } = this;
+    if (state.episode) return `${state.episode} - ${state.episodeTitle}`;
+    return (
+      <span>
+        <FileSize>{state.filesize}</FileSize> {state.height}p
+      </span>
+    );
+  }
+
   render() {
     if (!this.state) {
       return (
@@ -19,7 +30,7 @@ class MediaItemRow extends MediaItemTile {
 
     return (
       <NavLink to={`/item/detail/${this.state.id}`} className="collection-item">
-        {this.state.episode} - {this.state.episodeTitle}
+        {this.title()}
         {this.playPos()}
       </NavLink>
     );

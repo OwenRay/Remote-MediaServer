@@ -80,7 +80,7 @@
       bottom: 0px;
       &:first-child {
         top:0px;
-        padding-right: 130px;
+        padding-right: 115px;
       }
     }
   }
@@ -163,5 +163,34 @@
     i {
       font-size: 30px;
     }
+  }
+}
+
+.movie-detail-backdrop.poster {
+  display:none;
+}
+
+
+@media only screen and (max-width: 650px) {
+  .detail {
+    #tabs {
+      left:35px;
+      .scrollable{
+        padding-left:10px;
+        left:0px;
+      }
+    }
+    .poster{
+      display: none;
+    }
+    .scrollable{
+      left:70px;
+    }
+  }
+  .movie-detail-backdrop {
+    display:none;
+  }
+  .movie-detail-backdrop.poster {
+    display: block;
   }
 }
