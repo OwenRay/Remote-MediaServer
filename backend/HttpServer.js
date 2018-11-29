@@ -2,7 +2,6 @@
  * Created by Owen on 15-4-2016.
  */
 
-
 const Settings = require('./Settings');
 const Log = require('./helpers/Log');
 const glob = require('glob');
@@ -16,6 +15,7 @@ const cache = require('node-file-cache');
 const destroyable = require('server-destroy');
 const bodyParser = require('koa-bodyparser');
 const opn = require('opn');
+const ip = require('ip');
 
 
 class HttpServer {
@@ -65,7 +65,9 @@ class HttpServer {
   }
 
   static onConnected() {
-    opn(`http://127.0.0.1:${Settings.getValue('port')}`);
+    let host = Settings.getValue('bind');
+    if (host === '0.0.0.0') host = ip.address();
+    opn(`http://${host}:${Settings.getValue('port')}`);
     Log.info('Server listening on: http://localhost:%s', Settings.getValue('port'));
   }
 

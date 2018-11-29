@@ -76,7 +76,13 @@ class EDHT {
     this.readyListeners.forEach(cb => cb());
   }
 
-  onPeer(peer, infoHash) {
+  onPeer(peer, infoHash, host) {
+    if (host) {
+      // I suspect a host doesn't always properly report their own chunks
+      // this might be a workaround, but I'm not even sure.
+      this.onPeer({ host: host.address, port: host.port }, infoHash);
+    }
+
     if (`${peer.host}:${peer.port}` === this.host) {
       return;
     }
