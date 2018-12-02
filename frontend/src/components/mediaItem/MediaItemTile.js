@@ -6,6 +6,8 @@ import React, { Component } from 'react';
 import { Button, Icon } from 'react-materialize';
 import { NavLink, Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import {Flipped, Flipper} from 'react-flip-toolkit';
+import anime from "animejs";
 
 class MediaItemTile extends Component {
   constructor() {
@@ -65,6 +67,14 @@ class MediaItemTile extends Component {
     this.setState({ playClicked: true });
   }
 
+  animateIn(el) {
+    anime({
+      targets: el,
+      opacity: 1,
+      easing: 'easeOutSine',
+    });
+  }
+
   render() {
     if (!this.state) {
       return (
@@ -79,26 +89,28 @@ class MediaItemTile extends Component {
     }
 
     return (
-      <div style={this.props.style} className="grid-item">
-        <div
-          className="poster"
-          data-poster-image={this.state.id}
-          style={{ backgroundImage: `url(/img/${this.state.id}_postersmall.jpg)` }}
-        />
-        <NavLink to={`/item/detail/${this.state.id}`} />
-        <div className="detail">
-          {this.playPos()}
-          <Button
-            floating
-            className="play"
-            icon="play_arrow"
-            action="play"
-            onClick={this.play}
+      <Flipped flipId={`media-item${this.props.mediaItem.id}`}>
+        <div style={this.props.style} className="grid-item">
+          <div
+            className="poster"
+            data-poster-image={this.state.id}
+            style={{ backgroundImage: `url(/img/${this.state.id}_postersmall.jpg)` }}
           />
-          <span className="title">{this.state.title}</span>
-          <span className="year">{this.state.year}</span>
+          <NavLink to={`/item/detail/${this.state.id}`} />
+          <div className="detail">
+            {this.playPos()}
+            <Button
+              floating
+              className="play"
+              icon="play_arrow"
+              action="play"
+              onClick={this.play}
+            />
+            <span className="title">{this.state.title}</span>
+            <span className="year">{this.state.year}</span>
+          </div>
         </div>
-      </div>
+      </Flipped>
     );
   }
 }

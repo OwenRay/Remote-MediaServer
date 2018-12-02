@@ -7,6 +7,7 @@ import React, { Component } from 'react';
 import { apiActions, deserialize } from 'redux-jsonapi';
 import { Collection, AutoSizer } from 'react-virtualized';
 import { debounce } from 'throttle-debounce';
+import { Flipper, Flipped } from 'react-flip-toolkit';
 import store from '../helpers/stores/apiStore';
 import SearchBar from '../components/SearchBar';
 import MediaItem from '../components/mediaItem/MediaItemTile';
@@ -24,7 +25,7 @@ class Library extends Component {
     this.cellRenderer = this.cellRenderer.bind(this);
     /** @type Collection */
     this.state = {
-      filters: {}, media: [], rowCount: 0,
+      filters: {}, media: [], rowCount: 0, loadCount: 0,
     };
     this.promises = [];
     this.pageSize = 25;
@@ -54,13 +55,20 @@ class Library extends Component {
 
     this.filters = filters;
     this.promises = [];
+    if (this.collection) {
+      this.collection.recomputeCellSizesAndPositions();
+      this.collection.forceUpdate();
+    }
+    this.setState({ filters }, ()=>{
+      this.loadMore(0, this.pageSize, true);
+    });
+    /*
     this.setState({ filters, media: [] }, () => {
       if (this.collection) {
         this.collection.recomputeCellSizesAndPositions();
         this.collection.forceUpdate();
       }
-      this.loadMore(0, this.pageSize);
-    });
+    }); */
   }
 
   onChange(o) {
@@ -83,11 +91,11 @@ class Library extends Component {
     this.forceUpdate();
   }
 
-  loadMore(offset, limit) {
+  loadMore(offset, limit, fresh) {
     this.lastLoadRequest = new Date().getTime();
     this.minLoad = -1;
     this.maxLoad = 0;
-    const items = this.state.media;
+    const items = fresh?[]:this.state.media;
 
     // mark items as loading
     for (let c = offset; c < offset + limit && c < items.length; c += 1) {
@@ -146,6 +154,7 @@ class Library extends Component {
         this.setState({
           filterValues: res.meta.filterValues,
           media: items,
+          loadCount: this.state.loadCount + 1,
           rowCount: res.meta.totalItems,
         });
         if (this.collection) {
@@ -219,12 +228,12 @@ class Library extends Component {
 
   cellRenderer({ index, key, style }) {
     return (
-      <MediaItem
-        key={key}
-        style={style}
-        mediaItem={this.state.media[index]}
-        requestData={this.requestData}
-      />
+        <MediaItem
+          key={key}
+          style={style}
+          mediaItem={this.state.media[index]}
+          requestData={this.requestData}
+        />
     );
   }
 
@@ -244,26 +253,31 @@ class Library extends Component {
               verticalOverscanSize={20}
               height={height}
             />)}
-        </AutoSizer>);
+        </AutoSizer>
+      );
     }
 
     return (
-      <div>
-        <div className="impagewrapper">
-          <SearchBar
-            filters={this.state.filters}
-            scroller={this.collection}
-            onChange={this.onChange}
-          />
-          {collection}
-        </div>
-        <Filters
-          filters={this.state.filters}
-          filterValues={this.state.filterValues}
-          onChange={this.onChange}
-        />
+      <Flipped onAppear={this.animateIn} flipId="page">
+        <Flipper flipKey={this.state.filters.loadCount}>
+            <div>
+              <div className="impagewrapper">
+                <SearchBar
+                  filters={this.state.filters}
+                  scroller={this.collection}
+                  onChange={this.onChange}
+                />
+                {collection}
+              </div>
+              <Filters
+                filters={this.state.filters}
+                filterValues={this.state.filterValues}
+                onChange={this.onChange}
+              />
 
-      </div>
+            </div>
+        </Flipper>
+      </Flipped>
     );
   }
 }

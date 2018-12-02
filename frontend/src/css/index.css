@@ -7132,7 +7132,7 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
   top: 50%;
   margin-top: -100px; }
 
-.movie-detail-backdrop {
+.movie-detail-backdrop, .movie-detail-backdrop-wrapper {
   position: absolute;
   top: 0px;
   bottom: 0px;
@@ -7280,7 +7280,9 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
   .movie-detail-backdrop {
     display: none; }
   .movie-detail-backdrop.poster {
-    display: block; } }
+    display: block; }
+  .container.detail > .scrollable {
+    left: 35px; } }
 
 body, .modal-content {
   background-color: #0a0c1a;
