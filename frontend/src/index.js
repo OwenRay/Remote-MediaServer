@@ -11,9 +11,7 @@ import deserializer from "./helpers/stores/deserialize";
 
 
 import App from './App';
-import Cache from './helpers/Cache';
 
-Cache.init();
 require('./css/index.css');
 
 ReactDOM.render(
