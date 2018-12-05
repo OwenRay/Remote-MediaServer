@@ -7187,11 +7187,13 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
 
 .detail #tabs {
   position: absolute;
-  top: -48px;
+  top: -49px;
   right: 0px;
   left: 30%;
   bottom: 0px;
   cursor: pointer; }
+  .detail #tabs .tabs {
+    background: rgba(10, 12, 26, 0.8); }
   .detail #tabs > .row > .col {
     position: absolute;
     top: 48px;
@@ -7427,7 +7429,7 @@ html, body {
     position: absolute;
     bottom: -60px;
     transition: all 0.3s;
-    background: #1c1d36;
+    background: rgba(10, 12, 26, 0.8);
     left: 0px;
     right: 0px;
     height: 60px;
@@ -7490,7 +7492,6 @@ body.hideNav nav {
   margin-top: -50px; }
 
 nav {
-  transition: margin-top .5s;
   position: relative; }
 
 .directoryList {

@@ -9,6 +9,7 @@ import { apiActions, deserialize } from 'redux-jsonapi';
 import Slider from 'rc-slider';
 import store from '../helpers/stores/settingsStore';
 import LibraryDialog from '../components/LibraryDialog';
+import { Flipped } from 'react-flip-toolkit';
 
 class Settings extends Component {
   constructor() {
@@ -16,7 +17,7 @@ class Settings extends Component {
     this.state = { activeTab: 0 };
   }
 
-  componentDidMount() {
+  componentWillMount() {
     store.subscribe(this.change.bind(this));
     this.onChange = this.onChange.bind(this);
     this.onTabChange = this.onTabChange.bind(this);
@@ -129,6 +130,7 @@ class Settings extends Component {
 
   render() {
     if (!this.state || !this.state.settings) {
+      console.log('loadsettings');
       return (<p>Loading</p>);
     }
 
@@ -171,134 +173,137 @@ class Settings extends Component {
     }
 
     return (
-      <div className={settings.advanced ? 'advanced' : ''}>
-        <Button
-          className="bottom-right-fab"
-          key="save"
-          floating
-          onClick={this.onSubmit}
-          icon="save"
-        />
-        <Row style={{ margin: 20, float: 'right' }}>
-          <Input
-            type="checkbox"
-            checked={settings.advanced}
-            onChange={this.onChange}
-            name="advanced"
-            label="Show advanced"
+
+      <Flipped flipId="page">
+        <div className={settings.advanced ? 'advanced' : ''}>
+          <Button
+            className="bottom-right-fab"
+            key="save"
+            floating
+            onClick={this.onSubmit}
+            icon="save"
           />
-        </Row>
-        <Card
-          title="Server settings"
-        >
-          <Row>
-            <Input
-              name="name"
-              onChange={this.onChange}
-              defaultValue={settings.name}
-              icon="label"
-              label="Server name"
-              s={12}
-            />
-          </Row>
-          <Row className="advancedItem">
-            <Input
-              name="port"
-              onChange={this.onChange}
-              defaultValue={`${settings.port}`}
-              icon="input"
-              label="Port"
-              s={12}
-            />
-          </Row>
-          <Row className="advancedItem">
-            <Input
-              s={12}
-              name="filewatcher"
-              onChange={this.onChange}
-              type="select"
-              label="File watcher"
-              defaultValue={settings.filewatcher}
-              icon="remove_red_eye"
-            >
-              <option value="native">Use native filesystem events</option>
-              <option value="polling">Alternative (Polling)</option>
-            </Input>
-          </Row>
-          <Row>
+          <Row style={{ margin: 20, float: 'right' }}>
             <Input
               type="checkbox"
-              name="startscan"
+              checked={settings.advanced}
               onChange={this.onChange}
-              label="Full rescan on start"
-              checked={settings.startscan}
+              name="advanced"
+              label="Show advanced"
             />
           </Row>
-        </Card>
-        <Card
-          title="Share settings"
-        >
-          <Row className="advancedItem">
-            <Input
-              name="sharehost"
-              onChange={this.onChange}
-              defaultValue={`${settings.sharehost}`}
-              icon="input"
-              label="Sharing host (empty for autodetect)"
-              s={6}
-            />
-            <Input
-              name="shareport"
-              onChange={this.onChange}
-              defaultValue={`${settings.shareport}`}
-              icon="input"
-              label="Sharing port (make sure this port is reachable)"
-              s={6}
-            />
-          </Row>
-          <Row s={12} className="input-field">
-            <Input
-              s={4}
-              name="sharespace"
-              onChange={this.onChange}
-              label="Space reserved for shared files"
-              defaultValue={settings.sharespace}
-              icon="space"
-            />
-            <Col s={8}>
-              <Slider
-                onChange={v => this.onChange('sharespace', v)}
-                step={1}
-                value={settings.sharespace}
-                min={1}
-                max={1000}
+          <Card
+            title="Server settings"
+          >
+            <Row>
+              <Input
+                name="name"
+                onChange={this.onChange}
+                defaultValue={settings.name}
+                icon="label"
+                label="Server name"
+                s={12}
               />
-            </Col>
-          </Row>
-          <Row s={12}>
-            <Input
-              icon="share"
-              s={12}
-              label="Share key"
-              value={`${settings.sharekey}-${settings.dbKey}-${settings.dbNonce}`}
-            />
-          </Row>
-        </Card>
-        <Card
-          title="Media libraries"
-          actions={[<Button key="new" onClick={() => this.librarySelect({})}><Icon left>add</Icon>Add new</Button>]}
-        >
-          <Collection>
-            {listItems}
-          </Collection>
-          {this.state.create && <LibraryDialog
-            onSave={this.onLibrarySave}
-            onClose={this.onLibraryClose}
-            editing={this.state.create}
-          />}
-        </Card>
-        {deletingModal}
-      </div>
+            </Row>
+            <Row className="advancedItem">
+              <Input
+                name="port"
+                onChange={this.onChange}
+                defaultValue={`${settings.port}`}
+                icon="input"
+                label="Port"
+                s={12}
+              />
+            </Row>
+            <Row className="advancedItem">
+              <Input
+                s={12}
+                name="filewatcher"
+                onChange={this.onChange}
+                type="select"
+                label="File watcher"
+                defaultValue={settings.filewatcher}
+                icon="remove_red_eye"
+              >
+                <option value="native">Use native filesystem events</option>
+                <option value="polling">Alternative (Polling)</option>
+              </Input>
+            </Row>
+            <Row>
+              <Input
+                type="checkbox"
+                name="startscan"
+                onChange={this.onChange}
+                label="Full rescan on start"
+                checked={settings.startscan}
+              />
+            </Row>
+          </Card>
+          <Card
+            title="Share settings"
+          >
+            <Row className="advancedItem">
+              <Input
+                name="sharehost"
+                onChange={this.onChange}
+                defaultValue={`${settings.sharehost}`}
+                icon="input"
+                label="Sharing host (empty for autodetect)"
+                s={6}
+              />
+              <Input
+                name="shareport"
+                onChange={this.onChange}
+                defaultValue={`${settings.shareport}`}
+                icon="input"
+                label="Sharing port (make sure this port is reachable)"
+                s={6}
+              />
+            </Row>
+            <Row s={12} className="input-field">
+              <Input
+                s={4}
+                name="sharespace"
+                onChange={this.onChange}
+                label="Space reserved for shared files"
+                defaultValue={settings.sharespace}
+                icon="space"
+              />
+              <Col s={8}>
+                <Slider
+                  onChange={v => this.onChange('sharespace', v)}
+                  step={1}
+                  value={settings.sharespace}
+                  min={1}
+                  max={1000}
+                />
+              </Col>
+            </Row>
+            <Row s={12}>
+              <Input
+                icon="share"
+                s={12}
+                label="Share key"
+                value={`${settings.sharekey}-${settings.dbKey}-${settings.dbNonce}`}
+              />
+            </Row>
+          </Card>
+          <Card
+            title="Media libraries"
+            actions={[<Button key="new" onClick={() => this.librarySelect({})}><Icon left>add</Icon>Add new</Button>]}
+          >
+            <Collection>
+              {listItems}
+            </Collection>
+            {this.state.create && <LibraryDialog
+              onSave={this.onLibrarySave}
+              onClose={this.onLibraryClose}
+              editing={this.state.create}
+            />}
+          </Card>
+          {deletingModal}
+        </div>
+      </Flipped>
     );
   }
 }

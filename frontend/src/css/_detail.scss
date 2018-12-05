@@ -68,10 +68,14 @@
   }
   #tabs{
     position: absolute;
-    top: -48px;
+    top: -49px;
     right:0px;
     left: 30%;
     bottom:0px;
+
+    .tabs{
+      background:transparentize($primary-color-dark, .2);
+    }
 
     cursor:pointer;
     > .row > .col{

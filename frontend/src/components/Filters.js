@@ -4,17 +4,22 @@ import { Button, Col, Input, Row, SideNav, Autocomplete } from 'react-materializ
 import { Handle, Range } from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
-let genres;
-$.getJSON('/api/tmdb/genres', (o) => { genres = o; });
+let genres = [];
 
 class ButtonMenu extends Component {
   constructor() {
     super();
+    if (!genres.length) { $.getJSON('/api/tmdb/genres', this.genresLoaded.bind(this)); }
     this.onChange = this.onChange.bind(this);
     this.onValueChange = this.onValueChange.bind(this);
     this.hideSideNav = this.hideSideNav.bind(this);
     this.resetFilters = this.resetFilters.bind(this);
-    this.state = { filters: {}, open: true };
+    this.state = { filters: {}, open: true, genres };
+  }
+
+  genresLoaded(o) {
+    genres = o;
+    this.setState({ genres });
   }
 
   componentWillReceiveProps(props) {
@@ -118,7 +123,7 @@ class ButtonMenu extends Component {
               onChange={this.onChange}
             >
               <option value="">All</option>
-              {genres.map(genre => <option key={genre.id} value={genre.id}>{genre.name}</option>)}
+              {this.state.genres.map(genre => <option key={genre.id} value={genre.id}>{genre.name}</option>)}
             </Input>
           </Row>
           <Row>
@@ -196,7 +201,7 @@ class ButtonMenu extends Component {
         trigger={<Button className="bottom-right-fab" floating icon="tune" />}
         options={{
           edge: 'right',
-          draggable: true
+          draggable: true,
         }}
       >
         {this.content()}

@@ -34,6 +34,7 @@ class DatabaseFetcher {
     try {
       await Promise.all(libs.map(this.fetchLib.bind(this)));
     } catch (e) {
+      setTimeout(this.refreshDatabase.bind(this), 10000);
       Log.debug(e);
     }
     this.refreshing = false;

@@ -29,9 +29,6 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.props.location, this.props.search);
-    // console.log(this.props, this.props.location.pathname + this.props.location.search);
-    // if (!this.props.location) return null;
     return (
       <div className="App">
         <Navbar

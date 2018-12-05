@@ -1,8 +1,9 @@
 /* eslint-disable no-underscore-dangle */
+/* global $ */
 /**
  * Created by owenray on 6/30/2017.
  */
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Button, Icon, Tabs, Tab, Modal } from 'react-materialize';
 import ReactTooltip from 'react-tooltip';
 import BodyClassName from 'react-body-classname';
@@ -16,30 +17,16 @@ import ReadableDuration from '../components/ReadableDuration';
 import MediaItemRow from '../components/mediaItem/MediaItemRow';
 import MediaInfo from '../components/mediaItem/MediaInfo';
 
-class Detail extends PureComponent {
-  constructor() {
-    super();
-    this.state = {};
+class Detail extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { item: null, id: props.match.params.id };
     this.toggleWatched = this.toggleWatched.bind(this);
     this.play = this.play.bind(this);
+    this.loadMeta = this.loadMeta.bind(this);
   }
 
-  animateIn(el) {
-    anime({
-      targets: el,
-      opacity: 1,
-      easing: 'easeOutSine',
-    });
-    anime({
-      targets: el.querySelector('.container.detail'),
-      height: 0,
-      duration:500,
-      direction: 'reverse',
-      easing: 'easeOutSine',
-    })
-  }
-
-  componentDidMount() {
+  componentWillMount() {
     this.componentWillReceiveProps(this.props);
   }
 
@@ -48,14 +35,39 @@ class Detail extends PureComponent {
       return;
     }
     this.id = nextProps.match.params.id;
-    this.setState({ item: null, id: this.id });
 
-    const item = await store.dispatch(apiActions.read({
-      id: nextProps.match.params.id,
-      _type: 'media-items',
-    }));
-    const i = deserialize(item.resources[0], store);
+    let item;
+    if (store.getState().api.mediaItem) { item = store.getState().api.mediaItem[this.id]; }
+    if (!item) {
+      item = await store.dispatch(apiActions.read({
+        id: nextProps.match.params.id,
+        _type: 'media-items',
+      }));
+      item = item.resources[0];
+    }
+    const i = deserialize(item, store);
     this.itemModel = i;
+    this.setState(
+      {
+        item: i,
+        watched: i.playPosition && (await i.playPosition()).watched,
+      },
+      () => {
+        if (this.animationComplete) this.loadMeta();
+      },
+    );
+
+    // onAppear is not always triggered, so call loadmeta on timeout as well
+    setTimeout(this.loadMeta, 1000);
+  }
+
+  async loadMeta() {
+    console.log('loadMeta called');
+    // make sure metadata only gets loaded after the animation has completed and the item has been loaded
+    this.animationComplete = true;
+    const i = this.state.item;
+    if (!i || this.gotMeta) return;
+    this.gotMeta = true;
     const readAction = apiActions.read(
       { _type: 'media-items' },
       {
@@ -82,11 +94,9 @@ class Detail extends PureComponent {
     });
 
     this.setState({
-      item: i,
       showTabs: episodes.length > 1,
       episodes: seasons,
       seasons: Object.keys(seasons),
-      watched: i.playPosition && (await i.playPosition()).watched,
     });
   }
 
@@ -185,6 +195,7 @@ class Detail extends PureComponent {
     pos.position = this.state.watched ? 0 : this.state.item.fileduration;
     if (!pos.position) pos.position = 0;
     pos.watched = !this.state.watched;
+    console.log('watched');
     this.setState({ watched: !this.state.watched });
     const posResult = await store.dispatch(apiActions.write(pos));
 
@@ -202,6 +213,10 @@ class Detail extends PureComponent {
   play() {
     this.setState({ playClicked: true });
   }
+  onStart() {
+    console.log('start!', arguments);
+  }
+
 
   render() {
     const s = this.state;
@@ -213,57 +228,55 @@ class Detail extends PureComponent {
     if (s.playClicked) {
       return (<Redirect push to={`/item/view/${id}`} />);
     }
+    console.log('detailflip', `media-item${id}`);
     return (
       <div>
-        <Flipped flipId={`media-item${id}`}>
+        <Flipped flipId={`media-item${id}`} onAppear={this.loadMeta} onComplete={this.loadMeta}>
           <div className="movie-detail-backdrop-wrapper">
             <div style={this.backDrop()} className="movie-detail-backdrop" />
             <div style={this.posterLarge()} className="movie-detail-backdrop poster" />
           </div>
         </Flipped>
-        <Flipped onAppear={this.animateIn} flipId="page">
-          <div>
-            <BodyClassName className="hideNav" />
-            <TopBar showBackButton>
-              {s.item && s.item.externalId ? (
-                <a
-                  rel="noopener noreferrer"
-                  href={`/api/redirectToIMDB/${id}`}
-                  target="_blank"
-                >
-                  <img alt="IMDB" src="/assets/img/imdb.svg" />
-                </a>) :
+        <div>
+          <BodyClassName className="hideNav" />
+          <TopBar showBackButton>
+            {s.item && s.item.externalId ? (
+              <a
+                rel="noopener noreferrer"
+                href={`/api/redirectToIMDB/${id}`}
+                target="_blank"
+              >
+                <img alt="IMDB" src="/assets/img/imdb.svg" />
+              </a>) :
                 ''
               }
-              {s.watched ?
-                <Button onClick={this.toggleWatched} data-tip="Mark unwatched" className="marked"><Icon>done</Icon></Button> :
-                <Button onClick={this.toggleWatched} data-tip="Mark watched"><Icon>done</Icon></Button>
+            {s.watched ?
+              <Button onClick={this.toggleWatched} data-tip="Mark unwatched" className="marked"><Icon>done</Icon></Button> :
+              <Button onClick={this.toggleWatched} data-tip="Mark watched"><Icon>done</Icon></Button>
                 }
-              <Modal
-                header={s.item ? s.item.title : ''}
-                fixedFooter
-                trigger={<Button onClick={this.toggleDetails} data-tip="Info" icon="info_outline" />}
-              >
-                <MediaInfo item={this.state.item} />
-              </Modal>
+            <Modal
+              header={s.item ? s.item.title : ''}
+              fixedFooter
+              trigger={<Button onClick={this.toggleDetails} data-tip="Info" icon="info_outline" />}
+            >
+              <MediaInfo item={this.state.item} />
+            </Modal>
 
-              <ReactTooltip place="bottom" effect="solid" />
-            </TopBar>
+            <ReactTooltip place="bottom" effect="solid" />
+          </TopBar>
 
-            <div>
-              <main>
+          <div>
+            <main>
+              <Flipped flipId="page">
                 <div className="container detail">
                   {s.showTabs ? this.seasonTabs() : this.mediaInfo()}
-
                   <div className="poster" style={this.poster()} />
-
                   <Button large floating id="play" icon="play_arrow" onClick={this.play} />
-
                 </div>
-              </main>
-            </div>
+              </Flipped>
+            </main>
           </div>
-        </Flipped>
+        </div>
       </div>
     );
   }
