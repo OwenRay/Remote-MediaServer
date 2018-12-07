@@ -1,5 +1,4 @@
 /* eslint-disable no-underscore-dangle */
-/* global $ */
 /**
  * Created by owenray on 6/30/2017.
  */
@@ -10,7 +9,6 @@ import BodyClassName from 'react-body-classname';
 import { apiActions, deserialize } from 'redux-jsonapi';
 import { Redirect } from 'react-router-dom';
 import { Flipped } from 'react-flip-toolkit';
-import anime from 'animejs';
 import TopBar from '../components/TopBar';
 import store from '../helpers/stores/apiStore';
 import ReadableDuration from '../components/ReadableDuration';
@@ -59,45 +57,6 @@ class Detail extends Component {
 
     // onAppear is not always triggered, so call loadmeta on timeout as well
     setTimeout(this.loadMeta, 1000);
-  }
-
-  async loadMeta() {
-    console.log('loadMeta called');
-    // make sure metadata only gets loaded after the animation has completed and the item has been loaded
-    this.animationComplete = true;
-    const i = this.state.item;
-    if (!i || this.gotMeta) return;
-    this.gotMeta = true;
-    const readAction = apiActions.read(
-      { _type: 'media-items' },
-      {
-        params:
-          {
-            'external-id': i.externalId,
-            sort: 'season,episode',
-            join: 'play-position',
-            extra: 'false',
-          },
-      },
-    );
-
-    let episodes = await store.dispatch(readAction);
-    episodes = episodes.resources.map(o => deserialize(o, store));
-    episodes = episodes.filter(o => o._type === 'media-item');
-    const seasons = [];
-    episodes.forEach((e) => {
-      const s = e.season || 0;
-      if (!seasons[s]) {
-        seasons[s] = [];
-      }
-      seasons[s].push(e);
-    });
-
-    this.setState({
-      showTabs: episodes.length > 1,
-      episodes: seasons,
-      seasons: Object.keys(seasons),
-    });
   }
 
   backDrop() {
@@ -195,7 +154,7 @@ class Detail extends Component {
     pos.position = this.state.watched ? 0 : this.state.item.fileduration;
     if (!pos.position) pos.position = 0;
     pos.watched = !this.state.watched;
-    console.log('watched');
+
     this.setState({ watched: !this.state.watched });
     const posResult = await store.dispatch(apiActions.write(pos));
 
@@ -213,10 +172,45 @@ class Detail extends Component {
   play() {
     this.setState({ playClicked: true });
   }
-  onStart() {
-    console.log('start!', arguments);
-  }
 
+  async loadMeta() {
+    // make sure metadata only gets loaded after the animation has completed
+    // and the item has been loaded
+    this.animationComplete = true;
+    const i = this.state.item;
+    if (!i || this.gotMeta) return;
+    this.gotMeta = true;
+    const readAction = apiActions.read(
+      { _type: 'media-items' },
+      {
+        params:
+          {
+            'external-id': i.externalId,
+            sort: 'season,episode',
+            join: 'play-position',
+            extra: 'false',
+          },
+      },
+    );
+
+    let episodes = await store.dispatch(readAction);
+    episodes = episodes.resources.map(o => deserialize(o, store));
+    episodes = episodes.filter(o => o._type === 'media-item');
+    const seasons = [];
+    episodes.forEach((e) => {
+      const s = e.season || 0;
+      if (!seasons[s]) {
+        seasons[s] = [];
+      }
+      seasons[s].push(e);
+    });
+
+    this.setState({
+      showTabs: episodes.length > 1,
+      episodes: seasons,
+      seasons: Object.keys(seasons),
+    });
+  }
 
   render() {
     const s = this.state;
@@ -228,7 +222,7 @@ class Detail extends Component {
     if (s.playClicked) {
       return (<Redirect push to={`/item/view/${id}`} />);
     }
-    console.log('detailflip', `media-item${id}`);
+
     return (
       <div>
         <Flipped flipId={`media-item${id}`} onAppear={this.loadMeta} onComplete={this.loadMeta}>

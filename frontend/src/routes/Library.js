@@ -40,7 +40,6 @@ class Library extends PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log('receiveprops');
     if (this.lastLocation === nextProps.location) {
       return;
     }
@@ -64,19 +63,9 @@ class Library extends PureComponent {
     }
     this.state.filters = filters;
     this.loadMore(0, this.pageSize, true);
-    // this.setState({ filters }, () => {
-    // });
-    /*
-    this.setState({ filters, media: [] }, () => {
-      if (this.collection) {
-        this.collection.recomputeCellSizesAndPositions();
-        this.collection.forceUpdate();
-      }
-    }); */
   }
 
   onChange(o) {
-    console.log('onchange');
     this.setState({ filters: o });
     const url = Object.keys(o).map(key => `${key}=${o[key]}`).join('&');
 
@@ -88,7 +77,6 @@ class Library extends PureComponent {
 
   onResize({ width }) {
     if (!width) return;
-    console.log('resize', width);
     if (this.lastWidth === width) return;
     this.lastWidth = width;
 
@@ -108,7 +96,6 @@ class Library extends PureComponent {
     this.maxLoad = 0;
     // const items = fresh?[]:this.state.media;
     const filterKey = JSON.stringify(filters);
-    console.log('iscached', filterKey, itemsCache[filterKey] ? itemsCache[filterKey].length : 0);
     const cache = itemsCache[filterKey] ? itemsCache[filterKey] : { media: [] };
     const items = cache.media;
     itemsCache[filterKey] = cache;
@@ -125,7 +112,6 @@ class Library extends PureComponent {
       items[c].loading = true;
     }
     if (overlap && !needsLoad) {
-      console.log('noload');
       this.setState(cache);
       if(this.collection)
         this.collection.recomputeCellSizesAndPositions();
@@ -160,7 +146,6 @@ class Library extends PureComponent {
     )).then((res) => {
       const i = res.resources;
       const firstTime = !items.length || fresh;
-      console.log('didload', res);
 
       i.map(o => deserialize(o, store))
         .forEach((o, key) => {
@@ -184,7 +169,7 @@ class Library extends PureComponent {
         cache.filterValues = res.meta.filterValues;
         cache.loadCount = this.state.loadCount + 1;
         cache.rowCount = res.meta.totalItems;
-        console.log('setstatefirsttime');
+
         this.setState(cache);
         if (this.collection) {
           this.collection.recomputeCellSizesAndPositions();

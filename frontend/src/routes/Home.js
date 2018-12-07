@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react';
 import { Card } from 'react-materialize';
-import { Flipped, Flipper } from 'react-flip-toolkit';
+import { Flipped } from 'react-flip-toolkit';
 
 class home extends Component {
   constructor() {
@@ -14,11 +14,9 @@ class home extends Component {
   render() {
     if (!this.state) return null;
     return (
-      <div>
-        <h1> buiten animatie</h1>
-        <Flipped flipId="page">
+      <Flipped flipId="page">
         <div>
-          <Card style={{ 'margin-left': 100 }}>
+          <Card>
             This will be the landingpage,<br />
             enabling you to continue watching where you left of...<br />
             some time in the future...
@@ -27,8 +25,7 @@ class home extends Component {
             <img alt="Remote" src="/assets/img/logo.png" height={200} />
           </div>
         </div>
-        </Flipped>
-      </div>
+      </Flipped>
     );
   }
 }

@@ -14,7 +14,7 @@ class ButtonMenu extends Component {
     this.onValueChange = this.onValueChange.bind(this);
     this.hideSideNav = this.hideSideNav.bind(this);
     this.resetFilters = this.resetFilters.bind(this);
-    this.state = { filters: {}, open: true, genres };
+    this.state = { filters: {}, genres };
   }
 
   genresLoaded(o) {
@@ -31,7 +31,7 @@ class ButtonMenu extends Component {
         f[key] = props.filters[key];
       }
     });
-    this.setState({ filters: f, filterValues: props.filterValues });
+    this.setState({ filters: f});
   }
 
   onValueChange(name, value) {
@@ -81,8 +81,8 @@ class ButtonMenu extends Component {
 
   content() {
     const f = this.state.filters;
-    const fv = this.state.filterValues;
-    if (!this.state.open || !f || !fv) {
+    const fv = this.props.filterValues;
+    if (!f || !fv) {
       return null;
     }
     const rangeValue = f['vote-average'] ?
