@@ -23,9 +23,9 @@ class ButtonMenu extends Component {
       >
         <div className="collection">
           {items.map(item =>
-            (<a className="collection-item" key={item.value} onClick={() => { this.onSelect(item); }}>
+            (<span className="collection-item" key={item.value} onClick={() => { this.onSelect(item); }}>
               {item.label}
-             </a>))}
+             </span>))}
         </div>
       </Button>
     );

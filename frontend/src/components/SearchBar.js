@@ -9,9 +9,13 @@ import { deserialize } from 'redux-jsonapi';
 import store from '../helpers/stores/settingsStore';
 
 class SearchBar extends Component {
+  constructor() {
+    super();
+    this.state = { hidden: false, filters: { title: '' }, settings: { libraries: [] } };
+  }
+
   componentWillMount() {
     this.lastScrollUpPos = 0;
-    this.setState({ hidden: false, filters: { title: '' }, settings: { libraries: [] } });
     this.onChange = this.onChange.bind(this);
     store.subscribe(this.onSettingsChange.bind(this));
     this.onSettingsChange();

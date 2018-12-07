@@ -226,7 +226,7 @@ html, body{
     position:absolute;
     bottom:-60px;
     transition:all 0.3s;
-    background:$primary-color;
+    background:transparentize($primary-color-dark, .2);
     left:0px;
     right:0px;
     height:60px;
@@ -315,7 +315,6 @@ body.hideNav nav{
 }
 
 nav{
-  transition:margin-top .5s;
   position: relative;
 }
 

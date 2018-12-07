@@ -15,7 +15,7 @@ class TopBar extends Component {
   render() {
     return (
       <div className="top-bar">
-        {this.props.showBackButton ? <a onClick={this.onBackPressed} id="back-btn"><Icon>arrow_back</Icon></a> : ''}
+        {this.props.showBackButton ? <span onClick={this.onBackPressed} id="back-btn"><Icon>arrow_back</Icon></span> : ''}
         <div className="right">
           {this.props.children}
         </div>

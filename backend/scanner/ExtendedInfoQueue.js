@@ -64,8 +64,12 @@ class ExtendedInfoQueue {
     while (this.queue.length) {
       const item = this.queue.pop();
       for (let c = 0; c < extendedInfoItems.length; c += 1) {
-        // eslint-disable-next-line no-await-in-loop
-        await extendedInfoItems[c].extendInfo(item, libs[item.attributes.libraryId]);
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          await extendedInfoItems[c].extendInfo(item, libs[item.attributes.libraryId]);
+        } catch (e) {
+          Log.exception(e);
+        }
       }
       Database.update('media-item', item);
     }

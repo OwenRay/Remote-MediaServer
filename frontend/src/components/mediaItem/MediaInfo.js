@@ -5,6 +5,7 @@ import FileSize from '../FileSize';
 
 function mediaInfo(props) {
   const i = props.item;
+  if (!i) return null;
   return (
     <Table>
       <tbody>

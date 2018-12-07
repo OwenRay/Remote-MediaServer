@@ -3,28 +3,31 @@
  * Created by owenray on 6/30/2017.
  */
 /* global window */
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { apiActions, deserialize } from 'redux-jsonapi';
 import { Collection, AutoSizer } from 'react-virtualized';
 import { debounce } from 'throttle-debounce';
+import { Flipped } from 'react-flip-toolkit';
 import store from '../helpers/stores/apiStore';
 import SearchBar from '../components/SearchBar';
 import MediaItem from '../components/mediaItem/MediaItemTile';
 import Filters from '../components/Filters';
 
+const itemsCache = {};
 
-class Library extends Component {
-  constructor() {
-    super();
+class Library extends PureComponent {
+  constructor(props) {
+    super(props);
     this.requestData = this.requestData.bind(this);
     this.onResize = this.onResize.bind(this);
+    this.onResize({width:window.innerWidth});
     this.doRequestData = debounce(300, this.doRequestData.bind(this));
     this.cellSizeAndPositionGetter = this.cellSizeAndPositionGetter.bind(this);
     this.onChange = this.onChange.bind(this);
     this.cellRenderer = this.cellRenderer.bind(this);
     /** @type Collection */
     this.state = {
-      filters: {}, media: [], rowCount: 0,
+      filters: {}, media: [], rowCount: 0, loadCount: 0,
     };
     this.promises = [];
     this.pageSize = 25;
@@ -32,7 +35,7 @@ class Library extends Component {
     this.offsetLeft = ((window.innerWidth - (this.colls * 165)) / 2) - 15;
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.componentWillReceiveProps(this.props);
   }
 
@@ -54,13 +57,12 @@ class Library extends Component {
 
     this.filters = filters;
     this.promises = [];
-    this.setState({ filters, media: [] }, () => {
-      if (this.collection) {
-        this.collection.recomputeCellSizesAndPositions();
-        this.collection.forceUpdate();
-      }
-      this.loadMore(0, this.pageSize);
-    });
+    if (this.collection) {
+      this.collection.recomputeCellSizesAndPositions();
+      this.collection.forceUpdate();
+    }
+    this.state.filters = filters;
+    this.loadMore(0, this.pageSize, true);
   }
 
   onChange(o) {
@@ -75,6 +77,9 @@ class Library extends Component {
 
   onResize({ width }) {
     if (!width) return;
+    if (this.lastWidth === width) return;
+    this.lastWidth = width;
+
     this.colls = Math.floor(width / 165);
     this.offsetLeft = ((window.innerWidth - (this.colls * 165)) / 2) - 15;
     if (this.collection) {
@@ -83,19 +88,37 @@ class Library extends Component {
     this.forceUpdate();
   }
 
-  loadMore(offset, limit) {
+  loadMore(offset, limit, fresh) {
+    const { filters } = this;
+
     this.lastLoadRequest = new Date().getTime();
     this.minLoad = -1;
     this.maxLoad = 0;
-    const items = this.state.media;
+    // const items = fresh?[]:this.state.media;
+    const filterKey = JSON.stringify(filters);
+    const cache = itemsCache[filterKey] ? itemsCache[filterKey] : { media: [] };
+    const items = cache.media;
+    itemsCache[filterKey] = cache;
 
     // mark items as loading
+    let needsLoad = false;
+    let overlap = false;
     for (let c = offset; c < offset + limit && c < items.length; c += 1) {
+      overlap = true;
+      if (items[c].id) {
+        continue;
+      }
+      needsLoad = true;
       items[c].loading = true;
+    }
+    if (overlap && !needsLoad) {
+      this.setState(cache);
+      if(this.collection)
+        this.collection.recomputeCellSizesAndPositions();
+      return;
     }
 
     const queryParams = { page: { offset, limit } };
-    const { filters } = this;
     Object.keys(filters).forEach((key) => {
       if (filters[key]) {
         queryParams[key] = filters[key];
@@ -122,7 +145,7 @@ class Library extends Component {
       { params: queryParams },
     )).then((res) => {
       const i = res.resources;
-      const firstTime = !items.length;
+      const firstTime = !items.length || fresh;
 
       i.map(o => deserialize(o, store))
         .forEach((o, key) => {
@@ -143,11 +166,11 @@ class Library extends Component {
       }
 
       if (firstTime) {
-        this.setState({
-          filterValues: res.meta.filterValues,
-          media: items,
-          rowCount: res.meta.totalItems,
-        });
+        cache.filterValues = res.meta.filterValues;
+        cache.loadCount = this.state.loadCount + 1;
+        cache.rowCount = res.meta.totalItems;
+
+        this.setState(cache);
         if (this.collection) {
           this.collection.recomputeCellSizesAndPositions();
           this.collection.forceUpdate();
@@ -244,25 +267,27 @@ class Library extends Component {
               verticalOverscanSize={20}
               height={height}
             />)}
-        </AutoSizer>);
+        </AutoSizer>
+      );
     }
 
     return (
       <div>
-        <div className="impagewrapper">
-          <SearchBar
-            filters={this.state.filters}
-            scroller={this.collection}
-            onChange={this.onChange}
-          />
-          {collection}
-        </div>
+        <Flipped flipId="page" opacity scale translate>
+          <div className="impagewrapper">
+            <SearchBar
+              filters={this.state.filters}
+              scroller={this.collection}
+              onChange={this.onChange}
+            />
+            {collection}
+          </div>
+        </Flipped>
         <Filters
           filters={this.state.filters}
           filterValues={this.state.filterValues}
           onChange={this.onChange}
         />
-
       </div>
     );
   }
