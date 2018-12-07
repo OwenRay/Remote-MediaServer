@@ -6,6 +6,8 @@ class TcpConnection {
   constructor({ host, port }) {
     Log.debug('try connecting to', host, port, 'to download');
     this.peer = { host, port };
+    this.timeOut = this.timeOut.bind(this);
+
     this.client = net.createConnection(port, host, this.didConnect.bind(this));
     this.client.on('error', (err) => {
       this.errored = true;
@@ -49,6 +51,17 @@ class TcpConnection {
       }
       if (finished === writeOut.length) this.onResult(this, this.client.bytesRead > 0);
     }));
+
+    // timeout the connection when not receiving data for 3 seconds
+    setTimeout(this.timeOut, 10000);
+  }
+
+  timeOut() {
+    Log.debug('no data received, conn timeout', this.peer);
+    if(this.client.bytesRead > 0) return;
+    this.end();
+    this.errored = true;
+    this.onResult(this, false);
   }
 }
 
