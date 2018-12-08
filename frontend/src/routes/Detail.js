@@ -72,45 +72,43 @@ class Detail extends Component {
   seasonTabs() {
     const s = this.state;
     if (!s.item) return null;
+    let title = 'Movie info';
+    let tabs;
     if (s.item.type !== 'tv') {
-      return (
-        <div id="tabs">
-          <Tabs defaultValue="0">
-            <Tab key={-1} active title="Movie info">
-              {this.mediaInfo()}
-            </Tab>
-            <Tab title="Versions">
-              <div className="scrollable">
-                <h1>{s.item.title}</h1>
-                <div className="collection">
-                  {s.episodes[0].map(item => (
-                    <MediaItemRow key={item.id} ref={item.id} mediaItem={item} />
-                  ))}
-                </div>
-              </div>
-            </Tab>
-          </Tabs>
-        </div>
+      tabs = (
+        <Tab title="Versions">
+          <div className="scrollable">
+            <h1>{s.item.title}</h1>
+            <div className="collection">
+              {s.episodes[0].map(item => (
+                <MediaItemRow key={item.id} ref={item.id} mediaItem={item} />
+              ))}
+            </div>
+          </div>
+        </Tab>
       );
+    } else {
+      title = 'Episode info';
+      tabs = s.seasons.map(season => (
+        <Tab key={season} title={!season || season === '0' ? 'Extras' : `Season ${season}`}>
+          <div className="scrollable">
+            <h1>{s.item.title}</h1>
+            <div className="collection">
+              {s.episodes[season].map(episode => (
+                <MediaItemRow key={episode.id} ref={episode.id} mediaItem={episode} />
+              ))}
+            </div>
+          </div>
+        </Tab>));
     }
 
     return (
       <div id="tabs">
         <Tabs defaultValue="0">
-          <Tab key={-1} active title="Episode info">
+          <Tab key={-1} active title={title}>
             {this.mediaInfo()}
           </Tab>
-          {s.seasons.map(season => (
-            <Tab key={season} title={!season || season === '0' ? 'Extras' : `Season ${season}`}>
-              <div className="scrollable">
-                <h1>{s.item.title}</h1>
-                <div className="collection">
-                  {s.episodes[season].map(episode => (
-                    <MediaItemRow key={episode.id} ref={episode.id} mediaItem={episode} />
-                  ))}
-                </div>
-              </div>
-            </Tab>))}
+          {tabs}
         </Tabs>
       </div>
     );
@@ -173,7 +171,8 @@ class Detail extends Component {
     this.setState({ playClicked: true });
   }
 
-  async loadMeta() {
+  async loadMeta(ell) {
+    if(ell) ell.style.opacity = 1;
     // make sure metadata only gets loaded after the animation has completed
     // and the item has been loaded
     this.animationComplete = true;

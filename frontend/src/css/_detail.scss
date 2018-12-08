@@ -80,10 +80,12 @@
     cursor:pointer;
     > .row > .col{
       position: absolute;
-      top: 48px;
+      top: 49px;
+      left: 0px;
       bottom: 0px;
       &:first-child {
         top:0px;
+        left: -5px;
         padding-right: 115px;
       }
     }

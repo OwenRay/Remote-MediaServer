@@ -14,7 +14,7 @@
     "build": "pkg package.json && npm run build:mac && npm run build:win && npm run build:linux",
     "build:mac": "zip file.zip remote-mediaserver-macos node_modules/*/*/darwin-x64/node-57.node && mv file.zip dist/osx.zip",
     "build:win": "zip file.zip remote-mediaserver-win.exe node_modules/*/*/win32-x64/node-57.node && mv file.zip dist/win.zip",
-    "build:linux": "zip file.zip remote-mediaserver-linux node_modules/*/*/win32-x64/node-57.node && mv file.zip dist/linux.zip"
+    "build:linux": "zip file.zip remote-mediaserver-linux node_modules/*/*/linux-x64/node-57.node && mv file.zip dist/linux.zip"
   },
   "pkg": {
     "scripts": [
