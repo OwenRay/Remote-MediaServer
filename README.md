@@ -17,7 +17,7 @@ prod:
 
 ### RUN
 `$ remote`  
-direct your browser to http://localhost:8080
+direct your browser to http://localhost:8234
 
 # DEVELOPMENT
 ### Installing dependencies
@@ -30,7 +30,7 @@ To start the server:
 A settings file (~/.remote/settings.json) will be created at first run  
 Restart the server after direct modification  
   
-direct your browser to http://localhost:8080  
+direct your browser to http://localhost:8234
   
 ### Frontend
 The frontend is build on [React](reactjs.org/)   
