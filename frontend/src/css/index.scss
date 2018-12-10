@@ -245,6 +245,11 @@ html, body{
     .year {
       font-weight: 200;
     }
+    .seasonEpisode{
+      float:right;
+      font-weight: 200;
+      font-size: 13px;
+    }
   }
 
   .poster {
@@ -611,4 +616,17 @@ button.marked{
 
 .advanced .advancedItem {
   display: block;
+}
+
+.toggleGroup {
+  &:focus{
+    background: none;
+    &:hover{
+      background: $secondary-color;
+    }
+  }
+  position:absolute;
+  right:5px;
+  top:5px;
+  background: none;
 }

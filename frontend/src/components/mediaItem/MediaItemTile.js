@@ -77,9 +77,18 @@ class MediaItemTile extends Component {
       return (<Redirect push to={`/item/view/${this.state.id}`} />);
     }
 
+    let seasonEpisode;
+    if (this.state.season) {
+      let S = `${this.state.season}`;
+      let E = `${this.state.episode}`;
+      if (S.length < 2) S = `0${S}`;
+      if (E.length < 2) E = `0${E}`;
+      seasonEpisode = <span className="seasonEpisode">s{S}e{E}</span>;
+    }
+
     return (
-        <div style={this.props.style} className="grid-item">
-          <Flipped flipId={`media-item${this.props.mediaItem.id}`}>
+      <div style={this.props.style} className="grid-item">
+        <Flipped flipId={`media-item${this.props.mediaItem.id}`}>
           <div className="movie-detail-backdrop-wrapper">
             <div
               className="poster"
@@ -87,21 +96,22 @@ class MediaItemTile extends Component {
               style={{ backgroundImage: `url(/img/${this.state.id}_postersmall.jpg)` }}
             />
           </div>
-          </Flipped>
-          <NavLink to={`/item/detail/${this.state.id}`} />
-          <div className="detail">
-            {this.playPos()}
-            <Button
-              floating
-              className="play"
-              icon="play_arrow"
-              action="play"
-              onClick={this.play}
-            />
-            <span className="title">{this.state.title}</span>
-            <span className="year">{this.state.year}</span>
-          </div>
+        </Flipped>
+        <NavLink to={`/item/detail/${this.state.id}`} />
+        <div className="detail">
+          {this.playPos()}
+          <Button
+            floating
+            className="play"
+            icon="play_arrow"
+            action="play"
+            onClick={this.play}
+          />
+          <span className="title">{this.state.title}</span>
+          <span className="year">{this.state.year}</span>
+          {seasonEpisode}
         </div>
+      </div>
     );
   }
 }

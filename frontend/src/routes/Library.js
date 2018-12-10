@@ -8,6 +8,8 @@ import { apiActions, deserialize } from 'redux-jsonapi';
 import { Collection, AutoSizer } from 'react-virtualized';
 import { debounce } from 'throttle-debounce';
 import { Flipped } from 'react-flip-toolkit';
+import { Button } from 'react-materialize';
+import ReactTooltip from 'react-tooltip';
 import store from '../helpers/stores/apiStore';
 import SearchBar from '../components/SearchBar';
 import MediaItem from '../components/mediaItem/MediaItemTile';
@@ -20,14 +22,15 @@ class Library extends PureComponent {
     super(props);
     this.requestData = this.requestData.bind(this);
     this.onResize = this.onResize.bind(this);
-    this.onResize({width:window.innerWidth});
+    this.toggleGrouped = this.toggleGrouped.bind(this);
+    this.onResize({ width: window.innerWidth });
     this.doRequestData = debounce(300, this.doRequestData.bind(this));
     this.cellSizeAndPositionGetter = this.cellSizeAndPositionGetter.bind(this);
     this.onChange = this.onChange.bind(this);
     this.cellRenderer = this.cellRenderer.bind(this);
     /** @type Collection */
     this.state = {
-      filters: {}, media: [], rowCount: 0, loadCount: 0,
+      filters: { distinct: 'external-id' }, media: [], rowCount: 0, loadCount: 0, grouped: false,
     };
     this.promises = [];
     this.pageSize = 25;
@@ -113,8 +116,7 @@ class Library extends PureComponent {
     }
     if (overlap && !needsLoad) {
       this.setState(cache);
-      if(this.collection)
-        this.collection.recomputeCellSizesAndPositions();
+      if (this.collection) { this.collection.recomputeCellSizesAndPositions(); }
       return;
     }
 
@@ -133,7 +135,6 @@ class Library extends PureComponent {
       queryParams.libraries = this.state.libraries;
     }
 
-    queryParams.distinct = 'external-id';
     queryParams.join = 'play-position';
     if (offset === 0) {
       queryParams.filterValues = 'actors,mpaa';
@@ -231,6 +232,12 @@ class Library extends PureComponent {
     this.loadMore(this.minLoad, count < this.pageSize ? this.pageSize : count);
   }
 
+  toggleGrouped() {
+    const f = this.state.filters;
+    f.distinct = f.distinct ? '' : 'external-id';
+    this.onChange(f);
+  }
+
   cellSizeAndPositionGetter({ index }) {
     return {
       height: 236,
@@ -273,6 +280,13 @@ class Library extends PureComponent {
 
     return (
       <div>
+        <Button
+          className="toggleGroup"
+          data-tip={this.state.filters.distinct ? 'Disable grouping' : 'Enable grouping'}
+          floating
+          onClick={this.toggleGrouped}
+          icon={this.state.filters.distinct ? 'layers_clear' : 'layers'}
+        />
         <Flipped flipId="page" opacity scale translate>
           <div className="impagewrapper">
             <SearchBar
@@ -288,6 +302,7 @@ class Library extends PureComponent {
           filterValues={this.state.filterValues}
           onChange={this.onChange}
         />
+        <ReactTooltip place="bottom" effect="solid" />
       </div>
     );
   }

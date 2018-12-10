@@ -183,7 +183,7 @@ class FileProcessor {
       item.attributes.filepath,
       { start: hashObj.offset, end },
     );
-    fs.on('error', Log.debug);
+    filestream.on('error', Log.debug);
     return Crypt.encrypt(
       filestream,
       Buffer.from(Settings.getValue('dbKey'), 'hex'),
