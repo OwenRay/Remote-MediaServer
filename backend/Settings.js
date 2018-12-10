@@ -2,7 +2,7 @@ const fs = require('fs');
 const uuid = require('node-uuid');
 const crypto = require('crypto');
 
-const { env} = process;
+const { env } = process;
 
 const settingsObj = {
   port: 8234,

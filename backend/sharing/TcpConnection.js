@@ -58,7 +58,7 @@ class TcpConnection {
 
   timeOut() {
     Log.debug('no data received, conn timeout', this.peer);
-    if(this.client.bytesRead > 0) return;
+    if (this.client.bytesRead > 0) return;
     this.end();
     this.errored = true;
     this.onResult(this, false);
