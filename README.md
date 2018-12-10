@@ -10,7 +10,7 @@ Production | Development
 # USING
 ### INSTALL
 dev:  
-`$ npm install -g https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/remote-mediaserver-0.0.3.tgz`  
+`$ npm install -g https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/remote-mediaserver-0.1.0.tgz`  
 
 prod:  
 `$ npm install -g remote-mediaserver`
