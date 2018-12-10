@@ -61,7 +61,7 @@ class Library extends PureComponent {
       this.collection.recomputeCellSizesAndPositions();
       this.collection.forceUpdate();
     }
-    this.state.filters = filters;
+
     this.loadMore(0, this.pageSize, true);
   }
 
