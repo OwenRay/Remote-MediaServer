@@ -23,7 +23,8 @@ class TheMovieDBExtendedInfo extends IExtendedInfo {
       tryCount = 0;
     }
 
-    if (mediaItem.attributes.gotExtendedInfo >= 2) {
+    if (mediaItem.attributes.gotExtendedInfo >= 2 ||
+      !['tv', 'movie'].includes(mediaItem.attributes.type)) {
       return;
     }
     Log.debug('process tmdb', mediaItem.id);

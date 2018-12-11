@@ -177,7 +177,7 @@ class Detail extends Component {
     // and the item has been loaded
     this.animationComplete = true;
     const i = this.state.item;
-    if (!i || this.gotMeta) return;
+    if (!i || this.gotMeta || !i.externalId) return;
     this.gotMeta = true;
     const readAction = apiActions.read(
       { _type: 'media-items' },

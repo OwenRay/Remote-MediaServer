@@ -96,7 +96,7 @@ class Video extends Component {
   }
 
   onSeek(seek) {
-    this.setState({ seek, loading: true });
+    this.setState({ seek, progress: seek, loading: true });
   }
 
   onSelectContent(what, channel) {
@@ -191,7 +191,6 @@ class Video extends Component {
   }
 
   dialogClick(fromPos) {
-    console.log(this.pos.position);
     this.setState({ seek: fromPos ? this.pos.position : 0, skippedDialog: true });
   }
 
