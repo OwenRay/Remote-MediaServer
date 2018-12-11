@@ -1,7 +1,7 @@
 {
   "name": "remote-mediaserver",
   "description": "Manage and watch your movies and tv series.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "main.js",
   "nodeGypRebuild": true,
   "bin": {
