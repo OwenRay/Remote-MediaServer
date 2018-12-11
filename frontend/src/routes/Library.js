@@ -8,7 +8,6 @@ import { apiActions, deserialize } from 'redux-jsonapi';
 import { Collection, AutoSizer } from 'react-virtualized';
 import { debounce } from 'throttle-debounce';
 import { Flipped } from 'react-flip-toolkit';
-import { Button } from 'react-materialize';
 import ReactTooltip from 'react-tooltip';
 import store from '../helpers/stores/apiStore';
 import SearchBar from '../components/SearchBar';
@@ -20,9 +19,11 @@ const itemsCache = {};
 class Library extends PureComponent {
   constructor(props) {
     super(props);
+    this.lastScrollUpPos = 0;
     this.requestData = this.requestData.bind(this);
     this.onResize = this.onResize.bind(this);
-    this.toggleGrouped = this.toggleGrouped.bind(this);
+    this.didScroll = this.didScroll.bind(this);
+    this.scrollRef = this.scrollRef.bind(this);
     this.onResize({ width: window.innerWidth });
     this.doRequestData = debounce(300, this.doRequestData.bind(this));
     this.cellSizeAndPositionGetter = this.cellSizeAndPositionGetter.bind(this);
@@ -232,12 +233,6 @@ class Library extends PureComponent {
     this.loadMore(this.minLoad, count < this.pageSize ? this.pageSize : count);
   }
 
-  toggleGrouped() {
-    const f = this.state.filters;
-    f.distinct = f.distinct ? '' : 'external-id';
-    this.onChange(f);
-  }
-
   cellSizeAndPositionGetter({ index }) {
     return {
       height: 236,
@@ -258,6 +253,30 @@ class Library extends PureComponent {
     );
   }
 
+  didScroll() {
+    const scroller = this.collection._collectionView._scrollingContainer;
+    const { scrollTop } = scroller;
+    const diff = this.lastScrollTop - scrollTop;
+    this.lastScrollTop = scrollTop;
+    if (diff > 0) {
+      this.setState({ hidden: false });
+      this.lastScrollUpPos = scrollTop;
+    }
+    if (scrollTop - this.lastScrollUpPos > 50) {
+      this.setState({ hidden: true });
+    }
+  }
+
+  scrollRef(ref) {
+    this.collection = ref;
+    if(!ref || !ref._collectionView) return;
+    const onScroll = ref._collectionView._onScroll;
+    ref._collectionView._onScroll = (e) => {
+      onScroll(e);
+      this.didScroll();
+    };
+  }
+
   render() {
     let collection = <div>Loading</div>;
 
@@ -266,7 +285,7 @@ class Library extends PureComponent {
         <AutoSizer onResize={this.onResize}>
           {({ width, height }) =>
             (<Collection
-              ref={(ref) => { this.collection = ref; }}
+              ref={this.scrollRef}
               cellCount={this.state.rowCount}
               cellRenderer={this.cellRenderer}
               cellSizeAndPositionGetter={this.cellSizeAndPositionGetter}
@@ -280,20 +299,14 @@ class Library extends PureComponent {
 
     return (
       <div>
-        <Button
-          className="toggleGroup"
-          data-tip={this.state.filters.distinct ? 'Disable grouping' : 'Enable grouping'}
-          floating
-          onClick={this.toggleGrouped}
-          icon={this.state.filters.distinct ? 'layers_clear' : 'layers'}
-        />
-        <Flipped flipId="page" opacity scale translate>
+        <Flipped flipId="page">
           <div className="impagewrapper">
             <SearchBar
+              className={this.state.hidden ? 'quickOptions hidden' : 'quickOptions'}
               filters={this.state.filters}
               scroller={this.collection}
-              onChange={this.onChange}
-            />
+              onChange={this.onChange}>
+            </SearchBar>
             {collection}
           </div>
         </Flipped>

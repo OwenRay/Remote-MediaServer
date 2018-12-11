@@ -8,15 +8,15 @@ class BaseRenderer extends Component {
   }
 
   getVideoUrl() {
-    if (!this.state.mediaItem) return '';
+    if (!this.props.mediaItem) return '';
     const params = [];
-    if (this.state.audioChannel !== undefined) {
-      params.push(`audioChannel=${this.state.audioChannel}`);
+    if (this.props.audioChannel !== undefined) {
+      params.push(`audioChannel=${this.props.audioChannel}`);
     }
-    if (this.state.videoChannel !== undefined) {
-      params.push(`videoChannel=${this.state.videoChannel}`);
+    if (this.props.videoChannel !== undefined) {
+      params.push(`videoChannel=${this.props.videoChannel}`);
     }
-    return `/ply/${this.state.mediaItem.id}/${this.state.seek}?${params.join('&')}`;
+    return `/ply/${this.props.mediaItem.id}/${this.props.seek}?${params.join('&')}`;
   }
 }
 

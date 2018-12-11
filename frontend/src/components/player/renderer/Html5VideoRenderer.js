@@ -43,8 +43,6 @@ class Html5VideoRenderer extends BaseRenderer {
         this.vidRef.play();
       }
     }
-
-    this.setState(newProps);
   }
 
   componentWillUnmount() {
@@ -75,6 +73,9 @@ class Html5VideoRenderer extends BaseRenderer {
   }
 
   onProgress() {
+    if (this.vidRef.readyState === 0) {
+      return;
+    }
     this.setState({ progress: this.props.seek + this.vidRef.currentTime });
     this.props.onProgress(this.state.progress);
   }
@@ -96,9 +97,6 @@ class Html5VideoRenderer extends BaseRenderer {
   }
 
   render() {
-    if (!this.state) {
-      return null;
-    }
     return (
       <div className="wrapper">
         <video
@@ -113,7 +111,7 @@ class Html5VideoRenderer extends BaseRenderer {
             <track
               ref={this.onTrackRef}
               kind="subtitles"
-              src={`/api/mediacontent/subtitle/${this.state.mediaItem.id}/${sub.value}`}
+              src={`/api/mediacontent/subtitle/${this.props.mediaItem.id}/${sub.value}`}
               id={sub.value}
               key={sub.value}
               mode="hidden"

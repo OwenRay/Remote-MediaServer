@@ -119,7 +119,7 @@ html, body{
   }
   transition: .3s all;
   &.hidden{
-    top:-100px;
+    top:-66px;
   }
 
   .search {
@@ -619,14 +619,7 @@ button.marked{
 }
 
 .toggleGroup {
-  &:focus{
-    background: none;
-    &:hover{
-      background: $secondary-color;
-    }
-  }
   position:absolute;
   right:5px;
-  top:5px;
-  background: none;
+  top:75px;
 }

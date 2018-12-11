@@ -49,6 +49,6 @@ class TmdbImageHandler extends IImageHandler {
   }
 }
 
-httpServer.registerRoute('get', '/img/:image.jpg', TmdbImageHandler, 1000, 2);
+httpServer.registerRoute('get', '/img/:image.jpg', TmdbImageHandler, 0, 2);
 
 module.exports = TmdbImageHandler;

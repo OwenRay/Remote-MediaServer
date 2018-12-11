@@ -56,15 +56,16 @@ class Mpeg4PlayHandler extends RequestHandler {
 
   onData(data) {
     this.bufferedChuncks += 1;
-    if (this.bufferedChuncks > 20) {
-      this.ffmpeg.getOutputStream().pause();
-    }
-    this.context.body.write(data, () => {
+    let pause = !this.context.body.write(data, () => {
       this.bufferedChuncks -= 1;
       if (this.ffmpeg.getOutputStream().isPaused() && this.bufferedChuncks <= 19) {
         this.ffmpeg.getOutputStream().resume();
       }
     });
+    pause = pause || this.bufferedChuncks > 20;
+    if (pause) {
+      this.ffmpeg.getOutputStream().pause();
+    }
   }
 }
 

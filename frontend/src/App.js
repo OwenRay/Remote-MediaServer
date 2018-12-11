@@ -10,8 +10,6 @@ import Home from './routes/Home';
 import Video from './routes/Video';
 import store from './helpers/stores/settingsStore';
 import Detail from './routes/Detail';
-import ReactTooltip from "react-tooltip";
-import TopBar from "./components/TopBar";
 
 
 class App extends Component {

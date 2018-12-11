@@ -11,26 +11,14 @@ import store from '../helpers/stores/settingsStore';
 class SearchBar extends Component {
   constructor() {
     super();
+    this.toggleGrouped = this.toggleGrouped.bind(this);
     this.state = { hidden: false, filters: { title: '' }, settings: { libraries: [] } };
   }
 
   componentWillMount() {
-    this.lastScrollUpPos = 0;
     this.onChange = this.onChange.bind(this);
     store.subscribe(this.onSettingsChange.bind(this));
     this.onSettingsChange();
-  }
-
-  componentWillReceiveProps(props) {
-    if (props.scroller && !this.scroller !== props.scoller) {
-      this.scroller = props.scroller;
-      const onScroll = props.scroller._collectionView._onScroll;
-      props.scroller._collectionView._onScroll = (e) => {
-        onScroll(e);
-        this.didScroll();
-      };
-    }
-    this.setState({ filters: props.filters });
   }
 
   /**
@@ -60,50 +48,49 @@ class SearchBar extends Component {
     }
   }
 
-  didScroll() {
-    const scroller = this.scroller._collectionView._scrollingContainer;
-    const { scrollTop } = scroller;
-    const diff = this.lastScrollTop - scrollTop;
-    this.lastScrollTop = scrollTop;
-    if (diff > 0) {
-      this.setState({ hidden: false });
-      this.lastScrollUpPos = scrollTop;
-    }
-    if (scrollTop - this.lastScrollUpPos > 50) {
-      this.setState({ hidden: true });
+  toggleGrouped() {
+    const f = this.state.filters;
+    f.distinct = f.distinct ? '' : 'external-id';
+    if (this.props.onChange) {
+      this.props.onChange(f);
     }
   }
 
   render() {
     if (this.state === null) { return null; }
+    const { props } = this;
+    const { filters } = props;
+    return (
+      <div className={props.className}>
+        <Row>
+          <Input s={3} name="libraryId" type="select" label="Library:" value={filters.libraryId} onChange={this.onChange}>
+            <option value="">All libraries</option>
+            {this.state.settings.libraries.map((lib) => {
+              let { uuid } = lib;
+              if (lib.type === 'shared') [uuid] = uuid.split('-');
 
-    return (<div className={this.state.hidden ? 'quickOptions hidden' : 'quickOptions'}>
-      {/*
-            <Button floating className="btn-small">
-              <Icon>filter_list</Icon>
-            </Button>
-            */}
-      <Row>
-        <Input s={3} name="libraryId" type="select" label="Library:" value={this.state.filters.libraryId} onChange={this.onChange}>
-          <option value="">All libraries</option>
-          {this.state.settings.libraries.map((lib) => {
-            let { uuid } = lib;
-            if (lib.type === 'shared') [uuid] = uuid.split('-');
-
-            return <option key={uuid} value={uuid}>{lib.name}</option>;
-          })}
-        </Input>
-        <div className="col search s6">
-          <Input s={12} name="title" type="text" label="" value={this.state.filters.title} onChange={this.onChange} />
-          <Button className="mdi-action-search"><Icon>search</Icon></Button>
-        </div>
-        <Input s={3} name="sort" type="select" label="Sort by:" value={this.state.filters.sort} onChange={this.onChange}>
-          <option value="title">Title</option>
-          <option value="date_added:DESC">Date added</option>
-          <option value="release-date:DESC">Date released</option>
-        </Input>
-      </Row>
-    </div>);
+              return <option key={uuid} value={uuid}>{lib.name}</option>;
+            })}
+          </Input>
+          <div className="col search s6">
+            <Input s={12} name="title" type="text" label="" value={filters.title} onChange={this.onChange} />
+            <Button className="mdi-action-search"><Icon>search</Icon></Button>
+          </div>
+          <Input s={3} name="sort" type="select" label="Sort by:" value={filters.sort} onChange={this.onChange}>
+            <option value="title">Title</option>
+            <option value="date_added:DESC">Date added</option>
+            <option value="release-date:DESC">Date released</option>
+          </Input>
+          <Button
+            className="toggleGroup"
+            data-tip={filters.distinct ? 'Disable grouping' : 'Enable grouping'}
+            floating
+            onClick={this.toggleGrouped}
+            icon={filters.distinct ? 'layers_clear' : 'layers'}
+          />
+        </Row>
+      </div>
+    );
   }
 }
 
