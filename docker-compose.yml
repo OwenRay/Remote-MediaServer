@@ -9,5 +9,6 @@ services:
     restart: always
     ports:
       - "8234:8234"
+      - "8235:8235"
     volumes:
       - "./data:./.remote"
