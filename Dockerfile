@@ -24,4 +24,7 @@ COPY --from=build_backend /backend ./
 
 COPY . .
 
+# EXPOSE [P2P] [HTTP]
+EXPOSE 8234 8235
+
 CMD node main.js
