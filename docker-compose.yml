@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+########################
+## remote-MediaServer ##
+########################
+  app:
+    build: .
+    restart: always
+    ports:
+      - "8234:8234"
+    volumes:
+      - "./data:./.remote"
