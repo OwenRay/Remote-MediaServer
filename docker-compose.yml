@@ -11,7 +11,7 @@ services:
       - "8234:8234"
       - "8235:8235"
     volumes:
-      - "./data:./.remote"
+      - "./data:/root/.remote"
     environment:
       - RMS_BIND=0.0.0.0
       - RMS_PORT=8234
