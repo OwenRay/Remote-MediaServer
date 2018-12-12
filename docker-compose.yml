@@ -12,3 +12,9 @@ services:
       - "8235:8235"
     volumes:
       - "./data:./.remote"
+    environment:
+      - RMS_BIND=0.0.0.0
+      - RMS_PORT=8234
+      - RMS_SHAREPORT=8235
+      - RMS_STARTSCAN=true
+      - RMS_NAME="Remote MediaServer - Media freedom."
