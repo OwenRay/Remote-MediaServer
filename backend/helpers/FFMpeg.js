@@ -205,7 +205,7 @@ class FFMpeg {
 
 
   static onError(data) {
-    Log.warning('ffmpeg error:', `${data}`);
+    Log.debug('ffmpeg:', `${data}`.split('\\n').join('\n'));
   }
 }
 

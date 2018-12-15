@@ -12,16 +12,16 @@
     "test": "eslint --config .eslintrc backend/ && nodeunit tests/",
     "package": "cp -r node_modules/moviedb-api/",
     "build": "pkg package.json && npm run build:mac && npm run build:win && npm run build:linux",
-    "build:mac": "zip file.zip remote-mediaserver-macos node_modules/*/*/darwin-x64/node-57.node && mv file.zip dist/osx.zip",
-    "build:win": "zip file.zip remote-mediaserver-win.exe node_modules/*/*/win32-x64/node-57.node && mv file.zip dist/win.zip",
-    "build:linux": "zip file.zip remote-mediaserver-linux node_modules/*/*/linux-x64/node-57.node && mv file.zip dist/linux.zip"
+    "build:mac": "zip file.zip remote-mediaserver-macos node_modules/*/*/darwin-x64/node-64.node && mv file.zip dist/osx.zip",
+    "build:win": "zip file.zip remote-mediaserver-win.exe node_modules/*/*/win32-x64/node-64.node && mv file.zip dist/win.zip",
+    "build:linux": "zip file.zip remote-mediaserver-linux node_modules/*/*/linux-x64/node-64.node && mv file.zip dist/linux.zip"
   },
   "pkg": {
     "scripts": [
       "backend/**",
-      "node_modules/ed25519-supercop/prebuilds/darwin-x64/node-57.node",
-      "node_modules/ed25519-supercop/prebuilds/win32-x64/node-57.node",
-      "node_modules/ed25519-supercop/prebuilds/linux-x64/node-57.node",
+      "node_modules/ed25519-supercop/prebuilds/darwin-x64/node-64.node",
+      "node_modules/ed25519-supercop/prebuilds/win32-x64/node-64.node",
+      "node_modules/ed25519-supercop/prebuilds/linux-x64/node-64.node",
       "node_modules/moviedb-api/apib/endpoints.json"
     ],
     "assets": [

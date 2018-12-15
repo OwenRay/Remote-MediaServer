@@ -29,6 +29,7 @@ class FileProcessor {
     if (this.announcing) return;
     this.announcing = true;
     await Database.getAll('chunks').map(({ attributes }) => EDHT.announce(attributes.hash));
+    this.announcing = false;
   }
 
   static getAllSharedItems() {
