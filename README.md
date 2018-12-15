@@ -1,21 +1,28 @@
+[![Gitter Chat](https://img.shields.io/gitter/room/nwjs/nw.js.svg?logo=gitter)](https://gitter.im/remote-mediaserver/Lobby)
+[![Discord Chat](https://img.shields.io/discord/505014801970364436.svg?logo=discord)](https://discord.gg/4H5EMd6)
+[![Build Status](https://travis-ci.org/OwenRay/Remote-MediaServer.svg?branch=dev)](https://travis-ci.org/OwenRay/Remote-MediaServer)
+[![npmjs](https://img.shields.io/npm/dw/remote-mediaserver.svg)](https://www.npmjs.com/package/remote-mediaserver)
+
+
 ![](doc/screens.png)
 
-Production | Development
---- | ---
-[![Build Status](https://travis-ci.org/OwenRay/Remote-MediaServer.svg?branch=master)](https://travis-ci.org/OwenRay/Remote-MediaServer) | [![Build Status](https://travis-ci.org/OwenRay/Remote-MediaServer.svg?branch=dev)](https://travis-ci.org/OwenRay/Remote-MediaServer)
-# PREREQUISITES
-- npm  
-- nodejs >= 8
+# INSTALL
+### OPTION 1, INSTALL PRECOMPILED   
+Download and unzip the version appropriate to your os.
 
-# USING
-### INSTALL
-dev:  
-`$ npm install -g https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/remote-mediaserver-0.1.0.tgz`  
+Linux | Windows | MacOS
+--- | --- | ---
+[![Discord Chat](doc/linux.png)](https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/linux.zip) | [![Discord Chat](doc/windows.png)](https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/win.zip) | [![Discord Chat](doc/macos.png)](https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/osx.zip)   
 
-prod:  
+### OPTION 2, INSTALL VIA NPM
+You'll need:
+- NPM  
+- NodeJS >= 8  
+
+To install run:   
 `$ npm install -g remote-mediaserver`
 
-### RUN
+after installation you can run RMS:  
 `$ remote`  
 direct your browser to http://localhost:8234
 

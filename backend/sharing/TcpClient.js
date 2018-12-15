@@ -34,7 +34,6 @@ class TcpClient {
   }
 
   start() {
-    EDHT.announce(this.reference);
     fs.stat(this.cachePath, (err) => {
       if (!err && this.writeOut.length) {
         fs.createReadStream(this.cachePath)
@@ -62,6 +61,12 @@ class TcpClient {
 
   requestPeers() {
     EDHT.findPeers(this.reference)
+      .then(this.onAllPeers.bind(this));
+
+    // also request peers that host a full library
+    if (!this.extraInfo) return;
+    const hash = EDHT.getHash(Buffer.from(this.extraInfo.split('-')[0], 'hex'));
+    EDHT.findPeers(hash)
       .then(this.onAllPeers.bind(this));
   }
 
@@ -146,6 +151,7 @@ class TcpClient {
     } else {
       FileProcessor.registerDownload(this.reference, this.expectedSize);
       fs.rename(`${this.cachePath}.incomplete`, this.cachePath, () => {
+        EDHT.announce(this.reference);
         Log.debug('chunk downloaded');
         if (this.resolve) this.resolve(this.cachePath);
       });

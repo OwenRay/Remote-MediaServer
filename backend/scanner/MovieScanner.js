@@ -42,8 +42,11 @@ class MovieScanner {
     const proc = spawn(
       'node',
       [`${__dirname}/FilewatchWorker.js`, lib.folder, Settings.getValue('filewatcher')],
-      { stdio: [0, 1, 'ipc'] },
+      { stdio: ['ipc'] },
     );
+    proc.on('error', (err) => {
+      Log.debug(err);
+    });
     proc.on('message', (file) => {
       this.onWatch(file, lib);
     });

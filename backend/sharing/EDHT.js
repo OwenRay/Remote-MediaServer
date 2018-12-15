@@ -35,7 +35,8 @@ class EDHT {
       host: this.host,
       bootstrap: Settings.getValue('dhtbootstrap'),
       nodeId: Settings.getValue('nodeid') ? Buffer.from(Settings.getValue('nodeid'), 'hex') : '',
-      maxValues: 200000,
+      maxValues: 60000,
+      timeBucketOutdated: 120 * 60 * 1000,
     });
     const { dht } = this;
 
@@ -80,7 +81,7 @@ class EDHT {
     if (host) {
       // I suspect a host doesn't always properly report their own chunks
       // this might be a workaround, but I'm not even sure.
-      this.onPeer({ host: host.address, port: host.port }, infoHash);
+      // this.onPeer({ host: host.address, port: host.port }, infoHash);
     }
 
     if (`${peer.host}:${peer.port}` === this.host) {
@@ -112,7 +113,6 @@ class EDHT {
       }
 
       const value = await this.share(this.keypair.publicKey.toString('base64') + offset);
-      this.announce(value);
       Settings.setValue('currentSharedDB', value.toString('hex'));
       if (changed) Settings.save();
 
@@ -123,14 +123,19 @@ class EDHT {
         sign: buf => ed.sign(buf, this.keypair.publicKey, this.keypair.secretKey),
       };
 
-      this.dht.put(opts, (err, hash) => {
-        this.announce(hash);
-        hash = hash.toString('hex');
-        Settings.setValue('dhtoffset', offset);
-        Settings.setValue('sharekey', hash);
-        Settings.save();
-        resolve(hash);
-      });
+      // publish new version af db
+      let hash = await this.share(opts);
+
+      // tell everyone we have all the data
+      await this.share(hash);
+
+      hash = hash.toString('hex');
+      Settings.setValue('dhtoffset', offset);
+      Settings.setValue('sharekey', hash);
+      Settings.save();
+
+
+      resolve(hash);
     });
   }
 
@@ -161,6 +166,7 @@ class EDHT {
   share(value) {
     return new Promise((resolve) => {
       this.dht.put(value, (er, hash) => {
+        this.dht.announce(hash);
         resolve(hash);
       });
     });
@@ -182,6 +188,12 @@ class EDHT {
         resolve(this.peers[hash64]);
       });
     });
+  }
+
+  getHash(hash) {
+    if (typeof hash === 'string') hash = Buffer.from(hash, 'hex');
+    // eslint-disable-next-line no-underscore-dangle
+    return this.dht._hash(bencode.encode(hash)).toString('hex');
   }
 
   debugInfo() {

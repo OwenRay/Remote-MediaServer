@@ -42,6 +42,7 @@ class MediaFetcher {
       return;
     }
     if (this.ended) return;
+
     this.tcpClient = new TcpClient(
       this.hashes[this.offset].hash,
       this.key,

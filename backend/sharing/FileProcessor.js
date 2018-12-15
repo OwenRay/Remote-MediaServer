@@ -28,22 +28,7 @@ class FileProcessor {
   async reannounce() {
     if (this.announcing) return;
     this.announcing = true;
-    await this.doReannounce(FileProcessor.getAllSharedItems());
     await Database.getAll('chunks').map(({ attributes }) => EDHT.announce(attributes.hash));
-  }
-
-  async doReannounce(items) {
-    if (!items.length) {
-      this.announcing = false;
-      return;
-    }
-    const item = items.pop();
-    try {
-      await FileProcessor.putItem(item);
-    } catch (e) {
-      Log.debug(e);
-    }
-    this.doReannounce(items);
   }
 
   static getAllSharedItems() {
@@ -145,9 +130,9 @@ class FileProcessor {
       ];
       buf[1].writeInt32BE(item.originalId || item.id);
       buf[1].writeInt16BE(index, 4);
-      let hash = await EDHT.share(Buffer.concat(buf));
-      EDHT.announce(hash);
-      hash = hash.toString('hex');
+      // just calculate the hash for easy reference to this chunk
+      // we don't need to share it because we already broadcast a "share all" signal
+      const hash = EDHT.getHash(buf).toString('hex');
 
       const size = index === parts - 1 ? lastChunkSize : regularChunksSize;
       const offset = index * regularChunksSize;
