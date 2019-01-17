@@ -262,6 +262,12 @@ class Detail extends Component {
             <main>
               <Flipped flipId="page">
                 <div className="container detail">
+                  <div className="blurred">
+                    <div className="movie-detail-backdrop-wrapper">
+                      <div style={this.backDrop()} className="movie-detail-backdrop" />
+                      <div style={this.posterLarge()} className="movie-detail-backdrop poster" />
+                    </div>
+                  </div>
                   {s.showTabs ? this.seasonTabs() : this.mediaInfo()}
                   <div className="poster" style={this.poster()} />
                   <Button large floating id="play" icon="play_arrow" onClick={this.play} />

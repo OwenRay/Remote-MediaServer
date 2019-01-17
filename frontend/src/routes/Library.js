@@ -65,13 +65,15 @@ class Library extends PureComponent {
       this.collection.recomputeCellSizesAndPositions();
       this.collection.forceUpdate();
     }
+    // prevent redraw untill media items have been loaded
     this.state.filters = filters;
     this.loadMore(0, this.pageSize, true);
   }
 
   onChange(o) {
-    this.setState({ filters: o });
-    const url = Object.keys(o).map(key => `${key}=${o[key]}`).join('&');
+    const filters = o ? { ...this.state.filters, ...o } : {};
+    this.setState({ filters });
+    const url = Object.keys(filters).map(key => `${key}=${filters[key]}`).join('&');
 
     clearTimeout(this.waitForUpdate);
     this.waitForUpdate = setTimeout(() => {
@@ -245,7 +247,7 @@ class Library extends PureComponent {
   cellRenderer({ index, key, style }) {
     return (
       <MediaItem
-        key={key}
+        key={this.state.media[index].id || key}
         style={style}
         mediaItem={this.state.media[index]}
         requestData={this.requestData}

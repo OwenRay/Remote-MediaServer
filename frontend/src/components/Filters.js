@@ -75,7 +75,7 @@ class ButtonMenu extends Component {
 
   resetFilters() {
     this.setState({ filters: {} });
-    this.props.onChange({});
+    this.props.onChange(null);
     this.hideSideNav();
   }
 
