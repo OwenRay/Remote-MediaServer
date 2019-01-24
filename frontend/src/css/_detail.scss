@@ -8,12 +8,27 @@
   background-position: center center;
   //opacity: .3;
   z-index:0;
-  $blur:10px;
-  /*-webkit-filter: blur($blur);
-  -moz-filter: blur($blur);
-  -o-filter: blur($blur);
-  -ms-filter: blur($blur);
-  filter: blur($blur);*/
+}
+
+.blurred {
+  position: absolute;
+  bottom:0px;
+  left: 0px;
+  right:0px;
+  height:100%;
+  overflow:hidden;
+
+  .movie-detail-backdrop-wrapper {
+    height: 100vh;
+    top:auto;
+    $blur: 10px;
+    -webkit-filter: blur($blur);
+    -moz-filter: blur($blur);
+    -o-filter: blur($blur);
+    -ms-filter: blur($blur);
+    filter: blur($blur);
+    opacity: .2;
+  }
 }
 
 #play{
@@ -101,7 +116,7 @@
   height:400px;
   max-height:75%;
   box-sizing: content-box;
-  background:transparentize($primary-color-dark, .2);
+  background: $primary-color-dark;
   .scrollable{
     padding:25px;
     padding-left:0px;
