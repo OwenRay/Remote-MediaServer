@@ -19,7 +19,7 @@ class Mpeg4PlayHandler extends RequestHandler {
     if (!this.context.query.id) {
       this.response.status = 302;
       this.response.set('Location', `?id=${Math.random()}`);
-      return;
+      return null;
     }
     this.context.set('Accept-Ranges', 'none');
     this.context.set('Content-Type', 'video/webm');
@@ -27,16 +27,23 @@ class Mpeg4PlayHandler extends RequestHandler {
     const promise = new Promise((resolve) => {
       this.resolve = resolve;
     });
-    //this.context.set('Content-Range', 'bytes 0-');
-    this.buffer = Buffer.alloc(backBufferSize);
-    this.offset = 0;
 
     if (sessions[this.context.query.id]) {
       sessions[this.context.query.id].attach(this.context);
-      return;
+      return null;
     }
 
+    this.context.set('Content-Range', 'bytes 0-');
     sessions[this.context.query.id] = this;
+    this.startEncoding();
+
+    return promise;
+  }
+
+  startEncoding() {
+    this.buffer = Buffer.alloc(backBufferSize);
+    this.offset = 0;
+
     const mediaItem = Database.getById('media-item', this.context.params.id);
     this.ffmpeg = new FFMpeg(mediaItem, '-')
       .setPlayOffset(this.context.params.offset)
@@ -52,17 +59,13 @@ class Mpeg4PlayHandler extends RequestHandler {
       this.ffmpeg.setVideoChannel(this.context.query.videoChannel);
     }
 
-
     this.ffmpeg.run();
     this.bufferedChuncks = 0;
     Log.debug(`starting to play:${this.file}`);
-
-    return promise;
   }
 
   onFFMpegReady() {
-
-    if(!this.offset) {
+    if (!this.offset) {
       this.ffmpeg.getOutputStream().on('data', this.onData.bind(this));
     }
 
@@ -101,14 +104,13 @@ class Mpeg4PlayHandler extends RequestHandler {
         this.context.set('Content-Range', `bytes ${offset}-`);
         clearTimeout(this.waitToKill);
         this.waitToKill = false;
-        const written = this.context.body.write(buf, () => {
+        this.context.body.write(buf, () => {
           this.ffmpeg.resume();
         });
-        console.log(written);
       }
     } else {
       this.buffer = [];
-      console.log("need implement reencode");
+      this.startEncoding();
     }
   }
 
@@ -123,7 +125,7 @@ class Mpeg4PlayHandler extends RequestHandler {
     this.offset += data.length;
 
     if (this.waitToKill) {
-      console.log('ondata after close!!!');
+      Log.warning('ondata after close!!!');
     }
 
     this.bufferedChuncks += 1;
