@@ -19,13 +19,14 @@ FROM node:10
 WORKDIR /app
 
 # COPY --chown=rms:rms --from=build_frontend /frontend/* /root/
-COPY --from=build_frontend /frontend /app/
+COPY --from=build_frontend /frontend/ /app/frontend
 
 # COPY --chown=rms:rms --from=build_backend /backend/* /root/
 COPY --from=build_backend /backend /app/
 
 # COPY --chown=rms:rms ./* /root/
 COPY . /app/
+RUN cd frontend && npm run build
 
 # EXPOSE [P2P] [HTTP]
 EXPOSE 8234 8235
