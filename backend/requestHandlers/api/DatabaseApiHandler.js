@@ -7,6 +7,7 @@ const Database = require('../../Database');
 const pluralize = require('pluralize');
 const RequestHandler = require('../RequestHandler');
 const httpServer = require('../../HttpServer');
+const DatabaseSearch = require('../../helpers/DatabaseSearch');
 
 class DatabaseApiHandler extends RequestHandler {
   handleRequest() {
@@ -43,17 +44,12 @@ class DatabaseApiHandler extends RequestHandler {
 
   handleGet(query, singularType, itemId) {
     this.response.header['Content-Type'] = 'text/json';
-
-    let data;
-    let offset = 0;
-    let limit = 0;
-    let filterValues = null;
-    const relationConditions = {};
     const { sort, distinct, join } = query;
+    let offset;
+    let limit;
+    let filterValues;
+    const relationConditions = [];
 
-    delete query.sort;
-    delete query.distinct;
-    delete query.join;
     // parse all the query items
     if (query['page[limit]']) {
       limit = parseInt(query['page[limit]'], 10);
@@ -63,11 +59,9 @@ class DatabaseApiHandler extends RequestHandler {
       offset = parseInt(query['page[offset]'], 10);
       delete query['page[offset]'];
     }
-
-    if (query.filterValues) {
-      filterValues = query.filterValues.split(',');
-      delete query.filterValues;
-    }
+    delete query.sort;
+    delete query.distinct;
+    delete query.join;
 
     // all the query items left become "where conditions"
     Object.keys(query)
@@ -86,73 +80,26 @@ class DatabaseApiHandler extends RequestHandler {
         }
       });
 
-    if (itemId) {
-      // find single item
-      data = Database.getById(singularType, itemId);
-    } else if (Object.keys(query).length > 0) {
-      // find items with given filters
-      data = Database.findByMatchFilters(singularType, query);
-    } else {
-      // get all items
-      data = Database.getAll(singularType);
+
+    if (query.filterValues) {
+      filterValues = query.filterValues.split(',');
+      delete query.filterValues;
     }
 
-    // parse sort params, example params: key:ASC,key2:DESC
-    let sortArray = [];
-    if (sort) {
-      sortArray = sort.split(',').map(i => i.split(':'));
-    }
-    const sortFunction = (a, b) => {
-      // eslint-disable-next-line guard-for-in,no-restricted-syntax
-      for (const key in sortArray) {
-        const sortItem = sortArray[key][0];
-        let direction = sortItem.length > 1 ? sortItem[1] : 'ASC';
-        direction = direction === 'ASC' ? 1 : -1;
-        if (a.attributes[sortItem] === undefined || a.attributes[sortItem] === null) {
-          return 1;
-        }
-        if (b.attributes[sortItem] === undefined || b.attributes[sortItem] === null) {
-          return -1;
-        }
-        if (a.attributes[sortItem].localeCompare) {
-          if (a.attributes[sortItem].localeCompare(b.attributes[sortItem]) !== 0) {
-            return a.attributes[sortItem].localeCompare(b.attributes[sortItem]) * direction;
-          }
-        }
-        if (a.attributes[sortItem] - b.attributes[sortItem] !== 0) {
-          return (a.attributes[sortItem] - b.attributes[sortItem] > 0 ? 1 : -1) * direction;
-        }
-      }
-      return 0;
-    };
-
-
-    // add relationships
+    let data;
     let included = [];
-    if (join) {
-      for (let key = 0; key < data.length; key += 1) {
-        let meetsConditions = true;
-        let relObject;
-        const rel = data[key].relationships ? data[key].relationships[join] : null;
-        if (rel) {
-          relObject = Database.getById(join, rel.data.id);
-        }
-
-        if (relationConditions[join] !== undefined) {
-          meetsConditions = Object.keys(relationConditions[join]).every((conditionKey) => {
-            const what = relationConditions[join][conditionKey];
-            if (!relObject) {
-              return what !== 'true';
-            }
-            return `${relObject.attributes[conditionKey]}` === what;
-          });
-        }
-
-        if (!meetsConditions) {
-          data.splice(key, 1);
-          key -= 1;
-        }
-      }
+    if (itemId) {
+      data = Database.getById(singularType, itemId);
+    } else {
+      ({ data, included } = DatabaseSearch.query(singularType, {
+        where: query,
+        sort,
+        distinct,
+        join,
+        offset,
+        limit,
+        relationConditions,
+      }));
     }
 
     // build the possible filter values.
@@ -173,24 +120,6 @@ class DatabaseApiHandler extends RequestHandler {
       filterValues = values;
     }
 
-    if (sort) {
-      data = data.sort(sortFunction);
-    }
-
-    // make sure all the items have a unique "distinct" value
-    const got = [];
-    if (distinct) {
-      data = data.filter((item) => {
-        const distinctVal = item.attributes[distinct];
-        if (got[distinctVal]) {
-          return false;
-        }
-        got[distinctVal] = true;
-        return true;
-      });
-    }
-
-
     // build return data
     const metadata = { filterValues };
     if (offset || limit) {
@@ -199,19 +128,6 @@ class DatabaseApiHandler extends RequestHandler {
       data = data.splice(offset, limit);
     }
 
-    // get relationships
-    const rels = {};
-    if (join) {
-      for (let c = 0; c < data.length; c += 1) {
-        const relation = data[c].relationships ? data[c].relationships[join] : null;
-        if (relation) {
-          if (!rels[relation.data.id]) {
-            rels[relation.data.id] = Database.getById(join, relation.data.id);
-          }
-        }
-      }
-    }
-    included = Object.values(rels);
 
     this.respond(data, metadata, included);
     return true;

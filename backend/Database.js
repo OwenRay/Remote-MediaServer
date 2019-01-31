@@ -38,6 +38,8 @@ class Database {
     }
     o.type = type;
     o.attributes = obj;
+    o.attributes.created = new Date().getTime();
+    o.attributes.updated = new Date().getTime();
     this.tables[type][o.id] = o;
     this.save(type);
     this.save('ids');
@@ -53,6 +55,7 @@ class Database {
   }
 
   update(type, obj) {
+    obj.attributes.updated = new Date().getTime();
     if (this.updateOverwriters.reduce((red, f) => f(obj) || red, false)) {
       return obj;
     }
@@ -87,7 +90,7 @@ class Database {
     // 2><6         value between 2 and 6
     filters = Object.keys(filters)
       .map((key) => {
-        const f = filters[key];
+        const f = `${filters[key]}`;
         let type = 'normal';
         let value;
         const a = f[0] === '%';

@@ -185,6 +185,23 @@ html, body{
   position: relative;
 }
 
+.verticalList {
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .grid-item {
+    display: inline-block;
+    white-space: normal;
+    float:none;
+  }
+}
+
 .grid-item {
   width:150px;
   height:218px;
