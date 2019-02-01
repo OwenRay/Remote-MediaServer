@@ -88,10 +88,11 @@ class DatabaseApiHandler extends RequestHandler {
 
     let data;
     let included = [];
+    let metadata = {};
     if (itemId) {
       data = Database.getById(singularType, itemId);
     } else {
-      ({ data, included } = DatabaseSearch.query(singularType, {
+      ({ data, included, metadata } = DatabaseSearch.query(singularType, {
         where: query,
         sort,
         distinct,
@@ -121,12 +122,7 @@ class DatabaseApiHandler extends RequestHandler {
     }
 
     // build return data
-    const metadata = { filterValues };
-    if (offset || limit) {
-      metadata.totalPages = Math.ceil(data.length / limit);
-      metadata.totalItems = data.length;
-      data = data.splice(offset, limit);
-    }
+    metadata = { filterValues, ...metadata };
 
 
     this.respond(data, metadata, included);

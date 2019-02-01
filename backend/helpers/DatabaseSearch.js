@@ -4,7 +4,7 @@ class DatabaseSearch {
   static query(
     singularType,
     {
-      where, sort, distinct, join, relationConditions,
+      where, sort, distinct, join, relationConditions = [], limit, offset,
     },
   ) {
     let data;
@@ -45,7 +45,6 @@ class DatabaseSearch {
       }
       return 0;
     };
-
 
     // add relationships
     if (join) {
@@ -90,11 +89,16 @@ class DatabaseSearch {
         return true;
       });
     }
-
+    const metadata = {};
+    if (offset || limit) {
+      metadata.totalPages = Math.ceil(data.length / limit);
+      metadata.totalItems = data.length;
+      data = data.splice(offset, limit);
+    }
 
     const included = join ? DatabaseSearch.getRelationShips(join, data) : [];
 
-    return { data, included };
+    return { data, included, metadata };
   }
 
   static getRelationShips(join, items) {
