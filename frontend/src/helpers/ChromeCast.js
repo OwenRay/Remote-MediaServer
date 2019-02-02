@@ -145,6 +145,8 @@ class ChromeCast {
     if (!this.media) {
       return 0;
     }
+    // fix unknown duration
+    this.media.media.duration = Number.MAX_SAFE_INTEGER;
     return this.media.getEstimatedTime();
   }
 }

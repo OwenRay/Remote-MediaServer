@@ -5,7 +5,6 @@
  */
 const IImageHandler = require('./IImageHandler');
 const http = require('http');
-const Log = require('../../helpers/Log');
 const httpServer = require('../../HttpServer');
 const ImageCacheHandler = require('./ImageCacheHandler');
 
@@ -30,7 +29,6 @@ class TmdbImageHandler extends IImageHandler {
     }
 
     const img = `http://image.tmdb.org/t/p/${w}/${this.item.attributes[`${this.type}-path`]}`;
-    Log.debug(`img${img}`);
     const p = new Promise((resolve) => {
       http.get(img, (response) => {
         const bytes = [];

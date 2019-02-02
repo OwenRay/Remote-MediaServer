@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-/* global $,document */
+/* global $,document,window */
 /**
  * Created by danielsauve on 7/07/2017.
  */
@@ -15,6 +15,8 @@ import ChromeCastRenderer from '../components/player/renderer/ChromeCastRenderer
 import CastButton from '../components/player/CastButton';
 import ChromeCast from '../helpers/ChromeCast';
 
+const isTouch = ('ontouchstart' in window);
+
 class Video extends Component {
   constructor() {
     super();
@@ -28,6 +30,7 @@ class Video extends Component {
     this.togglePause = this.togglePause.bind(this);
     this.toggleFullScreen = this.toggleFullScreen.bind(this);
     this.volumeChange = this.volumeChange.bind(this);
+    this.onTouch = this.onTouch.bind(this);
 
     this.pageRef = null;
   }
@@ -79,6 +82,15 @@ class Video extends Component {
       renderer: casting ? ChromeCastRenderer : Html5VideoRenderer,
       loading: true,
     });
+  }
+
+  onTouch() {
+    if (ChromeCast.isActive()) return;
+    if (this.state.navClass === 'visible') {
+      this.setState({ navClass: 'hidden' });
+    } else {
+      this.onMouseMove();
+    }
   }
 
   onMouseMove() {
@@ -180,7 +192,7 @@ class Video extends Component {
 
   hide() {
     clearTimeout(this.navTimeout);
-    this.setState({ navClass: 'hidden' });
+    this.setState({ navClass: ChromeCast.isActive() ? 'visible' : 'hidden' });
   }
 
   async mediaContentLoaded(mediaContent) {
@@ -207,10 +219,16 @@ class Video extends Component {
       return (
         <div className="video">
           <BodyClassName className="hideNav" />
-          <div
-            className="movie-detail-backdrop"
-            style={{ backgroundImage: `url(/img/${this.state.item.id}_backdrop.jpg)` }}
-          />
+          <div className="movie-detail-backdrop-wrapper">
+            <div
+              className="movie-detail-backdrop"
+              style={{ backgroundImage: `url(/img/${this.state.item.id}_backdrop.jpg)` }}
+            />
+            <div
+              className="movie-detail-backdrop poster"
+              style={{ backgroundImage: `url(/img/${this.state.item.id}_posterlarge.jpg)` }}
+            />
+          </div>
           <Modal
             style={{ display: 'block' }}
             id="continueWatching"
@@ -233,11 +251,16 @@ class Video extends Component {
     }
 
     return (
-      <div className={`video ${this.state.navClass}`} ref={(input) => { this.pageRef = input; }} onMouseMove={this.onMouseMove}>
+      <div
+        className={`video ${this.state.navClass}`}
+        ref={(input) => { this.pageRef = input; }}
+        onMouseMove={isTouch ? null : this.onMouseMove}
+      >
         <BodyClassName className="hideNav" />
         <div
           className="wrapper"
-          onClick={this.togglePause}
+          onClick={isTouch ? null : this.togglePause}
+          onTouchStart={this.onTouch}
           onDoubleClick={this.toggleFullScreen}
         >
           <this.state.renderer
@@ -249,9 +272,9 @@ class Video extends Component {
             subtitle={this.state.subtitle}
             volume={this.state.volume}
             paused={this.state.paused}
-            subtitles={this.state.mediaContent !== undefined?this.state.mediaContent["subtitles"]:[]}
+            subtitles={this.state.mediaContent !== undefined ? this.state.mediaContent.subtitles : []}
             onVolumeChange={this.volumeChange}
-            />
+          />
         </div>
         <CastButton />
 

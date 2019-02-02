@@ -12,7 +12,10 @@ class ImageCacheHandler extends IImageHandler {
     if (!this.item) {
       return null;
     }
-    const filename = `cache/thumb_${this.item.id}_${this.type}`;
+    const id = this.item.attributes['external-id'] ?
+      `tmdb_${this.item.attributes['external-id']}` :
+      this.item.id;
+    const filename = `cache/thumb_${id}_${this.type}`;
     try {
       fs.statSync(filename);
     } catch (e) {
@@ -28,7 +31,10 @@ class ImageCacheHandler extends IImageHandler {
   }
 
   put(data) {
-    const filename = `cache/thumb_${this.item.id}_${this.type}`;
+    const id = this.item.attributes['external-id'] ?
+      `tmdb_${this.item.attributes['external-id']}` :
+      this.item.id;
+    const filename = `cache/thumb_${id}_${this.type}`;
     fs.writeFile(filename, data, () => {});
   }
 }
