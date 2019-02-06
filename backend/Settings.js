@@ -97,11 +97,11 @@ const Settings = {
   },
 
   load() {
-    if (!fs.existsSync('settings.json')) {
-      return;
+    let newSettings = settingsObj;
+    if (fs.existsSync('settings.json')) {
+      const contents = fs.readFileSync('settings.json', 'utf8');
+      newSettings = JSON.parse(contents);
     }
-    const contents = fs.readFileSync('settings.json', 'utf8');
-    const newSettings = JSON.parse(contents);
     Object.keys(newSettings).forEach((key) => {
       let val = env[`RMS_${key.toLocaleUpperCase()}`];
       if (val && val[0] === '{') val = JSON.parse(val);
