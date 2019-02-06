@@ -8,7 +8,6 @@
     "remote": "./main.js"
   },
   "scripts": {
-    "prepublish": "node scripts/prepublish.js",
     "test": "eslint --config .eslintrc backend/ && nodeunit tests/",
     "package": "cp -r node_modules/moviedb-api/",
     "build": "pkg package.json && npm run build:mac && npm run build:win && npm run build:linux",

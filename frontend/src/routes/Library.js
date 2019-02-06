@@ -77,7 +77,7 @@ class Library extends PureComponent {
       this.collection.forceUpdate();
     }
     // prevent redraw untill media items have been loaded
-    this.state.filters = filters;
+
     this.loadMore(0, this.pageSize, true);
   }
 

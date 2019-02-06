@@ -2,6 +2,8 @@ const fs = require('fs');
 const uuid = require('node-uuid');
 const crypto = require('crypto');
 
+const { env } = process;
+
 const settingsObj = {
   port: 8234,
   bind: '0.0.0.0',
@@ -100,7 +102,12 @@ const Settings = {
     }
     const contents = fs.readFileSync('settings.json', 'utf8');
     const newSettings = JSON.parse(contents);
-    Object.keys(newSettings).forEach((key) => { settingsObj[key] = newSettings[key]; });
+    Object.keys(newSettings).forEach((key) => {
+      let val = env[`RMS_${key.toLocaleUpperCase()}`];
+      if (val && val[0] === '{') val = JSON.parse(val);
+      val = val || newSettings[key];
+      settingsObj[key] = val;
+    });
   },
 
   save() {

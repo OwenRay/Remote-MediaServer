@@ -1,0 +1,6 @@
+doc
+frontend/node_modules
+node_modules
+tests
+frontend/build
+dist

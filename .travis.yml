@@ -9,7 +9,7 @@ before_install:
   - gcc --version
   - g++ --version
 install:
-  - cd frontend && npm install && cd ../
+  - cd frontend && npm install && npm run build && cd ../
   - npm install
 script:
   - npm run test

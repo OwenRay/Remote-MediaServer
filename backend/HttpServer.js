@@ -64,10 +64,14 @@ class HttpServer {
     this.serverInstance.destroy(and);
   }
 
-  static onConnected() {
+  static async onConnected() {
     let host = Settings.getValue('bind');
     if (host === '0.0.0.0') host = ip.address();
-    opn(`http://${host}:${Settings.getValue('port')}`);
+    try {
+      await opn(`http://${host}:${Settings.getValue('port')}`);
+    } catch (e) {
+      Log.debug(e);
+    }
     Log.info('Server listening on: http://localhost:%s', Settings.getValue('port'));
   }
 
