@@ -12,7 +12,7 @@ class SearchBar extends Component {
   constructor() {
     super();
     this.toggleGrouped = this.toggleGrouped.bind(this);
-    this.state = { hidden: false, filters: { title: '' }, settings: { libraries: [] } };
+    this.state = { filters: { title: '' }, settings: { libraries: [] } };
   }
 
   componentWillMount() {
@@ -39,6 +39,8 @@ class SearchBar extends Component {
    * called when user types in field, applies typed value to state
    */
   onChange(e) {
+    e.stopPropagation();
+    e.preventDefault();
     const o = this.state;
     o.filters[e.target.name] = e.target.value;
     this.setState(o);

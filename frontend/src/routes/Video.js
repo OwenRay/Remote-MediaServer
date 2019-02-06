@@ -14,6 +14,7 @@ import Html5VideoRenderer from '../components/player/renderer/Html5VideoRenderer
 import ChromeCastRenderer from '../components/player/renderer/ChromeCastRenderer';
 import CastButton from '../components/player/CastButton';
 import ChromeCast from '../helpers/ChromeCast';
+import ShortcutArray from '../helpers/ShortcutHelper';
 
 const isTouch = ('ontouchstart' in window);
 
@@ -52,6 +53,14 @@ class Video extends Component {
     this.lastPosSave = 0;
     this.componentWillReceiveProps(this.props);
     this.navTimeout = setTimeout(this.hide.bind(this), 2000);
+    this.shortcuts = new ShortcutArray()
+      .add(ShortcutArray.EVENT.PAUSE_PLAY, this.togglePause)
+      .add(ShortcutArray.EVENT.FULLSCREEN, this.toggleFullScreen)
+      .add(ShortcutArray.EVENT.DOWN, () => this.volumeAdjust(-0.1))
+      .add(ShortcutArray.EVENT.UP, () => this.volumeAdjust( 0.1))
+      .add(ShortcutArray.EVENT.RIGHT, () => this.seekBy(20))
+      .add(ShortcutArray.EVENT.LEFT, () => this.seekBy(-20))
+      .add(ShortcutArray.EVENT.MUTE, this.toggleMute);
   }
 
   async componentWillReceiveProps(nextProps) {
@@ -73,6 +82,7 @@ class Video extends Component {
   }
 
   componentWillUnmount() {
+    this.shortcuts.off();
     clearTimeout(this.navTimeout);
     ChromeCast.removeListener(ChromeCast.EVENT_CASTING_CHANGE, this.onCastingChange.bind(this));
   }
@@ -108,7 +118,10 @@ class Video extends Component {
   }
 
   onSeek(seek) {
-    this.setState({ seek, progress: seek, loading: true });
+    this.setState({
+      seek, progress: seek, loading: true, paused: false,
+    });
+    this.onMouseMove();
   }
 
   onSelectContent(what, channel) {
@@ -120,6 +133,11 @@ class Video extends Component {
     const o = { seek: this.state.progress };
     o[what] = channel;
     this.setState(o);
+  }
+
+  seekBy(amount) {
+    this.onSeek(this.state.progress + amount);
+    return <Icon>{ amount < 0 ? 'fast_rewind' : 'fast_forward' }</Icon>;
   }
 
   toggleFullScreen() {
@@ -158,17 +176,29 @@ class Video extends Component {
 
   togglePause() {
     this.setState({ paused: !this.state.paused });
+    this.onMouseMove();
+    return <Icon>{ this.state.paused ? 'pause' : 'play_arrow'}</Icon>;
   }
 
   toggleMute() {
     if (this.state.muted) {
       this.setState({ muted: false, volume: this.state.volumeBeforeMute });
-    } else {
-      this.setState({ muted: true, volumeBeforeMute: this.state.volume, volume: 0 });
+      return <Icon>volume_up</Icon>;
     }
+    this.setState({ muted: true, volumeBeforeMute: this.state.volume, volume: 0 });
+    this.onMouseMove();
+    return <Icon>volume_off</Icon>;
+  }
+
+  volumeAdjust(adjustBy) {
+    this.volumeChange(this.state.volume + adjustBy);
+    return <Icon>{adjustBy < 0 ? 'volume_down' : 'volume_up'}</Icon>;
   }
 
   volumeChange(value) {
+    if (value < 0) value = 0;
+    if (value > 1) value = 1;
+    this.onMouseMove();
     this.setState({ muted: false, volume: value });
   }
 
@@ -279,6 +309,7 @@ class Video extends Component {
         <CastButton />
 
         {this.loadingOrPaused()}
+        {this.state.infoText ? <div className="infoText">{this.state.infoText}</div> : ''}
         <NavBar
           onSelectContent={this.onSelectContent}
           mediaContent={this.state.mediaContent}

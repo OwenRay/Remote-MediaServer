@@ -10,12 +10,14 @@ import Home from './routes/Home';
 import Video from './routes/Video';
 import store from './helpers/stores/settingsStore';
 import Detail from './routes/Detail';
+import ShortcutHelper from './helpers/ShortcutHelper';
 
 
 class App extends Component {
   constructor() {
     super();
     this.state = {};
+    this.onShortcut = this.onShortcut.bind(this);
   }
 
   componentWillMount() {
@@ -26,6 +28,17 @@ class App extends Component {
       this.setState({ name: store.getState().api.setting[1].attributes.name });
     });
     store.dispatch(apiActions.read({ id: 1, _type: 'settings' }));
+
+    ShortcutHelper.setOnSuccessfulShortcut(this.onShortcut);
+  }
+
+  onShortcut(result) {
+    if (this.hideShortcutText) { clearTimeout(this.hideShortcutText); }
+    this.setState({ shortcutText: result, showShortcutText: true });
+    this.hideShortcutText = setTimeout(
+      () => this.setState({ showShortcutText: false }),
+      350,
+    );
   }
 
   render() {
@@ -64,6 +77,9 @@ class App extends Component {
           <Route path="/item/detail/:id" component={Detail} />
           <Route path="/item/view/:id" component={Video} />
         </Flipper>
+        <div className={`shortcutText ${this.state.showShortcutText ? 'visible' : ''}`}>
+          {this.state.shortcutText}
+        </div>
       </div>
     );
   }

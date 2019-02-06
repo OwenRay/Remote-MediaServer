@@ -13,6 +13,7 @@ import store from '../helpers/stores/apiStore';
 import SearchBar from '../components/SearchBar';
 import MediaItem from '../components/mediaItem/MediaItemTile';
 import Filters from '../components/Filters';
+import ShortcutHelper from '../helpers/ShortcutHelper';
 
 const itemsCache = {};
 
@@ -31,7 +32,11 @@ class Library extends PureComponent {
     this.cellRenderer = this.cellRenderer.bind(this);
     /** @type Collection */
     this.state = {
-      filters: { distinct: 'external-id' }, media: [], rowCount: 0, loadCount: 0, grouped: false,
+      filters: { distinct: 'external-id' },
+      media: [],
+      rowCount: 0,
+      loadCount: 0,
+      selected: -1,
     };
     this.promises = [];
     this.pageSize = 25;
@@ -40,6 +45,12 @@ class Library extends PureComponent {
   }
 
   componentWillMount() {
+    this.shortcuts = new ShortcutHelper()
+      .add(ShortcutHelper.EVENT.RIGHT, () => this.moveSelected(1))
+      .add(ShortcutHelper.EVENT.UP, () => this.moveSelected(-this.colls), true)
+      .add(ShortcutHelper.EVENT.DOWN, () => this.moveSelected(this.colls), true)
+      .add(ShortcutHelper.EVENT.LEFT, () => this.moveSelected(-1))
+      .add(ShortcutHelper.EVENT.SELECT, this.click.bind(this));
     this.componentWillReceiveProps(this.props);
   }
 
@@ -70,9 +81,13 @@ class Library extends PureComponent {
     this.loadMore(0, this.pageSize, true);
   }
 
+  componentWillUnmount() {
+    this.shortcuts.off();
+  }
+
   onChange(o) {
     const filters = o ? { ...this.state.filters, ...o } : {};
-    this.setState({ filters });
+    this.setState({ filters, selected: -1 });
     const url = Object.keys(filters).map(key => `${key}=${filters[key]}`).join('&');
 
     clearTimeout(this.waitForUpdate);
@@ -92,6 +107,24 @@ class Library extends PureComponent {
       this.collection.recomputeCellSizesAndPositions();
     }
     this.forceUpdate();
+  }
+
+  click() {
+    if (this.state.selected === -1 ||
+      this.collection._lastRenderedCellIndices.indexOf(this.state.selected) === -1) return;
+    this.setState({ click: true });
+    this.collection.forceUpdate();
+  }
+
+  moveSelected(moveBy) {
+    let selected = this.state.selected + moveBy;
+    const { _lastRenderedCellIndices } = this.collection;
+    if (selected < _lastRenderedCellIndices[0]) [selected] = _lastRenderedCellIndices;
+    if (selected > _lastRenderedCellIndices[_lastRenderedCellIndices.length - 1]) {
+      selected = _lastRenderedCellIndices[_lastRenderedCellIndices.length - 1];
+    }
+    this.setState({ selected });
+    this.collection.forceUpdate();
   }
 
   loadMore(offset, limit, fresh) {
@@ -247,6 +280,8 @@ class Library extends PureComponent {
   cellRenderer({ index, key, style }) {
     return (
       <MediaItem
+        selected={index === this.state.selected}
+        click={index === this.state.selected && this.state.click}
         key={this.state.media[index].id || key}
         style={style}
         mediaItem={this.state.media[index]}
@@ -271,7 +306,7 @@ class Library extends PureComponent {
 
   scrollRef(ref) {
     this.collection = ref;
-    if(!ref || !ref._collectionView) return;
+    if (!ref || !ref._collectionView) return;
     const onScroll = ref._collectionView._onScroll;
     ref._collectionView._onScroll = (e) => {
       onScroll(e);
@@ -307,8 +342,8 @@ class Library extends PureComponent {
               className={this.state.hidden ? 'quickOptions hidden' : 'quickOptions'}
               filters={this.state.filters}
               scroller={this.collection}
-              onChange={this.onChange}>
-            </SearchBar>
+              onChange={this.onChange}
+            />
             {collection}
           </div>
         </Flipped>

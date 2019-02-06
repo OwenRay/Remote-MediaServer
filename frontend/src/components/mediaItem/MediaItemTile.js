@@ -73,7 +73,7 @@ class MediaItemTile extends Component {
       );
     }
 
-    if (this.state.playClicked) {
+    if (this.state.playClicked || this.props.click) {
       return (<Redirect push to={`/item/view/${this.state.id}`} />);
     }
 
@@ -86,8 +86,19 @@ class MediaItemTile extends Component {
       seasonEpisode = <span className="seasonEpisode">s{S}e{E}</span>;
     }
 
+    if (!this.props.selected) this.intoView = false;
+
     return (
-      <div style={this.props.style} className="grid-item">
+      <div
+        style={this.props.style}
+        className={`grid-item ${this.props.selected ? 'selected' : ''}`}
+        ref={this.props.selected ? (ref) => {
+          if (ref && !this.intoView) {
+            this.intoView = true;
+            ref.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+          }
+        } : null}
+      >
         <Flipped flipId={`media-item${this.props.mediaItem.id}`}>
           <div className="movie-detail-backdrop-wrapper">
             <div
