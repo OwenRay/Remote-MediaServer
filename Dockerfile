@@ -11,22 +11,20 @@ WORKDIR /frontend
 COPY ./frontend/package* ./
 
 RUN npm install --production
+COPY frontend/ ./
+
+RUN npm run build
+
 
 ##################################
 FROM node:10
 
-# RUN adduser rms --gecos GECOS --shell /bin/bash --disabled-password --home /src
 WORKDIR /app
 
-# COPY --chown=rms:rms --from=build_frontend /frontend/* /root/
-COPY --from=build_frontend /frontend/ /app/frontend
-
-# COPY --chown=rms:rms --from=build_backend /backend/* /root/
+COPY --from=build_frontend /frontend/build /app/frontend/build
 COPY --from=build_backend /backend /app/
 
-# COPY --chown=rms:rms ./* /root/
-COPY . /app/
-RUN cd frontend && npm run build
+COPY . backend/ scripts/ /app/
 
 # EXPOSE [P2P] [HTTP]
 EXPOSE 8234 8235

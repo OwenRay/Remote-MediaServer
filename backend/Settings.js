@@ -103,7 +103,10 @@ const Settings = {
     const contents = fs.readFileSync('settings.json', 'utf8');
     const newSettings = JSON.parse(contents);
     Object.keys(newSettings).forEach((key) => {
-      settingsObj[key] = env[`RMS_${key.toLocaleUpperCase()}`] || newSettings[key];
+      let val = env[`RMS_${key.toLocaleUpperCase()}`];
+      if (val && val[0] === '{') val = JSON.parse(val);
+      val = val || newSettings[key];
+      settingsObj[key] = val;
     });
   },
 
