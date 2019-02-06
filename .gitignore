@@ -8,3 +8,4 @@ ffprobe
 ffmpeg.exe
 ffprobe.exe
 *.iml
+data/

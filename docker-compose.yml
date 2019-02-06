@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+########################
+## remote-MediaServer ##
+########################
+  app:
+    build: .
+    restart: always
+    ports:
+      - "8234:8234"
+      - "8235:8235"
+    volumes:
+      - "./data:/root/.remote"
+    environment:
+      - RMS_BIND=0.0.0.0
+      - RMS_PORT=8234
+      - RMS_SHAREPORT=8235
+      - RMS_STARTSCAN=true
+      - RMS_NAME="Remote MediaServer - Media freedom."
