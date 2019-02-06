@@ -33,6 +33,7 @@ class App extends Component {
   }
 
   onShortcut(result) {
+    if(!result) return;
     if (this.hideShortcutText) { clearTimeout(this.hideShortcutText); }
     this.setState({ shortcutText: result, showShortcutText: true });
     this.hideShortcutText = setTimeout(
