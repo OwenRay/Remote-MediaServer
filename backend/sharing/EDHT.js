@@ -105,7 +105,12 @@ class EDHT {
   }
 
   publishDatabase(changed = false) {
-    return new Promise(async (resolve) => {
+    if (this.publishing) {
+      this.pendingPublishChanged = this.pendingPublishChanged || changed;
+      this.pendingPublish = true;
+      return this.publishing;
+    }
+    this.publishing = new Promise(async (resolve) => {
       let offset = Settings.getValue('dhtoffset');
       if (changed) {
         offset += 1;
@@ -136,7 +141,15 @@ class EDHT {
 
 
       resolve(hash);
+      this.publishing = false;
+
+      if (this.pendingPublish) {
+        this.pendingPublish(this.pendingPublishChanged);
+      }
+      this.pendingPublish = false;
+      this.pendingPublishChanged = false;
     });
+    return this.publishing;
   }
 
   addPeerObserver(hash, cb) {

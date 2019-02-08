@@ -11,7 +11,8 @@ class TcpConnection {
     this.client = net.createConnection(port, host, this.didConnect.bind(this));
     this.client.on('error', (err) => {
       this.errored = true;
-      if (this.onResult) { this.onResult(this, false); }
+      if (this.timeoutTimer) clearTimeout(this.timeoutTimer);
+      this.onResult(false);
       Log.debug('client connect error', err, host, port);
     });
   }
@@ -21,7 +22,7 @@ class TcpConnection {
   }
 
   setOnResult(onResult) {
-    this.onResult = onResult;
+    this.onResultCallback = onResult;
   }
 
   didConnect() {
@@ -35,30 +36,51 @@ class TcpConnection {
     this.client.end();
   }
 
+  onResult(success) {
+    if (this.resultGiven) {
+      Log.warning('result already given???');
+      return;
+    }
+    this.resultGiven = true;
+    if (this.onResultCallback) this.onResultCallback(this, success);
+  }
+
   writeAndStream(reference, extra, writeOut) {
     Log.debug('try to download file from', this.peer, reference, extra);
     EDHT.announce(reference);
 
     Log.debug('connected to server!', this.peer);
-    this.client.write(`${reference}${extra}\r\n`);
+    this.client.write(`${reference}${extra}\n`, () => Log.debug('data written', this.peer));
 
     let finished = 0;
-    writeOut.forEach(s => this.client.pipe(s));
-    writeOut.forEach(s => s.on('finish', () => {
+    const onFinish = () => {
       finished += 1;
       if (this.errored) {
         return;
       }
-      if (finished === writeOut.length) this.onResult(this, this.client.bytesRead > 0);
-    }));
+      if (finished === writeOut.length) this.onResult(this.client.bytesRead > 0);
+    };
 
+    this.client.on('close', () => {
+      clearTimeout(this.timeoutTimer);
+      if (this.client.bytesRead > 0) {
+        writeOut.forEach(s => s.end());
+      } else {
+        writeOut.forEach(s => s.off('finish', onFinish));
+        this.onResult(false);
+      }
+    });
     // timeout the connection when not receiving data for 3 seconds
-    setTimeout(this.timeOut, 10000);
+    this.timeoutTimer = setTimeout(this.timeOut, 10000);
+
+    writeOut.forEach(s => this.client.pipe(s, { end: false }));
+    writeOut.forEach(s => s.on('finish', onFinish));
   }
 
   timeOut() {
-    Log.debug('no data received, conn timeout', this.peer);
+    Log.debug('bytes read', this.client.bytesRead);
     if (this.client.bytesRead > 0) return;
+    Log.debug('no data received, conn timeout', this.peer);
     this.end();
     this.errored = true;
     this.onResult(this, false);

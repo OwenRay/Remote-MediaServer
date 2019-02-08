@@ -7,7 +7,7 @@ const FileProcessor = require('./FileProcessor');
 
 class TcpClient {
   constructor(reference, key, nonce, expectedSize = 0) {
-    this.connections = [];
+    this.connections = {};
     this.expectedSize = expectedSize;
     this.reference = Buffer.from(reference, 'hex');
     this.key = Buffer.from(key, 'hex');
@@ -95,6 +95,7 @@ class TcpClient {
    */
   onConnect(connection) {
     if (this.downloading) {
+      Log.debug('already downloading, so not downloading from', connection.peer.host);
       return;
     }
 
@@ -112,10 +113,12 @@ class TcpClient {
       this.complete(true);
       return;
     }
+    Log.debug('download from', con.peer, 'failed');
     // @todo handle partial downloads
+    const p = `${con.peer.host}:${con.peer.port}`;
     this.downloading = false;
-    delete this.connections[this.connections.indexOf(con)];
-    const nxt = this.connections.find(c => c.connected);
+    delete this.connections[p];
+    const nxt = Object.values(this.connections).find(c => c.connected);
     if (nxt) this.onConnect(nxt);
   }
 
@@ -139,7 +142,7 @@ class TcpClient {
 
   async complete(success) {
     Log.debug('finished downloading', this.reference.toString('hex'));
-    this.connections.forEach(con => con.end());
+    Object.values(this.connections).forEach(con => con.end());
     this.ended = true;
     clearInterval(this.findPeerInterval);
     EDHT.removePeerObserver(this.reference, this.onPeer);

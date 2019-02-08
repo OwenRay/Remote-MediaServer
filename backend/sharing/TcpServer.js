@@ -21,7 +21,7 @@ class TcpServer {
     socket.on('error', (e) => {
       Log.debug('error in share socket connection', e);
     });
-    const timeout = setTimeout(() => { socket.end(); }, 5000);
+    const timeout = setTimeout(() => { socket.end(); }, 30000);
 
     readline
       .createInterface(socket)

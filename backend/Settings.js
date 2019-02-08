@@ -48,7 +48,7 @@ const settingsObj = {
     host: 'guessit.theremote.io',
     port: 5000,
   },
-  startscan: false,
+  startscan: true,
   filewatcher: 'native',
   scanInterval: 3600,
 };

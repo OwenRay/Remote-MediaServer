@@ -7,13 +7,14 @@ const Log = require('../helpers/Log');
 const DebugApiHandler = require('../requestHandlers/api/DebugApiHandler');
 const extendedInfoQueue = require('./ExtendedInfoQueue').getInstance();
 
+const onFileFoundCallbacks = [];
+
 class MovieScanner {
   constructor() {
     DebugApiHandler.registerDebugInfoProvider('scanner', this.debugInfo.bind(this));
     this.library = null;
     this.scanning = -1;
     this.types = Settings.getValue('videoFileTypes');
-    this.onFileFoundCallbacks = [];
     this.startWatchingAll();
     if (Settings.getValue('startscan')) this.scan();
     Settings.addObserver('libraries', this.onLibrariesChange.bind(this));
@@ -65,7 +66,7 @@ class MovieScanner {
         return;
       }
       if (this.willInclude(file, stat)) {
-        this.addFileToDatabase(library, file);
+        MovieScanner.addFileToDatabase(library, file, stat);
       }
     });
   }
@@ -79,21 +80,28 @@ class MovieScanner {
     this.scanRequested = false;
     Log.info('start scanner');
     // check all files for possible extra info.
-    MovieScanner.checkForMediaItemsWithMissingFiles();
     MovieScanner.checkForMediaItemsWithMissingLibrary();
+    MovieScanner.checkForMediaItemsWithMissingFiles();
     this.scanNext();
   }
 
   static checkForMediaItemsWithMissingFiles() {
+    const libs = {};
+    MovieScanner.getLibraries().forEach((l) => { libs[l.uuid] = l; });
+
     const items = Database.getAll('media-item', true);
     function next() {
       if (!items.length) {
         return;
       }
-      fs.stat(MediaItemHelper.getFullFilePath(items[0]), (err) => {
+      const file = MediaItemHelper.getFullFilePath(items[0]);
+      fs.stat(file, (err, stat) => {
         if (err) {
-          Log.info('item missing, removing', MediaItemHelper.getFullFilePath(items[0]), items[0].id);
+          Log.info('item missing, removing', file, items[0].id);
           Database.deleteObject('media-item', items[0].id);
+        } else {
+          // will reprocess (only if filesize has changed.)
+          MovieScanner.addFileToDatabase(libs[items[0].attributes.libraryId], file, stat);
         }
         items.shift();
         next();
@@ -166,7 +174,7 @@ class MovieScanner {
             return;
           }
           if (this.willInclude(file, stats)) {
-            this.addFileToDatabase(this.library, file);
+            MovieScanner.addFileToDatabase(this.library, file);
           }
           next();
         });
@@ -184,9 +192,10 @@ class MovieScanner {
     return this.types.some(i => i === type);
   }
 
-  addFileToDatabase(library, file) {
+  static addFileToDatabase(library, file, stat = null) {
     file = MovieScanner.normalizeFileName(library.folder, file);
-    if (!Database.findBy('media-item', 'filepath', file).length) {
+    let [item] = Database.findBy('media-item', 'filepath', file);
+    if (!item) {
       Log.info('found new file', file);
       const obj = {
         filepath: file,
@@ -200,9 +209,20 @@ class MovieScanner {
       } else if (file.match(/.*trailer.*/)) {
         obj.extra = true;
       }
-      const item = Database.setObject('media-item', obj);
+      item = Database.setObject('media-item', obj);
       extendedInfoQueue.push(item);
-      this.onFileFoundCallbacks.forEach(cb => cb(item));
+      onFileFoundCallbacks.forEach(cb => cb(item));
+    } else if (stat && stat.size !== item.attributes.filesize) {
+      item.attributes = {
+        ...item.attributes,
+        filesize: stat.size,
+        shared: false,
+        chunks: [],
+        shareparts: 0,
+        gotfileinfo: 0,
+      };
+      Database.update('media-item', item);
+      extendedInfoQueue.push(item);
     }
   }
 
@@ -212,8 +232,8 @@ class MovieScanner {
     return lib.replace(/^(.*?)(\\|\/)?$/, '$1') + file;
   }
 
-  setOnFileFound(cb) {
-    this.onFileFoundCallbacks.push(cb);
+  static setOnFileFound(cb) {
+    onFileFoundCallbacks.push(cb);
   }
 
   debugInfo() {
