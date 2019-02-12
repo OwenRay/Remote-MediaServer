@@ -1,4 +1,4 @@
-const server = require('../backend/HttpServer');
+const server = require('../backend/core/http');
 const http = require('http');
 require('../scripts/onrun.js');
 

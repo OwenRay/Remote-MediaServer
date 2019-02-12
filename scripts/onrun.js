@@ -43,7 +43,7 @@ if (!fs.existsSync(`${dir}ffmpeg`) && !fs.existsSync(`${dir}ffmpeg.exe`)) {
 }
 
 if (os.platform() === 'win32') {
-  const Settings = require('../backend/Settings');
+  const Settings = require('../backend/core/Settings');
   const ffmpeg = Settings.getValue('ffmpeg_binary');
   const ffprobe = Settings.getValue('ffprobe_binary');
   if (!ffmpeg.match(/exe$/)) {
