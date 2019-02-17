@@ -1,7 +1,8 @@
+/* global $ */
 import React, { Component } from 'react';
 import { Flipper } from 'react-flip-toolkit';
 
-import { Navbar, Icon } from 'react-materialize';
+import { Navbar, Icon, Table, Modal } from 'react-materialize';
 import { Route, NavLink } from 'react-router-dom';
 import { apiActions } from 'redux-jsonapi';
 import Library from './routes/Library';
@@ -18,6 +19,7 @@ class App extends Component {
     super();
     this.state = {};
     this.onShortcut = this.onShortcut.bind(this);
+    this.toggleHelp = this.toggleHelp.bind(this);
   }
 
   componentWillMount() {
@@ -30,16 +32,27 @@ class App extends Component {
     store.dispatch(apiActions.read({ id: 1, _type: 'settings' }));
 
     ShortcutHelper.setOnSuccessfulShortcut(this.onShortcut);
+    this.shortcuts = new ShortcutHelper()
+      .add(ShortcutHelper.EVENT.HELP, this.toggleHelp);
+  }
+
+  componentWillUnmount() {
+    this.shortcuts.off();
   }
 
   onShortcut(result) {
-    if(!result) return;
+    if (!result) return;
     if (this.hideShortcutText) { clearTimeout(this.hideShortcutText); }
     this.setState({ shortcutText: result, showShortcutText: true });
     this.hideShortcutText = setTimeout(
       () => this.setState({ showShortcutText: false }),
       350,
     );
+  }
+
+  toggleHelp() {
+    $('#help').modal( this.modalOpen ? 'close' : 'open');
+    this.modalOpen = !this.modalOpen;
   }
 
   render() {
@@ -81,6 +94,43 @@ class App extends Component {
         <div className={`shortcutText ${this.state.showShortcutText ? 'visible' : ''}`}>
           {this.state.shortcutText}
         </div>
+        <Modal
+          id="help"
+          header="Keyboard Shortcuts"
+        >
+          <Table>
+            <tbody>
+              <tr>
+                <td>Arrow keys</td>
+                <td>Browse videos</td>
+              </tr>
+              <tr>
+                <td>[space] or [enter]</td>
+                <td>Start playing selected video</td>
+              </tr>
+              <tr>
+                <td>P, K or [space]</td>
+                <td>Toggle pause</td>
+              </tr>
+              <tr>
+                <td>M</td>
+                <td>Toggle mute</td>
+              </tr>
+              <tr>
+                <td>F</td>
+                <td>Toggle fullscreen</td>
+              </tr>
+              <tr>
+                <td>Arrow up and down</td>
+                <td>Change volume</td>
+              </tr>
+              <tr>
+                <td>Arrow left and right, or J & L</td>
+                <td>Seek 20 seconds</td>
+              </tr>
+            </tbody>
+          </Table>
+        </Modal>
       </div>
     );
   }

@@ -21,14 +21,15 @@ class ShortcutArray {
 }
 
 ShortcutArray.EVENT = {
-  PAUSE_PLAY: [32, 80],
+  PAUSE_PLAY: [32, 80, 75],
   FULLSCREEN: [70, 122],
   UP: [38],
-  LEFT: [37],
-  RIGHT: [39],
+  LEFT: [37, 74],
+  RIGHT: [39, 76],
   DOWN: [40],
   SELECT: [32, 13],
   MUTE: [77],
+  HELP: [191],
 };
 
 window.addEventListener('keydown', (e) => {
