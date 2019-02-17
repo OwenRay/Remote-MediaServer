@@ -8,7 +8,7 @@
     "remote": "./main.js"
   },
   "scripts": {
-    "test": "eslint --config .eslintrc backend/ && nodeunit tests/",
+    "test": "eslint --config .eslintrc backend/ && nodeunit backend/core/tests/",
     "package": "cp -r node_modules/moviedb-api/",
     "build": "pkg package.json && npm run build:mac && npm run build:win && npm run build:linux",
     "build:mac": "zip file.zip remote-mediaserver-macos node_modules/*/*/darwin-x64/node-64.node && mv file.zip dist/osx.zip",
@@ -28,13 +28,11 @@
     ]
   },
   "dependencies": {
+    "acme-client": "^2.2.3",
     "ass-to-vtt": "^1.1.1",
     "bittorrent-dht": "^9.0.0",
     "chokidar": "^2.0.4",
     "ed25519-supercop": "^1.2.0",
-    "filewatcher": "^3.0.1",
-    "glob": "^7.1.2",
-    "guessit-wrapper": "^1.0.0",
     "koa": "^2.3.0",
     "koa-bodyparser": "^4.2.0",
     "koa-cors": "0.0.16",
@@ -49,7 +47,6 @@
     "pluralize": "^1.2.1",
     "q": "^1.5.1",
     "server-destroy": "^1.0.1",
-    "srt-to-ass": "^0.1.9",
     "srt-to-vtt": "^1.1.1",
     "unzip2": "^0.2.5",
     "vtt-shift": "^0.1.0",

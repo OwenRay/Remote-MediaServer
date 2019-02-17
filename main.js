@@ -1,18 +1,12 @@
 #!/usr/bin/env node
-require('./scripts/onrun.js');
 const fs = require('fs');
 
-let dir = process.env.HOME || process.env.USERPROFILE;
-dir += '/.remote/';
+const dir = `${process.env.HOME || process.env.USERPROFILE}/.remote`;
 if (!fs.existsSync(dir)) {
   fs.mkdirSync(dir);
 }
 
 // make sure all settings files are in the right directory
-console.log('chdir', dir);
 process.chdir(dir);
 
-require('./backend/scanner/MovieScanner.js');
-require('./backend/Migrate').run();
-require('./backend/HttpServer').start();
-require('./backend/sharing');
+require('./backend/core').init();
