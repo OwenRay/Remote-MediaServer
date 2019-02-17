@@ -8,7 +8,7 @@
     "remote": "./main.js"
   },
   "scripts": {
-    "test": "eslint --config .eslintrc backend/ && nodeunit tests/",
+    "test": "eslint --config .eslintrc backend/ && nodeunit backend/core/tests/",
     "package": "cp -r node_modules/moviedb-api/",
     "build": "pkg package.json && npm run build:mac && npm run build:win && npm run build:linux",
     "build:mac": "zip file.zip remote-mediaserver-macos node_modules/*/*/darwin-x64/node-64.node && mv file.zip dist/osx.zip",

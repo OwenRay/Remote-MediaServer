@@ -1,10 +1,15 @@
-const server = require('../backend/core/http');
+const server = require('../http');
 const http = require('http');
-require('../scripts/onrun.js');
+const fs = require('fs');
+const util = require('util');
+
+const mkdir = util.promisify(fs.mkdir);
 
 module.exports = {
-  setUp(callback) {
-    server.start();
+  async setUp(callback) {
+    await mkdir('cache');
+    server.preflight();
+    await server.start();
     setTimeout(callback, 1000);
   },
 
@@ -17,6 +22,8 @@ module.exports = {
   },
 
   tearDown(callback) {
+    fs.unlinkSync('cache/httpCache');
+    fs.rmdirSync('cache');
     server.stop();
     callback();
   },

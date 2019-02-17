@@ -1,10 +1,15 @@
-
-
-require('../scripts/onrun.js');
 const fs = require('fs');
-const Database = require('../backend/core/database/Database');
+const util = require('util');
+const Database = require('../database/Database');
+
+const mkdir = util.promisify(fs.mkdir);
 
 module.exports = {
+  async setUp(cb) {
+    await mkdir('store');
+    cb();
+  },
+
   testInsert(test) {
     test.expect(2);
     const o = Database.setObject('table', { test: 'test' });
@@ -14,7 +19,7 @@ module.exports = {
   },
   testFind(test) {
     test.expect(2);
-    for (let c = 0; c < 10; c++) {
+    for (let c = 0; c < 10; c += 1) {
       Database.setObject('table', { test: `${c}` });
     }
     test.ok(Database.findBy('table', 'test', 5));
@@ -28,12 +33,16 @@ module.exports = {
       test.done();
     });
   },
+
   tearDown(callback) {
-    try {
-      fs.unlinkSync('store/media-item');
-      fs.unlinkSync('store/ids');
-      fs.unlinkSync('store/table');
-    } catch (e) {}
+    ['store/ids', 'store/table', 'store/version', 'store/media-item']
+      .forEach((f) => {
+        try {
+          fs.unlinkSync(f);
+          // eslint-disable-next-line no-empty
+        } catch (e) { }
+      });
+    fs.rmdirSync('store');
     callback();
   },
 };

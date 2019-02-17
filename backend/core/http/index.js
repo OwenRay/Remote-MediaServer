@@ -4,77 +4,59 @@
 
 const Settings = require('../Settings');
 const Log = require('../Log');
-const glob = require('glob');
-const path = require('path');
 
 const Koa = require('koa');
 const Router = require('koa-router');
 const Static = require('koa-static');
 const cors = require('koa-cors');
-const cache = require('node-file-cache');
+const nodeCache = require('node-file-cache');
 const destroyable = require('server-destroy');
 const bodyParser = require('koa-bodyparser');
 const opn = require('opn');
 const ip = require('ip');
-const acme = require('acme-client');
 
+
+let server;
+let serverInstance;
+let cache;
+const router = new Router();
+const cacheRoute = [];
+const routes = [];
 
 class HttpServer {
-  constructor() {
-    this.cache = cache.create({ file: `${process.cwd()}/cache/httpCache` });
-    this.router = new Router();
-    this.cacheRoute = [];
-    this.routes = [];
-  }
-
-  preflight() {
-    Settings.addObserver('port', this.onPortChange.bind(this));
-    this.server = new Koa();
-    this.server.use(cors({ origin: '*', methods: ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH'] }));
+  static preflight() {
+    cache = nodeCache.create({ file: `${process.cwd()}/cache/httpCache` });
+    Settings.addObserver('port', HttpServer.onPortChange);
+    server = new Koa();
+    server.use(cors({ origin: '*', methods: ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH'] }));
     // eslint-disable-next-line global-require
     require('./coreHandlers');
   }
 
-  async start() {
-    /*let accountKey = Settings.getValue('acmeAccountKey');
-    if(!accountKey) {
-      accountKey = await acme.forge.createPrivateKey();
-
-    }
-    const client = new acme.Client({
-      directoryUrl: acme.directory.letsencrypt.staging,
-      accountKey,
-    });
-
-    const order = await client.createOrder({
-      identifiers: [
-        { type: 'dns', value: 'watch.whileip.com' },
-      ],
-    });*/
-
+  static async start() {
     Log.info('starting http server');
-    this.server.use(bodyParser());
-    this.server.use(this.router.routes());
-    this.server.use(this.router.allowedMethods());
+    server.use(bodyParser());
+    server.use(router.routes());
+    server.use(router.allowedMethods());
 
     // make sure frontend javascript url handling works.
     // for example /library/list redirects to /
-    this.server.use((context, next) => {
+    server.use((context, next) => {
       if (context.url.split('?')[0].indexOf('.') === -1) {
         context.url = '/';
       }
       return next();
     });
-    this.server.use(new Static(`${__dirname}/../../../frontend/build`));
+    server.use(new Static(`${__dirname}/../../../frontend/build`));
 
     // Lets start our server
-    this.serverInstance = this.server.listen(Settings.getValue('port'), Settings.getValue('bind'), HttpServer.onConnected);
-    destroyable(this.serverInstance);
+    serverInstance = server.listen(Settings.getValue('port'), Settings.getValue('bind'), HttpServer.onConnected);
+    destroyable(serverInstance);
   }
 
-  stop(and) {
+  static stop(and) {
     Log.info('shutting down http server');
-    this.serverInstance.destroy(and);
+    serverInstance.destroy(and);
   }
 
   static async onConnected() {
@@ -94,24 +76,24 @@ class HttpServer {
      * @param routepath
      * @param {RequestHandler} requestHandler
      */
-  registerRoute(method, routepath, RequestHandler, cacheFor, priority) {
+  static registerRoute(method, routepath, RequestHandler, cacheFor, priority) {
     if (!priority) {
       priority = 0;
     }
     const route = `${method}@${routepath}`;
-    this.cacheRoute[`${route}@${priority}`] = cacheFor;
+    cacheRoute[`${route}@${priority}`] = cacheFor;
 
     // if there's no such route yet, register it
-    if (!this.routes[route]) {
-      this.routes[route] = [];
+    if (!routes[route]) {
+      routes[route] = [];
 
-      this.router[method](routepath, context => this.checkCache(
+      router[method](routepath, context => HttpServer.checkCache(
         context,
         `${route}@${priority}`,
         () => {
           // run routes by priority, if one returns true, we'll stop propagating
           for (let c = 10; c >= -10; c -= 1) {
-            const R = this.routes[route][c];
+            const R = routes[route][c];
             if (R) {
               const result = new R(context, method, routepath).handleRequest();
               if (result) {
@@ -123,16 +105,16 @@ class HttpServer {
         },
       ));
     }
-    this.routes[route][priority] = RequestHandler;
+    routes[route][priority] = RequestHandler;
   }
 
-  checkCache(context, key, func) {
-    const cacheFor = this.cacheRoute[key];
+  static checkCache(context, key, func) {
+    const cacheFor = cacheRoute[key];
     if (!cacheFor) {
       return func();
     }
 
-    const entry = this.cache.get(context.url);
+    const entry = cache.get(context.url);
     if (entry) {
       context.body = entry;
       return true;
@@ -142,17 +124,17 @@ class HttpServer {
       Promise.resolve(func()).then(() => {
         if (context.body) {
           const cacheObj = context.body;
-          this.cache.set(context.url, cacheObj, { life: cacheFor }, [key]);
+          cache.set(context.url, cacheObj, { life: cacheFor }, [key]);
         }
         resolve();
       });
     });
   }
 
-  onPortChange() {
+  static onPortChange() {
     Log.info('onPortChange', this);
-    this.stop(this.start.bind(this));
+    HttpServer.stop(HttpServer.start);
   }
 }
 
-module.exports = new HttpServer();
+module.exports = HttpServer;

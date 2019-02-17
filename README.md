@@ -28,8 +28,11 @@ direct your browser to http://localhost:8234
 
 # DEVELOPMENT
 ### Installing dependencies
-To setup your development environment run the following command  
-`$ node setup.js`  
+To setup your development environment run the following commands
+```bash
+npm install
+npm install --prefix frontend && npm run build --prefix frontend
+```  
   
 To start the server:  
 `$ node main.js`  
