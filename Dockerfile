@@ -24,7 +24,7 @@ WORKDIR /app
 COPY --from=build_frontend /frontend/build /app/frontend/build
 COPY --from=build_backend /backend /app/
 
-COPY . backend/ scripts/ /app/
+COPY . backend/ /app/
 
 # EXPOSE [P2P] [HTTP]
 EXPOSE 8234 8235
