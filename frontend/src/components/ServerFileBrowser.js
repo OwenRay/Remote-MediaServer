@@ -86,7 +86,7 @@ class ServerFileBrowser extends Component {
    * @param e
    */
   valueChange(e) {
-    this.update(e.target.value);
+    this.update(e.target.value.replace('\\', '/'));
   }
 
   render() {
