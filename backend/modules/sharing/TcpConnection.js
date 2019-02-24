@@ -37,6 +37,7 @@ class TcpConnection {
   }
 
   onResult(success) {
+    clearTimeout(this.timeoutTimer);
     if (this.resultGiven) {
       Log.warning('result already given???');
       return;
@@ -70,7 +71,7 @@ class TcpConnection {
         this.onResult(false);
       }
     });
-    // timeout the connection when not receiving data for 3 seconds
+    // timeout the connection when not receiving data for 10 seconds
     this.timeoutTimer = setTimeout(this.timeOut, 10000);
 
     writeOut.forEach(s => this.client.pipe(s, { end: false }));
@@ -83,7 +84,7 @@ class TcpConnection {
     Log.debug('no data received, conn timeout', this.peer);
     this.end();
     this.errored = true;
-    this.onResult(this, false);
+    this.onResult(false);
   }
 }
 
