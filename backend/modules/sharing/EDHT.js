@@ -112,6 +112,8 @@ class EDHT {
     }
     this.publishing = new Promise(async (resolve) => {
       let offset = Settings.getValue('dhtoffset');
+      const knownOffset = await this.getValue(Buffer.from(Settings.getValue('sharekey'), 'hex'));
+      if (knownOffset) { offset = knownOffset.seq; }
       if (changed) {
         offset += 1;
         Settings.setValue('dhtoffset', offset);
@@ -144,9 +146,9 @@ class EDHT {
       this.publishing = false;
 
       if (this.pendingPublish) {
-        this.pendingPublish(this.pendingPublishChanged);
+        this.pendingPublish = false;
+        this.publishDatabase(this.pendingPublishChanged);
       }
-      this.pendingPublish = false;
       this.pendingPublishChanged = false;
     });
     return this.publishing;
