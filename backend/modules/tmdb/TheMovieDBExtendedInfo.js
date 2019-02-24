@@ -66,7 +66,10 @@ class TheMovieDBExtendedInfo extends IExtendedInfo {
 
     let res = await searchMethod(params);
     if (library.type !== 'tv') {
-      res = (res.results && res.results.length > 0 ? res.results[0] : null);
+      const match = res.results
+        .find(i => mediaItem.attributes.title.toLocaleLowerCase() === i.title.toLocaleLowerCase());
+      if (match) res = match;
+      else [res] = res.results;
     }
 
     if (res) {

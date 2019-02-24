@@ -29,11 +29,14 @@ class TheMovieDBSeriesAndSeasonsExtendedInfo extends IExtendedInfo {
     Log.debug('process serie', mediaItem.id);
 
     // find series info
-    let cache = nodeCache.get(`1:${mediaItem.attributes.title}`);
-    let res = cache || await movieDB.searchTv({ query: mediaItem.attributes.title });
+    const { title } = mediaItem.attributes;
+    let cache = nodeCache.get(`1:${title}`);
+    const items = cache || await movieDB.searchTv({ query: title });
+    nodeCache.set(`1:${title}`, items);
 
-    nodeCache.set(`1:${mediaItem.attributes.title}`, res);
-    [res] = res.results;
+    let res = items.results.find(i => i.name.toLocaleLowerCase() === title.toLocaleLowerCase());
+    if (!res) [res] = items.results;
+
     if (res) {
       res['external-id'] = res.id;
       delete res.id;
@@ -45,13 +48,13 @@ class TheMovieDBSeriesAndSeasonsExtendedInfo extends IExtendedInfo {
       [mediaItem.attributes.year] = date.split('-');
     }
     // find season info
-    cache = nodeCache.get(`2:${mediaItem.attributes.title}:${mediaItem.attributes.season}`);
+    cache = nodeCache.get(`2:${title}:${mediaItem.attributes.season}`);
     res = cache || await movieDB.tvSeason({
       id: mediaItem.attributes['external-id'],
       season_number: mediaItem.attributes.season,
     });
     if (res) {
-      nodeCache.set(`2:${mediaItem.attributes.title}:${mediaItem.attributes.season}`, res);
+      nodeCache.set(`2:${title}:${mediaItem.attributes.season}`, res);
 
       delete res.episodes;
       mediaItem.attributes.seasonInfo = res;
@@ -59,11 +62,11 @@ class TheMovieDBSeriesAndSeasonsExtendedInfo extends IExtendedInfo {
 
     try {
       // get credits
-      cache = nodeCache.get(`3:${mediaItem.attributes.title}:${mediaItem.attributes.season}`);
+      cache = nodeCache.get(`3:${title}:${mediaItem.attributes.season}`);
       res = cache || await movieDB.tvCredits({
         id: mediaItem.attributes['external-id'],
       });
-      nodeCache.set(`3:${mediaItem.attributes.title}:${mediaItem.attributes.season}`, res);
+      nodeCache.set(`3:${title}:${mediaItem.attributes.season}`, res);
       mediaItem.attributes.actors = res.cast.map(actor => actor.name);
     } catch (e) {
       Log.debug(e);
@@ -71,11 +74,11 @@ class TheMovieDBSeriesAndSeasonsExtendedInfo extends IExtendedInfo {
 
     try {
       // get credits
-      cache = nodeCache.get(`4:${mediaItem.attributes.title}:${mediaItem.attributes.season}`);
+      cache = nodeCache.get(`4:${title}:${mediaItem.attributes.season}`);
       res = cache || await movieDB.tvContent_ratings({
         id: mediaItem.attributes['external-id'],
       });
-      nodeCache.set(`4:${mediaItem.attributes.title}:${mediaItem.attributes.season}`, res);
+      nodeCache.set(`4:${title}:${mediaItem.attributes.season}`, res);
       // is there a US release? get it. otherwise whichever's first
       res = res.results;
       let r = res.find(d => d.iso_3166_1 === 'US');
