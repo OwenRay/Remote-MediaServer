@@ -29,6 +29,10 @@ class RequestHandler {
   handleRequest() {
     return false;
   }
+
+  static getDescription() {
+    return '';
+  }
 }
 
 module.exports = RequestHandler;

@@ -21,7 +21,7 @@ let serverInstance;
 let cache;
 const router = new Router();
 const cacheRoute = [];
-const routes = [];
+const routes = {};
 
 class HttpServer {
   static preflight() {
@@ -72,9 +72,11 @@ class HttpServer {
 
   /**
      *
-     * @param method
-     * @param routepath
-     * @param {RequestHandler} requestHandler
+     * @param {string} method
+     * @param {string} routepath
+     * @param {RequestHandler} RequestHandler
+     * @param {int} cacheFor
+     * @param {int} priority
      */
   static registerRoute(method, routepath, RequestHandler, cacheFor, priority) {
     if (!priority) {
@@ -85,7 +87,7 @@ class HttpServer {
 
     // if there's no such route yet, register it
     if (!routes[route]) {
-      routes[route] = [];
+      routes[route] = {};
 
       router[method](routepath, context => HttpServer.checkCache(
         context,
@@ -106,6 +108,10 @@ class HttpServer {
       ));
     }
     routes[route][priority] = RequestHandler;
+  }
+
+  static getRoutes() {
+    return routes;
   }
 
   static checkCache(context, key, func) {

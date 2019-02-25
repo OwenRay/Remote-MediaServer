@@ -5,3 +5,4 @@ require('./ImageCacheHandler');
 require('./ScannerApiHandler');
 require('./SettingsApiHandler');
 require('./WatchNext');
+require('./DocumentationRequestHandler');
