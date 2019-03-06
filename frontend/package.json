@@ -27,7 +27,7 @@
     "vtt-live-edit": "^1.0.7",
     "react-flip-toolkit": "^6.3.0",
     "animejs": "^2.2.0",
-    "markdown-it": "^0.5.0"
+    "markdown-it": "^8.4.2"
   },
   "devDependencies": {
     "npm-run-all": "^4.0.2"
