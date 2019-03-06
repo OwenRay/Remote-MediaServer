@@ -63,7 +63,9 @@ class HttpServer {
     let host = Settings.getValue('bind');
     if (host === '0.0.0.0') host = ip.address();
     try {
-      await opn(`http://${host}:${Settings.getValue('port')}`);
+      if (Settings.getValue('startopen')) {
+        await opn(`http://${host}:${Settings.getValue('port')}`);
+      }
     } catch (e) {
       Log.debug(e);
     }

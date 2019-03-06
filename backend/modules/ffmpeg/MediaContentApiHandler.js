@@ -34,6 +34,11 @@ class SubtitleApiHandler extends RequestHandler {
     });
   }
 
+  static getDescription(method, url) {
+    if (url === '/api/mediacontent/subtitle/:id/:file') return 'serves a webvtt caption';
+    return `${__dirname}/mediacontent.md`;
+  }
+
   serveList(directory) {
     fs.readdir(directory, this.onReadDir.bind(this));
   }

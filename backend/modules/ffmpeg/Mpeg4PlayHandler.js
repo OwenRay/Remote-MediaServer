@@ -39,6 +39,11 @@ class Mpeg4PlayHandler extends RequestHandler {
     return promise;
   }
 
+  static getDescription(nethod, url) {
+    if (url === '/ply/:id/:offset') return 'will serve an mp4 h265 aac from :offset in seconds';
+    return `${__dirname}/playhandler.md`;
+  }
+
   onFFMpegReady() {
     this.context.req.connection.on('close', () => {
       Log.debug('close video play connection!');

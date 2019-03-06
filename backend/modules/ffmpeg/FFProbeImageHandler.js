@@ -87,6 +87,10 @@ class FFProbeImageHandler extends IImageHandler {
       });
     });
   }
+
+  static getDescription() {
+    return 'will get a thumbnail from the middle of the video';
+  }
 }
 
 httpServer.registerRoute('get', '/img/:image.jpg', FFProbeImageHandler, 0, 1);

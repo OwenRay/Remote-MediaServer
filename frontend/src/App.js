@@ -12,6 +12,7 @@ import Video from './routes/Video';
 import store from './helpers/stores/settingsStore';
 import Detail from './routes/Detail';
 import ShortcutHelper from './helpers/ShortcutHelper';
+import Api from './routes/Api';
 
 
 class App extends Component {
@@ -90,6 +91,7 @@ class App extends Component {
           <Route path="/Settings" component={Settings} />
           <Route path="/item/detail/:id" component={Detail} />
           <Route path="/item/view/:id" component={Video} />
+          <Route path="/Api" component={Api} />
         </Flipper>
         <div className={`shortcutText ${this.state.showShortcutText ? 'visible' : ''}`}>
           {this.state.shortcutText}

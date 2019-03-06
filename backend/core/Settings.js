@@ -58,6 +58,7 @@ const settingsObj = {
     'sharing',
     'tmdb',
   ],
+  startopen: true,
 };
 
 const Settings = {
@@ -113,6 +114,7 @@ const Settings = {
       let val = env[`RMS_${key.toLocaleUpperCase()}`];
       if (val && val[0] === '{') val = JSON.parse(val);
       val = val || newSettings[key];
+      if (val === 'false') val = false;
       settingsObj[key] = val;
     });
   },

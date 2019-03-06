@@ -1,5 +1,6 @@
 const RequestHandler = require('../RequestHandler');
 const httpServer = require('..');
+const fs = require('fs');
 
 class DocumentationRequestHandler extends RequestHandler {
   async handleRequest() {
@@ -16,8 +17,18 @@ class DocumentationRequestHandler extends RequestHandler {
   static parseRoutes(name, routes) {
     return Object.values(routes).map((val) => {
       const [method, url] = name.split('@');
-      return { method, url, description: val.getDescription(method, url) };
+      return {
+        method,
+        url,
+        classname: val.name,
+        description: DocumentationRequestHandler.parseDescription(val.getDescription(method, url)),
+      };
     });
+  }
+
+  static parseDescription(description) {
+    if (description.substr(-3) !== '.md') return description || 'No description available';
+    return `${fs.readFileSync(description)}`;
   }
 }
 

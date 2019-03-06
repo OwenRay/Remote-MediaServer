@@ -15,6 +15,10 @@ class DebugApiHandler extends RequestHandler {
   static registerDebugInfoProvider(category, target) {
     providers.push({ category, target });
   }
+
+  static getDescription() {
+    return `${__dirname}/apidoc.md`;
+  }
 }
 
 httpServer.registerRoute('get', '/debug', DebugApiHandler);
