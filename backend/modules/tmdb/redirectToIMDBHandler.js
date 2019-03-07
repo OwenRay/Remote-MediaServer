@@ -9,7 +9,7 @@ const movieDB = new MovieDB({
   apiKey: Settings.getValue('tmdb_apikey'),
 });
 
-class TMDBApiHandler extends RequestHandler {
+class redirectToIMDBHandler extends RequestHandler {
   async handleRequest() {
     const item = Database.getById('media-item', this.context.params.id);
     let m;
@@ -20,8 +20,12 @@ class TMDBApiHandler extends RequestHandler {
     this.context.redirect(`https://imdb.com/title/${m.imdb_id}`);
     return true;
   }
+
+  static getDescription() {
+    return 'will 302 redirect the client to an IMDB link';
+  }
 }
 
-httpServer.registerRoute('get', '/api/redirectToIMDB/:id', TMDBApiHandler);
+httpServer.registerRoute('get', '/api/redirectToIMDB/:id', redirectToIMDBHandler);
 
-module.exports = TMDBApiHandler;
+module.exports = redirectToIMDBHandler;

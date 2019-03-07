@@ -2,7 +2,7 @@ will serve an mp4 h265 aac
 
 ## Supported get parameters  
 
-|               |                                  |
+|  GET Param    | Accepted value                   |
 |---------------|----------------------------------|
 | audioChannel  | Audio channel offset (default 0) |
 | videoChannel  | Video channel offset (default 0) |

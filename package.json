@@ -17,7 +17,7 @@
   },
   "pkg": {
     "scripts": [
-      "backend/**",
+      "backend/**.js",
       "node_modules/ed25519-supercop/prebuilds/darwin-x64/node-64.node",
       "node_modules/ed25519-supercop/prebuilds/win32-x64/node-64.node",
       "node_modules/ed25519-supercop/prebuilds/linux-x64/node-64.node",

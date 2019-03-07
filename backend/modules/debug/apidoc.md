@@ -22,10 +22,10 @@ Can be hooked into by any module using `DebugApiHandler.registerDebugInfoProvide
     "publishing": false,
     "dht": {
       "nodes": [
-      {
-        "host": "1.2.3.4",
-        "port": 8235
-      }
+        {
+          "host": "1.2.3.4",
+          "port": 8235
+        }
       ],
       "values": {
         "50933682d171c9c144d1597538dfbe5cccab5139": {

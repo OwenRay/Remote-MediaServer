@@ -45,6 +45,10 @@ class TmdbImageHandler extends IImageHandler {
     });
     return p;
   }
+
+  static getDescription() {
+    return `will get an image from TheMovieDB  \n${IImageHandler.getDescription()}`;
+  }
 }
 
 httpServer.registerRoute('get', '/img/:image.jpg', TmdbImageHandler, 0, 2);

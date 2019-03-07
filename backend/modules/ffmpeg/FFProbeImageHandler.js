@@ -89,7 +89,7 @@ class FFProbeImageHandler extends IImageHandler {
   }
 
   static getDescription() {
-    return 'will get a thumbnail from the middle of the video';
+    return `will get a thumbnail from the middle of the video  \n${IImageHandler.getDescription()}`;
   }
 }
 

@@ -15,13 +15,15 @@ class DocumentationRequestHandler extends RequestHandler {
   }
 
   static parseRoutes(name, routes) {
-    return Object.values(routes).map((val) => {
+    return Object.keys(routes).map((priority) => {
       const [method, url] = name.split('@');
+      const r = routes[priority];
       return {
         method,
         url,
-        classname: val.name,
-        description: DocumentationRequestHandler.parseDescription(val.getDescription(method, url)),
+        priority,
+        classname: r.name,
+        description: DocumentationRequestHandler.parseDescription(r.getDescription(method, url)),
       };
     });
   }

@@ -74,7 +74,7 @@ class HLSPlayHandler extends RequestHandler {
 
   static getDescription(url) {
     if (url === '/ply/:id/:offset') return 'will serve an hls if user agent is Safari from :offset in seconds';
-    return 'will serve an hls if user agent is Safari';
+    return 'will serve an hls if user agent is Safari, for more info check /ply/:id';
   }
 
   /**

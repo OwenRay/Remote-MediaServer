@@ -31,6 +31,10 @@ class DownloadFileHandler extends RequestHandler {
     this.context.type = mime.lookup(filepath);
     this.context.body = fs.createReadStream(filepath, { offset });
   }
+
+  static getDescription() {
+    return 'Will serve the original file';
+  }
 }
 
 httpServer.registerRoute('get', '/download/:id', DownloadFileHandler);

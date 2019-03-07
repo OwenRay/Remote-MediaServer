@@ -28,6 +28,10 @@ class TMDBApiHandler extends RequestHandler {
 
     this.context.body = genreCache;
   }
+
+  static getDescription() {
+    return `${__dirname}/genres.md`;
+  }
 }
 
 httpServer.registerRoute('get', '/api/tmdb/genres', TMDBApiHandler);

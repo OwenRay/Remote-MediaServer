@@ -13,6 +13,7 @@ import store from './helpers/stores/settingsStore';
 import Detail from './routes/Detail';
 import ShortcutHelper from './helpers/ShortcutHelper';
 import Api from './routes/Api';
+import About from './routes/About';
 
 
 class App extends Component {
@@ -82,6 +83,11 @@ class App extends Component {
               Settings
             </NavLink>
           </li>
+          <li>
+            <NavLink to="/About">
+              <Icon left>help</Icon>
+            </NavLink>
+          </li>
         </Navbar>
         <Flipper
           flipKey={this.props.location.pathname + this.props.location.search}
@@ -92,6 +98,7 @@ class App extends Component {
           <Route path="/item/detail/:id" component={Detail} />
           <Route path="/item/view/:id" component={Video} />
           <Route path="/Api" component={Api} />
+          <Route path="/About" component={About} />
         </Flipper>
         <div className={`shortcutText ${this.state.showShortcutText ? 'visible' : ''}`}>
           {this.state.shortcutText}

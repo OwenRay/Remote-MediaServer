@@ -26,6 +26,15 @@ class IImageHandler extends RequestHandler {
     this.item = Database.getById('media-item', item[0]);
     this.response.header['Content-Type'] = 'image/jpeg';
   }
+
+  static getDescription() {
+    return ':image should be [id]_[type]  \n' +
+    'where type is one of  \n' +
+    '- backdrop  \n' +
+    '- poster  \n' +
+    '- posterlarge  \n' +
+    '- postersmall';
+  }
 }
 
 IImageHandler.TYPE_BACKDROP = 'backdrop';

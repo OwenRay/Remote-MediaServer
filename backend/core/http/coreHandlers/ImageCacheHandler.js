@@ -37,6 +37,10 @@ class ImageCacheHandler extends IImageHandler {
     const filename = `cache/thumb_${id}_${this.type}`;
     fs.writeFile(filename, data, () => {});
   }
+
+  static getDescription() {
+    return `Will automatically cache any lower priority request  \n${IImageHandler.getDescription()}`;
+  }
 }
 
 httpServer.registerRoute('get', '/img/:image.jpg', ImageCacheHandler, 0, 10);

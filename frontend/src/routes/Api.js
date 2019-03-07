@@ -33,7 +33,18 @@ class Api extends PureComponent {
         <div>
           <Card>
             <h3>API Documentation</h3>
-            Click any for details
+            <ul>
+              <li>
+                A number behind any route points at a priority,
+                if a higher priority route doesn&apos;t
+                handle the call the call will be passed onto a higher priority route.
+              </li>
+              <li>
+                Any backend module can implement getDescription
+                and return a string or the path to an md file.
+              </li>
+              <li>Click any route for details.</li>
+            </ul>
           </Card>
           {this.state.data.map((o, index) => (
             <Card
@@ -43,6 +54,7 @@ class Api extends PureComponent {
               <header onClick={() => { this.toggle(index); }}>
                 <Chip>{o.method.toUpperCase()}</Chip>
                 <b>{o.url}</b>
+                <i> {o.priority !== '0' ? `(${o.priority})` : ''}</i>
                 <span>{o.classname}</span>
               </header>
               <p dangerouslySetInnerHTML={{ __html: md.render(o.description) }} />

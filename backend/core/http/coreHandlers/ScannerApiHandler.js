@@ -4,7 +4,7 @@ const Database = require('../../database/Database');
 const MovieScanner = require('../../scanner/MovieScanner');
 const ExtendedInfoQueue = require('../../scanner/ExtendedInfoQueue');
 
-class TMDBApiHandler extends RequestHandler {
+class ScannerApiHandler extends RequestHandler {
   async handleRequest() {
     MovieScanner.scan();
     const items = Database.getAll('media-item', true);
@@ -23,8 +23,12 @@ class TMDBApiHandler extends RequestHandler {
     ExtendedInfoQueue.concat(items);
     this.context.body = { status: 'ok' };
   }
+
+  static getDescription() {
+    return `${__dirname}/../doc/scanner.md`;
+  }
 }
 
-httpServer.registerRoute('get', '/api/rescan', TMDBApiHandler);
+httpServer.registerRoute('get', '/api/rescan', ScannerApiHandler);
 
-module.exports = TMDBApiHandler;
+module.exports = ScannerApiHandler;

@@ -75,6 +75,13 @@ html, body{
 
 .card{
   clear:both;
+  ul{
+    margin-left: 20px;
+    li {
+      display: list-item;
+      list-style-type: circle;
+    }
+  }
 }
 
 .card .card-content .card-title{
@@ -490,6 +497,12 @@ nav {
     font-size: 1.6rem;
     text-transform: uppercase;
   }
+  a{
+    height:49px;
+    &:last-child i{
+      margin: 0px;
+    }
+  }
   a.button-collapse, a.button-collapse i, .nav-wrapper i {
     height: 49px;
     line-height: 49px;
@@ -712,4 +725,28 @@ code {
     display: block;
   }
   padding: 5px;
+}
+
+.about {
+  text-align: center;
+  img {
+    height: 64px;
+    display: block;
+    margin-bottom:10px;
+  }
+  a{
+    display: inline-block;
+    text-align: center;
+    padding: 15px;
+    margin-top:30px;
+    color: white;
+    &:hover {
+      border: solid $secondary-color 1px;
+      padding: 14px;
+    }
+  }
+  i{
+    font-size: 64px;
+    display: block;
+  }
 }
