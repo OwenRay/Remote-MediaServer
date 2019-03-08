@@ -1,4 +1,4 @@
-will serve an mp4 h265 aac
+will serve an mp4 h264 aac
 
 ## Supported get parameters  
 

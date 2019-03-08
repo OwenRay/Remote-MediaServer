@@ -41,7 +41,7 @@ class Mpeg4PlayHandler extends RequestHandler {
 
   static getDescription(nethod, url) {
     if (url === '/ply/:id/:offset') {
-      return 'will serve an mp4 h265 aac from :offset in seconds,  \n' +
+      return 'will serve an mp4 h264 aac from :offset in seconds,  \n' +
       'for more info check /ply/:id';
     }
     return `${__dirname}/playhandler.md`;
