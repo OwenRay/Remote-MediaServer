@@ -499,13 +499,13 @@ nav {
   }
   a{
     height:49px;
-    &:last-child i{
-      margin: 0px;
-    }
   }
   a.button-collapse, a.button-collapse i, .nav-wrapper i {
     height: 49px;
     line-height: 49px;
+  }
+  li:last-child i{
+    margin: 0px;
   }
   .side-nav li{
     width:100%;
