@@ -14,11 +14,14 @@ const destroyable = require('server-destroy');
 const bodyParser = require('koa-bodyparser');
 const opn = require('opn');
 const ip = require('ip');
+const https = require('https');
 
 
 let server;
 let serverInstance;
+let httpsServerInstance;
 let cache;
+let running = false;
 const router = new Router();
 const cacheRoute = [];
 const routes = {};
@@ -33,8 +36,16 @@ class HttpServer {
     require('./coreHandlers');
   }
 
+  static async sslRedirect(ctx, next) {
+    if (Settings.getValue('sslredirect') && httpsServerInstance && !ctx.req.client.encrypted) {
+      ctx.redirect(`https://${Settings.getValue('ssldomain')}.theremote.io:${Settings.getValue('sslport')}${ctx.originalUrl}`);
+    }
+    return next();
+  }
+
   static async start() {
     Log.info('starting http server');
+    server.use(HttpServer.sslRedirect);
     server.use(bodyParser());
     server.use(router.routes());
     server.use(router.allowedMethods());
@@ -52,11 +63,29 @@ class HttpServer {
     // Lets start our server
     serverInstance = server.listen(Settings.getValue('port'), Settings.getValue('bind'), HttpServer.onConnected);
     destroyable(serverInstance);
+
+    if (!Settings.getValue('ssl').key) return;
+    httpsServerInstance = https.createServer(Settings.getValue('ssl'), server.callback());
+    httpsServerInstance.listen(Settings.getValue('sslport'), Settings.getValue('bind'));
+    destroyable(httpsServerInstance);
+    running = true;
   }
 
   static stop(and) {
+    if (!running) return;
+
+    running = false;
     Log.info('shutting down http server');
-    serverInstance.destroy(and);
+    let cbCount = 1;
+    const cb = () => {
+      cbCount -= 1;
+      if (cbCount === 0) and();
+    };
+    if (httpsServerInstance) {
+      cbCount += 1;
+      httpsServerInstance.destroy(cb);
+    }
+    serverInstance.destroy(cb);
   }
 
   static async onConnected() {
@@ -110,6 +139,7 @@ class HttpServer {
       ));
     }
     routes[route][priority] = RequestHandler;
+    return HttpServer;
   }
 
   static getRoutes() {

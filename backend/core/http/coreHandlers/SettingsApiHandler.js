@@ -2,9 +2,12 @@
  * Created by Owen on 14-4-2016.
  */
 
-
 const RequestHandler = require('../RequestHandler');
 const Settings = require('../../Settings.js');
+const fs = require('fs');
+const util = require('util');
+
+const readdir = util.promisify(fs.readdir);
 
 class SettingsApiHandler extends RequestHandler {
   handleRequest() {
@@ -26,7 +29,15 @@ class SettingsApiHandler extends RequestHandler {
   }
 }
 
+
+class ModuleApiHandler extends RequestHandler {
+  async handleRequest() {
+    this.context.body = await readdir(`${__dirname}/../../../modules`);
+  }
+}
+
 require('..')
-  .registerRoute('all', '/api/settings/:unused_id', SettingsApiHandler);
+  .registerRoute('all', '/api/settings/:unused_id', SettingsApiHandler)
+  .registerRoute('get', '/api/modules', ModuleApiHandler);
 
 module.exports = SettingsApiHandler;

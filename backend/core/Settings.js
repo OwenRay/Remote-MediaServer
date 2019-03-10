@@ -57,8 +57,11 @@ const settingsObj = {
     'guessit',
     'sharing',
     'tmdb',
+    'rms-encrypt',
   ],
   startopen: true,
+  ssl: {},
+  sslport: 8443,
 };
 
 const Settings = {

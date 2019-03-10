@@ -6,15 +6,31 @@
 import React, { Component } from 'react';
 import { Card, Input, Row, Col, Button, Icon, Collection, CollectionItem, Modal } from 'react-materialize';
 import { apiActions, deserialize } from 'redux-jsonapi';
+import { Flipped } from 'react-flip-toolkit';
 import Slider from 'rc-slider';
 import store from '../helpers/stores/settingsStore';
 import LibraryDialog from '../components/LibraryDialog';
-import { Flipped } from 'react-flip-toolkit';
+
+let availableModules = [];
+const moduleDescription = {
+  debug: 'Adds some basic debugging tools',
+  ffmpeg: 'For playing and encoding videos',
+  sharing: 'Allows you to share libraries p2p end-to-end encrypted',
+  tmdb: 'Use TheMovieDB to find media info',
+  guessit: 'Parses filenames to information like title and year',
+  ssl: 'allows you to configure https through an rms subdomain',
+};
 
 class Settings extends Component {
   constructor() {
     super();
-    this.state = { activeTab: 0 };
+    this.state = { activeTab: 0, availableModules };
+    if (!availableModules.length) {
+      $.get('/api/modules', (result) => {
+        availableModules = result;
+        this.setState({ availableModules });
+      });
+    }
   }
 
   componentWillMount() {
@@ -81,9 +97,16 @@ class Settings extends Component {
    * called when user types in field, applies typed value to state
    */
   onChange(e, value) {
-    console.log(e.target.name, arguments);
+    console.log(e.target.name, e.target);
+    const { target } = e;
     const { settings } = this.state;
-    settings[e.target ? e.target.name : e] = value;
+    if (target.type === 'checkbox' && Array.isArray(settings[target.name])) {
+      const i = settings[target.name].indexOf(target.value);
+      if (i === -1) settings[target.name].push(target.value);
+      else settings[target.name].splice(i, 1);
+    } else {
+      settings[target ? target.name : e] = value;
+    }
     this.setState({ settings });
   }
 
@@ -239,55 +262,102 @@ class Settings extends Component {
               />
             </Row>
           </Card>
-          <Card
-            title="Share settings"
-          >
-            <Row className="advancedItem">
-              <Input
-                name="sharehost"
-                onChange={this.onChange}
-                defaultValue={`${settings.sharehost}`}
-                icon="input"
-                label="Sharing host (empty for autodetect)"
-                s={6}
-              />
-              <Input
-                name="shareport"
-                onChange={this.onChange}
-                defaultValue={`${settings.shareport}`}
-                icon="input"
-                label="Sharing port (make sure this port is reachable)"
-                s={6}
-              />
-            </Row>
-            <Row s={12} className="input-field">
-              <Input
-                s={4}
-                name="sharespace"
-                onChange={this.onChange}
-                label="Space reserved for shared files"
-                defaultValue={settings.sharespace}
-                icon="space"
-              />
-              <Col s={8}>
-                <Slider
-                  onChange={v => this.onChange('sharespace', v)}
-                  step={1}
-                  value={settings.sharespace}
-                  min={1}
-                  max={1000}
+
+          {settings.modules.indexOf('ssl') !== -1 ? (
+            <Card title="SSL">
+              <Row>
+                <Input
+                  name="ssldomain"
+                  onChange={this.onChange}
+                  defaultValue={`${settings.ssldomain || ''}`}
+                  icon="enhanced_encryption"
+                  label="SSL Subdomain name (yourname.theremote.io)"
+                  s={12}
                 />
-              </Col>
-            </Row>
-            <Row s={12}>
-              <Input
-                icon="share"
-                s={12}
-                label="Share key"
-                value={`${settings.sharekey}-${settings.dbKey}-${settings.dbNonce}`}
-              />
-            </Row>
-          </Card>
+              </Row>
+              <Row>
+                <Input
+                  name="sslport"
+                  onChange={this.onChange}
+                  defaultValue={`${settings.sslport || ''}`}
+                  icon="input"
+                  label="SSL port"
+                  s={12}
+                />
+              </Row>
+              <Row>
+                <Input
+                  name="sslemail"
+                  onChange={this.onChange}
+                  defaultValue={`${settings.sslemail || ''}`}
+                  icon="email"
+                  label="Email address (necessary for certificate registration)"
+                  s={12}
+                />
+              </Row>
+              <Row>
+                <Input
+                  type="checkbox"
+                  name="sslredirect"
+                  onChange={this.onChange}
+                  defaultValue={`${settings.sslredirect}`}
+                  label="Automatically redirect to https"
+                  s={12}
+                />
+              </Row>
+            </Card>
+          ) : ''}
+          {settings.modules.indexOf('sharing') !== -1 ?
+            <Card
+              title="Share settings"
+            >
+              <Row className="advancedItem">
+                <Input
+                  name="sharehost"
+                  onChange={this.onChange}
+                  defaultValue={`${settings.sharehost}`}
+                  icon="input"
+                  label="Sharing host (empty for autodetect)"
+                  s={6}
+                />
+                <Input
+                  name="shareport"
+                  onChange={this.onChange}
+                  defaultValue={`${settings.shareport}`}
+                  icon="input"
+                  label="Sharing port (make sure this port is reachable)"
+                  s={6}
+                />
+              </Row>
+              <Row s={12} className="input-field">
+                <Input
+                  s={4}
+                  name="sharespace"
+                  onChange={this.onChange}
+                  label="Space reserved for shared files"
+                  defaultValue={settings.sharespace}
+                  icon="space"
+                />
+                <Col s={8}>
+                  <Slider
+                    onChange={v => this.onChange('sharespace', v)}
+                    step={1}
+                    value={settings.sharespace}
+                    min={1}
+                    max={1000}
+                  />
+                </Col>
+              </Row>
+              <Row s={12}>
+                <Input
+                  icon="share"
+                  s={12}
+                  label="Share key"
+                  value={`${settings.sharekey}-${settings.dbKey}-${settings.dbNonce}`}
+                />
+              </Row>
+            </Card>
+            : ''}
           <Card
             title="Media libraries"
             actions={[<Button key="new" onClick={() => this.librarySelect({})}><Icon left>add</Icon>Add new</Button>]}
@@ -300,6 +370,24 @@ class Settings extends Component {
               onClose={this.onLibraryClose}
               editing={this.state.create}
             />}
+          </Card>
+          <Card title="Modules">
+            <Row>Changing these requires a restart of the mediaserver</Row>
+            {this.state.availableModules
+              .map(i => (
+                <Row>
+                  <Input
+                    label={<span><b>{i}</b> - {moduleDescription[i]}</span>}
+                    key={i}
+                    value={i}
+                    checked={settings.modules.indexOf(i) !== -1}
+                    onChange={this.onChange}
+                    type="checkbox"
+                    name="modules"
+                  />
+                </Row>
+              ))
+            }
           </Card>
           {deletingModal}
         </div>
