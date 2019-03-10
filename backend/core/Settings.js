@@ -57,7 +57,7 @@ const settingsObj = {
     'guessit',
     'sharing',
     'tmdb',
-    'rms-encrypt',
+    'ssl',
   ],
   startopen: true,
   ssl: {},
