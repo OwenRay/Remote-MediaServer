@@ -52,6 +52,16 @@ html, body{
   overflow-x: hidden;
 }
 
+#scrollContainer {
+  top:50px;
+  bottom: 0px;
+  left:0px;
+  right:0px;
+  overflow: auto;
+  position: absolute;
+  overflow-x: hidden;
+}
+
 .modal .modal-footer {
   background-color: $primary-color;
   height: auto;

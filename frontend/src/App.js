@@ -92,13 +92,15 @@ class App extends Component {
         <Flipper
           flipKey={this.props.location.pathname + this.props.location.search}
         >
-          <Route path="/" component={Home} exact />
+          <div id="scrollContainer">
+            <Route path="/" component={Home} exact />
+            <Route path="/Settings" component={Settings} />
+            <Route path="/Api" component={Api} />
+            <Route path="/About" component={About} />
+          </div>
           <Route path="/Library" component={Library} exact />
-          <Route path="/Settings" component={Settings} />
           <Route path="/item/detail/:id" component={Detail} />
           <Route path="/item/view/:id" component={Video} />
-          <Route path="/Api" component={Api} />
-          <Route path="/About" component={About} />
         </Flipper>
         <div className={`shortcutText ${this.state.showShortcutText ? 'visible' : ''}`}>
           {this.state.shortcutText}
