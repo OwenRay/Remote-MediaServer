@@ -2,18 +2,22 @@ const Settings = require('../../core/Settings');
 const Database = require('../../core/database/Database');
 const Log = require('../../core/Log');
 const extendedInfoQueue = require('../../core/scanner/ExtendedInfoQueue');
+const core = require('../../core');
 const fs = require('fs');
 const EDHT = require('./EDHT');
 const crypto = require('crypto');
 const Crypt = require('./Crypt');
-const DebugApiHandler = require('../debug/DebugApiHandler');
 const { promisify } = require('util');
 
 const stat = promisify(fs.stat);
 
 class FileProcessor {
   constructor() {
-    DebugApiHandler.registerDebugInfoProvider('sharing', this.debugInfo.bind(this));
+    core.addAfterStartListener(() => {
+      const debug = core.getModule('debug');
+      if (!debug) return;
+      debug.registerDebugInfoProvider('sharing', this.debugInfo.bind(this));
+    });
     Settings.addObserver('libraries', this.publishDatabase.bind(this));
     EDHT.setOnreadyListener(this.onReady.bind(this));
     extendedInfoQueue.setOnDrain(this.publishDatabase.bind(this));

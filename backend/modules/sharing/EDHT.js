@@ -3,7 +3,7 @@ const Log = require('../../core/Log');
 const Settings = require('../../core/Settings');
 const ed = require('ed25519-supercop');
 const ip = require('ip');
-const DebugApiHandler = require('../debug/DebugApiHandler');
+const core = require('../../core');
 const bencode = require('bencode');
 
 const enc = bencode.encode;
@@ -21,7 +21,12 @@ bencode.decode = buffer => dec(buffer, 2);
 
 class EDHT {
   constructor() {
-    DebugApiHandler.registerDebugInfoProvider('sharing', this.debugInfo.bind(this));
+    core.addAfterStartListener(() => {
+      const debug = core.getModule('debug');
+      if (!debug) return;
+      debug.registerDebugInfoProvider('sharing', this.debugInfo.bind(this));
+    });
+
     this.readyListeners = [];
     this.peers = {};
     this.peerObservers = {};
@@ -112,8 +117,6 @@ class EDHT {
     }
     this.publishing = new Promise(async (resolve) => {
       let offset = Settings.getValue('dhtoffset');
-      const knownOffset = await this.getValue(Buffer.from(Settings.getValue('sharekey'), 'hex'));
-      if (knownOffset) { offset = knownOffset.seq; }
       if (changed) {
         offset += 1;
         Settings.setValue('dhtoffset', offset);

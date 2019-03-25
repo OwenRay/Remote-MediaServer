@@ -14,6 +14,7 @@ import Detail from './routes/Detail';
 import ShortcutHelper from './helpers/ShortcutHelper';
 import Api from './routes/Api';
 import About from './routes/About';
+import SocketIO from './helpers/SocketIO';
 
 
 class App extends Component {
@@ -22,6 +23,8 @@ class App extends Component {
     this.state = {};
     this.onShortcut = this.onShortcut.bind(this);
     this.toggleHelp = this.toggleHelp.bind(this);
+
+    SocketIO.onMessage('toast', this.onToast);
   }
 
   componentWillMount() {
@@ -40,6 +43,11 @@ class App extends Component {
 
   componentWillUnmount() {
     this.shortcuts.off();
+  }
+
+  onToast(toastMessage) {
+    window.Materialize.toast(toastMessage, 3000);
+
   }
 
   onShortcut(result) {

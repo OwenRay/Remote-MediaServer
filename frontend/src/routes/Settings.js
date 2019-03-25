@@ -19,6 +19,7 @@ const moduleDescription = {
   tmdb: 'Use TheMovieDB to find media info',
   guessit: 'Parses filenames to information like title and year',
   ssl: 'allows you to configure https through an rms subdomain',
+  socketio: 'enables realtime notifications',
 };
 
 class Settings extends Component {

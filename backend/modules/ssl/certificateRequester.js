@@ -40,6 +40,7 @@ async function setupCerts(changed) {
       !Settings.getValue('sslport')) {
       return;
     }
+    Log.notifyUser('toast', 'requesting certificate');
 
     if (changed !== 'ssldomain' &&
       Settings.getValue('ssl').expire && new Date().getTime() > 0) {
@@ -93,6 +94,7 @@ async function setupCerts(changed) {
     };
     await get(`https://certification.theremote.io:8335/?${querystring.stringify(params)}`);
 
+    Log.notifyUser('toast', 'waiting for certificate validation');
     await waitForTxt(`_acme-challenge.${params.name}.theremote.io`, keyAuthorization);
 
     /* Notify ACME provider that challenge is satisfied */
@@ -118,9 +120,11 @@ async function setupCerts(changed) {
     });
     Settings.save();
 
+    Log.notifyUser('toast', 'certificate successfully request, restarting...');
+
     HttpServer.stop(HttpServer.start);
   } catch (e) {
-    Log.debug('could not request certificate', e);
+    Log.notifyUser('toast', 'could not request certificate for given subdomain');
   }
 }
 

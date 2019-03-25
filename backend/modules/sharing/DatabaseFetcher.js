@@ -42,17 +42,21 @@ class DatabaseFetcher {
 
   async fetchLib(lib) {
     Log.debug('try to fetch!!', lib.uuid);
+    Log.notifyUser('toast', 'Trying to download external library');
+
     const [ref, key, nonce] = lib.uuid.split('-');
     const value = await EDHT.getValue(Buffer.from(ref, 'hex'));
     // @todo delete old database if necessary
     if (value.v.length !== 20) {
       Log.exception('Something is wrong with library', lib);
+      Log.notifyUser('toast', 'Error loading external library');
       return;
     }
     const client = new TcpClient(value.v.toString('hex'), key, nonce);
     await client.downloadFile();
     let items = JSON.parse(await client.getContents());
     Log.debug('fetched database', lib.uuid);
+    Log.notifyUser('toast', 'Downloaded external library');
 
     items = items.map((item) => {
       item.attributes.filepath = `http://127.0.0.1:${Settings.getValue('port')}${item.attributes.filepath}`;

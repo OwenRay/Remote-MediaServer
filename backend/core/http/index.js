@@ -8,7 +8,6 @@ const Log = require('../Log');
 const Koa = require('koa');
 const Router = require('koa-router');
 const Static = require('koa-static');
-const cors = require('koa-cors');
 const nodeCache = require('node-file-cache');
 const destroyable = require('server-destroy');
 const bodyParser = require('koa-bodyparser');
@@ -31,7 +30,6 @@ class HttpServer {
     cache = nodeCache.create({ file: `${process.cwd()}/cache/httpCache` });
     Settings.addObserver('port', HttpServer.onPortChange);
     server = new Koa();
-    server.use(cors({ origin: '*', methods: ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH'] }));
     // eslint-disable-next-line global-require
     require('./coreHandlers');
   }
@@ -86,6 +84,14 @@ class HttpServer {
       httpsServerInstance.destroy(cb);
     }
     serverInstance.destroy(cb);
+  }
+
+  static getHttpsServer() {
+    return httpsServerInstance;
+  }
+
+  static getHttpServer() {
+    return serverInstance;
   }
 
   static async onConnected() {

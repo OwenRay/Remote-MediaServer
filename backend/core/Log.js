@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 
-
 const Settings = require('./Settings');
+
+const listeners = [];
 
 class Log {
   static debug(...message) {
@@ -20,7 +21,16 @@ class Log {
     Log.log(Log.LEVEL.EXCEPTION, message);
   }
 
+  static notifyUser(event, ...message) {
+    Log.log(Log.LEVEL.NOTIFY_USER, [event, ...message]);
+  }
+
+  static addListener(f) {
+    listeners.push(f);
+  }
+
   static log(level, message) {
+    listeners.forEach(f => f(level, message));
     message.unshift(new Date());
     if (level >= Settings.getValue('verbosity')) {
       switch (level) {
@@ -39,7 +49,7 @@ class Log {
 }
 
 Log.LEVEL = {
-  DEBUG: 0, INFO: 1, WARNING: 3, EXCEPTION: 4,
+  DEBUG: 0, INFO: 1, WARNING: 3, EXCEPTION: 4, NOTIFY_USER: 5,
 };
 
 module.exports = Log;

@@ -4,7 +4,6 @@ const MediaItemHelper = require('../MediaItemHelper');
 const fs = require('fs');
 const { spawn } = require('child_process');
 const Log = require('../Log');
-const DebugApiHandler = require('../../modules/debug/DebugApiHandler');
 const extendedInfoQueue = require('./ExtendedInfoQueue');
 const core = require('../');
 
@@ -12,7 +11,11 @@ const onFileFoundCallbacks = [];
 
 class MovieScanner {
   start() {
-    DebugApiHandler.registerDebugInfoProvider('scanner', this.debugInfo.bind(this));
+    core.addAfterStartListener(() => {
+      const debug = core.getModule('debug');
+      if (!debug) return;
+      debug.registerDebugInfoProvider('scanner', this.debugInfo.bind(this));
+    });
     this.library = null;
     this.scanning = -1;
     this.types = Settings.getValue('videoFileTypes');
@@ -197,7 +200,7 @@ class MovieScanner {
     file = MovieScanner.normalizeFileName(library.folder, file);
     let [item] = Database.findBy('media-item', 'filepath', file);
     if (!item) {
-      Log.info('found new file', file);
+      Log.notifyUser('toast', 'found new file', file);
       const obj = {
         filepath: file,
         libraryId: library.uuid,

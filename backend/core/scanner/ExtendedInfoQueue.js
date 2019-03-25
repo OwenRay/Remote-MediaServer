@@ -1,7 +1,7 @@
 const Database = require('../database/Database');
 const Log = require('../Log');
 const Settings = require('../Settings');
-const DebugApiHandler = require('../../modules/debug/DebugApiHandler');
+const core = require('../../core');
 require('./ExtrasExtendedInfo');
 
 const extendedInfoProviders = [];
@@ -73,9 +73,13 @@ class ExtendedInfoQueue {
   }
 }
 
-DebugApiHandler.registerDebugInfoProvider(
-  'scanner',
-  ExtendedInfoQueue.debugInfo,
-);
+core.addAfterStartListener(() => {
+  const debug = core.getModule('debug');
+  if (!debug) return;
+  debug.registerDebugInfoProvider(
+    'scanner',
+    ExtendedInfoQueue.debugInfo,
+  );
+});
 
 module.exports = ExtendedInfoQueue;

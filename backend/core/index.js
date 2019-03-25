@@ -7,13 +7,21 @@ const Settings = require('./Settings');
 const dirs = ['cache', 'subs', 'store'];
 const beforeListeners = [];
 const afterListeners = [];
+const modules = {};
 
 
+/**
+ * @todo to simplify some things create a restart command
+ * - Will need a wrapping process
+ * - On certain exit code restart
+ */
 class RemoteCore {
   static async init() {
     dirs.forEach((dir) => { if (!fs.existsSync(dir)) fs.mkdirSync(dir); });
 
-    Settings.getValue('modules').map(m => require(`../modules/${m}`));
+    Settings.getValue('modules').forEach((m) => {
+      modules[m] = require(`../modules/${m}`);
+    });
 
     http.preflight();
     await Promise.all(beforeListeners.map(f => f()));
@@ -30,6 +38,15 @@ class RemoteCore {
 
   static addAfterStartListener(func) {
     afterListeners.push(func);
+  }
+
+  /**
+   * returns undefined if module is disabled or inactive
+   * @param name
+   * @returns {*}
+   */
+  static getModule(name) {
+    return modules[name];
   }
 }
 
