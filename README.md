@@ -17,7 +17,7 @@ Linux | Windows | MacOS
 ### OPTION 2, INSTALL VIA NPM
 You'll need:
 - NPM  
-- NodeJS >= 8  
+- NodeJS >= 10 
 
 To install run:   
 `$ npm install -g remote-mediaserver`

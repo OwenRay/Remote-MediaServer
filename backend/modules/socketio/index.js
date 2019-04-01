@@ -16,7 +16,7 @@ class SocketIO {
 
   static init() {
     io.attach(httpServer.getHttpServer());
-    io.attach(httpServer.getHttpsServer());
+    if (httpServer.getHttpsServer()) io.attach(httpServer.getHttpsServer());
   }
 }
 
