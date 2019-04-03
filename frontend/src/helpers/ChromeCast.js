@@ -111,6 +111,9 @@ class ChromeCast {
         this.media = m;
         this.trigger(this.EVENT_ONPLAY);
       },
+      (e) => {
+        console.log('error loading media', e);
+      },
     );
   }
 

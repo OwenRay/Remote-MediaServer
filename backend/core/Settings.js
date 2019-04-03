@@ -4,12 +4,14 @@ const crypto = require('crypto');
 
 const { env } = process;
 
+// @todo move default settings to their respective modules
 const settingsObj = {
   port: 8234,
   bind: '0.0.0.0',
   name: 'My Media Server',
   ffmpeg_binary: `${process.cwd()}/ffmpeg`,
   ffprobe_binary: `${process.cwd()}/ffprobe`,
+  ffmpeg_preset: 'fast',
   libraries: [],
   tmdb_apikey: '0699a1db883cf76d71187d9b24c8dd8e',
   dhtbootstrap: [

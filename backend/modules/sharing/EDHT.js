@@ -41,7 +41,7 @@ class EDHT {
       bootstrap: Settings.getValue('dhtbootstrap'),
       nodeId: Settings.getValue('nodeid') ? Buffer.from(Settings.getValue('nodeid'), 'hex') : '',
       maxValues: 60000,
-      timeBucketOutdated: 120 * 60 * 1000,
+      timeBucketOutdated: 10 * 60 * 1000,
     });
     const { dht } = this;
 
@@ -133,7 +133,7 @@ class EDHT {
         sign: buf => ed.sign(buf, this.keypair.publicKey, this.keypair.secretKey),
       };
 
-      // publish new version af db
+      // publish new version of db
       let hash = await this.share(opts);
 
       // tell everyone we have all the data

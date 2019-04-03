@@ -51,7 +51,7 @@ class SearchBar extends Component {
   }
 
   toggleGrouped() {
-    const f = this.state.filters;
+    const f = this.props.filters;
     f.distinct = f.distinct ? '' : 'external-id';
     if (this.props.onChange) {
       this.props.onChange(f);
@@ -62,6 +62,7 @@ class SearchBar extends Component {
     if (this.state === null) { return null; }
     const { props } = this;
     const { filters } = props;
+    console.log(filters);
     return (
       <div className={props.className}>
         <Row>
@@ -75,7 +76,7 @@ class SearchBar extends Component {
             })}
           </Input>
           <div className="col search s6">
-            <Input s={12} name="title" type="text" label="" value={filters.title} onChange={this.onChange} />
+            <Input s={12} name="title" type="text" label="" value={filters.title || ''} onChange={this.onChange} />
             <Button className="mdi-action-search"><Icon>search</Icon></Button>
           </div>
           <Input s={3} name="sort" type="select" label="Sort by:" value={filters.sort} onChange={this.onChange}>

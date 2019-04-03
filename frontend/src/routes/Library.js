@@ -70,13 +70,13 @@ class Library extends PureComponent {
         }
       });
 
+    // prevent redraw untill media items have been loaded
     this.filters = filters;
     this.promises = [];
     if (this.collection) {
       this.collection.recomputeCellSizesAndPositions();
       this.collection.forceUpdate();
     }
-    // prevent redraw untill media items have been loaded
 
     this.loadMore(0, this.pageSize, true);
   }
@@ -86,7 +86,7 @@ class Library extends PureComponent {
   }
 
   onChange(o) {
-    const filters = o ? { ...this.state.filters, ...o } : {};
+    const filters = o ? { ...this.filters, ...o } : {};
     this.setState({ filters, selected: -1 });
     const url = Object.keys(filters).map(key => `${key}=${filters[key]}`).join('&');
 
@@ -106,7 +106,6 @@ class Library extends PureComponent {
     if (this.collection) {
       this.collection.recomputeCellSizesAndPositions();
     }
-    this.forceUpdate();
   }
 
   click() {
@@ -203,6 +202,7 @@ class Library extends PureComponent {
       }
 
       if (firstTime) {
+        cache.filters = filters;
         cache.filterValues = res.meta.filterValues;
         cache.loadCount = this.state.loadCount + 1;
         cache.rowCount = res.meta.totalItems;

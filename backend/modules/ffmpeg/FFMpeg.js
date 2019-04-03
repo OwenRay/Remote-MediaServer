@@ -102,11 +102,16 @@ class FFMpeg {
         }
       }
     });
+
     if (this.videoChannel !== undefined) {
       this.addOutputArguments(['-map', `0:${this.videoChannel}`]);
     }
     if (this.audioChannel !== undefined) {
       this.addOutputArguments(['-map', `0:${this.audioChannel}`]);
+    }
+
+    if (vCodec !== 'copy') {
+      this.addOutputArguments(['-preset', Settings.getValue('ffmpeg_preset')]);
     }
 
     const duration = Math.round((info.format.duration - this.offset) * 1000);
