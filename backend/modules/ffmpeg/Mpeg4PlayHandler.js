@@ -15,6 +15,7 @@ class Mpeg4PlayHandler extends RequestHandler {
   handleRequest() {
     const mediaItem = Database.getById('media-item', this.context.params.id);
     this.context.set('Accept-Ranges', 'none');
+    this.context.set('Access-Control-Allow-Origin', '*');
     this.ffmpeg = new FFMpeg(mediaItem, '-')
       .setPlayOffset(this.context.params.offset)
       .setOnReadyListener(this.onFFMpegReady.bind(this))

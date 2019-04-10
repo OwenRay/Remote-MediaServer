@@ -59,10 +59,12 @@ class ChromeCastRenderer extends BaseRenderer {
       s.videoChannel !== prevState.videoChannel ||
       s.subtitles !== prevState.subtitles) {
       const baseUrl = `${document.location.protocol}//${document.location.host}`;
-      const subtitles = s.subtitles.map(sub => (
-        `${baseUrl}/api/mediacontent/subtitle/` +
-        `${this.state.mediaItem.id}/${sub.value}?offset=${s.seek * -1000}`
-      ));
+      const subtitles = s.subtitles
+        .filter(sub => sub.value)
+        .map(sub => (
+          `${baseUrl}/api/mediacontent/subtitle/` +
+          `${this.state.mediaItem.id}/${sub.value}?offset=${s.seek * -1000}`
+        ));
       ChromeCast.setMedia(
         `${baseUrl}${this.getVideoUrl()}`,
         'video/mp4',

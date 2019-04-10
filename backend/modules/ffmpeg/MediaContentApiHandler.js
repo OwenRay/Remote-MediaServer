@@ -19,6 +19,8 @@ class SubtitleApiHandler extends RequestHandler {
     if (!item) {
       return null;
     }
+    this.context.set('Access-Control-Allow-Origin', '*');
+    this.context.set('Content-Type', 'text/vtt');
 
     this.item = item;
     this.filePath = item.attributes.filepath;
