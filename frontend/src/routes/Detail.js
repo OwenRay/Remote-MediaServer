@@ -14,6 +14,7 @@ import store from '../helpers/stores/apiStore';
 import ReadableDuration from '../components/ReadableDuration';
 import MediaItemRow from '../components/mediaItem/MediaItemRow';
 import MediaInfo from '../components/mediaItem/MediaInfo';
+import DownloadButton from '../components/DownloadButton';
 
 class Detail extends Component {
   constructor(props) {
@@ -243,6 +244,7 @@ class Detail extends Component {
               </a>) :
                 ''
               }
+            <DownloadButton item={this.itemModel}/>
             {s.watched ?
               <Button onClick={this.toggleWatched} data-tip="Mark unwatched" className="marked"><Icon>done</Icon></Button> :
               <Button onClick={this.toggleWatched} data-tip="Mark watched"><Icon>done</Icon></Button>

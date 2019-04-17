@@ -12,9 +12,11 @@ import SeekBar from '../components/player/SeekBar';
 import store from '../helpers/stores/apiStore';
 import Html5VideoRenderer from '../components/player/renderer/Html5VideoRenderer';
 import ChromeCastRenderer from '../components/player/renderer/ChromeCastRenderer';
+import OfflineVideoRenderer from '../components/player/renderer/OfflineVideoRenderer';
 import CastButton from '../components/player/CastButton';
 import ChromeCast from '../helpers/ChromeCast';
 import ShortcutArray from '../helpers/ShortcutHelper';
+import LocalStorage from '../helpers/LocalStorage';
 
 const isTouch = ('ontouchstart' in window);
 
@@ -57,7 +59,7 @@ class Video extends Component {
       .add(ShortcutArray.EVENT.PAUSE_PLAY, this.togglePause)
       .add(ShortcutArray.EVENT.FULLSCREEN, this.toggleFullScreen)
       .add(ShortcutArray.EVENT.DOWN, () => this.volumeAdjust(-0.1))
-      .add(ShortcutArray.EVENT.UP, () => this.volumeAdjust( 0.1))
+      .add(ShortcutArray.EVENT.UP, () => this.volumeAdjust(0.1))
       .add(ShortcutArray.EVENT.RIGHT, () => this.seekBy(20))
       .add(ShortcutArray.EVENT.LEFT, () => this.seekBy(-20))
       .add(ShortcutArray.EVENT.MUTE, this.toggleMute);
@@ -76,7 +78,12 @@ class Video extends Component {
       this.pos = await i.playPosition();
     }
     this.pos._type = 'play-positions';
-    this.setState({ item: i, duration: i.fileduration, skippedDialog: !this.pos.position });
+    this.setState({
+      item: i,
+      duration: i.fileduration,
+      skippedDialog: !this.pos.position,
+      renderer: LocalStorage.isAvailable(this.id)?OfflineVideoRenderer:this.state.renderer,
+    });
     $.getJSON(`/api/mediacontent/${this.id}`)
       .then(this.mediaContentLoaded.bind(this));
   }

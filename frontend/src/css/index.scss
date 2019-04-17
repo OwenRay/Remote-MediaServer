@@ -528,6 +528,15 @@ nav {
   .active{
     border-bottom:1px solid $secondary-color;
   }
+  .localStorageIcon{
+    float: left;
+    width: 27px;
+    height:100%;
+    margin-right:10px;
+    .CircularProgressbar-text{
+      color:white;
+    }
+  }
 }
 
 .button-collapse{
