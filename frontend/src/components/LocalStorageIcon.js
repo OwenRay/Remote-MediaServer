@@ -2,7 +2,6 @@
 import 'react-circular-progressbar/dist/styles.css';
 import CircularProgressbar from 'react-circular-progressbar';
 import React, { Component } from 'react';
-import LocalStorage from '../helpers/LocalStorage';
 
 class LocalStorageIcon extends Component {
   constructor() {
