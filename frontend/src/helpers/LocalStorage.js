@@ -25,8 +25,8 @@ class LocalStorage {
       webkitPersistentStorage.queryUsageAndQuota(
         (usedBytes, grantedBytes) => {
           resolve({
-            used: Math.floor(usedBytes / Math.pow(10, 9)),
-            granted: Math.ceil(grantedBytes / Math.pow(10, 9)),
+            used: usedBytes / Math.pow(10, 9),
+            granted: grantedBytes / Math.pow(10, 9),
           });
         },
         reject,

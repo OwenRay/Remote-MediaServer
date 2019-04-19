@@ -36,7 +36,7 @@ class Home extends PureComponent {
     const titles = ['Continue watching', 'Recommended Movies', 'New Movies', 'New Episodes'];
 
     return this.state.items.map((items, index) => (
-      <Card title={titles[index]}>
+      <Card key={titles[index]} title={titles[index]}>
         <div className="verticalList">
           {items.length ?
                 items.map(i => <MediaItemTile key={i.id} mediaItem={i} />) :

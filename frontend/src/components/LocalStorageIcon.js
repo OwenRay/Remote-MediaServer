@@ -2,24 +2,35 @@
 import 'react-circular-progressbar/dist/styles.css';
 import CircularProgressbar from 'react-circular-progressbar';
 import React, { Component } from 'react';
+import LocalStorage from '../helpers/LocalStorage';
 
 class LocalStorageIcon extends Component {
   constructor() {
     super();
-    this.state = {};
+    this.state = { useRatio: 0 };
+  }
+
+  componentWillMount() {
+    this.refresh();
+  }
+
+  async refresh() {
+    const quota = await LocalStorage.getCurrentQuota();
+    const useRatio = Math.round((quota.used / quota.granted) * 100);
+    this.setState({ useRatio });
   }
 
   render() {
+    console.log(this.state);
     return (
       <CircularProgressbar
         className="localStorageIcon"
-        percentage={10}
+        percentage={this.state.useRatio}
         strokeWidth={10}
         background
         backgroundPadding={0}
-        text="10%"
+        text={`${this.state.useRatio}%`}
         styles={{
-
           background: {
             fill: 'white',
           },
