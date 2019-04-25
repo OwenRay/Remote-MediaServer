@@ -15,7 +15,7 @@ import ShortcutHelper from './helpers/ShortcutHelper';
 import Api from './routes/Api';
 import About from './routes/About';
 import SocketIO from './helpers/SocketIO';
-import LocalStorageIcon from './components/LocalStorageIcon';
+import LocalStorageIcon from './components/localStorage/LocalStorageIcon';
 import LocalStorage from './routes/LocalStorage';
 
 

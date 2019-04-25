@@ -2,7 +2,7 @@
 import 'react-circular-progressbar/dist/styles.css';
 import CircularProgressbar from 'react-circular-progressbar';
 import React, { Component } from 'react';
-import LocalStorage from '../helpers/LocalStorage';
+import LocalStorage from '../../helpers/LocalStorage';
 
 class LocalStorageIcon extends Component {
   constructor() {
@@ -21,7 +21,6 @@ class LocalStorageIcon extends Component {
   }
 
   render() {
-    console.log(this.state);
     return (
       <CircularProgressbar
         className="localStorageIcon"

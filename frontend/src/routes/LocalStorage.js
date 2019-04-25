@@ -7,6 +7,7 @@ import { Flipped } from 'react-flip-toolkit';
 import { Card, Row, Col, Input, Button } from 'react-materialize';
 import Slider from 'rc-slider';
 import LocalStorage from '../helpers/LocalStorage';
+import { throttle } from 'throttle-debounce';
 
 class LocalStorageRoute extends PureComponent {
   constructor() {
@@ -18,16 +19,21 @@ class LocalStorageRoute extends PureComponent {
 
     this.onChangeSlider = this.onChangeSlider.bind(this);
     this.onChangeInput = this.onChangeInput.bind(this);
+    this.refreshQuota = this.refreshQuota.bind(this);
     this.save = this.save.bind(this);
   }
 
   componentWillMount() {
     this.refreshQuota();
+    LocalStorage.addListener(-1, throttle(2000, this.refreshQuota));
   }
 
   async refreshQuota() {
     const quota = await LocalStorage.getCurrentQuota();
-    this.setState({quota, desiredQuota: quota.granted });
+    this.setState({ quota });
+    if (this.state.desiredQuota === 0) {
+      this.setState({ desiredQuota: quota.granted });
+    }
   }
 
   onChangeSlider(desiredQuota) {
@@ -35,7 +41,7 @@ class LocalStorageRoute extends PureComponent {
   }
 
   onChangeInput(e) {
-    this.setState({desiredQuota: parseInt(e.target.value, 10)});
+    this.setState({ desiredQuota: parseInt(e.target.value, 10) });
   }
 
   async save() {
@@ -64,7 +70,7 @@ class LocalStorageRoute extends PureComponent {
                   <Slider
                     onChange={this.onChangeSlider}
                     step={1}
-                    value={`${this.state.desiredQuota}`}
+                    value={this.state.desiredQuota}
                     min={1}
                     max={100}
                   />

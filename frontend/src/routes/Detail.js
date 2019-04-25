@@ -14,7 +14,8 @@ import store from '../helpers/stores/apiStore';
 import ReadableDuration from '../components/ReadableDuration';
 import MediaItemRow from '../components/mediaItem/MediaItemRow';
 import MediaInfo from '../components/mediaItem/MediaInfo';
-import DownloadButton from '../components/DownloadButton';
+import DownloadButton from '../components/localStorage/DownloadButton';
+import LocalStorageProgressForItem from '../components/localStorage/LocalStorageProgressForItem';
 
 class Detail extends Component {
   constructor(props) {
@@ -244,7 +245,7 @@ class Detail extends Component {
               </a>) :
                 ''
               }
-            <DownloadButton item={this.itemModel}/>
+            <DownloadButton item={this.itemModel} />
             {s.watched ?
               <Button onClick={this.toggleWatched} data-tip="Mark unwatched" className="marked"><Icon>done</Icon></Button> :
               <Button onClick={this.toggleWatched} data-tip="Mark watched"><Icon>done</Icon></Button>
@@ -258,6 +259,7 @@ class Detail extends Component {
             </Modal>
 
             <ReactTooltip place="bottom" effect="solid" />
+            <LocalStorageProgressForItem item={s.item}/>
           </TopBar>
 
           <div>
