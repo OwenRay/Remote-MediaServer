@@ -12,7 +12,6 @@ const TO_CACHE = [
   '/api/media-items',
   '/api/play-positions',
   '/api/tmdb',
-
 ];
 let cache;
 

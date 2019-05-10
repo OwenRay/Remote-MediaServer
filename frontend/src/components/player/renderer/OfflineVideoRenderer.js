@@ -4,7 +4,11 @@ import LocalStorage from '../../../helpers/LocalStorage';
 class OfflineVideoRenderer extends Html5VideoRenderer {
   getVideoUrl() {
     if (!this.props.mediaItem) return '';
-    return LocalStorage.getVideoUri(this.props.mediaItem);
+    this.mediaSource = LocalStorage.getMediaSource(this.props.mediaItem);
+    if (this.props.seek) {
+      this.setOffset(this.props.seek);
+    }
+    return this.mediaSource.getUrl();
   }
 
   onProgress() {
@@ -19,6 +23,7 @@ class OfflineVideoRenderer extends Html5VideoRenderer {
     if (this.props.seek) {
       vidRef.currentTime = this.props.seek;
     }
+    //this.mediaSource.setVideoTag(vidRef);
     return super.gotVidRef(vidRef);
   }
 
@@ -27,6 +32,11 @@ class OfflineVideoRenderer extends Html5VideoRenderer {
       this.vidRef.currentTime = nextProps.seek;
     }
     return false;
+  }
+
+  setOffset(offset) {
+    console.log('offs');
+    this.mediaSource.onSeek(offset);
   }
 }
 

@@ -21,7 +21,8 @@ class Mpeg4PlayHandler extends RequestHandler {
       .setOnReadyListener(this.onFFMpegReady.bind(this))
       .addOutputArguments([
         '-f', 'mp4',
-        '-movflags', 'empty_moov',
+        '-movflags', 'empty_moov+omit_tfhd_offset+default_base_moof+frag_keyframe',
+        '-reset_timestamps', '1',
       ]);
     if (this.context.query.audioChannel) {
       this.ffmpeg.setAudioChannel(this.context.query.audioChannel);

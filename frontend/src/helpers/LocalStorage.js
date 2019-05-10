@@ -1,9 +1,11 @@
 /* global navigator,localStorage,window */
+import OfflineMediaSource from '../components/localStorage/OfflineMediaSource';
 
 const eventListeners = { [-1]: [] };
 const { webkitPersistentStorage } = navigator;
 const { webkitRequestFileSystem, PERSISTENT } = window;
 const localStorageData = JSON.parse(localStorage.getItem('offline') || '{}');
+const CHUNKSIZE = 10 * Math.pow(10, 6);
 
 function offChangeListener() {
   eventListeners[this[0]].splice(this[1], 1);
@@ -34,30 +36,94 @@ class LocalStorage {
     });
   }
 
-  static async downloadAndWriteTo(item, ref) {
-    // const blob = new Blob(['Lorem Ipsum'], { type: 'text/plain' });
+  static async downloadAndWriteTo(item) {
     const myRequest = new Request(`/ply/${item.id}/0`);
     const response = await fetch(myRequest);
     const reader = response.body.getReader();
     const estimatedSize = (item.bitrate / 8) * item.fileduration;
     item.bytesDownloaded = 0;
-    console.log(item);
+    item.bytesTotal = estimatedSize;
+    LocalStorage.save();
 
-    const readmore = async () => {
-      const data = await reader.read();
-      if (data.done) {
+    LocalStorage.readNextChunk(
+      item.id,
+      reader,
+      (chunk, bytes) => {
+        item.bytesDownloaded = bytes;
+        LocalStorage.trigger(item.id, 'onProgress', [bytes / estimatedSize]);
+      },
+      () => {
         item.downloaded = true;
-        item.localSize = ref.position - 1;
+        item.bytesTotal = item.bytesDownloaded;
         LocalStorage.save();
         LocalStorage.trigger(item.id, 'onFinish');
+      },
+    );
+  }
+
+
+  static getFile(file, create) {
+    return new Promise((resolve) => {
+      webkitRequestFileSystem(PERSISTENT, CHUNKSIZE, (storage) => {
+        storage.root.getFile(
+          file, { create },
+          (f) => {
+            resolve(f);
+          },
+        );
+      });
+    });
+  }
+
+  static getFileRef(file, create = true) {
+    return new Promise(async (resolve) => {
+      const f = await LocalStorage.getFile(file, create);
+      f.createWriter(resolve);
+    });
+  }
+
+  static async readNextChunk(itemId, reader, onProgress, onFinish, chunk = 0, offset = 0, carry = null) {
+    let done = false;
+    const ref = await LocalStorage.getFileRef(`${itemId}_${chunk}.mp4`);
+    let bytesInChunk = 0;
+    let nextCarry;
+    const readmore = async () => {
+      if (done) {
+        onFinish();
+        return;
+      }
+      if (bytesInChunk >= CHUNKSIZE) {
+        this.readNextChunk(itemId, reader, onProgress, onFinish, chunk + 1, offset, nextCarry);
         return;
       }
 
-      const arr = new Uint8Array(data.value);
-      item.bytesDownloaded += data.value.length;
-      LocalStorage.trigger(item.id, 'onProgress', [item.bytesDownloaded / estimatedSize]);
-      ref.write(new Blob([arr]));
+      const buffer = [];
+      for (let c = 0; c < 20 && bytesInChunk < CHUNKSIZE; c++) {
+        const data = carry || await reader.read();
+        carry = null;
+        if (data.done) {
+          done = true;
+          break;
+        }
+        bytesInChunk += data.value.length;
+        if (bytesInChunk > CHUNKSIZE) {
+          nextCarry = {value: data.value.slice(-bytesInChunk + CHUNKSIZE)};
+          data.value = data.value.slice(0, -bytesInChunk + CHUNKSIZE);
+          bytesInChunk = CHUNKSIZE;
+        }
+        offset += data.value.length;
+        buffer.push(data.value);
+      }
+
+      if (!buffer.length) {
+        readmore();
+        return;
+      }
+      onProgress(chunk, offset);
+
+      ref.write(new Blob(buffer));
     };
+
     ref.onwrite = readmore;
     readmore();
   }
@@ -67,24 +133,11 @@ class LocalStorage {
   }
 
   static download(item, audioChannel, videoChannel) {
-    webkitRequestFileSystem(PERSISTENT, item.filesize, (storage) => {
-      storage.root.getFile(
-        `${item.id}.mp4`,
-        { create: true },
-        (file) => {
-          item.path = file.toURL();
-          localStorageData[item.id] = item;
-          LocalStorage.save();
-          file.createWriter((ref) => {
-            LocalStorage.downloadAndWriteTo(item, ref);
-          });
-        },
-      );
+    webkitRequestFileSystem(PERSISTENT, item.filesize, () => {
+      localStorageData[item.id] = item;
+      LocalStorage.save();
+      LocalStorage.downloadAndWriteTo(item);
     });
-  }
-
-  static getVideoUri({ id }) {
-    return localStorageData[id].path;
   }
 
   static isAvailable(id) {
@@ -104,9 +157,13 @@ class LocalStorage {
     eventListeners[id].push({ onProgress, onFinish });
     return offChangeListener.bind([id, eventListeners[id].length - 1]);
   }
+
+  static getMediaSource({ id }) {
+    return new OfflineMediaSource(localStorageData[id]);
+  }
 }
 
 LocalStorage.isSupported = webkitPersistentStorage;
-
+LocalStorage.CHUNKSIZE = CHUNKSIZE;
 
 export default LocalStorage;
