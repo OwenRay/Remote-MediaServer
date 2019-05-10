@@ -89,8 +89,6 @@ class FFMpeg {
 
 
   gotInfo(info) {
-
-
     info.streams.forEach((stream) => {
       if (stream.codec_type === 'video') {
         if (this.videoChannel === undefined) {
