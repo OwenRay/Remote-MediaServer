@@ -1,14 +1,17 @@
+import Hls from 'hls.js';
 import Html5VideoRenderer from './Html5VideoRenderer';
 import LocalStorage from '../../../helpers/LocalStorage';
 
 class OfflineVideoRenderer extends Html5VideoRenderer {
+  componentWillMount() {
+  }
+
+  componentWillUnmount() {
+    if (this.hls) this.hls.destroy();
+  }
+
   getVideoUrl() {
-    if (!this.props.mediaItem) return '';
-    this.mediaSource = LocalStorage.getMediaSource(this.props.mediaItem);
-    if (this.props.seek) {
-      this.setOffset(this.props.seek);
-    }
-    return this.mediaSource.getUrl();
+    return this.vidRef ? this.vidRef.src : '';
   }
 
   onProgress() {
@@ -20,14 +23,21 @@ class OfflineVideoRenderer extends Html5VideoRenderer {
   }
 
   gotVidRef(vidRef) {
+    if (!this.hls) {
+      const hls = new Hls();
+      this.hls = hls;
+      hls.attachMedia(vidRef);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => vidRef.play());
+      hls.loadSource(LocalStorage.getMediaUrl(this.props.mediaItem));
+    }
     if (this.props.seek) {
       vidRef.currentTime = this.props.seek;
     }
-    //this.mediaSource.setVideoTag(vidRef);
+
     return super.gotVidRef(vidRef);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps) {
     if (this.props.seek !== nextProps.seek && this.vidRef) {
       this.vidRef.currentTime = nextProps.seek;
     }
@@ -35,8 +45,7 @@ class OfflineVideoRenderer extends Html5VideoRenderer {
   }
 
   setOffset(offset) {
-    console.log('offs');
-    this.mediaSource.onSeek(offset);
+    this.vidRef.currentTime = offset;
   }
 }
 

@@ -82,7 +82,9 @@ class Video extends Component {
       item: i,
       duration: i.fileduration,
       skippedDialog: !this.pos.position,
-      renderer: LocalStorage.isAvailable(this.id)?OfflineVideoRenderer:this.state.renderer,
+      renderer: LocalStorage.isAvailable({ id: this.id })
+        ? OfflineVideoRenderer
+        : this.state.renderer,
     });
     $.getJSON(`/api/mediacontent/${this.id}`)
       .then(this.mediaContentLoaded.bind(this));

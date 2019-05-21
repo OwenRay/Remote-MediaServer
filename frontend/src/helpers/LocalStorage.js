@@ -1,11 +1,11 @@
 /* global navigator,localStorage,window */
-import OfflineMediaSource from '../components/localStorage/OfflineMediaSource';
+import HLSDownloader from '../components/localStorage/HLSDownloader';
 
 const eventListeners = { [-1]: [] };
 const { webkitPersistentStorage } = navigator;
 const { webkitRequestFileSystem, PERSISTENT } = window;
 const localStorageData = JSON.parse(localStorage.getItem('offline') || '{}');
-const CHUNKSIZE = 10 * Math.pow(10, 6);
+const downloading = {};
 
 function offChangeListener() {
   eventListeners[this[0]].splice(this[1], 1);
@@ -15,7 +15,7 @@ class LocalStorage {
   static requestStorage(gigaBytes) {
     return new Promise((resolve, reject) => {
       webkitPersistentStorage.requestQuota(
-        gigaBytes * Math.pow(10, 9),
+        gigaBytes * (1024 ** 3),
         resolve,
         reject,
       );
@@ -27,8 +27,8 @@ class LocalStorage {
       webkitPersistentStorage.queryUsageAndQuota(
         (usedBytes, grantedBytes) => {
           resolve({
-            used: usedBytes / Math.pow(10, 9),
-            granted: grantedBytes / Math.pow(10, 9),
+            used: Math.round((usedBytes / (1024 ** 3)) * 100) / 100,
+            granted: Math.round((grantedBytes / (1024 ** 3)) * 100) / 100,
           });
         },
         reject,
@@ -36,111 +36,67 @@ class LocalStorage {
     });
   }
 
-  static async downloadAndWriteTo(item) {
-    const myRequest = new Request(`/ply/${item.id}/0`);
-    const response = await fetch(myRequest);
-    const reader = response.body.getReader();
-    const estimatedSize = (item.bitrate / 8) * item.fileduration;
-    item.bytesDownloaded = 0;
-    item.bytesTotal = estimatedSize;
-    LocalStorage.save();
-
-    LocalStorage.readNextChunk(
-      item.id,
-      reader,
-      (chunk, bytes) => {
-        item.bytesDownloaded = bytes;
-        LocalStorage.trigger(item.id, 'onProgress', [bytes / estimatedSize]);
-      },
-      () => {
-        item.downloaded = true;
-        item.bytesTotal = item.bytesDownloaded;
-        LocalStorage.save();
-        LocalStorage.trigger(item.id, 'onFinish');
-      },
-    );
-  }
-
-
-  static getFile(file, create) {
-    return new Promise((resolve) => {
-      webkitRequestFileSystem(PERSISTENT, CHUNKSIZE, (storage) => {
-        storage.root.getFile(
-          file, { create },
-          (f) => {
-            resolve(f);
-          },
-        );
-      });
-    });
-  }
-
-  static getFileRef(file, create = true) {
-    return new Promise(async (resolve) => {
-      const f = await LocalStorage.getFile(file, create);
-      f.createWriter(resolve);
-    });
-  }
-
-  static async readNextChunk(itemId, reader, onProgress, onFinish, chunk = 0, offset = 0, carry = null) {
-    let done = false;
-    const ref = await LocalStorage.getFileRef(`${itemId}_${chunk}.mp4`);
-    let bytesInChunk = 0;
-    let nextCarry;
-    const readmore = async () => {
-      if (done) {
-        onFinish();
-        return;
-      }
-      if (bytesInChunk >= CHUNKSIZE) {
-        this.readNextChunk(itemId, reader, onProgress, onFinish, chunk + 1, offset, nextCarry);
-        return;
-      }
-
-      const buffer = [];
-      for (let c = 0; c < 20 && bytesInChunk < CHUNKSIZE; c++) {
-        const data = carry || await reader.read();
-        carry = null;
-        if (data.done) {
-          done = true;
-          break;
-        }
-        bytesInChunk += data.value.length;
-        if (bytesInChunk > CHUNKSIZE) {
-          nextCarry = {value: data.value.slice(-bytesInChunk + CHUNKSIZE)};
-          data.value = data.value.slice(0, -bytesInChunk + CHUNKSIZE);
-          bytesInChunk = CHUNKSIZE;
-        }
-        offset += data.value.length;
-        buffer.push(data.value);
-      }
-
-      if (!buffer.length) {
-        readmore();
-        return;
-      }
-      onProgress(chunk, offset);
-
-      ref.write(new Blob(buffer));
-    };
-
-    ref.onwrite = readmore;
-    readmore();
-  }
-
   static save() {
     localStorage.setItem('offline', JSON.stringify(localStorageData));
   }
 
-  static download(item, audioChannel, videoChannel) {
-    webkitRequestFileSystem(PERSISTENT, item.filesize, () => {
-      localStorageData[item.id] = item;
-      LocalStorage.save();
-      LocalStorage.downloadAndWriteTo(item);
+  static checkQuota(size) {
+    return new Promise((resolve, reject) => {
+      webkitPersistentStorage.queryUsageAndQuota(
+        (usedBytes, grantedBytes) => {
+          resolve(grantedBytes - usedBytes > size);
+        },
+        reject,
+      );
+    });
+
+  }
+
+  static async download(item, audioChannel, videoChannel) {
+    const estimatedSize = (item.bitrate / 8) * item.fileduration;
+    if (!await this.checkQuota(estimatedSize)) return false;
+
+    const downloader = new HLSDownloader(`hls_${item.id}`, `/ply/${item.id}/0?format=hls&nothrottle=true`);
+    downloading[item.id] = downloader;
+    downloader.setOnProgress(progress => this.trigger(
+      item.id,
+      'onProgress',
+      [progress / estimatedSize],
+    ));
+    downloader.setOnComplete(() => {
+      downloading[item.id] = null;
+      this.trigger(item.id, 'onFinish');
+    });
+    downloader.start();
+
+    localStorageData[item.id] = item;
+    this.trigger(item.id, 'onStart');
+    item.localUrl = await downloader.getLocalUrl();
+    LocalStorage.save();
+    return true;
+  }
+
+  static async delete({ id }) {
+    if (downloading[id]) {
+      downloading[id].cancel();
+    }
+
+    return new Promise((resolve) => {
+      webkitRequestFileSystem(PERSISTENT, 0, (storage) => {
+        storage.root.getDirectory(`hls_${id}`, {
+          create: true,
+          exclusive: false,
+        }, (dir) => {
+          delete localStorageData[id];
+          dir.removeRecursively(resolve);
+          LocalStorage.save();
+          this.trigger(id, 'onDelete');
+        });
+      });
     });
   }
 
-  static isAvailable(id) {
+  static isAvailable({ id }) {
     return this.isSupported && localStorageData[id];
   }
 
@@ -152,18 +108,23 @@ class LocalStorage {
       .forEach(e => e[event](...args));
   }
 
-  static addListener(id, onProgress, onFinish) {
+  static addListener(id, onProgress, onFinish, onStart, onDelete) {
     if (!eventListeners[id]) eventListeners[id] = [];
-    eventListeners[id].push({ onProgress, onFinish });
+    eventListeners[id].push({
+      onProgress, onFinish, onStart, onDelete,
+    });
     return offChangeListener.bind([id, eventListeners[id].length - 1]);
   }
 
-  static getMediaSource({ id }) {
-    return new OfflineMediaSource(localStorageData[id]);
+  static getMediaUrl({ id }) {
+    return localStorageData[id].localUrl;
+  }
+
+  static getItems() {
+    return Object.values(localStorageData);
   }
 }
 
 LocalStorage.isSupported = webkitPersistentStorage;
-LocalStorage.CHUNKSIZE = CHUNKSIZE;
 
 export default LocalStorage;

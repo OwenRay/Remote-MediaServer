@@ -28,7 +28,8 @@
     "redux": "^3.7.2",
     "redux-jsonapi": "^1.1.3",
     "throttle-debounce": "^2.1.0",
-    "vtt-live-edit": "^1.0.7"
+    "vtt-live-edit": "^1.0.7",
+    "hls.js": "0.12.3-canary.4258"
   },
   "devDependencies": {
     "npm-run-all": "^4.0.2"

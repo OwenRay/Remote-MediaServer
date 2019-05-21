@@ -10,11 +10,8 @@ const TO_CACHE = [
   '/api/watchNext',
   '.jpg',
   '/api/media-items',
-  '/api/play-positions',
   '/api/tmdb',
 ];
-let cache;
-
 
 // On install, cache some resource.
 self.addEventListener('install', (evt) => {
@@ -25,6 +22,7 @@ self.addEventListener('install', (evt) => {
   evt.waitUntil(caches.open(CACHE).then((cache) => {
     cache.addAll([
       '/',
+      '/api/watchNext',
     ]);
   }));
 });
@@ -53,7 +51,7 @@ function cacheOrFetch(request, cacheKey) {
     .then(cache => cache.match(cacheKey))
     .then((r) => {
       if (r) {
-        update(request)
+        update(request, cacheKey)
           .catch(e => console.log('failed to fetch', e));
         return r;
       }

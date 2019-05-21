@@ -42,10 +42,6 @@ class HLSPlayHandler extends RequestHandler {
 
     HLSPlayHandler.sessions[id] = this;
     this.setSessionTimeout();
-    // this.context.body = "redirecting";
-    this.context.response.status = 302;
-    this.response.set('Content-Type', 'application/x-mpegURL');
-    this.response.set('Location', redirectUrl);
 
     // prepare for decoding
     let dir = `${os.tmpdir()}/remote_cache`;
@@ -69,6 +65,14 @@ class HLSPlayHandler extends RequestHandler {
       .setOnClose(this.onClose.bind(this))
       .setOnReadyListener(this.onReady.bind(this))
       .run();
+
+
+    if (query.session) {
+      return this.newRequest(this.context);
+    }
+    this.context.response.status = 302;
+    this.response.set('Content-Type', 'application/x-mpegURL');
+    this.response.set('Location', redirectUrl);
     return true;
   }
 
@@ -124,14 +128,14 @@ class HLSPlayHandler extends RequestHandler {
           .serveFile(file, true, resolve);
       }
 
-      if (!this.ffmpeg.paused) {
+      if (!this.ffmpeg.paused && !this.playStart) {
         setTimeout(() => {
           this.newRequest(context, segment).then(resolve);
         }, 1000);
         return null;
       }
 
-      this.serveFirstHls(context, resolve);
+      this.serveHls(context, resolve);
       return null;
     });
   }
@@ -142,8 +146,13 @@ class HLSPlayHandler extends RequestHandler {
      * Make sure the first hls that's requested has no more then three chunks
      * this is to ensure the browser will not skip any chunks
      */
-  serveFirstHls(context, resolve) {
+  serveHls(context, resolve) {
     context.response.set('Content-Type', 'application/x-mpegURL');
+    if (context.query.nothrottle) {
+      new FileRequestHandler(context)
+        .serveFile(this.m3u8, false, resolve);
+      return;
+    }
 
     fs.readFile(this.m3u8, (err, data) => {
       if (err) {
@@ -200,7 +209,6 @@ class HLSPlayHandler extends RequestHandler {
 
   onClose() {
     clearInterval(this.checkPauseInterval);
-    HLSPlayHandler.sessions[this.session] = null;
   }
 }
 

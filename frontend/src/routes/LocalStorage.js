@@ -8,6 +8,7 @@ import { Card, Row, Col, Input, Button } from 'react-materialize';
 import Slider from 'rc-slider';
 import LocalStorage from '../helpers/LocalStorage';
 import { throttle } from 'throttle-debounce';
+import MediaItemTile from '../components/mediaItem/MediaItemTile';
 
 class LocalStorageRoute extends PureComponent {
   constructor() {
@@ -80,6 +81,12 @@ class LocalStorageRoute extends PureComponent {
           </Card>
           <Card className="localStorage">
             <h3>Available Offline</h3>
+            <div className="verticalList">
+              {LocalStorage.getItems().length ?
+                LocalStorage.getItems().map(i => <MediaItemTile key={i.id} mediaItem={i} />) :
+                'No offline items yet'
+              }
+            </div>
           </Card>
         </div>
       </Flipped>
