@@ -29,9 +29,9 @@ class OfflineVideoRenderer extends Html5VideoRenderer {
       hls.attachMedia(vidRef);
       hls.on(Hls.Events.MANIFEST_PARSED, () => vidRef.play());
       hls.loadSource(LocalStorage.getMediaUrl(this.props.mediaItem));
-    }
-    if (this.props.seek) {
-      vidRef.currentTime = this.props.seek;
+      if (this.props.seek) {
+        vidRef.currentTime = this.props.seek;
+      }
     }
 
     return super.gotVidRef(vidRef);
