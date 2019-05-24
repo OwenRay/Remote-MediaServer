@@ -16,7 +16,8 @@ import Api from './routes/Api';
 import About from './routes/About';
 import SocketIO from './helpers/SocketIO';
 import LocalStorageIcon from './components/localStorage/LocalStorageIcon';
-import LocalStorage from './routes/LocalStorage';
+import LocalStorageRoute from './routes/LocalStorage';
+import LocalStorage from './helpers/LocalStorage';
 
 
 class App extends Component {
@@ -86,7 +87,7 @@ class App extends Component {
               Library
             </NavLink>
           </li>
-          {!LocalStorage.isSupported ?
+          {LocalStorage.isSupported ?
             <li>
               <NavLink to="/LocalStorage" exact>
                 <LocalStorageIcon />
@@ -114,7 +115,7 @@ class App extends Component {
             <Route path="/Settings" component={Settings} />
             <Route path="/Api" component={Api} />
             <Route path="/About" component={About} />
-            <Route path="/LocalStorage" component={LocalStorage} />
+            <Route path="/LocalStorage" component={LocalStorageRoute} />
           </div>
           <Route path="/Library" component={Library} exact />
           <Route path="/item/detail/:id" component={Detail} />

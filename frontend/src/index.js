@@ -1,4 +1,4 @@
-/* global document */
+/* global document,navigator,window */
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Switch } from 'react-router-dom';
@@ -15,13 +15,8 @@ require('./css/index.css');
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    console.log('willreg');
     navigator.serviceWorker.register('/sw.js', { scope: '/' }).then((registration) => {
-      // Registration was successful
-      console.log('ServiceWorker registration successful with scope: ', registration.scope);
-    }, (err) => {
-      // registration failed :(
-      console.log('ServiceWorker registration failed: ', err);
+      registration.update();
     });
   });
 }

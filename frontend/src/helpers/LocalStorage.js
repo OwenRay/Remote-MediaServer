@@ -3,7 +3,7 @@ import HLSDownloader from '../components/localStorage/HLSDownloader';
 
 const eventListeners = { [-1]: [] };
 const { webkitPersistentStorage } = navigator;
-const { webkitRequestFileSystem, PERSISTENT } = window;
+const { fetch, webkitRequestFileSystem, PERSISTENT } = window;
 const localStorageData = JSON.parse(localStorage.getItem('offline') || '{}');
 const downloading = {};
 
@@ -49,13 +49,28 @@ class LocalStorage {
         reject,
       );
     });
-
   }
 
+  /**
+   * @todo fetch subtitles
+   * @todo fetch video with specific audio/video channel
+   */
   static async download(item, audioChannel, videoChannel) {
     const estimatedSize = (item.bitrate / 8) * item.fileduration;
     if (!await this.checkQuota(estimatedSize)) return false;
 
+    // make sure the necessary assets are cache
+    [
+      `/api/media-items/${item.id}`,
+      `/img/${item.id}_poster.jpg`,
+      `/img/${item.id}_backdrop.jpg`,
+      `/img/${item.id}_posterlarge.jpg`,
+      `/api/mediacontent/${item.id}`,
+    ].forEach((url) => {
+      fetch(url);
+    });
+
+    // start download of the HLS
     const downloader = new HLSDownloader(`hls_${item.id}`, `/ply/${item.id}/0?format=hls&nothrottle=true`);
     downloading[item.id] = downloader;
     downloader.setOnProgress(progress => this.trigger(
@@ -97,7 +112,8 @@ class LocalStorage {
   }
 
   static isAvailable({ id }) {
-    return this.isSupported && localStorageData[id];
+    return this.isSupported
+      && localStorageData[id];
   }
 
   static trigger(id, event, args = []) {
@@ -125,6 +141,6 @@ class LocalStorage {
   }
 }
 
-LocalStorage.isSupported = webkitPersistentStorage;
+LocalStorage.isSupported = webkitPersistentStorage && window.chrome;
 
 export default LocalStorage;

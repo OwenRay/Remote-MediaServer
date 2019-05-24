@@ -32,7 +32,6 @@ export default class HLSDownloader {
     const [, segment] = url.split('segment=');
 
     const file = await this.getFileRef(segment || url);
-    console.log('download chunk', url);
     const req = await fetch(url);
     this.req = req;
     const reader = req.body.getReader('');
@@ -100,7 +99,6 @@ ${list}`;
 
   async refreshPlaylist() {
     if (this.playlistComplete) return;
-    console.log('refresh list', this.url);
     const response = await fetch(this.url);
 
     let nextDuration = 0;

@@ -15,7 +15,6 @@ const TO_CACHE = [
 
 // On install, cache some resource.
 self.addEventListener('install', (evt) => {
-  console.log('The service worker is being installed.');
   // Open a cache and use `addAll()` with an array of assets to add all of them
   // to the cache. Ask the service worker to keep installing until the
   // returning promise resolves.
@@ -37,11 +36,9 @@ self.addEventListener('fetch', (evt) => {
   let matchesCache = TO_CACHE.find(c => url.indexOf(c) !== -1);
   let cacheKey = evt.request;
   if (!matchesCache && !url.match(/^.*?:\/\/.+?\/(api|img|ply|static|socket|sockjs|(.+\.))/)) {
-    console.log('rewriting', evt.request.url, ' to ./ ');
     cacheKey = '/';
     matchesCache = true;
   }
-  console.log(url, matchesCache);
   if (!matchesCache) return false;
   evt.respondWith(cacheOrFetch(evt.request, cacheKey));
 });
@@ -55,7 +52,6 @@ function cacheOrFetch(request, cacheKey) {
           .catch(e => console.log('failed to fetch', e));
         return r;
       }
-      console.log('not in cache', request.originalUrl);
       return update(request, cacheKey);
     });
 }

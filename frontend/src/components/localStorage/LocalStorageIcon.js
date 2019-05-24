@@ -16,7 +16,7 @@ class LocalStorageIcon extends Component {
 
   async refresh() {
     const quota = await LocalStorage.getCurrentQuota();
-    const useRatio = Math.round((quota.used / quota.granted) * 100);
+    const useRatio = Math.round((quota.used / quota.granted) * 100) || 0;
     this.setState({ useRatio });
   }
 
