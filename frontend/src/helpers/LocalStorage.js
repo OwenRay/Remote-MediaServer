@@ -112,7 +112,7 @@ class LocalStorage {
   }
 
   static isAvailable({ id }) {
-    return this.isSupported
+    return LocalStorage.isSupported
       && localStorageData[id];
   }
 

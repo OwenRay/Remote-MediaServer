@@ -10,13 +10,21 @@ class LocalStorageProgressForItem extends Component {
     super(props);
     this.state = { progress: 0 };
     this.onFinish = this.onFinish.bind(this);
-    this.onProgress = throttle(300, this.onProgress.bind(this));
-    this.componentWillReceiveProps();
+    this.onProgressOriginal = this.onProgress.bind(this);
+    this.componentWillReceiveProps(props);
   }
 
-  componentWillReceiveProps() {
-    if (this.off || !this.props.item) return;
-    this.off = LocalStorage.addListener(this.props.item.id, this.onProgress, this.onFinish);
+  componentWillReceiveProps(nextProps) {
+    if (this.props.item && nextProps.item.id === this.props.item.id) return;
+    if (this.off) {
+      this.off();
+      this.onProgress.cancel();
+      this.setState({ progress: 0 });
+    }
+    if (nextProps.item) {
+      this.onProgress = throttle(300, this.onProgressOriginal);
+      this.off = LocalStorage.addListener(nextProps.item.id, this.onProgress, this.onFinish);
+    }
   }
 
   componentWillUnmount() {

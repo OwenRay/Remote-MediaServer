@@ -5,20 +5,22 @@ import LocalStorage from '../../helpers/LocalStorage';
 class DownloadButton extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { available: false };
     this.onClick = this.onClick.bind(this);
     this.onAvailabilityChange = this.onAvailabilityChange.bind(this);
+    this.componentWillReceiveProps(props);
   }
 
-  componentDidMount() {
+  componentWillReceiveProps(nextProps) {
+    if (this.props.item && nextProps.item.id === this.props.item.id) return;
+    if (this.offListener) this.offListener();
+
     this.offListener = LocalStorage.addListener(
-      this.props.item.id,
+      nextProps.item.id,
       null,
       null,
       this.onAvailabilityChange,
       this.onAvailabilityChange,
     );
-    this.onAvailabilityChange();
   }
 
   componentWillUnmount() {
@@ -26,25 +28,23 @@ class DownloadButton extends PureComponent {
   }
 
   onAvailabilityChange() {
-    this.setState({
-      available: LocalStorage.isAvailable(this.props.item),
-    });
+    this.forceUpdate();
   }
 
   async onClick() {
-    if (this.state.available) {
+    if (LocalStorage.isAvailable(this.props.item)) {
       LocalStorage.delete(this.props.item);
       return;
     }
     window.Materialize.toast('Starting download', 3000);
-    if(!await LocalStorage.download(this.props.item)) {
+    if (!await LocalStorage.download(this.props.item)) {
       window.Materialize.toast('Not enough space, please increase quota', 5000);
     }
   }
 
   render() {
     if (!LocalStorage.isSupported) return null;
-    const { available } = this.state;
+    const available = LocalStorage.isAvailable(this.props.item);
 
     return (
       <Button
