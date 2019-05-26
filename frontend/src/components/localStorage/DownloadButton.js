@@ -24,7 +24,7 @@ class DownloadButton extends PureComponent {
   }
 
   componentWillUnmount() {
-    this.offListener();
+    if (this.offListener) this.offListener();
   }
 
   onAvailabilityChange() {

@@ -29,7 +29,7 @@ class LocalStorageProgressForItem extends Component {
 
   componentWillUnmount() {
     if (this.off) this.off();
-    this.onProgress.cancel();
+    if (this.onProgress.cancel) this.onProgress.cancel();
   }
 
   onProgress(progress) {
