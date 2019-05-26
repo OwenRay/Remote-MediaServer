@@ -528,6 +528,15 @@ nav {
   .active{
     border-bottom:1px solid $secondary-color;
   }
+  .localStorageIcon{
+    float: left;
+    width: 27px;
+    height:100%;
+    margin-right:15px;
+    .CircularProgressbar-text{
+      color:white;
+    }
+  }
 }
 
 .button-collapse{
@@ -566,6 +575,9 @@ button.marked{
 .side-nav{
   height: auto;
   bottom:0px;
+  .localStorageIcon {
+    margin-right:28px;
+  }
   .top {
     position: absolute;
     bottom: 60px;

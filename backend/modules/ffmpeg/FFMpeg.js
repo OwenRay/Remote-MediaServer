@@ -18,6 +18,8 @@ class FFMpeg {
     this.output = output;
     this.outputArgs = [];
     this.inputArgs = [];
+    this.vCodec = 'libx264';
+    this.aCodec = 'aac';
   }
 
   run() {
@@ -79,18 +81,21 @@ class FFMpeg {
     this.proc.kill('SIGKILL');
   }
 
+  setCodecs(vCodec, aCodec) {
+    this.vCodec = vCodec;
+    this.aCodec = aCodec;
+    return this;
+  }
+
+
   gotInfo(info) {
-    let vCodec = 'libx264';
-    let aCodec = 'aac';
-
-
     info.streams.forEach((stream) => {
       if (stream.codec_type === 'video') {
         if (this.videoChannel === undefined) {
           this.videoChannel = stream.index;
         }
         if (`${this.videoChannel}` === `${stream.index}` && supportedVideoCodecs[stream.codec_name]) {
-          vCodec = 'copy';
+          this.vCodec = 'copy';
         }
       }
       if (stream.codec_type === 'audio') {
@@ -98,7 +103,7 @@ class FFMpeg {
           this.audioChannel = stream.index;
         }
         if (`${this.audioChannel}` === `${stream.index}` && supportedAudioCodecs[stream.codec_name]) {
-          aCodec = 'copy';
+          this.aCodec = 'aac';
         }
       }
     });
@@ -110,7 +115,7 @@ class FFMpeg {
       this.addOutputArguments(['-map', `0:${this.audioChannel}`]);
     }
 
-    if (vCodec !== 'copy') {
+    if (this.vCodec !== 'copy') {
       this.addOutputArguments(['-preset', Settings.getValue('ffmpeg_preset')]);
     }
 
@@ -132,22 +137,21 @@ class FFMpeg {
     const args = [
       // "-re", // <-- should read the file at running speed... but a little to slow...
       '-y',
-      '-probesize', '50000',
+      '-probesize', '500000',
       '-thread_queue_size', '10240',
       '-i', this.file,
       '-i', this.tmpFile,
       '-map_metadata', '1',
 
-      '-vcodec', vCodec,
-      '-acodec', aCodec,
+      '-vcodec', this.vCodec,
+      '-acodec', this.aCodec,
       '-strict', '-2',
       '-stdin',
       '-sn',
-      '-strict', '-2',
       this.output,
     ];
 
-    if (aCodec !== 'copy') {
+    if (this.aCodec !== 'copy') {
       this.addOutputArguments(['-ac', 2, '-ab', '192k']);
     }
     if (!this.offset || this.offset === '0') {
@@ -161,7 +165,7 @@ class FFMpeg {
     }
 
     while (this.outputArgs.length) {
-      args.splice(21, 0, this.outputArgs.pop());
+      args.splice(19, 0, this.outputArgs.pop());
     }
     while (this.inputArgs.length) {
       args.splice(0, 0, this.inputArgs.pop());

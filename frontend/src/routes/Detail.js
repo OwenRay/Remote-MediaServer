@@ -14,6 +14,8 @@ import store from '../helpers/stores/apiStore';
 import ReadableDuration from '../components/ReadableDuration';
 import MediaItemRow from '../components/mediaItem/MediaItemRow';
 import MediaInfo from '../components/mediaItem/MediaInfo';
+import DownloadButton from '../components/localStorage/DownloadButton';
+import LocalStorageProgressForItem from '../components/localStorage/LocalStorageProgressForItem';
 
 class Detail extends Component {
   constructor(props) {
@@ -172,7 +174,7 @@ class Detail extends Component {
   }
 
   async loadMeta(ell) {
-    if(ell) ell.style.opacity = 1;
+    if (ell) ell.style.opacity = 1;
     // make sure metadata only gets loaded after the animation has completed
     // and the item has been loaded
     this.animationComplete = true;
@@ -243,6 +245,7 @@ class Detail extends Component {
               </a>) :
                 ''
               }
+            <DownloadButton item={this.state.item || { id }} />
             {s.watched ?
               <Button onClick={this.toggleWatched} data-tip="Mark unwatched" className="marked"><Icon>done</Icon></Button> :
               <Button onClick={this.toggleWatched} data-tip="Mark watched"><Icon>done</Icon></Button>
@@ -256,6 +259,7 @@ class Detail extends Component {
             </Modal>
 
             <ReactTooltip place="bottom" effect="solid" />
+            <LocalStorageProgressForItem item={s.item} />
           </TopBar>
 
           <div>

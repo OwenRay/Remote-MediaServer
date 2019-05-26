@@ -32,7 +32,7 @@ class Html5VideoRenderer extends BaseRenderer {
       }
     }
 
-    if (this.props.seek !== newProps.seek && this.activeTrack) {
+    if (this.props.seek !== newProps.seek ) {
       this.setOffset(newProps.seek);
     }
 
@@ -63,7 +63,7 @@ class Html5VideoRenderer extends BaseRenderer {
   }
 
   reInit() {
-    if (this.state.progress < this.state.mediaItem.fileduration * 0.99) {
+    if (this.state && this.state.progress < this.props.mediaItem.fileduration * 0.99) {
       this.setState({ seek: this.state.progress, loading: true });
     }
   }
@@ -86,7 +86,9 @@ class Html5VideoRenderer extends BaseRenderer {
   }
 
   setOffset(offset) {
+    if (!this.activeTrack) return;
     if (!this.activeTrack.subtitleOffset) this.activeTrack.subtitleOffset = 0;
+
     const items = Array.from(this.activeTrack.cues);
     if (!items.length) return;
     items.forEach((cue) => {

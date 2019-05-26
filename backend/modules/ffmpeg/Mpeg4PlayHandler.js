@@ -21,7 +21,8 @@ class Mpeg4PlayHandler extends RequestHandler {
       .setOnReadyListener(this.onFFMpegReady.bind(this))
       .addOutputArguments([
         '-f', 'mp4',
-        '-movflags', 'empty_moov',
+        '-movflags', 'empty_moov+omit_tfhd_offset+default_base_moof+frag_keyframe',
+        '-reset_timestamps', '1',
       ]);
     if (this.context.query.audioChannel) {
       this.ffmpeg.setAudioChannel(this.context.query.audioChannel);
@@ -34,10 +35,18 @@ class Mpeg4PlayHandler extends RequestHandler {
     });
 
     this.ffmpeg.run();
+    this.ffmpeg.setOnClose(this.onClose.bind(this));
     this.bufferedChuncks = 0;
     Log.debug(`starting to play:${this.file}`);
 
     return promise;
+  }
+
+  onClose() {
+    this.ffmpegEnded = true;
+    if (this.bufferedChuncks === 0) {
+      this.context.body.end();
+    }
   }
 
   static getDescription(nethod, url) {
@@ -52,6 +61,7 @@ class Mpeg4PlayHandler extends RequestHandler {
     this.context.req.connection.on('close', () => {
       Log.debug('close video play connection!');
       this.ffmpeg.kill();
+      this.context.body.end();
     });
 
     this.ffmpeg.getOutputStream().on('data', this.onData.bind(this));
@@ -67,6 +77,9 @@ class Mpeg4PlayHandler extends RequestHandler {
     this.bufferedChuncks += 1;
     let pause = !this.context.body.write(data, () => {
       this.bufferedChuncks -= 1;
+      if (this.bufferedChuncks === 0 && this.ffmpegEnded) {
+        this.context.body.end();
+      }
       if (this.ffmpeg.getOutputStream().isPaused() && this.bufferedChuncks <= 19) {
         this.ffmpeg.getOutputStream().resume();
       }

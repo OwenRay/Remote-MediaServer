@@ -15,6 +15,9 @@ import ShortcutHelper from './helpers/ShortcutHelper';
 import Api from './routes/Api';
 import About from './routes/About';
 import SocketIO from './helpers/SocketIO';
+import LocalStorageIcon from './components/localStorage/LocalStorageIcon';
+import LocalStorageRoute from './routes/LocalStorage';
+import LocalStorage from './helpers/LocalStorage';
 
 
 class App extends Component {
@@ -47,7 +50,6 @@ class App extends Component {
 
   onToast(toastMessage) {
     window.Materialize.toast(toastMessage, 3000);
-
   }
 
   onShortcut(result) {
@@ -61,7 +63,7 @@ class App extends Component {
   }
 
   toggleHelp() {
-    $('#help').modal( this.modalOpen ? 'close' : 'open');
+    $('#help').modal(this.modalOpen ? 'close' : 'open');
     this.modalOpen = !this.modalOpen;
   }
 
@@ -85,6 +87,14 @@ class App extends Component {
               Library
             </NavLink>
           </li>
+          {LocalStorage.isSupported ?
+            <li>
+              <NavLink to="/LocalStorage" exact>
+                <LocalStorageIcon />
+                Offline
+              </NavLink>
+            </li>
+          : ''}
           <li>
             <NavLink to="/Settings">
               <Icon left>settings</Icon>
@@ -105,6 +115,7 @@ class App extends Component {
             <Route path="/Settings" component={Settings} />
             <Route path="/Api" component={Api} />
             <Route path="/About" component={About} />
+            <Route path="/LocalStorage" component={LocalStorageRoute} />
           </div>
           <Route path="/Library" component={Library} exact />
           <Route path="/item/detail/:id" component={Detail} />
