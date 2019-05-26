@@ -1,9 +1,12 @@
 const fs = require('fs');
 const Database = require('./Database');
 const Log = require('../Log');
-const core = require('../');
+const Settings = require('../Settings');
 
 class Migrate {
+  /**
+   * Migration is started from the core (../)
+   */
   static run() {
     while (this[`version${Database.version}`]) {
       Log.info('running migration', Database.version);
@@ -36,8 +39,17 @@ class Migrate {
     });
     Database.doSave('ids');
   }
-}
 
-core.addBeforeStartListener(Migrate.run);
+  /**
+   * enable modules that are new since the previous release
+   */
+  static version2() {
+    const modules = Settings.getValue('modules');
+    if (modules.indexOf('ssl') === -1) modules.push('ssl');
+    if (modules.indexOf('socketio') === -1) modules.push('socketio');
+    Settings.setValue('modules', modules);
+    Settings.save();
+  }
+}
 
 module.exports = Migrate;

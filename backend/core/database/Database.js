@@ -13,7 +13,7 @@ class Database {
     this.tables = {};
     this.dataProviders = [];
     this.updateOverwriters = [];
-    this.version = 2;
+    this.version = 3;
   }
 
   checkTable(type) {

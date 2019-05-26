@@ -3,6 +3,7 @@
 const fs = require('fs');
 const http = require('./http');
 const Settings = require('./Settings');
+const Migrate = require('./database/Migrate');
 
 const dirs = ['cache', 'subs', 'store'];
 const beforeListeners = [];
@@ -18,6 +19,7 @@ const modules = {};
 class RemoteCore {
   static async init() {
     dirs.forEach((dir) => { if (!fs.existsSync(dir)) fs.mkdirSync(dir); });
+    Migrate.run();
 
     Settings.getValue('modules').forEach((m) => {
       modules[m] = require(`../modules/${m}`);

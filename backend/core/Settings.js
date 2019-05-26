@@ -60,6 +60,7 @@ const settingsObj = {
     'sharing',
     'tmdb',
     'ssl',
+    'socketio',
   ],
   startopen: true,
   ssl: {},
