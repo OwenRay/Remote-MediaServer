@@ -8,6 +8,7 @@
     "remote": "./main.js"
   },
   "scripts": {
+    "start": "nodemon --inspect --watch backend main.js",
     "test": "eslint --config .eslintrc backend/ && nodeunit backend/core/tests/",
     "package": "cp -r node_modules/moviedb-api/",
     "build": "pkg package.json && npm run build:mac && npm run build:win && npm run build:linux",
@@ -62,6 +63,7 @@
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.7.0",
     "nodeunit": "^0.11.3",
-    "pkg": "^4.3.4"
+    "pkg": "^4.3.4",
+    "nodemon": "^1.19.1"
   }
 }

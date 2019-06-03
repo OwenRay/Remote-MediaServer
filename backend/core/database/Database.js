@@ -233,9 +233,11 @@ class Database {
       callback = () => {};
     }
     fs.writeFile(
-      `store/${type}`,
+      `store/${type}.swap`,
       JSON.stringify(this.tables[type] ? this.tables[type] : this[type]),
-      callback,
+      () => {
+        fs.rename(`store/${type}.swap`, `store/${type}`, callback);
+      },
     );
   }
 

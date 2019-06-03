@@ -35,6 +35,7 @@ self.addEventListener('fetch', (evt) => {
   evt.request.originalUrl = url;
   let matchesCache = TO_CACHE.find(c => url.indexOf(c) !== -1);
   let cacheKey = evt.request;
+  if (evt.request.method === 'GET') return;
   if (!matchesCache && !url.match(/^.*?:\/\/.+?\/(api|img|ply|static|socket|sockjs|(.+\.))/)) {
     cacheKey = '/';
     matchesCache = true;
