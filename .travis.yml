@@ -9,13 +9,13 @@ before_install:
   - gcc --version
   - g++ --version
 install:
-  - cd frontend && npm install && npm run build && cd ../
-  - npm install
+  - cd frontend && yarn install && yarn run build && cd ../
+  - yarn install
 script:
-  - npm run test
+  - yarn run test
   - mkdir -p dist
-  - cd dist && npm pack ../ && cd ..
-  - npm run build
+  - cd dist && yarn pack ../ && cd ..
+  - yarn run build
 deploy:
   provider: s3
   access_key_id: "AKIAIHYANWLHBG5FRLZQ"
