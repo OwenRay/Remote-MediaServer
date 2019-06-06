@@ -16,6 +16,7 @@ script:
   - mkdir -p dist
   - cd dist && yarn pack ../ && cd ..
   - yarn run build
+  - npx pkg package.json --targets node10-linux-armv7
 deploy:
   provider: s3
   access_key_id: "AKIAIHYANWLHBG5FRLZQ"
