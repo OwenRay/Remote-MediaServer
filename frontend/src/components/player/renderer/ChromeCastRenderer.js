@@ -29,6 +29,7 @@ class ChromeCastRenderer extends BaseRenderer {
   componentDidMount() {
     this.interval = setInterval(this.refreshOffset.bind(this), 500);
     this.componentWillReceiveProps(this.props);
+    this.props.onStart();
     ChromeCast.addListener(ChromeCast.EVENT_ONPLAY, this.onPlay);
   }
 

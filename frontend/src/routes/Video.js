@@ -17,6 +17,7 @@ import CastButton from '../components/player/CastButton';
 import ChromeCast from '../helpers/ChromeCast';
 import ShortcutArray from '../helpers/ShortcutHelper';
 import LocalStorage from '../helpers/LocalStorage';
+import autoPlaySupported from '../helpers/autoPlaySupported';
 
 const isTouch = ('ontouchstart' in window);
 
@@ -34,14 +35,15 @@ class Video extends Component {
     this.toggleFullScreen = this.toggleFullScreen.bind(this);
     this.volumeChange = this.volumeChange.bind(this);
     this.onTouch = this.onTouch.bind(this);
+    this.onStart = this.onStart.bind(this);
 
     this.pageRef = null;
   }
 
-  componentWillMount() {
+  async componentWillMount() {
     ChromeCast.addListener(ChromeCast.EVENT_CASTING_CHANGE, this.onCastingChange.bind(this));
     this.setState({
-      paused: false,
+      paused: true,
       volume: 1,
       seek: 0,
       progress: 0,
@@ -49,6 +51,7 @@ class Video extends Component {
       navClass: 'visible',
       renderer: ChromeCast.isActive() ? ChromeCastRenderer : Html5VideoRenderer,
     });
+    this.setState({ paused: !(await autoPlaySupported()) });
   }
 
   componentDidMount() {
@@ -133,6 +136,10 @@ class Video extends Component {
     this.onMouseMove();
   }
 
+  onStart() {
+    this.setState({ paused: false });
+  }
+
   onSelectContent(what, channel) {
     if (what === 'subtitles') {
       this.setState({ subtitle: channel });
@@ -175,10 +182,10 @@ class Video extends Component {
   }
 
   loadingOrPaused() {
-    if (this.state.loading) {
-      return <Preloader mode="circular" size="small" flashing style={{ zIndex: 99 }} />;
-    } else if (this.state.paused) {
+    if (this.state.paused) {
       return <Button floating large className="play" icon="play_arrow" onClick={this.togglePause} flat />;
+    } else if (this.state.loading) {
+      return <Preloader mode="circular" size="small" flashing style={{ zIndex: 99 }} />;
     }
     return '';
   }
@@ -305,6 +312,7 @@ class Video extends Component {
           <this.state.renderer
             mediaItem={this.state.item}
             onProgress={this.onProgress}
+            onStart={this.onStart}
             seek={this.state.seek}
             audioChannel={this.state.audio}
             videoChannel={this.state.video}

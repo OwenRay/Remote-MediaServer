@@ -3,9 +3,6 @@ import Html5VideoRenderer from './Html5VideoRenderer';
 import LocalStorage from '../../../helpers/LocalStorage';
 
 class OfflineVideoRenderer extends Html5VideoRenderer {
-  componentWillMount() {
-  }
-
   componentWillUnmount() {
     if (this.hls) this.hls.destroy();
   }

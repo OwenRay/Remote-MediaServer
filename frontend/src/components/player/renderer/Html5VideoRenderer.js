@@ -8,6 +8,7 @@ class Html5VideoRenderer extends BaseRenderer {
     this.reInit = this.reInit.bind(this);
     this.onTrackLoad = this.onTrackLoad.bind(this);
     this.onTrackRef = this.onTrackRef.bind(this);
+    this.onStart = this.onStart.bind(this);
   }
 
   componentDidMount() {
@@ -32,7 +33,7 @@ class Html5VideoRenderer extends BaseRenderer {
       }
     }
 
-    if (this.props.seek !== newProps.seek ) {
+    if (this.props.seek !== newProps.seek) {
       this.setOffset(newProps.seek);
     }
 
@@ -60,6 +61,11 @@ class Html5VideoRenderer extends BaseRenderer {
     vidRef.addEventListener('timeupdate', this.onProgress);
     vidRef.addEventListener('error', this.reInit);
     vidRef.addEventListener('ended', this.reInit);
+    vidRef.addEventListener('play', this.onStart);
+  }
+
+  onStart() {
+    this.props.onStart();
   }
 
   reInit() {
@@ -103,9 +109,11 @@ class Html5VideoRenderer extends BaseRenderer {
       <div className="wrapper">
         <video
           id="video"
+          webkit-playsinline="webkit-playsinline"
+          playsInline="playsInline"
           ref={this.gotVidRef.bind(this)}
           src={this.getVideoUrl()}
-          preload="none"
+          preload="auto"
           autoPlay
         >
           {this.props.subtitles.map(sub => (

@@ -21,7 +21,11 @@ class HLSPlayHandler extends RequestHandler {
 
     if (query.format !== 'hls' &&
             (this.request.headers['user-agent'].indexOf('Chrome') !== -1 ||
-            this.request.headers['user-agent'].indexOf('Safari') === -1)) {
+              (
+                this.request.headers['user-agent'].indexOf('Safari') === -1 &&
+                this.request.headers['user-agent'].indexOf('AppleCoreMedia') === -1
+              )
+            )) {
       return false;
     }
 
@@ -164,6 +168,7 @@ class HLSPlayHandler extends RequestHandler {
       let segmentTime = 0;
 
       const lines = `${data}`.split('\n');
+      lines.splice(1, 0, '#EXT-X-START:TIME-OFFSET=0');
       let newSegments = 0;
       for (let c = 0; c < lines.length; c += 1) {
         context.body += `${lines[c]}\n`;
