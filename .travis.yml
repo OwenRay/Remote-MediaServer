@@ -13,8 +13,9 @@ install:
   - yarn install
 script:
   - yarn run test
+  - yarn pack
   - mkdir -p dist
-  - cd dist && yarn pack ../ && cd ..
+  - mv remote-mediaserver-*.tgz dist/
   - yarn run build
 deploy:
   provider: s3
