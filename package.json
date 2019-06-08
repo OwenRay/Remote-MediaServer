@@ -16,6 +16,10 @@
     "build:win": "zip file.zip remote-mediaserver-win.exe node_modules/*/*/win32-x64/node-64.node && mv file.zip dist/win.zip",
     "build:linux": "zip file.zip remote-mediaserver-linux node_modules/*/*/linux-x64/node-64.node && mv file.zip dist/linux.zip"
   },
+  "files": [
+    "backend",
+    "frontend/build"
+  ],
   "pkg": {
     "scripts": [
       "backend/**/*.js",
