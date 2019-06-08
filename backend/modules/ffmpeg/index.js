@@ -1,7 +1,7 @@
 const fs = require('fs');
 const os = require('os');
 const http = require('http');
-const unzip = require('unzip2');
+const unzip = require('node-unzip-2');
 const Settings = require('../../core/Settings');
 
 
