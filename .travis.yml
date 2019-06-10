@@ -1,6 +1,8 @@
 language: node_js
 node_js:
   - "10"
+services:
+  - docker
 before_install:
   - rvm install 2.2.5
   - nvm --version
@@ -8,15 +10,16 @@ before_install:
   - npm --version
   - gcc --version
   - g++ --version
+  - docker run --rm --privileged multiarch/qemu-user-static:register --reset
 install:
   - cd frontend && yarn install && yarn run build && cd ../
   - yarn install
 script:
   - yarn run test
+  - yarn pack
   - mkdir -p dist
-  - cd dist && yarn pack ../ && cd ..
+  - mv remote-mediaserver-*.tgz dist/
   - yarn run build
-  - npx pkg package.json --targets node10-linux-armv7
 deploy:
   provider: s3
   access_key_id: "AKIAIHYANWLHBG5FRLZQ"
