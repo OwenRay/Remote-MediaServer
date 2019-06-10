@@ -12,7 +12,7 @@
     "test": "eslint --config .eslintrc backend/ && nodeunit backend/core/tests/",
     "package": "cp -r node_modules/moviedb-api/",
     "build": "pkg package.json && npm run build:mac && npm run build:win && npm run build:linux && npm run build:arm",
-    "build:arm": "docker run --rm -v $(pwd):/src arm32v7/node:10 bash -c \"cd src && npm install && npm run build:arm:indocker\" && zip file.zip remote-mediaserver && mv file.zip dist/arm.zip",
+    "build:arm": "docker run --rm -v $(pwd):/src owenray/rms-buildenv sh -c \"npm install && npm run build:arm:indocker\" && zip file.zip remote-mediaserver && mv file.zip dist/arm.zip",
     "build:mac": "zip file.zip remote-mediaserver-macos && mv file.zip dist/osx.zip",
     "build:win": "zip file.zip remote-mediaserver-win.exe && mv file.zip dist/win.zip",
     "build:linux": "zip file.zip remote-mediaserver-linux && mv file.zip dist/linux.zip",
