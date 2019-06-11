@@ -11,10 +11,12 @@
     "start": "nodemon --inspect --watch backend main.js",
     "test": "eslint --config .eslintrc backend/ && nodeunit backend/core/tests/",
     "package": "cp -r node_modules/moviedb-api/",
-    "build": "pkg package.json && npm run build:mac && npm run build:win && npm run build:linux",
-    "build:mac": "zip file.zip remote-mediaserver-macos node_modules/*/*/darwin-x64/node-64.node && mv file.zip dist/osx.zip",
-    "build:win": "zip file.zip remote-mediaserver-win.exe node_modules/*/*/win32-x64/node-64.node && mv file.zip dist/win.zip",
-    "build:linux": "zip file.zip remote-mediaserver-linux node_modules/*/*/linux-x64/node-64.node && mv file.zip dist/linux.zip"
+    "build": "pkg package.json && npm run build:mac && npm run build:win && npm run build:linux && npm run build:arm",
+    "build:arm": "docker run --rm -v $(pwd):/src owenray/rms-buildenv sh -c \"npm install && npm run build:arm:indocker\" && zip file.zip remote-mediaserver && mv file.zip dist/arm.zip",
+    "build:mac": "zip file.zip remote-mediaserver-*macos && mv file.zip dist/osx.zip",
+    "build:win": "zip file.zip remote-mediaserver-*win.exe && mv file.zip dist/win.zip",
+    "build:linux": "zip file.zip remote-mediaserver-*linux && mv file.zip dist/linux.zip",
+    "build:arm:indocker": "pkg --targets node10-linux-armv7 package.json"
   },
   "files": [
     "backend",
@@ -23,13 +25,15 @@
   "pkg": {
     "scripts": [
       "backend/**/*.js",
-      "node_modules/ed25519-supercop/prebuilds/darwin-x64/node-64.node",
-      "node_modules/ed25519-supercop/prebuilds/win32-x64/node-64.node",
-      "node_modules/ed25519-supercop/prebuilds/linux-x64/node-64.node",
       "node_modules/moviedb-api/apib/endpoints.json"
     ],
     "assets": [
       "frontend/build/**"
+    ],
+    "targets": [
+      "node10-linux-x64",
+      "node8-win-x64",
+      "node10-macos-x64"
     ]
   },
   "dependencies": {
@@ -37,7 +41,7 @@
     "ass-to-vtt": "^1.1.1",
     "bittorrent-dht": "^9.0.0",
     "chokidar": "^3.0.1",
-    "ed25519-supercop": "^1.2.0",
+    "supercop.js": "^2.0.1",
     "koa": "^2.3.0",
     "koa-bodyparser": "^4.2.0",
     "koa-router": "^7.1.1",
