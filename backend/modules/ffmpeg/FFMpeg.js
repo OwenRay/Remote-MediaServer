@@ -192,7 +192,12 @@ class FFMpeg {
       this.proc.stdout.pause();
       return;
     }
-    this.proc.stdin.write('c');
+
+    if (['win32', 'win64'].includes(os.platform())) {
+      this.proc.stdin.write('c');
+    } else {
+      this.proc.kill('SIGSTOP');
+    }
   }
 
   resume() {
@@ -200,7 +205,12 @@ class FFMpeg {
     if (this.output === '-') {
       this.proc.stdout.resume();
     }
-    this.proc.stdin.write('\n');
+
+    if (['win32', 'win64'].includes(os.platform())) {
+      this.proc.stdin.write('\n');
+    } else {
+      this.proc.kill('SIGCONT');
+    }
   }
 
   onClose(code) {
