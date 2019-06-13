@@ -30,6 +30,7 @@ class HttpServer {
     cache = nodeCache.create({ file: `${process.cwd()}/cache/httpCache` });
     Settings.addObserver('port', HttpServer.onPortChange);
     server = new Koa();
+    server.on('error', Log.debug);
     // eslint-disable-next-line global-require
     require('./coreHandlers');
   }

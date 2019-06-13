@@ -58,22 +58,21 @@ class Mpeg4PlayHandler extends RequestHandler {
   }
 
   onFFMpegReady() {
-    this.context.req.connection.on('close', () => {
-      Log.debug('close video play connection!');
-      this.ffmpeg.kill();
-      this.context.body.end();
-    });
-
     this.ffmpeg.getOutputStream().on('data', this.onData.bind(this));
 
     this.context.body = new PassThrough();
     this.context.body.on('close', () => {
+      Log.debug('close video play connection');
+      this.connectionClosed = true;
       this.ffmpeg.kill();
     });
     this.resolve();
   }
 
   onData(data) {
+    // stop writing any residual data when the connection has already closed
+    if (this.connectionClosed) return;
+
     this.bufferedChuncks += 1;
     let pause = !this.context.body.write(data, () => {
       this.bufferedChuncks -= 1;
