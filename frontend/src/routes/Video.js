@@ -1,15 +1,14 @@
 /* eslint-disable no-underscore-dangle */
-/* global $,document,window */
+/* global document,window */
 /**
  * Created by danielsauve on 7/07/2017.
  */
 import React, { Component } from 'react';
 import { Icon, Button, Preloader, Modal, Row } from 'react-materialize';
 import { apiActions, deserialize } from 'redux-jsonapi';
-import BodyClassName from 'react-body-classname';
 import NavBar from '../components/player/NavBar';
 import SeekBar from '../components/player/SeekBar';
-import store from '../helpers/stores/apiStore';
+import store from '../helpers/stores/store';
 import Html5VideoRenderer from '../components/player/renderer/Html5VideoRenderer';
 import ChromeCastRenderer from '../components/player/renderer/ChromeCastRenderer';
 import OfflineVideoRenderer from '../components/player/renderer/OfflineVideoRenderer';
@@ -18,6 +17,8 @@ import ChromeCast from '../helpers/ChromeCast';
 import ShortcutArray from '../helpers/ShortcutHelper';
 import LocalStorage from '../helpers/LocalStorage';
 import autoPlaySupported from '../helpers/autoPlaySupported';
+import { connect } from 'react-redux';
+import { playQueueActions } from '../helpers/stores/playQueue';
 
 const isTouch = ('ontouchstart' in window);
 
@@ -36,6 +37,8 @@ class Video extends Component {
     this.volumeChange = this.volumeChange.bind(this);
     this.onTouch = this.onTouch.bind(this);
     this.onStart = this.onStart.bind(this);
+    this.collapse = this.collapse.bind(this);
+    this.restore = this.restore.bind(this);
 
     this.pageRef = null;
   }
@@ -49,14 +52,12 @@ class Video extends Component {
       progress: 0,
       loading: true,
       navClass: 'visible',
-      renderer: ChromeCast.isActive() ? ChromeCastRenderer : Html5VideoRenderer,
     });
     this.setState({ paused: !(await autoPlaySupported()) });
   }
 
   componentDidMount() {
     this.lastPosSave = 0;
-    this.componentWillReceiveProps(this.props);
     this.navTimeout = setTimeout(this.hide.bind(this), 2000);
     this.shortcuts = new ShortcutArray()
       .add(ShortcutArray.EVENT.PAUSE_PLAY, this.togglePause)
@@ -68,30 +69,37 @@ class Video extends Component {
       .add(ShortcutArray.EVENT.MUTE, this.toggleMute);
   }
 
-  async componentWillReceiveProps(nextProps) {
-    if (this.id === nextProps.match.params.id) {
-      return;
-    }
-    this.id = nextProps.match.params.id;
-    const request = await store.dispatch(apiActions.read({ _type: 'media-items', id: this.id }));
-    const i = deserialize(request.resources[0], store);
+  // fetch all this data in the reducer.
+  // async componentWillReceiveProps(nextProps) {
+  //   const { playing } = nextProps.playQueue;
+  //   const { id } = nextProps.match.params;
+  //   console.log('newprops!', nextProps, id);
+  //   if ((!playing && id) || id !== `${playing.id}`) {
+  //     const a = this.props.insertAtCurrentOffsetById(id);
+  //     return;
+  //   }
+  //   if (!playing || (this.state.item && this.state.item.id === playing.id)) return;
+  //
+  //   this.props.fetchAndQueueTvSeriesFor(playing);
+  //
+  //   this.pos = {};
+  //   if (playing.playPosition) {
+  //     this.pos = await playing.playPosition();
+  //   }
+  //   this.pos._type = 'play-positions';
+  //   console.log('setItem;', playing);
+  //   this.setState({
+  //     item: playing,
+  //     duration: playing.fileduration,
+  //     skippedDialog: !this.pos.position,
+  //     renderer: LocalStorage.isAvailable(playing)
+  //       ? OfflineVideoRenderer
+  //       : this.state.renderer,
+  //   });
+  //   $.getJSON(`/api/mediacontent/${playing.id}`)
+  //     .then(this.mediaContentLoaded.bind(this));
+  // }
 
-    this.pos = {};
-    if (i.playPosition) {
-      this.pos = await i.playPosition();
-    }
-    this.pos._type = 'play-positions';
-    this.setState({
-      item: i,
-      duration: i.fileduration,
-      skippedDialog: !this.pos.position,
-      renderer: LocalStorage.isAvailable({ id: this.id })
-        ? OfflineVideoRenderer
-        : this.state.renderer,
-    });
-    $.getJSON(`/api/mediacontent/${this.id}`)
-      .then(this.mediaContentLoaded.bind(this));
-  }
 
   componentWillUnmount() {
     this.shortcuts.off();
@@ -101,7 +109,7 @@ class Video extends Component {
 
   onCastingChange(casting) {
     this.setState({
-      renderer: casting ? ChromeCastRenderer : Html5VideoRenderer,
+      casting: true,
       loading: true,
     });
   }
@@ -219,13 +227,17 @@ class Video extends Component {
   }
 
   async savePosition() {
-    this.pos.position = this.state.progress;
-    this.pos.watched = this.state.progress > this.state.item.fileduration * 0.97;
-    const posResult = await store.dispatch(apiActions.write(this.pos));
+    const { playing } = this.props.playQueue;
+    const pos = playing.fetchedPlayPosition || {};
+
+    pos._type = 'play-position';
+    pos.position = this.state.progress;
+    pos.watched = this.state.progress > playing.fileduration * 0.97;
+    const posResult = await store.dispatch(apiActions.write(pos));
 
     if (!this.pos.id) {
-      this.state.item._type = 'media-items';
-      this.state.item.playPosition = () => {
+      playing._type = 'media-items';
+      playing.playPosition = () => {
         const p = deserialize(posResult.resources[0], store);
         this.pos = p;
         p._type = 'play-positions';
@@ -241,55 +253,57 @@ class Video extends Component {
     this.setState({ navClass: ChromeCast.isActive() ? 'visible' : 'hidden' });
   }
 
-  async mediaContentLoaded(mediaContent) {
-    if (mediaContent.subtitles.length) {
-      mediaContent.subtitles.push({ value: '', label: 'Disable' });
-    }
-    this.setState({ mediaContent });
+  dialogClick(fromPos) {
+    this.setState({ seek: fromPos, skippedDialog: true });
   }
 
-  dialogClick(fromPos) {
-    this.setState({ seek: fromPos ? this.pos.position : 0, skippedDialog: true });
+  collapse() {
+    this.setState({ collapsed: 'collapsed' });
+  }
+
+  restore() {
+    this.setState({ collapsed: '' });
   }
 
   render() {
-    if (!this.state.item) {
-      return (
-        <div className="video">
-          <BodyClassName className="hideNav" />
-          <Preloader mode="circular" size="small" flashing style={{ zIndex: 99 }} />
-        </div>);
-    }
+    const { playing } = this.props.playQueue;
+    if (!playing) return null;
 
-    if (!this.state.skippedDialog && this.pos.position) {
+
+    let renderer = ChromeCast.isActive() || this.state.casting
+      ? ChromeCastRenderer
+      : Html5VideoRenderer;
+    if (LocalStorage.isAvailable(playing)) renderer = OfflineVideoRenderer;
+
+    const position = playing.fetchedPlayPosition;
+    if (playing && !this.state.skippedDialog && position) {
       return (
         <div className="video">
-          <BodyClassName className="hideNav" />
           <div className="movie-detail-backdrop-wrapper">
             <div
               className="movie-detail-backdrop"
-              style={{ backgroundImage: `url(/img/${this.state.item.id}_backdrop.jpg)` }}
+              style={{ backgroundImage: `url(/img/${playing.id}_backdrop.jpg)` }}
             />
             <div
               className="movie-detail-backdrop poster"
-              style={{ backgroundImage: `url(/img/${this.state.item.id}_posterlarge.jpg)` }}
+              style={{ backgroundImage: `url(/img/${playing.id}_posterlarge.jpg)` }}
             />
           </div>
           <Modal
             style={{ display: 'block' }}
             id="continueWatching"
             actions={[
-              <Button onClick={() => { this.dialogClick(); }} modal="close">
+              <Button onClick={() => { this.dialogClick(0); }} modal="close">
                 Start from beginning
               </Button>,
-              <Button onClick={() => { this.dialogClick(true); }} modal="confirm">
+              <Button onClick={() => { this.dialogClick(position.position); }} modal="confirm">
                 Continue watching
               </Button>,
             ]}
           >
             <h4>Continue watching?</h4>
             <Row>
-              You watched untill <b>{Math.ceil(this.pos.position / 60)}m</b>, continue watching?
+              You watched untill <b>{Math.ceil(position.position / 60)}m</b>, continue watching?
             </Row>
           </Modal>
         </div>
@@ -298,19 +312,20 @@ class Video extends Component {
 
     return (
       <div
-        className={`video ${this.state.navClass}`}
+        className={`video ${this.state.collapsed || ''} ${this.state.navClass}`}
         ref={(input) => { this.pageRef = input; }}
         onMouseMove={isTouch ? null : this.onMouseMove}
       >
-        <BodyClassName className="hideNav" />
+        {/* <BodyClassName className="hideNav" /> */}
+
         <div
           className="wrapper"
           onClick={isTouch ? null : this.togglePause}
           onTouchStart={this.onTouch}
           onDoubleClick={this.toggleFullScreen}
         >
-          <this.state.renderer
-            mediaItem={this.state.item}
+          <renderer
+            mediaItem={playing}
             onProgress={this.onProgress}
             onStart={this.onStart}
             seek={this.state.seek}
@@ -324,13 +339,25 @@ class Video extends Component {
           />
         </div>
         <CastButton />
+        <span id="collapseVideo" onClick={this.collapse}>
+          <Icon>keyboard_arrow_down</Icon>
+        </span>
+        <h1>
+          <span id="closeVideo" onClick={this.close}>
+            <Icon>close</Icon>
+          </span>
+          <span id="restoreVideo" onClick={this.restore}>
+            <Icon>keyboard_arrow_up</Icon>
+          </span>
+          {playing.title}
+        </h1>
 
         {this.loadingOrPaused()}
         {this.state.infoText ? <div className="infoText">{this.state.infoText}</div> : ''}
         <NavBar
           onSelectContent={this.onSelectContent}
           mediaContent={this.state.mediaContent}
-          item={this.state.item}
+          item={playing}
           paused={this.state.paused}
           togglePause={this.togglePause}
           toggleFullScreen={this.toggleFullScreen}
@@ -352,4 +379,5 @@ class Video extends Component {
     );
   }
 }
-export default Video;
+
+export default connect(({ playQueue }) => ({ playQueue }), playQueueActions)(Video);

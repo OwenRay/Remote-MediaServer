@@ -9,9 +9,11 @@ class Html5VideoRenderer extends BaseRenderer {
     this.onTrackLoad = this.onTrackLoad.bind(this);
     this.onTrackRef = this.onTrackRef.bind(this);
     this.onStart = this.onStart.bind(this);
+    console.log('html5');
   }
 
   componentDidMount() {
+    console.log('html5');
     this.componentWillReceiveProps(this.props);
   }
 

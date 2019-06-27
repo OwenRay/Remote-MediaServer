@@ -10,7 +10,7 @@ import { apiActions, deserialize } from 'redux-jsonapi';
 import { Redirect } from 'react-router-dom';
 import { Flipped } from 'react-flip-toolkit';
 import TopBar from '../components/TopBar';
-import store from '../helpers/stores/apiStore';
+import store from '../helpers/stores/store';
 import ReadableDuration from '../components/ReadableDuration';
 import MediaItemRow from '../components/mediaItem/MediaItemRow';
 import MediaInfo from '../components/mediaItem/MediaInfo';

@@ -4,9 +4,11 @@
 
 import React, { Component } from 'react';
 import { Button, Icon } from 'react-materialize';
-import { NavLink, Redirect } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Flipped } from 'react-flip-toolkit';
+import { connect } from 'react-redux';
+import { playQueueActions } from '../../helpers/stores/playQueue';
 
 class MediaItemTile extends Component {
   constructor() {
@@ -61,7 +63,7 @@ class MediaItemTile extends Component {
   }
 
   play() {
-    this.setState({ playClicked: true });
+    this.props.insertAtCurrentOffset(this.props.mediaItem);
   }
 
   render() {
@@ -71,10 +73,6 @@ class MediaItemTile extends Component {
           <Icon>movie</Icon>
         </div>
       );
-    }
-
-    if (this.state.playClicked || this.props.click) {
-      return (<Redirect push to={`/item/view/${this.state.id}`} />);
     }
 
     let seasonEpisode;
@@ -142,4 +140,4 @@ MediaItemTile.defaultProps = {
   requestData: null,
 };
 
-export default MediaItemTile;
+export default connect(null, playQueueActions)(MediaItemTile);
