@@ -17,7 +17,6 @@ const defaultValue = {
 
 
 const playQueue = (state = defaultValue, { type, data }) => {
-  console.log('reducer!!!', type, data);
   switch (type) {
     case ACTION_ENQUEUE:
       state.push(data);
@@ -44,20 +43,47 @@ const playQueue = (state = defaultValue, { type, data }) => {
   }
 
   state.playing = state.offset <= state.items.length ? state.items[state.offset] : null;
+  state.hasNext = state.offset < state.items.length - 1;
+  state.hasPrev = state.offset > 0;
 
   return { ...state };
 };
 
 
 async function prepareForPlayback(item) {
+  if (item.attributes) item = deserialize(item);
+
   if (item.playPosition) item.fetchedPlayPosition = await item.playPosition();
   const mediaContent = await $.getJSON(`/api/mediacontent/${item.id}`);
   if (mediaContent.subtitles.length) {
     mediaContent.subtitles.push({ value: '', label: 'Disable' });
   }
   item.mediaContent = mediaContent;
+  return item;
 }
 
+async function populateQueue(item, dispatch) {
+  if (item.mediaType !== 'tv') return;
+  if (!item.externalId) return;
+
+  // fetch and queue other episodes if available
+  const readAction = apiActions.read(
+    { _type: 'media-items' },
+    {
+      params:
+        {
+          'external-id': item.externalId,
+          sort: 'season:ASC,episode:ASC',
+          join: 'play-position',
+          extra: 'false',
+        },
+    },
+  );
+  const episodes = await store.dispatch(readAction);
+  const offset = episodes.resources.findIndex(e => e.id === item.id);
+  const items = await Promise.all(episodes.resources.map(e => prepareForPlayback(e)));
+  dispatch({ type: ACTION_OVERWRITE, data: { offset, items } });
+}
 
 const playQueueActions = dispatch => ({
   skip: (offset) => {
@@ -65,8 +91,10 @@ const playQueueActions = dispatch => ({
   },
 
   insertAtCurrentOffset: async (item) => {
-    await prepareForPlayback(item);
+    item = await prepareForPlayback(item);
     dispatch({ type: ACTION_INSERT, data: item });
+    populateQueue(item, dispatch);
+    return item;
   },
 
   hidePlayer: () => {
@@ -78,26 +106,7 @@ const playQueueActions = dispatch => ({
     const item = deserialize(request.resources[0], store);
     await prepareForPlayback(item);
     dispatch({ type: ACTION_INSERT, data: item });
-    if (item.mediaType !== 'tv') return;
-    if (!item.externalId) return;
-
-    // fetch and queue other episodes if available
-    const readAction = apiActions.read(
-      { _type: 'media-items' },
-      {
-        params:
-          {
-            'external-id': item.externalId,
-            sort: 'season,episode',
-            join: 'play-position',
-            extra: 'false',
-          },
-      },
-    );
-    const episodes = await store.dispatch(readAction);
-    const offset = episodes.resources.findIndex(e => e.id === item.id);
-    await Promise.all(episodes.resources.map(e => prepareForPlayback(e)));
-    dispatch({ type: ACTION_OVERWRITE, data: { offset, items: episodes.resources } });
+    populateQueue(item, dispatch);
   },
 });
 

@@ -28,6 +28,7 @@ class Video extends Component {
     this.onCastingChange = this.onCastingChange.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onProgress = this.onProgress.bind(this);
+    this.onLoadStarted = this.onLoadStarted.bind(this);
     this.onSeek = this.onSeek.bind(this);
     this.onSelectContent = this.onSelectContent.bind(this);
     this.volumeChange = this.volumeChange.bind(this);
@@ -39,6 +40,7 @@ class Video extends Component {
     this.onStart = this.onStart.bind(this);
     this.collapse = this.collapse.bind(this);
     this.restore = this.restore.bind(this);
+    this.close = this.close.bind(this);
 
     this.pageRef = null;
   }
@@ -60,46 +62,14 @@ class Video extends Component {
     this.lastPosSave = 0;
     this.navTimeout = setTimeout(this.hide.bind(this), 2000);
     this.shortcuts = new ShortcutArray()
-      .add(ShortcutArray.EVENT.PAUSE_PLAY, this.togglePause)
-      .add(ShortcutArray.EVENT.FULLSCREEN, this.toggleFullScreen)
-      .add(ShortcutArray.EVENT.DOWN, () => this.volumeAdjust(-0.1))
-      .add(ShortcutArray.EVENT.UP, () => this.volumeAdjust(0.1))
-      .add(ShortcutArray.EVENT.RIGHT, () => this.seekBy(20))
-      .add(ShortcutArray.EVENT.LEFT, () => this.seekBy(-20))
-      .add(ShortcutArray.EVENT.MUTE, this.toggleMute);
+      .add(ShortcutArray.EVENT.PAUSE_PLAY, this.shortcutFilter(this.togglePause))
+      .add(ShortcutArray.EVENT.FULLSCREEN, this.shortcutFilter(this.toggleFullScreen))
+      .add(ShortcutArray.EVENT.DOWN, this.shortcutFilter(() => this.volumeAdjust(-0.1)))
+      .add(ShortcutArray.EVENT.UP, this.shortcutFilter(() => this.volumeAdjust(0.1)))
+      .add(ShortcutArray.EVENT.RIGHT, this.shortcutFilter(() => this.seekBy(20)))
+      .add(ShortcutArray.EVENT.LEFT, this.shortcutFilter(() => this.seekBy(-20)))
+      .add(ShortcutArray.EVENT.MUTE, this.shortcutFilter(this.toggleMute));
   }
-
-  // fetch all this data in the reducer.
-  // async componentWillReceiveProps(nextProps) {
-  //   const { playing } = nextProps.playQueue;
-  //   const { id } = nextProps.match.params;
-  //   console.log('newprops!', nextProps, id);
-  //   if ((!playing && id) || id !== `${playing.id}`) {
-  //     const a = this.props.insertAtCurrentOffsetById(id);
-  //     return;
-  //   }
-  //   if (!playing || (this.state.item && this.state.item.id === playing.id)) return;
-  //
-  //   this.props.fetchAndQueueTvSeriesFor(playing);
-  //
-  //   this.pos = {};
-  //   if (playing.playPosition) {
-  //     this.pos = await playing.playPosition();
-  //   }
-  //   this.pos._type = 'play-positions';
-  //   console.log('setItem;', playing);
-  //   this.setState({
-  //     item: playing,
-  //     duration: playing.fileduration,
-  //     skippedDialog: !this.pos.position,
-  //     renderer: LocalStorage.isAvailable(playing)
-  //       ? OfflineVideoRenderer
-  //       : this.state.renderer,
-  //   });
-  //   $.getJSON(`/api/mediacontent/${playing.id}`)
-  //     .then(this.mediaContentLoaded.bind(this));
-  // }
-
 
   componentWillUnmount() {
     this.shortcuts.off();
@@ -148,6 +118,10 @@ class Video extends Component {
     this.setState({ paused: false });
   }
 
+  onLoadStarted() {
+    this.setState({ loading: true });
+  }
+
   onSelectContent(what, channel) {
     if (what === 'subtitles') {
       this.setState({ subtitle: channel });
@@ -162,6 +136,19 @@ class Video extends Component {
   seekBy(amount) {
     this.onSeek(this.state.progress + amount);
     return <Icon>{ amount < 0 ? 'fast_rewind' : 'fast_forward' }</Icon>;
+  }
+
+  shortcutFilter(func) {
+    return () => {
+      const {playing, playerVisible} = this.props.playQueue;
+      if (playerVisible && !playing || this.showingDialog() || this.state.collapsed) return false;
+      return func();
+    };
+  }
+
+  showingDialog() {
+    const {playing} = this.props.playQueue;
+    return playing && !this.state.skippedDialog && playing.fetchedPlayPosition;
   }
 
   toggleFullScreen() {
@@ -265,18 +252,22 @@ class Video extends Component {
     this.setState({ collapsed: '' });
   }
 
+  close() {
+    this.props.hidePlayer();
+  }
+
   render() {
     const { playing } = this.props.playQueue;
     if (!playing) return null;
 
 
-    let renderer = ChromeCast.isActive() || this.state.casting
+    let Renderer = ChromeCast.isActive() || this.state.casting
       ? ChromeCastRenderer
       : Html5VideoRenderer;
-    if (LocalStorage.isAvailable(playing)) renderer = OfflineVideoRenderer;
+    if (LocalStorage.isAvailable(playing)) Renderer = OfflineVideoRenderer;
 
     const position = playing.fetchedPlayPosition;
-    if (playing && !this.state.skippedDialog && position) {
+    if (this.showingDialog()) {
       return (
         <div className="video">
           <div className="movie-detail-backdrop-wrapper">
@@ -316,7 +307,6 @@ class Video extends Component {
         ref={(input) => { this.pageRef = input; }}
         onMouseMove={isTouch ? null : this.onMouseMove}
       >
-        {/* <BodyClassName className="hideNav" /> */}
 
         <div
           className="wrapper"
@@ -324,10 +314,11 @@ class Video extends Component {
           onTouchStart={this.onTouch}
           onDoubleClick={this.toggleFullScreen}
         >
-          <renderer
+          <Renderer
             mediaItem={playing}
             onProgress={this.onProgress}
             onStart={this.onStart}
+            onLoadStarted={this.onLoadStarted}
             seek={this.state.seek}
             audioChannel={this.state.audio}
             videoChannel={this.state.video}
@@ -368,7 +359,7 @@ class Video extends Component {
             id="progress"
             onSeek={this.onSeek}
             progress={this.state.progress}
-            max={this.state.duration}
+            max={playing.fileduration}
           />
           <span onClick={this.toggleMute}>
             <Icon id="mute" className="muteIcon">volume_mute</Icon>

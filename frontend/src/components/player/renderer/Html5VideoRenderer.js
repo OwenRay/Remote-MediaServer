@@ -9,11 +9,10 @@ class Html5VideoRenderer extends BaseRenderer {
     this.onTrackLoad = this.onTrackLoad.bind(this);
     this.onTrackRef = this.onTrackRef.bind(this);
     this.onStart = this.onStart.bind(this);
-    console.log('html5');
+    this.onStartLoad = this.onStartLoad.bind(this);
   }
 
   componentDidMount() {
-    console.log('html5');
     this.componentWillReceiveProps(this.props);
   }
 
@@ -64,6 +63,7 @@ class Html5VideoRenderer extends BaseRenderer {
     vidRef.addEventListener('error', this.reInit);
     vidRef.addEventListener('ended', this.reInit);
     vidRef.addEventListener('play', this.onStart);
+    vidRef.addEventListener('loadstart', this.onStartLoad);
   }
 
   onStart() {
@@ -91,6 +91,10 @@ class Html5VideoRenderer extends BaseRenderer {
   onTrackRef(ref) {
     if (!ref) return;
     ref.addEventListener('load', this.onTrackLoad);
+  }
+
+  onStartLoad() {
+    this.props.onLoadStarted();
   }
 
   setOffset(offset) {

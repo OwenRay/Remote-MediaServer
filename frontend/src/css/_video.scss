@@ -85,10 +85,7 @@
       transition: all .3s;
     }
     overflow:visible;
-    #fullscreen{
-      display: none;
-    }
-    .seektracker, #volume, .muteIcon{
+    .buttonsRight, .seektracker, #volume, .muteIcon{
       display:none;
     }
     #play-pause {

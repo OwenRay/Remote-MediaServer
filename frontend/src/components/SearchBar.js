@@ -62,7 +62,6 @@ class SearchBar extends Component {
     if (this.state === null) { return null; }
     const { props } = this;
     const { filters } = props;
-    console.log(filters);
     return (
       <div className={props.className}>
         <Row>
