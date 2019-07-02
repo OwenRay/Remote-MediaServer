@@ -3,7 +3,7 @@
 /**
  * Created by danielsauve on 7/07/2017.
  */
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Icon, Button, Preloader, Modal, Row } from 'react-materialize';
 import { apiActions, deserialize } from 'redux-jsonapi';
 import NavBar from '../components/player/NavBar';
@@ -22,7 +22,7 @@ import { playQueueActions } from '../helpers/stores/playQueue';
 
 const isTouch = ('ontouchstart' in window);
 
-class Video extends Component {
+class Video extends PureComponent {
   constructor() {
     super();
     this.onCastingChange = this.onCastingChange.bind(this);
@@ -41,24 +41,22 @@ class Video extends Component {
     this.collapse = this.collapse.bind(this);
     this.restore = this.restore.bind(this);
     this.close = this.close.bind(this);
-
-    this.pageRef = null;
-  }
-
-  async componentWillMount() {
-    ChromeCast.addListener(ChromeCast.EVENT_CASTING_CHANGE, this.onCastingChange.bind(this));
-    this.setState({
+    this.state = {
       paused: true,
       volume: 1,
       seek: 0,
       progress: 0,
       loading: true,
       navClass: 'visible',
-    });
-    this.setState({ paused: !(await autoPlaySupported()) });
+    };
+
+    this.pageRef = null;
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    ChromeCast.addListener(ChromeCast.EVENT_CASTING_CHANGE, this.onCastingChange.bind(this));
+    this.setState({ paused: !(await autoPlaySupported()) });
+
     this.lastPosSave = 0;
     this.navTimeout = setTimeout(this.hide.bind(this), 2000);
     this.shortcuts = new ShortcutArray()
@@ -138,16 +136,21 @@ class Video extends Component {
     return <Icon>{ amount < 0 ? 'fast_rewind' : 'fast_forward' }</Icon>;
   }
 
+  /**
+   * disable shortcut events when collapsed or not playing
+   * @param func
+   * @returns {Function}
+   */
   shortcutFilter(func) {
     return () => {
-      const {playing, playerVisible} = this.props.playQueue;
-      if (playerVisible && !playing || this.showingDialog() || this.state.collapsed) return false;
+      const { playing, playerVisible } = this.props.playQueue;
+      if ((playerVisible && !playing) || this.showingDialog() || this.state.collapsed) return false;
       return func();
     };
   }
 
   showingDialog() {
-    const {playing} = this.props.playQueue;
+    const { playing } = this.props.playQueue;
     return playing && !this.state.skippedDialog && playing.fetchedPlayPosition;
   }
 
@@ -245,26 +248,25 @@ class Video extends Component {
   }
 
   collapse() {
-    this.setState({ collapsed: 'collapsed' });
+    // this.setState({ collapsed: 'collapsed' });
+    this.props.history.goBack();
   }
 
   restore() {
-    this.setState({ collapsed: '' });
+    this.props.history.push('/item/play/'+this.props.playQueue.playing.id);
   }
 
   close() {
     this.props.hidePlayer();
   }
 
+  static getDerivedStateFromProps(props, state) {
+    return { collapsed: props.match.url.indexOf('/item/play/') !== 0 ? 'collapsed' : '' };
+  }
+
   render() {
-    const { playing } = this.props.playQueue;
-    if (!playing) return null;
-
-
-    let Renderer = ChromeCast.isActive() || this.state.casting
-      ? ChromeCastRenderer
-      : Html5VideoRenderer;
-    if (LocalStorage.isAvailable(playing)) Renderer = OfflineVideoRenderer;
+    const { playing, playerVisible } = this.props.playQueue;
+    if (!playing || !playerVisible) return null;
 
     const position = playing.fetchedPlayPosition;
     if (this.showingDialog()) {
@@ -294,12 +296,17 @@ class Video extends Component {
           >
             <h4>Continue watching?</h4>
             <Row>
-              You watched untill <b>{Math.ceil(position.position / 60)}m</b>, continue watching?
+              You watched until <b>{Math.ceil(position.position / 60)}m</b>, continue watching?
             </Row>
           </Modal>
         </div>
       );
     }
+
+    let Renderer = ChromeCast.isActive() || this.state.casting
+      ? ChromeCastRenderer
+      : Html5VideoRenderer;
+    if (LocalStorage.isAvailable(playing)) Renderer = OfflineVideoRenderer;
 
     return (
       <div

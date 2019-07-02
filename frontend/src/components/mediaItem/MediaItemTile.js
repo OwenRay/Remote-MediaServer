@@ -140,4 +140,5 @@ MediaItemTile.defaultProps = {
   requestData: null,
 };
 
+export { MediaItemTile };
 export default connect(null, playQueueActions)(MediaItemTile);

@@ -1,7 +1,8 @@
 /* global document,navigator,window */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter, Switch } from 'react-router-dom';
+import history from './helpers/history';
+import { Router, Switch } from 'react-router-dom';
 // these two lines overwrite the serialization of redux-jsonapi
 // eslint-disable-next-line
 import serializer from "./helpers/stores/serialize";
@@ -22,11 +23,11 @@ if ('serviceWorker' in navigator) {
 }
 
 ReactDOM.render(
-  <BrowserRouter>
+  <Router history={history}>
     <Switch>
       <App />
     </Switch>
-  </BrowserRouter>,
+  </Router>,
   document.getElementById('root'),
 );
 // registerServiceWorker();

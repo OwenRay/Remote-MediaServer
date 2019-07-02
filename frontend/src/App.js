@@ -124,7 +124,7 @@ class App extends Component {
             <Route path="/Library" component={Library} exact />
             <Route path="/item/detail/:id" component={Detail} />
           </Flipper>
-          <Video/>
+          <Route path="*" component={Video} />
           <div className={`shortcutText ${this.state.showShortcutText ? 'visible' : ''}`}>
             {this.state.shortcutText}
           </div>

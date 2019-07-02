@@ -7,7 +7,6 @@ import { Button, Icon, Tabs, Tab, Modal } from 'react-materialize';
 import ReactTooltip from 'react-tooltip';
 import BodyClassName from 'react-body-classname';
 import { apiActions, deserialize } from 'redux-jsonapi';
-import { Redirect } from 'react-router-dom';
 import { Flipped } from 'react-flip-toolkit';
 import TopBar from '../components/TopBar';
 import store from '../helpers/stores/store';

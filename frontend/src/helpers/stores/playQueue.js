@@ -1,6 +1,7 @@
 /* global $ */
 import { apiActions, deserialize } from 'redux-jsonapi';
 import store from './store';
+import history from '../../helpers/history';
 
 export const ACTION_ENQUEUE = 'enqueue';
 export const ACTION_CLEAR = 'clear';
@@ -45,6 +46,11 @@ const playQueue = (state = defaultValue, { type, data }) => {
   state.playing = state.offset <= state.items.length ? state.items[state.offset] : null;
   state.hasNext = state.offset < state.items.length - 1;
   state.hasPrev = state.offset > 0;
+
+  if (state.playing && state.playerVisible) {
+    const url = `/item/play/${state.playing.id}`;
+    if (window.location.pathname !== url) history.push(url);
+  }
 
   return { ...state };
 };
