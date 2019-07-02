@@ -23,7 +23,7 @@ import { playQueueActions } from '../helpers/stores/playQueue';
 const isTouch = ('ontouchstart' in window);
 
 class Video extends PureComponent {
-  constructor() {
+  constructor(props) {
     super();
     this.onCastingChange = this.onCastingChange.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
@@ -49,6 +49,11 @@ class Video extends PureComponent {
       loading: true,
       navClass: 'visible',
     };
+
+    if (props.match.url.indexOf('/item/play/') === 0) {
+      const id = props.match.url.split('/')[3];
+      props.insertAtCurrentOffsetById(id);
+    }
 
     this.pageRef = null;
   }
@@ -253,7 +258,7 @@ class Video extends PureComponent {
   }
 
   restore() {
-    this.props.history.push('/item/play/'+this.props.playQueue.playing.id);
+    this.props.history.push(`/item/play/${this.props.playQueue.playing.id}`);
   }
 
   close() {
