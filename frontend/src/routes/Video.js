@@ -187,7 +187,7 @@ class Video extends PureComponent {
   loadingOrPaused() {
     if (this.state.paused) {
       return <Button floating large className="play" icon="play_arrow" onClick={this.togglePause} flat />;
-    } else if (this.state.loading) {
+    } else if (this.state.loading || this.props.playQueue.loading) {
       return <Preloader mode="circular" size="small" flashing style={{ zIndex: 99 }} />;
     }
     return '';
@@ -225,21 +225,21 @@ class Video extends PureComponent {
     const { playing } = this.props.playQueue;
     const pos = playing.fetchedPlayPosition || {};
 
-    pos._type = 'play-position';
+    pos._type = 'play-positions';
     pos.position = this.state.progress;
     pos.watched = this.state.progress > playing.fileduration * 0.97;
     const posResult = await store.dispatch(apiActions.write(pos));
 
-    if (!this.pos.id) {
+    if (!pos.id) {
       playing._type = 'media-items';
       playing.playPosition = () => {
         const p = deserialize(posResult.resources[0], store);
-        this.pos = p;
         p._type = 'play-positions';
         return p;
       };
+      playing.fetchedPlayPosition = playing.playPosition();
 
-      store.dispatch(apiActions.write(this.state.item));
+      store.dispatch(apiActions.write(playing));
     }
   }
 
@@ -266,44 +266,59 @@ class Video extends PureComponent {
   }
 
   static getDerivedStateFromProps(props, state) {
-    return { collapsed: props.match.url.indexOf('/item/play/') !== 0 ? 'collapsed' : '' };
+    const s = {
+      collapsed: props.match.url.indexOf('/item/play/') !== 0 ? 'collapsed' : '',
+    };
+    const { playing } = props.playQueue;
+    if (playing && playing.id !== state.id) {
+      s.seek = 0;
+      s.id = playing.id;
+    }
+    return s;
   }
 
   render() {
-    const { playing, playerVisible } = this.props.playQueue;
-    if (!playing || !playerVisible) return null;
+    const { playing, playerVisible, loading } = this.props.playQueue;
+    if (!playerVisible) return null;
+    const id = playing ? playing.id : loading;
 
-    const position = playing.fetchedPlayPosition;
-    if (this.showingDialog()) {
+    const position = playing ? playing.fetchedPlayPosition : 0;
+    console.log(loading? "LOAOOAOAOAO" : "", playing);
+    if (this.showingDialog() || loading) {
       return (
         <div className="video">
           <div className="movie-detail-backdrop-wrapper">
             <div
               className="movie-detail-backdrop"
-              style={{ backgroundImage: `url(/img/${playing.id}_backdrop.jpg)` }}
+              style={{ backgroundImage: `url(/img/${id}_backdrop.jpg)` }}
             />
             <div
               className="movie-detail-backdrop poster"
-              style={{ backgroundImage: `url(/img/${playing.id}_posterlarge.jpg)` }}
+              style={{ backgroundImage: `url(/img/${id}_posterlarge.jpg)` }}
             />
           </div>
-          <Modal
-            style={{ display: 'block' }}
-            id="continueWatching"
-            actions={[
-              <Button onClick={() => { this.dialogClick(0); }} modal="close">
-                Start from beginning
-              </Button>,
-              <Button onClick={() => { this.dialogClick(position.position); }} modal="confirm">
-                Continue watching
-              </Button>,
-            ]}
-          >
-            <h4>Continue watching?</h4>
-            <Row>
-              You watched until <b>{Math.ceil(position.position / 60)}m</b>, continue watching?
-            </Row>
-          </Modal>
+          {loading
+            ? this.loadingOrPaused()
+            : (
+              <Modal
+                style={{ display: 'block' }}
+                id="continueWatching"
+                actions={[
+                  <Button onClick={() => { this.dialogClick(0); }} modal="close">
+                    Start from beginning
+                  </Button>,
+                  <Button onClick={() => { this.dialogClick(position.position); }} modal="confirm">
+                    Continue watching
+                  </Button>,
+                ]}
+              >
+                <h4>Continue watching?</h4>
+                <Row>
+                  You watched until <b>{Math.ceil(position.position / 60)}m</b>, continue watching?
+                </Row>
+              </Modal>
+            )
+          }
         </div>
       );
     }

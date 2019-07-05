@@ -58,7 +58,7 @@ class ChromeCastRenderer extends BaseRenderer {
       s.seek !== prevState.seek ||
       s.audioChannel !== prevState.audioChannel ||
       s.videoChannel !== prevState.videoChannel ||
-      s.subtitles !== prevState.subtitles) {
+      s.subtitles.length !== prevState.subtitles.length) {
       const baseUrl = `${document.location.protocol}//${document.location.host}`;
       const subtitles = s.subtitles
         .filter(sub => sub.value)

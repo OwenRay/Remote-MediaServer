@@ -9,6 +9,7 @@ export const ACTION_OVERWRITE = 'overwrite';
 export const ACTION_INSERT = 'insert';
 export const ACTION_SKIP = 'skip';
 export const HIDE_PLAYER = 'hide';
+export const LOADING = 'loading';
 
 const defaultValue = {
   offset: 0,
@@ -18,15 +19,20 @@ const defaultValue = {
 
 
 const playQueue = (state = defaultValue, { type, data }) => {
+  console.log(type);
   switch (type) {
     case ACTION_ENQUEUE:
       state.push(data);
+      state.loading = false;
       break;
     case ACTION_CLEAR:
       state = [];
+      state.playerVisible = false;
+      state.loading = false;
       break;
     case ACTION_OVERWRITE:
       state = { ...state, ...data };
+      state.loading = false;
       break;
     case ACTION_SKIP:
       state.offset += data;
@@ -35,10 +41,16 @@ const playQueue = (state = defaultValue, { type, data }) => {
       break;
     case HIDE_PLAYER:
       state.playerVisible = false;
+      state.loading = false;
+      break;
+    case LOADING:
+      state.loading = data;
+      state.playerVisible = true;
       break;
     case ACTION_INSERT:
       state.items.splice(state.offset, 0, data);
       state.playerVisible = true;
+      state.loading = false;
       break;
     default: return state;
   }
@@ -97,6 +109,7 @@ const playQueueActions = dispatch => ({
   },
 
   insertAtCurrentOffset: async (item) => {
+    dispatch({ type: LOADING, data: item.id });
     item = await prepareForPlayback(item);
     dispatch({ type: ACTION_INSERT, data: item });
     populateQueue(item, dispatch);
@@ -108,6 +121,7 @@ const playQueueActions = dispatch => ({
   },
 
   insertAtCurrentOffsetById: async (id) => {
+    dispatch({ type: LOADING, data: id });
     const request = await store.dispatch(apiActions.read({ _type: 'media-items', id }));
     const item = deserialize(request.resources[0], store);
     await prepareForPlayback(item);
