@@ -19,7 +19,6 @@ const defaultValue = {
 
 
 const playQueue = (state = defaultValue, { type, data }) => {
-  console.log(type);
   switch (type) {
     case ACTION_ENQUEUE:
       state.push(data);
@@ -69,7 +68,7 @@ const playQueue = (state = defaultValue, { type, data }) => {
 
 
 async function prepareForPlayback(item) {
-  if (item.attributes) item = deserialize(item);
+  if (item.attributes) item = deserialize(item, store);
 
   if (item.playPosition) item.fetchedPlayPosition = await item.playPosition();
   const mediaContent = await $.getJSON(`/api/mediacontent/${item.id}`);
@@ -99,7 +98,9 @@ async function populateQueue(item, dispatch) {
   );
   const episodes = await store.dispatch(readAction);
   const offset = episodes.resources.findIndex(e => e.id === item.id);
-  const items = await Promise.all(episodes.resources.map(e => prepareForPlayback(e)));
+  const items = await Promise.all(episodes.resources
+    .filter(e => e.type === 'media-item')
+    .map(e => prepareForPlayback(e)));
   dispatch({ type: ACTION_OVERWRITE, data: { offset, items } });
 }
 

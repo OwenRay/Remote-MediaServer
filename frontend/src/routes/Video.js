@@ -165,13 +165,13 @@ class Video extends PureComponent {
       !document.webkitFullscreenElement &&
       !document.msFullscreenElement) {
       if (this.pageRef.requestFullscreen) {
-        this.pageRef.requestFullscreen();
+        document.body.requestFullscreen();
       } else if (this.pageRef.msRequestFullscreen) {
-        this.pageRef.msRequestFullscreen();
+        document.body.msRequestFullscreen();
       } else if (this.pageRef.mozRequestFullScreen) {
-        this.pageRef.mozRequestFullScreen();
+        document.body.mozRequestFullScreen();
       } else if (this.pageRef.webkitRequestFullscreen) {
-        this.pageRef.webkitRequestFullscreen();
+        document.body.webkitRequestFullscreen();
       }
     } else if (document.exitFullscreen) {
       document.exitFullscreen();
@@ -258,10 +258,12 @@ class Video extends PureComponent {
   }
 
   restore() {
+    if (!this.state.collapsed) return;
     this.props.history.push(`/item/play/${this.props.playQueue.playing.id}`);
   }
 
-  close() {
+  close(e) {
+    e.stopPropagation();
     this.props.hidePlayer();
   }
 
@@ -277,13 +279,18 @@ class Video extends PureComponent {
     return s;
   }
 
+  static getTitle({ title, episode, season }) {
+    if (episode && episode < 10) episode = `0${episode}`;
+    if (season && season < 10) season = `0${season}`;
+    return title + (episode ? ` - S${season}E${episode}` : '');
+  }
+
   render() {
     const { playing, playerVisible, loading } = this.props.playQueue;
     if (!playerVisible) return null;
     const id = playing ? playing.id : loading;
 
     const position = playing ? playing.fetchedPlayPosition : 0;
-    console.log(loading? "LOAOOAOAOAO" : "", playing);
     if (this.showingDialog() || loading) {
       return (
         <div className="video">
@@ -360,14 +367,14 @@ class Video extends PureComponent {
         <span id="collapseVideo" onClick={this.collapse}>
           <Icon>keyboard_arrow_down</Icon>
         </span>
-        <h1>
+        <h1 onClick={this.restore}>
           <span id="closeVideo" onClick={this.close}>
             <Icon>close</Icon>
           </span>
-          <span id="restoreVideo" onClick={this.restore}>
+          <span id="restoreVideo">
             <Icon>keyboard_arrow_up</Icon>
           </span>
-          {playing.title}
+          {Video.getTitle(playing)}
         </h1>
 
         {this.loadingOrPaused()}

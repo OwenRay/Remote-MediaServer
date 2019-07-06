@@ -85,8 +85,13 @@
       transition: all .3s;
     }
     overflow:visible;
-    .buttonsRight, .seektracker, #volume, .muteIcon{
+    .buttonsRight, .seektracker, #volume, .muteIcon, .cast, .controls, #next, #prev{
       display:none;
+    }
+    &:hover{
+      .controls, h1 {
+        display: block;
+      }
     }
     #play-pause {
       margin-left: -28px;
@@ -108,6 +113,8 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      opacity: 1;
+      cursor: pointer;
       span{
         float: right;
         cursor: pointer;
