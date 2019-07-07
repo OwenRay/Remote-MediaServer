@@ -10,6 +10,7 @@ const TO_CACHE = [
   '/api/watchNext',
   '.jpg',
   '/api/media-items',
+  '/api/play-positions',
   '/api/tmdb',
 ];
 
