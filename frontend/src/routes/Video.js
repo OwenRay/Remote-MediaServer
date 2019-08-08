@@ -156,7 +156,7 @@ class Video extends PureComponent {
 
   showingDialog() {
     const { playing } = this.props.playQueue;
-    return playing && !this.state.skippedDialog && playing.fetchedPlayPosition;
+    return playing && !this.state.skippedDialog && playing._fetchedPlayPosition;
   }
 
   toggleFullScreen() {
@@ -223,7 +223,7 @@ class Video extends PureComponent {
 
   async savePosition() {
     const { playing } = this.props.playQueue;
-    const pos = playing.fetchedPlayPosition || {};
+    const pos = playing._fetchedPlayPosition || {};
 
     pos._type = 'play-positions';
     pos.position = this.state.progress;
@@ -237,7 +237,7 @@ class Video extends PureComponent {
         p._type = 'play-positions';
         return p;
       };
-      playing.fetchedPlayPosition = playing.playPosition();
+      playing._fetchedPlayPosition = playing.playPosition();
 
       store.dispatch(apiActions.write(playing));
     }
@@ -275,6 +275,7 @@ class Video extends PureComponent {
     if (playing && playing.id !== state.id) {
       s.seek = 0;
       s.id = playing.id;
+      s.skippedDialog = !playing._fetchedPlayPosition || playing._fetchedPlayPosition.position < 5;
     }
     return s;
   }
@@ -290,7 +291,7 @@ class Video extends PureComponent {
     if (!playerVisible) return null;
     const id = playing ? playing.id : loading;
 
-    const position = playing ? playing.fetchedPlayPosition : 0;
+    const position = playing ? playing._fetchedPlayPosition : 0;
     if (this.showingDialog() || loading) {
       return (
         <div className="video">

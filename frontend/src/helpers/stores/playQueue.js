@@ -60,7 +60,12 @@ const playQueue = (state = defaultValue, { type, data }) => {
 
   if (state.playing && state.playerVisible) {
     const url = `/item/play/${state.playing.id}`;
-    if (window.location.pathname !== url) history.push(url);
+    if (window.location.pathname !== url) {
+      if(window.location.pathname.indexOf('/item/play/')===0)
+        history.replace(url)
+      else
+        history.push(url);
+    }
   }
 
   return { ...state };
@@ -70,7 +75,7 @@ const playQueue = (state = defaultValue, { type, data }) => {
 async function prepareForPlayback(item) {
   if (item.attributes) item = deserialize(item, store);
 
-  if (item.playPosition) item.fetchedPlayPosition = await item.playPosition();
+  if (item.playPosition) item._fetchedPlayPosition = await item.playPosition();
   const mediaContent = await $.getJSON(`/api/mediacontent/${item.id}`);
   if (mediaContent.subtitles.length) {
     mediaContent.subtitles.push({ value: '', label: 'Disable' });
