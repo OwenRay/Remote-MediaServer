@@ -71,6 +71,7 @@ class Html5VideoRenderer extends BaseRenderer {
   }
 
   reInit() {
+    console.warn('playback error!');
     if (this.state && this.state.progress < this.props.mediaItem.fileduration * 0.99) {
       this.setState({ seek: this.state.progress, loading: true });
     }

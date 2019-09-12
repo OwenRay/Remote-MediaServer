@@ -334,7 +334,7 @@ class Video extends PureComponent {
     let Renderer = ChromeCast.isActive() || this.state.casting
       ? ChromeCastRenderer
       : Html5VideoRenderer;
-    if (LocalStorage.isAvailable(playing)) Renderer = OfflineVideoRenderer;
+    if (playing && LocalStorage.isAvailable(playing)) Renderer = OfflineVideoRenderer;
 
     return (
       <div
@@ -360,7 +360,10 @@ class Video extends PureComponent {
             subtitle={this.state.subtitle}
             volume={this.state.volume}
             paused={this.state.paused}
-            subtitles={this.state.mediaContent !== undefined ? this.state.mediaContent.subtitles : []}
+            subtitles={playing && playing.mediaContent !== undefined
+              ? playing.mediaContent.subtitles
+              : []
+            }
             onVolumeChange={this.volumeChange}
           />
         </div>

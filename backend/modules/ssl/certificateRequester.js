@@ -43,7 +43,7 @@ async function setupCerts(changed) {
     Log.notifyUser('toast', 'requesting certificate');
 
     if (changed !== 'ssldomain' &&
-      Settings.getValue('ssl').expire && new Date().getTime() > 0) {
+      Settings.getValue('ssl').expire - new Date().getTime() > 0) {
       return;
     }
     Settings.setValue('ssl', {});
