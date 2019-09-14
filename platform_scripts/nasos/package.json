@@ -1,0 +1,14 @@
+{
+  "type": "application",
+  "id": "io.theremote.mediaserver",
+  "version": "1.0",
+  "depends": [
+    "org.debian.wheezy-lamp-1.2"
+  ],
+  "network_ports": {
+    "WEB_UI": 8234,
+    "SHARING": 8235,
+    "SSL": 8443
+  },
+  "redirect_mode": "custom"
+}

@@ -1,0 +1,17 @@
+# defaults for remote-mediaserver
+# sourced by /etc/init.d/remote-mediaserver
+
+# Change to 0 to disable daemon
+ENABLE_DAEMON=1
+
+# This directory stores some runtime information, like torrent files
+# and links to the config file, which itself can be found in
+# /etc/transmission-daemon/settings.json
+# CONFIG_DIR="/var/lib/transmission-daemon/info"
+
+# Default options foe daemon, see transmission-daemon(1) for more options
+PIDFILE="/var/run/remote-mediaserver/remote-mediaserver.pid"
+# OPTIONS="--config-dir $CONFIG_DIR --pid-file $PIDFILE"
+
+# (optional) extra options to start-stop-daemon
+#S TART_STOP_OPTIONS="--iosched idle --nicelevel 10"

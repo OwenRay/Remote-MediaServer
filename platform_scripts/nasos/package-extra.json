@@ -1,0 +1,36 @@
+{
+    "name": {
+        "ru": "Remote MediaServer",
+        "fr": "Remote MediaServer",
+        "en": "Remote MediaServer",
+        "nl": "Remote MediaServer",
+        "pt": "Remote MediaServer",
+        "ko": "Remote MediaServer",
+        "de": "Remote MediaServer",
+        "tr": "Remote MediaServer",
+        "it": "Remote MediaServer",
+        "zh-cn": "Remote MediaServer",
+        "zh-tw": "Remote MediaServer",
+        "ja": "Remote MediaServer",
+        "es": "Remote MediaServer"
+    },
+    "description_short": {
+        "en": "Remote MediaServer, Index and watch your Movies & TV Series."
+    },
+    "visibility": "always",
+    "publisher_contact": "lateam@internet.com",
+    "description_long": {
+        "en": "A NodeJS based media server: Manage, watch and share your movies and tv series."
+    },
+    "categories": [
+        "video"
+    ],
+    "publication_date": "2013-8-9",
+    "privacy_url": "http://www.theremote.io",
+    "publisher_name": "Automattic",
+    "supported_languages": [
+        "en"
+    ],
+    "website_url": "http://www.theremote.io",
+    "disclaimer": "Use at own risk"
+}
