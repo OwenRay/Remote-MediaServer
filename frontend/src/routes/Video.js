@@ -273,6 +273,7 @@ class Video extends PureComponent {
     };
     const { playing } = props.playQueue;
     if (playing && playing.id !== state.id) {
+      s.progress = 0;
       s.seek = 0;
       s.id = playing.id;
       s.skippedDialog = !playing._fetchedPlayPosition || playing._fetchedPlayPosition.position < 5;
