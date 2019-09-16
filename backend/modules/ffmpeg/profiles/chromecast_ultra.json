@@ -1,6 +1,6 @@
 {
-  "useragent": "^.*$",
-  "priority": 0,
+  "useragent": "^.*aarch64.*Chrome.*CrKey.*$",
+  "priority": 1,
   "container": "mpeg4",
   "encoder": {
     "audio": "aac",
@@ -8,7 +8,8 @@
   },
   "demux": {
     "video": [
-      "h264"
+      "h264",
+      "hevc"
     ],
     "audio": [
     ]

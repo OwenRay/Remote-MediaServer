@@ -11,7 +11,6 @@
       "h264"
     ],
     "audio": [
-      "aac"
     ]
   },
   "ffmpegArguments": {
