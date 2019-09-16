@@ -30,7 +30,8 @@
       "node_modules/moviedb-api/apib/endpoints.json"
     ],
     "assets": [
-      "frontend/build/**"
+      "frontend/build/**",
+      "backend/**/*.json"
     ],
     "targets": [
       "node10-linux-x64",

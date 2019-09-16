@@ -11,18 +11,16 @@ const Log = require('../../core/Log');
 const RequestHandler = require('../../core/http/RequestHandler');
 const { PassThrough } = require('stream');
 
-class Mpeg4PlayHandler extends RequestHandler {
-  handleRequest() {
+class Mpeg4Container extends RequestHandler {
+  handleRequest(profile) {
     const mediaItem = Database.getById('media-item', this.context.params.id);
     this.context.set('Accept-Ranges', 'none');
     this.context.set('Access-Control-Allow-Origin', '*');
-    this.ffmpeg = new FFMpeg(mediaItem, '-')
+    this.ffmpeg = new FFMpeg(mediaItem, '-', profile)
       .setPlayOffset(this.context.params.offset)
       .setOnReadyListener(this.onFFMpegReady.bind(this))
       .addOutputArguments([
         '-f', 'mp4',
-        '-movflags', 'empty_moov+omit_tfhd_offset+default_base_moof+frag_keyframe',
-        '-reset_timestamps', '1',
       ]);
     if (this.context.query.audioChannel) {
       this.ffmpeg.setAudioChannel(this.context.query.audioChannel);
@@ -90,7 +88,4 @@ class Mpeg4PlayHandler extends RequestHandler {
   }
 }
 
-httpServer.registerRoute('get', '/ply/:id', Mpeg4PlayHandler, false, 0);
-httpServer.registerRoute('get', '/ply/:id/:offset', Mpeg4PlayHandler, false, 0);
-
-module.exports = Mpeg4PlayHandler;
+module.exports = Mpeg4Container;

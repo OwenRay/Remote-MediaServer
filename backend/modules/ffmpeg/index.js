@@ -31,6 +31,5 @@ if (os.platform() === 'win32') {
 
 require('./FFProbeExtendedInfo');
 require('./FFProbeImageHandler');
-require('./HLSPlayHandler');
 require('./MediaContentApiHandler');
-require('./Mpeg4PlayHandler');
+require('./PlayHandler');

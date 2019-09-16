@@ -14,37 +14,28 @@ const Database = require('../../core/database/Database');
 const httpServer = require('../../core/http');
 const FFMpeg = require('./FFMpeg');
 
-class HLSPlayHandler extends RequestHandler {
-  handleRequest() {
+class HLSContainer extends RequestHandler {
+  handleRequest(profile) {
     const { params, query } = this.context;
     const mediaItem = Database.getById('media-item', params.id);
-
-    if (query.format !== 'hls' &&
-            (this.request.headers['user-agent'].indexOf('Chrome') !== -1 ||
-              (
-                this.request.headers['user-agent'].indexOf('Safari') === -1 &&
-                this.request.headers['user-agent'].indexOf('AppleCoreMedia') === -1
-              )
-            )) {
-      return false;
-    }
 
     if (this.request.headers['x-playback-session-id'] && !query.session) {
       this.context.query.session = this.request.headers['x-playback-session-id'];
     }
 
-    if (query.session && HLSPlayHandler.sessions[query.session]) {
-      return HLSPlayHandler.sessions[query.session]
+    if (query.session && HLSContainer.sessions[query.session]) {
+      return HLSContainer.sessions[query.session]
         .newRequest(this.context, query.segment);
     }
 
     Log.debug('STARTING NEW HLS SESSION!!!');
     const id = query.session ? query.session : uuid.v4();
     this.session = id;
-    const redirectUrl = `/ply/${mediaItem.id}/0?format=hls&session=${id}`;
+    const redirectUrl = `/ply/${mediaItem.id}/0?profile=${profile.name}&format=hls&session=${id}`;
+    this.profile = profile;
     Log.debug('started hls session', redirectUrl);
 
-    HLSPlayHandler.sessions[id] = this;
+    HLSContainer.sessions[id] = this;
     this.setSessionTimeout();
 
     // prepare for decoding
@@ -58,13 +49,10 @@ class HLSPlayHandler extends RequestHandler {
     }
     this.m3u8 = `${dir}vid.m3u8`;
 
-    this.ffmpeg = new FFMpeg(mediaItem, this.m3u8)
+    this.ffmpeg = new FFMpeg(mediaItem, this.m3u8, profile)
       .setPlayOffset(params.offset)
       .addOutputArguments([
-        '-hls_time', 10,
-        '-hls_list_size', 0,
-        '-hls_base_url', `${this.request.url.split('?')[0]}?format=hls&session=${this.session}&segment=`,
-        '-bsf:v', 'h264_mp4toannexb',
+        '-hls_base_url', `${this.request.url.split('?')[0]}?profile=${profile.name}&format=hls&session=${this.session}&segment=`
       ])
       .setOnClose(this.onClose.bind(this))
       .setOnReadyListener(this.onReady.bind(this))
@@ -132,7 +120,7 @@ class HLSPlayHandler extends RequestHandler {
           .serveFile(file, true, resolve);
       }
 
-      if (!this.ffmpeg.paused && !this.playStart) {
+      if (!this.profile.neverPause && !this.ffmpeg.paused && !this.playStart) {
         setTimeout(() => {
           this.newRequest(context, segment).then(resolve);
         }, 1000);
@@ -190,6 +178,7 @@ class HLSPlayHandler extends RequestHandler {
   }
 
   onReady() {
+    if (this.profile.neverPause) return;
     this.checkPause();
     this.checkPauseInterval = setInterval(this.checkPause.bind(this), 100);
   }
@@ -203,7 +192,7 @@ class HLSPlayHandler extends RequestHandler {
       if (err) {
         return;
       }
-      const limit = 6;
+      const limit = this.profile.maxBufferedChunks;
       if (files.length > limit && !this.ffmpeg.paused) {
         this.ffmpeg.pause();
       } else if (files.length <= limit && this.ffmpeg.paused) {
@@ -217,9 +206,5 @@ class HLSPlayHandler extends RequestHandler {
   }
 }
 
-HLSPlayHandler.sessions = [];
-
-httpServer.registerRoute('get', '/ply/:id', HLSPlayHandler, false, 5);
-httpServer.registerRoute('get', '/ply/:id/:offset', HLSPlayHandler, false, 5);
-
-module.exports = HLSPlayHandler;
+HLSContainer.sessions = [];
+module.exports = HLSContainer;

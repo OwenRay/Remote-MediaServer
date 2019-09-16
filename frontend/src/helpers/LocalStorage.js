@@ -71,7 +71,10 @@ class LocalStorage {
     });
 
     // start download of the HLS
-    const downloader = new HLSDownloader(`hls_${item.id}`, `/ply/${item.id}/0?format=hls&nothrottle=true`);
+    const downloader = new HLSDownloader(
+      `hls_${item.id}`,
+      `/ply/${item.id}/0?profile=hls_for_offline_playback&nothrottle=true`,
+    );
     downloading[item.id] = downloader;
     downloader.setOnProgress(progress => this.trigger(
       item.id,
