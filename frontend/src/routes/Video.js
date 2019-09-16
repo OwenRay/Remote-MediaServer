@@ -82,8 +82,10 @@ class Video extends PureComponent {
 
   onCastingChange(casting) {
     this.setState({
-      casting: true,
+      casting,
       loading: true,
+      seek: this.state.seek + this.state.progress,
+      progress: 0,
     });
   }
 

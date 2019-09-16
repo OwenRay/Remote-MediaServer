@@ -11,7 +11,6 @@ const Log = require('../../core/Log');
 const RequestHandler = require('../../core/http/RequestHandler');
 const FileRequestHandler = require('../../core/http/coreHandlers/FileRequestHandler');
 const Database = require('../../core/database/Database');
-const httpServer = require('../../core/http');
 const FFMpeg = require('./FFMpeg');
 
 class HLSContainer extends RequestHandler {
@@ -49,10 +48,12 @@ class HLSContainer extends RequestHandler {
     }
     this.m3u8 = `${dir}vid.m3u8`;
 
+    const [baseUrl] = this.request.url.split('?');
     this.ffmpeg = new FFMpeg(mediaItem, this.m3u8, profile)
       .setPlayOffset(params.offset)
       .addOutputArguments([
-        '-hls_base_url', `${this.request.url.split('?')[0]}?profile=${profile.name}&format=hls&session=${this.session}&segment=`
+        '-hls_base_url',
+        `${baseUrl}?profile=${profile.name}&format=hls&session=${this.session}&segment=`,
       ])
       .setOnClose(this.onClose.bind(this))
       .setOnReadyListener(this.onReady.bind(this))

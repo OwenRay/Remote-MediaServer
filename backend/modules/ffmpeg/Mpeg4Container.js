@@ -5,7 +5,6 @@
 
 const FFMpeg = require('./FFMpeg');
 const Database = require('../../core/database/Database');
-const httpServer = require('../../core/http');
 
 const Log = require('../../core/Log');
 const RequestHandler = require('../../core/http/RequestHandler');

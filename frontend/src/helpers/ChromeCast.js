@@ -51,6 +51,7 @@ class ChromeCast {
   stopCasting() {
     if (this.session) {
       this.session.leave();
+      this.session = null;
       this.trigger(this.EVENT_CASTING_CHANGE, [false]);
     }
   }
