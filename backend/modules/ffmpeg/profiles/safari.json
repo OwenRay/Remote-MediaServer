@@ -12,14 +12,12 @@
       "h264"
     ],
     "audio": [
-      "aac"
     ]
   },
   "ffmpegArguments": {
     "output": [
       "-hls_time", 10,
-      "-hls_list_size",  0,
-      "-bsf:v", "h264_mp4toannexb"
+      "-hls_list_size",  0
     ],
     "input": [
 
