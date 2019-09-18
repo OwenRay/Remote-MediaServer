@@ -98,7 +98,6 @@ class Settings extends Component {
    * called when user types in field, applies typed value to state
    */
   onChange(e, value) {
-    console.log(e.target.name, e.target);
     const { target } = e;
     const { settings } = this.state;
     if (target.type === 'checkbox' && Array.isArray(settings[target.name])) {
@@ -129,7 +128,6 @@ class Settings extends Component {
    * Called when creating a new library or when clicking an existing one
    */
   librarySelect(lib) {
-    console.log(this.state);
     this.setState({ create: lib });
   }
 
@@ -154,7 +152,6 @@ class Settings extends Component {
 
   render() {
     if (!this.state || !this.state.settings) {
-      console.log('loadsettings');
       return (<p>Loading</p>);
     }
 
@@ -163,10 +160,8 @@ class Settings extends Component {
     const listItems = settings.libraries.map(lib => (
       <CollectionItem
         onClick={(e) => {
-          console.log('click!!');
           e.stopPropagation();
           e.preventDefault();
-          console.log('clicked', e, lib);
           this.librarySelect(lib);
         }}
         key={`key${lib.uuid}`}

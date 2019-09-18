@@ -1,15 +1,14 @@
 /* eslint-disable no-underscore-dangle */
-/* global $,document,window */
+/* global document,window */
 /**
  * Created by danielsauve on 7/07/2017.
  */
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Icon, Button, Preloader, Modal, Row } from 'react-materialize';
 import { apiActions, deserialize } from 'redux-jsonapi';
-import BodyClassName from 'react-body-classname';
 import NavBar from '../components/player/NavBar';
 import SeekBar from '../components/player/SeekBar';
-import store from '../helpers/stores/apiStore';
+import store from '../helpers/stores/store';
 import Html5VideoRenderer from '../components/player/renderer/Html5VideoRenderer';
 import ChromeCastRenderer from '../components/player/renderer/ChromeCastRenderer';
 import OfflineVideoRenderer from '../components/player/renderer/OfflineVideoRenderer';
@@ -18,15 +17,18 @@ import ChromeCast from '../helpers/ChromeCast';
 import ShortcutArray from '../helpers/ShortcutHelper';
 import LocalStorage from '../helpers/LocalStorage';
 import autoPlaySupported from '../helpers/autoPlaySupported';
+import { connect } from 'react-redux';
+import { playQueueActions } from '../helpers/stores/playQueue';
 
 const isTouch = ('ontouchstart' in window);
 
-class Video extends Component {
-  constructor() {
+class Video extends PureComponent {
+  constructor(props) {
     super();
     this.onCastingChange = this.onCastingChange.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onProgress = this.onProgress.bind(this);
+    this.onLoadStarted = this.onLoadStarted.bind(this);
     this.onSeek = this.onSeek.bind(this);
     this.onSelectContent = this.onSelectContent.bind(this);
     this.volumeChange = this.volumeChange.bind(this);
@@ -36,61 +38,40 @@ class Video extends Component {
     this.volumeChange = this.volumeChange.bind(this);
     this.onTouch = this.onTouch.bind(this);
     this.onStart = this.onStart.bind(this);
-
-    this.pageRef = null;
-  }
-
-  async componentWillMount() {
-    ChromeCast.addListener(ChromeCast.EVENT_CASTING_CHANGE, this.onCastingChange.bind(this));
-    this.setState({
+    this.collapse = this.collapse.bind(this);
+    this.restore = this.restore.bind(this);
+    this.close = this.close.bind(this);
+    this.state = {
       paused: true,
       volume: 1,
       seek: 0,
       progress: 0,
       loading: true,
       navClass: 'visible',
-      renderer: ChromeCast.isActive() ? ChromeCastRenderer : Html5VideoRenderer,
-    });
-    this.setState({ paused: !(await autoPlaySupported()) });
+    };
+
+    if (props.match.url.indexOf('/item/play/') === 0) {
+      const id = props.match.url.split('/')[3];
+      props.insertAtCurrentOffsetById(id);
+    }
+
+    this.pageRef = null;
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    ChromeCast.addListener(ChromeCast.EVENT_CASTING_CHANGE, this.onCastingChange.bind(this));
+    this.setState({ paused: !(await autoPlaySupported()) });
+
     this.lastPosSave = 0;
-    this.componentWillReceiveProps(this.props);
     this.navTimeout = setTimeout(this.hide.bind(this), 2000);
     this.shortcuts = new ShortcutArray()
-      .add(ShortcutArray.EVENT.PAUSE_PLAY, this.togglePause)
-      .add(ShortcutArray.EVENT.FULLSCREEN, this.toggleFullScreen)
-      .add(ShortcutArray.EVENT.DOWN, () => this.volumeAdjust(-0.1))
-      .add(ShortcutArray.EVENT.UP, () => this.volumeAdjust(0.1))
-      .add(ShortcutArray.EVENT.RIGHT, () => this.seekBy(20))
-      .add(ShortcutArray.EVENT.LEFT, () => this.seekBy(-20))
-      .add(ShortcutArray.EVENT.MUTE, this.toggleMute);
-  }
-
-  async componentWillReceiveProps(nextProps) {
-    if (this.id === nextProps.match.params.id) {
-      return;
-    }
-    this.id = nextProps.match.params.id;
-    const request = await store.dispatch(apiActions.read({ _type: 'media-items', id: this.id }));
-    const i = deserialize(request.resources[0], store);
-
-    this.pos = {};
-    if (i.playPosition) {
-      this.pos = await i.playPosition();
-    }
-    this.pos._type = 'play-positions';
-    this.setState({
-      item: i,
-      duration: i.fileduration,
-      skippedDialog: !this.pos.position,
-      renderer: LocalStorage.isAvailable({ id: this.id })
-        ? OfflineVideoRenderer
-        : this.state.renderer,
-    });
-    $.getJSON(`/api/mediacontent/${this.id}`)
-      .then(this.mediaContentLoaded.bind(this));
+      .add(ShortcutArray.EVENT.PAUSE_PLAY, this.shortcutFilter(this.togglePause))
+      .add(ShortcutArray.EVENT.FULLSCREEN, this.shortcutFilter(this.toggleFullScreen))
+      .add(ShortcutArray.EVENT.DOWN, this.shortcutFilter(() => this.volumeAdjust(-0.1)))
+      .add(ShortcutArray.EVENT.UP, this.shortcutFilter(() => this.volumeAdjust(0.1)))
+      .add(ShortcutArray.EVENT.RIGHT, this.shortcutFilter(() => this.seekBy(20)))
+      .add(ShortcutArray.EVENT.LEFT, this.shortcutFilter(() => this.seekBy(-20)))
+      .add(ShortcutArray.EVENT.MUTE, this.shortcutFilter(this.toggleMute));
   }
 
   componentWillUnmount() {
@@ -101,8 +82,10 @@ class Video extends Component {
 
   onCastingChange(casting) {
     this.setState({
-      renderer: casting ? ChromeCastRenderer : Html5VideoRenderer,
+      casting,
       loading: true,
+      seek: this.state.seek + this.state.progress,
+      progress: 0,
     });
   }
 
@@ -140,6 +123,10 @@ class Video extends Component {
     this.setState({ paused: false });
   }
 
+  onLoadStarted() {
+    this.setState({ loading: true });
+  }
+
   onSelectContent(what, channel) {
     if (what === 'subtitles') {
       this.setState({ subtitle: channel });
@@ -156,19 +143,37 @@ class Video extends Component {
     return <Icon>{ amount < 0 ? 'fast_rewind' : 'fast_forward' }</Icon>;
   }
 
+  /**
+   * disable shortcut events when collapsed or not playing
+   * @param func
+   * @returns {Function}
+   */
+  shortcutFilter(func) {
+    return () => {
+      const { playing, playerVisible } = this.props.playQueue;
+      if ((playerVisible && !playing) || this.showingDialog() || this.state.collapsed) return false;
+      return func();
+    };
+  }
+
+  showingDialog() {
+    const { playing } = this.props.playQueue;
+    return playing && !this.state.skippedDialog && playing._fetchedPlayPosition;
+  }
+
   toggleFullScreen() {
     if (!document.fullscreenElement && // alternative standard method
       !document.mozFullScreenElement &&
       !document.webkitFullscreenElement &&
       !document.msFullscreenElement) {
       if (this.pageRef.requestFullscreen) {
-        this.pageRef.requestFullscreen();
+        document.body.requestFullscreen();
       } else if (this.pageRef.msRequestFullscreen) {
-        this.pageRef.msRequestFullscreen();
+        document.body.msRequestFullscreen();
       } else if (this.pageRef.mozRequestFullScreen) {
-        this.pageRef.mozRequestFullScreen();
+        document.body.mozRequestFullScreen();
       } else if (this.pageRef.webkitRequestFullscreen) {
-        this.pageRef.webkitRequestFullscreen();
+        document.body.webkitRequestFullscreen();
       }
     } else if (document.exitFullscreen) {
       document.exitFullscreen();
@@ -184,7 +189,7 @@ class Video extends Component {
   loadingOrPaused() {
     if (this.state.paused) {
       return <Button floating large className="play" icon="play_arrow" onClick={this.togglePause} flat />;
-    } else if (this.state.loading) {
+    } else if (this.state.loading || this.props.playQueue.loading) {
       return <Preloader mode="circular" size="small" flashing style={{ zIndex: 99 }} />;
     }
     return '';
@@ -219,20 +224,24 @@ class Video extends Component {
   }
 
   async savePosition() {
-    this.pos.position = this.state.progress;
-    this.pos.watched = this.state.progress > this.state.item.fileduration * 0.97;
-    const posResult = await store.dispatch(apiActions.write(this.pos));
+    const { playing } = this.props.playQueue;
+    const pos = playing._fetchedPlayPosition || {};
 
-    if (!this.pos.id) {
-      this.state.item._type = 'media-items';
-      this.state.item.playPosition = () => {
+    pos._type = 'play-positions';
+    pos.position = this.state.progress;
+    pos.watched = this.state.progress > playing.fileduration * 0.97;
+    const posResult = await store.dispatch(apiActions.write(pos));
+
+    if (!pos.id) {
+      playing._type = 'media-items';
+      playing.playPosition = () => {
         const p = deserialize(posResult.resources[0], store);
-        this.pos = p;
         p._type = 'play-positions';
         return p;
       };
+      playing._fetchedPlayPosition = playing.playPosition();
 
-      store.dispatch(apiActions.write(this.state.item));
+      store.dispatch(apiActions.write(playing));
     }
   }
 
@@ -241,96 +250,146 @@ class Video extends Component {
     this.setState({ navClass: ChromeCast.isActive() ? 'visible' : 'hidden' });
   }
 
-  async mediaContentLoaded(mediaContent) {
-    if (mediaContent.subtitles.length) {
-      mediaContent.subtitles.push({ value: '', label: 'Disable' });
-    }
-    this.setState({ mediaContent });
+  dialogClick(fromPos) {
+    this.setState({ seek: fromPos, skippedDialog: true });
   }
 
-  dialogClick(fromPos) {
-    this.setState({ seek: fromPos ? this.pos.position : 0, skippedDialog: true });
+  collapse() {
+    // this.setState({ collapsed: 'collapsed' });
+    this.props.history.goBack();
+  }
+
+  restore() {
+    if (!this.state.collapsed) return;
+    this.props.history.push(`/item/play/${this.props.playQueue.playing.id}`);
+  }
+
+  close(e) {
+    e.stopPropagation();
+    this.props.hidePlayer();
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    const s = {
+      collapsed: props.match.url.indexOf('/item/play/') !== 0 ? 'collapsed' : '',
+    };
+    const { playing } = props.playQueue;
+    if (playing && playing.id !== state.id) {
+      s.progress = 0;
+      s.seek = 0;
+      s.id = playing.id;
+      s.skippedDialog = !playing._fetchedPlayPosition || playing._fetchedPlayPosition.position < 5;
+    }
+    return s;
+  }
+
+  static getTitle({ title, episode, season }) {
+    if (episode && episode < 10) episode = `0${episode}`;
+    if (season && season < 10) season = `0${season}`;
+    return title + (episode ? ` - S${season}E${episode}` : '');
   }
 
   render() {
-    if (!this.state.item) {
-      return (
-        <div className="video">
-          <BodyClassName className="hideNav" />
-          <Preloader mode="circular" size="small" flashing style={{ zIndex: 99 }} />
-        </div>);
-    }
+    const { playing, playerVisible, loading } = this.props.playQueue;
+    if (!playerVisible) return null;
+    const id = playing ? playing.id : loading;
 
-    if (!this.state.skippedDialog && this.pos.position) {
+    const position = playing ? playing._fetchedPlayPosition : 0;
+    if (this.showingDialog() || loading) {
       return (
         <div className="video">
-          <BodyClassName className="hideNav" />
           <div className="movie-detail-backdrop-wrapper">
             <div
               className="movie-detail-backdrop"
-              style={{ backgroundImage: `url(/img/${this.state.item.id}_backdrop.jpg)` }}
+              style={{ backgroundImage: `url(/img/${id}_backdrop.jpg)` }}
             />
             <div
               className="movie-detail-backdrop poster"
-              style={{ backgroundImage: `url(/img/${this.state.item.id}_posterlarge.jpg)` }}
+              style={{ backgroundImage: `url(/img/${id}_posterlarge.jpg)` }}
             />
           </div>
-          <Modal
-            style={{ display: 'block' }}
-            id="continueWatching"
-            actions={[
-              <Button onClick={() => { this.dialogClick(); }} modal="close">
-                Start from beginning
-              </Button>,
-              <Button onClick={() => { this.dialogClick(true); }} modal="confirm">
-                Continue watching
-              </Button>,
-            ]}
-          >
-            <h4>Continue watching?</h4>
-            <Row>
-              You watched untill <b>{Math.ceil(this.pos.position / 60)}m</b>, continue watching?
-            </Row>
-          </Modal>
+          {loading
+            ? this.loadingOrPaused()
+            : (
+              <Modal
+                style={{ display: 'block' }}
+                id="continueWatching"
+                actions={[
+                  <Button onClick={() => { this.dialogClick(0); }} modal="close">
+                    Start from beginning
+                  </Button>,
+                  <Button onClick={() => { this.dialogClick(position.position); }} modal="confirm">
+                    Continue watching
+                  </Button>,
+                ]}
+              >
+                <h4>Continue watching?</h4>
+                <Row>
+                  You watched until <b>{Math.ceil(position.position / 60)}m</b>, continue watching?
+                </Row>
+              </Modal>
+            )
+          }
         </div>
       );
     }
 
+    let Renderer = ChromeCast.isActive() || this.state.casting
+      ? ChromeCastRenderer
+      : Html5VideoRenderer;
+    if (playing && LocalStorage.isAvailable(playing)) Renderer = OfflineVideoRenderer;
+
     return (
       <div
-        className={`video ${this.state.navClass}`}
+        className={`video ${this.state.collapsed || ''} ${this.state.navClass}`}
         ref={(input) => { this.pageRef = input; }}
         onMouseMove={isTouch ? null : this.onMouseMove}
       >
-        <BodyClassName className="hideNav" />
+
         <div
           className="wrapper"
           onClick={isTouch ? null : this.togglePause}
           onTouchStart={this.onTouch}
           onDoubleClick={this.toggleFullScreen}
         >
-          <this.state.renderer
-            mediaItem={this.state.item}
+          <Renderer
+            mediaItem={playing}
             onProgress={this.onProgress}
             onStart={this.onStart}
+            onLoadStarted={this.onLoadStarted}
             seek={this.state.seek}
             audioChannel={this.state.audio}
             videoChannel={this.state.video}
             subtitle={this.state.subtitle}
             volume={this.state.volume}
             paused={this.state.paused}
-            subtitles={this.state.mediaContent !== undefined ? this.state.mediaContent.subtitles : []}
+            subtitles={playing && playing.mediaContent !== undefined
+              ? playing.mediaContent.subtitles
+              : []
+            }
             onVolumeChange={this.volumeChange}
           />
         </div>
         <CastButton />
+        <span id="collapseVideo" onClick={this.collapse}>
+          <Icon>keyboard_arrow_down</Icon>
+        </span>
+        <h1 onClick={this.restore}>
+          <span id="closeVideo" onClick={this.close}>
+            <Icon>close</Icon>
+          </span>
+          <span id="restoreVideo">
+            <Icon>keyboard_arrow_up</Icon>
+          </span>
+          {Video.getTitle(playing)}
+        </h1>
 
         {this.loadingOrPaused()}
         {this.state.infoText ? <div className="infoText">{this.state.infoText}</div> : ''}
         <NavBar
           onSelectContent={this.onSelectContent}
           mediaContent={this.state.mediaContent}
-          item={this.state.item}
+          item={playing}
           paused={this.state.paused}
           togglePause={this.togglePause}
           toggleFullScreen={this.toggleFullScreen}
@@ -341,7 +400,7 @@ class Video extends Component {
             id="progress"
             onSeek={this.onSeek}
             progress={this.state.progress}
-            max={this.state.duration}
+            max={playing.fileduration}
           />
           <span onClick={this.toggleMute}>
             <Icon id="mute" className="muteIcon">volume_mute</Icon>
@@ -352,4 +411,5 @@ class Video extends Component {
     );
   }
 }
-export default Video;
+
+export default connect(({ playQueue }) => ({ playQueue }), playQueueActions)(Video);

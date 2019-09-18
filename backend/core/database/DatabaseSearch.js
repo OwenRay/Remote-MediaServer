@@ -26,7 +26,7 @@ class DatabaseSearch {
       // eslint-disable-next-line guard-for-in,no-restricted-syntax
       for (const key in sortArray) {
         const sortItem = sortArray[key][0];
-        let direction = sortItem.length > 1 ? sortItem[1] : 'ASC';
+        let direction = sortArray[key].length > 1 ? sortArray[key][1] : 'ASC';
         direction = direction === 'ASC' ? 1 : -1;
         if (a.attributes[sortItem] === undefined || a.attributes[sortItem] === null) {
           return 1;

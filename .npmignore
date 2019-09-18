@@ -7,3 +7,7 @@ db
 ffprobe
 ffmpeg.exe
 ffprobe.exe
+platform_scripts
+*.rbw
+*.tgz
+dist

@@ -9,7 +9,7 @@ import { Collection, AutoSizer } from 'react-virtualized';
 import { debounce } from 'throttle-debounce';
 import { Flipped } from 'react-flip-toolkit';
 import ReactTooltip from 'react-tooltip';
-import store from '../helpers/stores/apiStore';
+import store from '../helpers/stores/store';
 import SearchBar from '../components/SearchBar';
 import MediaItem from '../components/mediaItem/MediaItemTile';
 import Filters from '../components/Filters';

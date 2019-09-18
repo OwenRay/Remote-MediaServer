@@ -1,0 +1,26 @@
+{
+  "useragent": "^.*aarch64.*Chrome.*CrKey.*$",
+  "priority": 1,
+  "container": "mpeg4",
+  "encoder": {
+    "audio": "aac",
+    "video": "libx264"
+  },
+  "demux": {
+    "video": [
+      "h264",
+      "hevc"
+    ],
+    "audio": [
+    ]
+  },
+  "ffmpegArguments": {
+    "output": [
+      "-movflags", "empty_moov+omit_tfhd_offset+default_base_moof+frag_keyframe",
+      "-reset_timestamps", "1"
+    ],
+    "input": [
+
+    ]
+  }
+}

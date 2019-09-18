@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Button } from 'react-materialize';
 import ButtonMenu from './ButtonMenu';
+import { connect } from 'react-redux';
+import { playQueueActions } from '../../helpers/stores/playQueue';
 
 class NavBar extends Component {
   playPauseButton() {
@@ -21,22 +23,23 @@ class NavBar extends Component {
   }
 
   render() {
-    if (!this.props.mediaContent) {
+    const { playing, hasNext, hasPrev } = this.props.playQueue;
+    const { onSelectContent } = this.props;
+    const { mediaContent } = playing;
+    if (!playing || !mediaContent) {
       return <div />;
     }
+
     return (
       <div className="controls">
-        <img alt="poster" src={this.props.item ? `/img/${this.props.item.id}_poster.jpg` : ''} />
-        <Button id="prev" floating icon="skip_previous" />
+        <img alt="poster" src={playing ? `/img/${playing.id}_poster.jpg` : ''} />
+        <Button disabled={!hasPrev} id="prev" floating icon="skip_previous" onClick={() => this.props.skip(-1)} />
         {this.playPauseButton()}
-        <Button id="next" floating icon="skip_next" />
+        <Button disabled={!hasNext} id="next" floating icon="skip_next" onClick={() => this.props.skip(1)} />
         <div className="buttonsRight">
-          {/**
-           Add channel selection logic
-           */}
-          <ButtonMenu onSelect={this.props.onSelectContent} type="audio" items={this.props.mediaContent.audio} />
-          <ButtonMenu onSelect={this.props.onSelectContent} type="video" items={this.props.mediaContent.video} />
-          <ButtonMenu onSelect={this.props.onSelectContent} type="subtitles" items={this.props.mediaContent.subtitles} />
+          <ButtonMenu onSelect={onSelectContent} type="audio" items={mediaContent.audio} />
+          <ButtonMenu onSelect={onSelectContent} type="video" items={mediaContent.video} />
+          <ButtonMenu onSelect={onSelectContent} type="subtitles" items={mediaContent.subtitles} />
           <Button id="fullscreen" floating icon="fullscreen" onClick={this.props.toggleFullScreen} />
         </div>
         {this.props.children}
@@ -45,4 +48,4 @@ class NavBar extends Component {
   }
 }
 
-export default NavBar;
+export default connect(({ playQueue }) => ({ playQueue }), playQueueActions)(NavBar);

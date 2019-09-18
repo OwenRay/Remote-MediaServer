@@ -1,0 +1,26 @@
+{
+  "useragent": "^((?!Chrome).)*(Safari|AppleCoreMedia).*?$",
+  "priority": 5,
+  "container": "hls",
+  "maxBufferedChunks": 6,
+  "encoder": {
+    "audio": "aac",
+    "video": "libx264"
+  },
+  "demux": {
+    "video": [
+      "h264"
+    ],
+    "audio": [
+    ]
+  },
+  "ffmpegArguments": {
+    "output": [
+      "-hls_time", 10,
+      "-hls_list_size",  0
+    ],
+    "input": [
+
+    ]
+  }
+}

@@ -7,11 +7,13 @@ import { combineReducers } from 'redux';
 import { apiReducer as api } from 'redux-jsonapi';
 import {createStore, applyMiddleware} from 'redux';
 import { createApiMiddleware } from 'redux-jsonapi';
+import { playQueue } from './playQueue';
 
 const reducers = combineReducers({
-  api
+  api,
+  playQueue,
 });
 
 const apiMiddleware = createApiMiddleware('/api');
 
-export default  createStore(reducers, applyMiddleware(apiMiddleware));
+export default createStore(reducers, applyMiddleware(apiMiddleware));

@@ -8,7 +8,7 @@ import { Card, ProgressBar } from 'react-materialize';
 import { Flipped } from 'react-flip-toolkit';
 import { deserialize } from 'redux-jsonapi';
 import MediaItemTile from '../components/mediaItem/MediaItemTile';
-import store from '../helpers/stores/apiStore';
+import store from '../helpers/stores/store';
 
 class Home extends PureComponent {
   static deserializeAll(items) {

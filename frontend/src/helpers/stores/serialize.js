@@ -51,6 +51,8 @@ function serialize({
       };
     }
 
+    if (key[0] === '_') return resource;
+
     return {
       ...resource,
       attributes: {

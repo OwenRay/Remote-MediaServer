@@ -8,18 +8,16 @@ const { spawn } = require('child_process');
 const os = require('os');
 const fs = require('fs');
 
-const supportedVideoCodecs = { h264: 1 };
-const supportedAudioCodecs = { aac: 1 };
-
 class FFMpeg {
-  constructor(mediaItem, output) {
+  constructor(mediaItem, output, profile) {
     this.mediaItem = mediaItem;
     this.file = MediaItemHelper.getFullFilePath(mediaItem);
     this.output = output;
     this.outputArgs = [];
     this.inputArgs = [];
-    this.vCodec = 'libx264';
-    this.aCodec = 'aac';
+    this.vCodec = null;
+    this.aCodec = null;
+    this.setProfile(profile);
   }
 
   run() {
@@ -34,6 +32,15 @@ class FFMpeg {
 
   setOnReadyListener(onReady) {
     this.onReady = onReady;
+    return this;
+  }
+
+  setProfile(profile) {
+    this.profile = profile;
+    const { ffmpegArguments: { output, input } } = profile;
+    if (output) this.addOutputArguments(output);
+    if (input) this.addInputArguments(input);
+
     return this;
   }
 
@@ -89,12 +96,17 @@ class FFMpeg {
 
 
   gotInfo(info) {
+    const { demux, encoder } = this.profile;
+    if (!this.vCodec) this.vCodec = encoder.video;
+    if (!this.aCodec) this.aCodec = encoder.audio;
+
     info.streams.forEach((stream) => {
       if (stream.codec_type === 'video') {
         if (this.videoChannel === undefined) {
           this.videoChannel = stream.index;
         }
-        if (`${this.videoChannel}` === `${stream.index}` && supportedVideoCodecs[stream.codec_name]) {
+        if (`${this.videoChannel}` === `${stream.index}`
+          && demux.video.indexOf(stream.codec_name) !== -1) {
           this.vCodec = 'copy';
         }
       }
@@ -102,8 +114,9 @@ class FFMpeg {
         if (this.audioChannel === undefined) {
           this.audioChannel = stream.index;
         }
-        if (`${this.audioChannel}` === `${stream.index}` && supportedAudioCodecs[stream.codec_name]) {
-          this.aCodec = 'aac';
+        if (`${this.audioChannel}` === `${stream.index}`
+          && demux.audio.indexOf(stream.codec_name) !== -1) {
+          this.aCodec = 'copy';
         }
       }
     });

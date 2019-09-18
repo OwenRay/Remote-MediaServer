@@ -5,7 +5,41 @@
   right:0px;
   bottom:0px;
   top:0px;
+  width:100%;
+  height:100%;
+  z-index: 2;
   overflow:hidden;
+
+  transition: none;
+
+  h1{
+    position: absolute;
+    top:0;
+    left:2em;
+    font-size: 1.5em;
+    text-shadow: 1px 1.5px 2px rgba(0,0,0,0.5);
+    line-height: 1.5em;
+    padding: .3em;
+    margin: 0;
+    transition: all .3s;
+    span{
+      display: none;
+    }
+  }
+
+  #collapseVideo {
+    transition: all .3s;
+    z-index:4;
+    position: absolute;
+    opacity: 1;
+    i {
+      text-shadow: 1px 1.5px 2px rgba(0,0,0,0.5);
+      padding: .3em;
+      font-size: 2em;
+      cursor: pointer;
+    }
+  }
+
   video{
     height:100%;
     width:100%;
@@ -17,7 +51,79 @@
     video{
       padding:0px;
     }
+    #collapseVideo, h1 {
+      opacity: 0;
+    }
   }
+
+  &.collapsed {
+    top:auto;
+    bottom: 10px;
+    left:10px;
+    right:10px;
+    height: 120px;
+    width: 214px;
+    transition: all .3s;
+
+    .controls > img {
+      display:none;
+    }
+    #collapseVideo{
+      display:none;
+    }
+    > .wrapper {
+      padding: 0px;
+    }
+    video{
+      padding:0px;
+      border: solid 2px $primary-color;
+    }
+    .controls {
+      top:50%;
+      margin-bottom: -30px;
+      background:transparent;
+      transition: all .3s;
+    }
+    overflow:visible;
+    .buttonsRight, .seektracker, #volume, .muteIcon, .cast, .controls, #next, #prev{
+      display:none;
+    }
+    &:hover{
+      .controls, h1 {
+        display: block;
+      }
+    }
+    #play-pause {
+      margin-left: -28px;
+    }
+    #prev{
+      margin-left: -75px;
+    }
+    h1{
+      position: absolute;
+      padding-left: 10px;
+      height:30px;
+      display: block;
+      font-size: 1em;
+      line-height: 30px;
+      left: 0px;
+      right: 0px;
+      top: -30px;
+      background: $primary-color;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      opacity: 1;
+      cursor: pointer;
+      span{
+        float: right;
+        cursor: pointer;
+        display: block;
+        position: relative;
+      }
+    }
+  }
+
   .wrapper{
     position:absolute;
     left:0px;
@@ -56,6 +162,7 @@
   right: 0px;
   height:60px;
   background:$primary-color;
+  transition: all .3s;
 
   img{
     position:absolute;

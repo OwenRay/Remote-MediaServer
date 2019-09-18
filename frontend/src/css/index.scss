@@ -62,13 +62,17 @@ html, body{
   overflow-x: hidden;
 }
 
-.modal .modal-footer {
-  background-color: $primary-color;
-  height: auto;
-  min-height: 56px;
-  .modal-action {
-    color: white;
-    margin-left: 10px;
+.modal {
+  z-index:2;
+  .modal-footer {
+    background-color: $primary-color;
+    height: auto;
+    min-height: 56px;
+
+    .modal-action {
+      color: white;
+      margin-left: 10px;
+    }
   }
 }
 

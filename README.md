@@ -10,9 +10,9 @@
 ### OPTION 1, INSTALL PRECOMPILED   
 Download and unzip the version appropriate to your os.
 
-Linux | Windows | MacOS | Raspberry PI
---- | --- | --- | ---
-[![Linux](doc/linux.png)](https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/linux.zip) | [![Windows](doc/windows.png)](https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/win.zip) | [![MacOS](doc/macos.png)](https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/osx.zip) | [![MacOS](doc/pi.png)](https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/arm.zip)   
+Linux | Windows | MacOS | Raspberry PI | Docker
+--- | --- | --- | --- | ---
+[![Linux](doc/linux.png)](https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/linux.zip) | [![Windows](doc/windows.png)](https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/win.zip) | [![MacOS](doc/macos.png)](https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/osx.zip) | [![Mac](doc/pi.png)](https://s3-eu-west-1.amazonaws.com/remote-mediaserver/dev/arm.zip) | [![Docker](doc/docker.png)](https://hub.docker.com/r/owenray/remote-mediaserver)   
 
 ### OPTION 2, INSTALL VIA NPM
 You'll need:

@@ -7,15 +7,16 @@ import { Button, Icon, Tabs, Tab, Modal } from 'react-materialize';
 import ReactTooltip from 'react-tooltip';
 import BodyClassName from 'react-body-classname';
 import { apiActions, deserialize } from 'redux-jsonapi';
-import { Redirect } from 'react-router-dom';
 import { Flipped } from 'react-flip-toolkit';
 import TopBar from '../components/TopBar';
-import store from '../helpers/stores/apiStore';
+import store from '../helpers/stores/store';
 import ReadableDuration from '../components/ReadableDuration';
 import MediaItemRow from '../components/mediaItem/MediaItemRow';
 import MediaInfo from '../components/mediaItem/MediaInfo';
 import DownloadButton from '../components/localStorage/DownloadButton';
 import LocalStorageProgressForItem from '../components/localStorage/LocalStorageProgressForItem';
+import { connect } from 'react-redux';
+import { playQueueActions } from '../helpers/stores/playQueue';
 
 class Detail extends Component {
   constructor(props) {
@@ -170,7 +171,7 @@ class Detail extends Component {
   }
 
   play() {
-    this.setState({ playClicked: true });
+    this.props.insertAtCurrentOffset(this.itemModel);
   }
 
   async loadMeta(ell) {
@@ -216,13 +217,6 @@ class Detail extends Component {
   render() {
     const s = this.state;
     const id = this.props.match.params.id;
-    /*
-    if (!s || !s.item) {
-      return null;
-    } */
-    if (s.playClicked) {
-      return (<Redirect push to={`/item/view/${id}`} />);
-    }
 
     return (
       <div>
@@ -285,4 +279,4 @@ class Detail extends Component {
   }
 }
 
-export default Detail;
+export default connect(null, playQueueActions)(Detail);

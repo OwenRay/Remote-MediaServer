@@ -51,6 +51,7 @@ class ChromeCast {
   stopCasting() {
     if (this.session) {
       this.session.leave();
+      this.session = null;
       this.trigger(this.EVENT_CASTING_CHANGE, [false]);
     }
   }
@@ -62,7 +63,6 @@ class ChromeCast {
 
   trigger(event, args = []) {
     if (this.events[event]) {
-      console.log(this.events[event], args);
       this.events[event].forEach((e) => { e(...args); });
     }
   }
@@ -80,7 +80,6 @@ class ChromeCast {
 
   updateSubtitle(subtitle) {
     const activeTracks = [subtitle];
-    console.log(activeTracks);
     const tracksInfoRequest = new chrome.cast.media.EditTracksInfoRequest(activeTracks);
     this.media.editTracksInfo(tracksInfoRequest, () => console.log('Requested subtitles'), err => console.log(err));
   }
@@ -107,7 +106,6 @@ class ChromeCast {
     this.session.loadMedia(
       request,
       (m) => {
-        console.log('media!', m);
         this.media = m;
         this.trigger(this.EVENT_ONPLAY);
       },

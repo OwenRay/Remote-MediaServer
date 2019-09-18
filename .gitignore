@@ -7,3 +7,7 @@ ffmpeg.exe
 ffprobe.exe
 *.iml
 data/
+*.rbw
+*.tgz
+dist
+platform_scripts/nasos/source/rms

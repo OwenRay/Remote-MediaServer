@@ -5,7 +5,7 @@
 import React from 'react';
 import { Icon } from 'react-materialize';
 import { NavLink } from 'react-router-dom';
-import MediaItemTile from './MediaItemTile';
+import { MediaItemTile } from './MediaItemTile';
 import FileSize from '../FileSize';
 
 class MediaItemRow extends MediaItemTile {

@@ -38,6 +38,12 @@ class OfflineVideoRenderer extends Html5VideoRenderer {
     if (this.props.seek !== nextProps.seek && this.vidRef) {
       this.vidRef.currentTime = nextProps.seek;
     }
+
+    // reload the video when it changes
+    if (this.props.mediaItem && this.props.mediaItem.id !== nextProps.mediaItem.id && this.vidRef) {
+      this.hls = null;
+      this.gotVidRef(this.vidRef);
+    }
     return false;
   }
 

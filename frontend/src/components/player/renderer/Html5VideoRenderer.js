@@ -9,6 +9,7 @@ class Html5VideoRenderer extends BaseRenderer {
     this.onTrackLoad = this.onTrackLoad.bind(this);
     this.onTrackRef = this.onTrackRef.bind(this);
     this.onStart = this.onStart.bind(this);
+    this.onStartLoad = this.onStartLoad.bind(this);
   }
 
   componentDidMount() {
@@ -62,6 +63,7 @@ class Html5VideoRenderer extends BaseRenderer {
     vidRef.addEventListener('error', this.reInit);
     vidRef.addEventListener('ended', this.reInit);
     vidRef.addEventListener('play', this.onStart);
+    vidRef.addEventListener('loadstart', this.onStartLoad);
   }
 
   onStart() {
@@ -69,6 +71,7 @@ class Html5VideoRenderer extends BaseRenderer {
   }
 
   reInit() {
+    console.warn('playback error!');
     if (this.state && this.state.progress < this.props.mediaItem.fileduration * 0.99) {
       this.setState({ seek: this.state.progress, loading: true });
     }
@@ -89,6 +92,10 @@ class Html5VideoRenderer extends BaseRenderer {
   onTrackRef(ref) {
     if (!ref) return;
     ref.addEventListener('load', this.onTrackLoad);
+  }
+
+  onStartLoad() {
+    this.props.onLoadStarted();
   }
 
   setOffset(offset) {
