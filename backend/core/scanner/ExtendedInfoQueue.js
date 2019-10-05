@@ -10,18 +10,22 @@ const queue = [];
 let running = false;
 let timeout;
 
+/**
+ * there's a queue for every extending function, once the first queue (with priority) is empty
+ * the next queue will start processing
+ */
 class ExtendedInfoQueue {
   static push(item) {
     // extras should be processed last
     if (item.attributes.extra) {
-      queue.unshift(item);
+      queue.forEach(q => q.unshift(item));
     } else {
-      queue.push(item);
+      queue.forEach(q => q.push(item));
     }
 
     clearTimeout(timeout);
     if (!running) {
-      timeout = setTimeout(ExtendedInfoQueue.start.bind(this), 5000);
+      timeout = setTimeout(ExtendedInfoQueue.start.bind(this), 1000);
     }
   }
 
@@ -37,23 +41,19 @@ class ExtendedInfoQueue {
 
     running = true;
     Log.debug('processing', queue.length);
-
-    while (queue.length) {
-      const item = queue.pop();
-      for (let c = 0; c < extendedInfoProviders.length; c += 1) {
-        try {
-          // eslint-disable-next-line no-await-in-loop
-          await extendedInfoProviders[c].extendInfo(item, libs[item.attributes.libraryId]);
-        } catch (e) {
-          Log.exception(e);
-        }
-      }
-      Database.update('media-item', item);
+    ExtendedInfoQueue.next(libs);
+  }
+  static async next(libs) {
+    const next = queue.findIndex(q => q.length);
+    if (next === -1) {
+      onDrainCallbacks.forEach(cb => cb());
+      running = false;
+      return;
     }
-    onDrainCallbacks.forEach(cb => cb());
-    Log.info('done checking extended info');
-
-    running = false;
+    const item = queue[next].pop();
+    await extendedInfoProviders[next].extendInfo(item, libs[item.attributes.libraryId]);
+    Database.update('media-item', item);
+    ExtendedInfoQueue.next(libs);
   }
 
   /**
@@ -62,6 +62,7 @@ class ExtendedInfoQueue {
   static registerExtendedInfoProvider(extendedInfoProvider, highPrio) {
     if (highPrio) extendedInfoProviders.unshift(extendedInfoProvider);
     else extendedInfoProviders.push(extendedInfoProvider);
+    queue.push([]);
   }
 
   static setOnDrain(cb) {

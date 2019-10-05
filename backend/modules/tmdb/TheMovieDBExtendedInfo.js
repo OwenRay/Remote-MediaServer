@@ -65,7 +65,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo {
     searchMethod = searchMethod.bind(movieDB);
 
     let res = await searchMethod(params);
-    if (library.type !== 'tv') {
+    if (library.type !== 'tv' && res) {
       const match = res.results
         .find(i => mediaItem.attributes.title.toLocaleLowerCase() === i.title.toLocaleLowerCase());
       if (match) res = match;
