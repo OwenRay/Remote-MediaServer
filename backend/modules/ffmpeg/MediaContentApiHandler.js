@@ -69,7 +69,10 @@ class SubtitleApiHandler extends RequestHandler {
     const response = { subtitles };
 
     let { streams } = this.item.attributes;
-    if (!streams) streams = await FFProbe.getInfo(this.filePath).streams;
+    if (!streams) {
+      const probe = await FFProbe.getInfo(this.filePath);
+      ({ streams } = probe);
+    }
 
     streams.forEach((str) => {
       let name = str.tags ? str.tags.language : str.codec_long_name;
