@@ -19,6 +19,3 @@ services:
       RMS_SHAREPORT: 8235
       RMS_STARTSCAN: "true"
       RMS_NAME: "Remote MediaServer - Media freedom."
-      RMS_GUESSIT: "{\"host\": \"guessit\", \"port\": 5000}"
-  guessit:
-    image: guessit/guessit-rest

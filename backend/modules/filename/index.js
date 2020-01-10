@@ -17,7 +17,6 @@ class ParseFileNameExtendedInfo extends IExtendedInfo {
     Log.debug('parse filename', mediaItem.id);
 
     const filePath = path.parse(relativePath);
-    const extraGuessitOptions = [];
     const fileParts = filePath.dir.split(path.sep);
 
     let serieName = '';
@@ -34,7 +33,6 @@ class ParseFileNameExtendedInfo extends IExtendedInfo {
       }
       if (mediaItem.attributes.season && offset > 0) {
         serieName = fileParts[offset - 1];
-        extraGuessitOptions.push(`-T ${serieName}`);
       }
       if (!mediaItem.attributes.season) {
         serieName = fileParts[fileParts.length - 1];
