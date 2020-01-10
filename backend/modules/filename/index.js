@@ -50,13 +50,13 @@ class ParseFileNameExtendedInfo extends IExtendedInfo {
     let name = filePath.base;
 
     if (library.type === 'tv') {
-      let seRegex = /s(\d{1,2})e(\d{1,2})/ig;
+      let seRegex = /s(\d{1,2})e(\d{1,3})/ig;
       let match = seRegex.exec(name);
       if (match && match.length >= 3) {
         mediaItem.attributes.season = parseInt(match[1], 10);
         mediaItem.attributes.episode = parseInt(match[2], 10);
       } else {
-        seRegex = /e(pisode.?)?(\d{1,2})/ig;
+        seRegex = /e(pisode.?)?(\d{1,3})/ig;
         match = seRegex.exec(name);
         if (match) mediaItem.attributes.episode = parseInt(match[2], 10);
       }

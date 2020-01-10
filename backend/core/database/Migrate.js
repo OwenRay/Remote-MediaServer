@@ -52,12 +52,12 @@ class Migrate {
   }
 
   /**
-   * enable modules that are new since the previous release
+   * enable the filename module and disable guessit
    */
   static version3() {
     const modules = Settings.getValue('modules');
     const guess = modules.indexOf('guessit');
-    if (guess === -1) modules.splice(guess, 1);
+    if (guess !== -1) modules.splice(guess, 1);
     if (modules.indexOf('filename') === -1) modules.push('filename');
     Settings.setValue('modules', modules);
     Settings.save();
