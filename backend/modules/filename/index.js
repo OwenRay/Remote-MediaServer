@@ -65,9 +65,18 @@ class ParseFileNameExtendedInfo extends IExtendedInfo {
     }
     let yearRegex = /\((\d{4})\)/ig;
     if (!name.match(yearRegex)) yearRegex = /\b(\d{4})\b/ig;
-    const yearMatch = yearRegex.exec(name);
-    if (yearMatch) mediaItem.attributes.year = parseInt(yearMatch[1], 10);
-    name = name.replace(yearRegex, '');
+    const yearMatch = name.match(yearRegex);
+    // take the last valid year in the name (to support years in the titles)
+    if (yearMatch) {
+      for (let c = yearMatch.length - 1; c >= 0; c -= 1) {
+        const year = parseInt(yearMatch[c].replace(/\D/g, ''), 10);
+        if (year > 1888 && year < new Date().getFullYear() + 10) {
+          mediaItem.attributes.year = year;
+          [name] = name.split(yearMatch[c]);
+          break;
+        }
+      }
+    }
 
     const strip = [
       /\.[\d\w]+$/, // file extension
@@ -80,10 +89,12 @@ class ParseFileNameExtendedInfo extends IExtendedInfo {
       /(extended|remastered|xvid|ac3|theatrical.cut).*$/ig,
       /HD.*$/g,
       /cd\d.*$/ig,
-      /\[.*?\]/g,
+      /(\[|\(]).*?(\]|\))/g, // remove everything between brackets
+      /(3d.?)?(hd|sd|4k)$/ig,
+      /(h|v|half|full).(sbs|ou).*$/ig,
     ];
     name = strip.reduce((red, regex) => red.replace(regex, ''), name);
-    name = name.replace(/[ \\.]+/g, ' ');
+    name = name.replace(/[ \\._]+/g, ' ');
 
     if (library.type === 'tv') {
       name = name.split('-').filter(value => value.length > 1);

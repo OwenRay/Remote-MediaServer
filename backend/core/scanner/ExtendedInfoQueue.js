@@ -7,7 +7,7 @@ require('./ExtrasExtendedInfo');
 const extendedInfoProviders = [];
 const onDrainCallbacks = [];
 const queue = [];
-let running = false;
+const running = [];
 let timeout;
 
 /**
@@ -18,42 +18,53 @@ class ExtendedInfoQueue {
   static push(item) {
     // extras should be processed last
     if (item.attributes.extra) {
-      queue.forEach(q => q.unshift(item));
+      queue[0].unshift(item);
     } else {
-      queue.forEach(q => q.push(item));
+      queue[0].push(item);
     }
 
     clearTimeout(timeout);
-    if (!running) {
-      timeout = setTimeout(ExtendedInfoQueue.start.bind(this), 1000);
-    }
+    timeout = setTimeout(ExtendedInfoQueue.start.bind(this), 1000);
   }
 
   static concat(items) {
     items.forEach(item => ExtendedInfoQueue.push(item));
   }
 
-  static async start() {
-    const libs = {};
-    Settings.getValue('libraries').forEach((library) => {
-      libs[library.uuid] = library;
-    });
+  static async start(qNumber = 0, libs = null) {
+    if (running[qNumber]) return;
 
-    running = true;
-    Log.debug('processing', queue.length);
-    ExtendedInfoQueue.next(libs);
+    if (!libs) {
+      libs = {};
+      Settings.getValue('libraries')
+        .forEach((library) => {
+          libs[library.uuid] = library;
+        });
+    }
+
+    running[qNumber] = true;
+    Log.debug('starting queue', qNumber);
+    ExtendedInfoQueue.next(libs, qNumber);
   }
-  static async next(libs) {
-    const next = queue.findIndex(q => q.length);
-    if (next === -1) {
-      onDrainCallbacks.forEach(cb => cb());
-      running = false;
+  static async next(libs, currentQ) {
+    const item = queue[currentQ].pop();
+    // this queue has emptied out?
+    if (!item) {
+      running[currentQ] = false;
+      // all queues empty?
+      if (!queue.some(q => q.length)) {
+        onDrainCallbacks.forEach(cb => cb());
+      }
       return;
     }
-    const item = queue[next].pop();
-    await extendedInfoProviders[next].extendInfo(item, libs[item.attributes.libraryId]);
+    await extendedInfoProviders[currentQ].extendInfo(item, libs[item.attributes.libraryId]);
+    // queue for the nex
+    if (queue[currentQ + 1]) {
+      queue[currentQ + 1].push(item);
+      this.start(currentQ + 1, libs);
+    }
     Database.update('media-item', item);
-    ExtendedInfoQueue.next(libs);
+    ExtendedInfoQueue.next(libs, currentQ);
   }
 
   /**
@@ -70,7 +81,10 @@ class ExtendedInfoQueue {
   }
 
   static debugInfo() {
-    return { extendedInfoQuelength: queue.length };
+    return {
+      extendedInfoQuelength: queue.map(a => a.length),
+      running,
+    };
   }
 }
 

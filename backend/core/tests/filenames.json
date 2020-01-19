@@ -1,4 +1,26 @@
 {
+  "/user/directory/Zorro (1990)/Season 01/Zorro.1990.S01E39.SD.TV-SiCKBEARD.avi": {
+    "type": "tv",
+    "episode": 39,
+    "season": 1,
+    "title": "Zorro",
+    "year": 1990
+  },
+  "/user/directory/Your Name. (2016)/Your Name. (2016).mkv": {
+    "type": "movie",
+    "year": 2016,
+    "title": "Your Name"
+  },
+  "/The Nutcracker Prince (1990)/The Nutcracker Prince (1990) SD.mkv": {
+    "type": "movie",
+    "year": 1990,
+    "title": "The Nutcracker Prince"
+  },
+  "/Sing (2016)/Sing (2016).sbs.H-SBS.mkv": {
+    "type": "movie",
+    "year": 2016,
+    "title": "Sing"
+  },
   "/user/directory/BattleBots (2015)/Season 02/BattleBots.2015.S02E08.SD.TV-crooks[ettv].mkv": {
     "type": "tv",
     "episode": 8,
@@ -13,6 +35,12 @@
     "title": "Love, Death & Robots",
     "episode-title": "Beyond the Aquila Rift"
   },
+  "/user/directory/Dr Phill/Season 01/Dr Phill - S01E123.mkv": {
+    "type": "tv",
+    "episode": 123,
+    "season": 1,
+    "title": "Dr Phill"
+  },
   "user/directory/My Love Story!!/Season 01/[Leopard-Raws] Ore Monogatari!! - 12 RAW (NTV 1280x720 x264 AAC).mp4": {
     "type": "tv",
     "season": 1,
@@ -25,8 +53,7 @@
     "season": 2,
     "episode": 5,
     "year": 2016,
-    "title": "The Grand Tour",
-    "episode-title": "Up, Down and Round the Farm"
+    "title": "The Grand Tour"
   },
   "/user/movies/Toy Story (1995)(1080P)(DTS) TBS/Movie/Toy.Story.1.1995.1080p.Bluray.DTS.x264-SHiTSoNy.mkv": {
     "type": "movie",
@@ -97,5 +124,15 @@
     "type": "movie",
     "title": "A Quiet Place",
     "year": 2018
+  },
+  "/mnt/cache/combined/MoviesComplete/They.Shall.Not.Grow.Old.2018.LiMiTED.1080p.BluRay.x264-CADAVER[rarbg]/they.shall.not.grow.old.2018.limited.1080p.bluray.x264-cadaver.mkv": {
+    "type": "movie",
+    "title": "they shall not grow old",
+    "year": 2018
+  },
+  "/user/movies/2001.A.Space.Odyssey.1968.REMASTERED.1080p.BluRay.REMUX.AVC.DTS-HD.MA.5.1-FGT.mkv": {
+    "type": "movie",
+    "title": "2001 A Space Odyssey",
+    "year": 1968
   }
 }
