@@ -45,7 +45,7 @@ class TheMovieDBSeriesAndSeasonsExtendedInfo extends IExtendedInfo {
       });
 
       const date = res.release_date ? res.release_date : res.first_air_date;
-      [mediaItem.attributes.year] = date.split('-');
+      mediaItem.attributes.year = parseInt(date.split('-')[0], 10);
     }
     // find season info
     cache = nodeCache.get(`2:${title}:${mediaItem.attributes.season}`);

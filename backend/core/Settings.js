@@ -56,7 +56,7 @@ const settingsObj = {
   modules: [
     'debug',
     'ffmpeg',
-    'guessit',
+    'filename',
     'sharing',
     'tmdb',
     'ssl',

@@ -17,7 +17,7 @@ const moduleDescription = {
   ffmpeg: 'For playing and encoding videos',
   sharing: 'Allows you to share libraries p2p end-to-end encrypted',
   tmdb: 'Use TheMovieDB to find media info',
-  guessit: 'Parses filenames to information like title and year',
+  filename: 'Parses filenames to information like title and year',
   ssl: 'allows you to configure https through an rms subdomain',
   socketio: 'enables realtime notifications',
 };
