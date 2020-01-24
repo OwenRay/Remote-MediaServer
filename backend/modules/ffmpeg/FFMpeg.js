@@ -200,6 +200,8 @@ class FFMpeg {
   }
 
   pause() {
+    if (this.paused) return;
+
     this.paused = true;
     if (this.output === '-') {
       this.proc.stdout.pause();

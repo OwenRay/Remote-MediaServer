@@ -356,6 +356,7 @@ class Video extends PureComponent {
             mediaItem={playing}
             onProgress={this.onProgress}
             onStart={this.onStart}
+            onSeek={this.onSeek}
             onLoadStarted={this.onLoadStarted}
             seek={this.state.seek}
             audioChannel={this.state.audio}

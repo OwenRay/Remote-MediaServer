@@ -73,7 +73,7 @@ class Html5VideoRenderer extends BaseRenderer {
   reInit() {
     console.warn('playback error!');
     if (this.state && this.state.progress < this.props.mediaItem.fileduration * 0.99) {
-      this.setState({ seek: this.state.progress, loading: true });
+      this.props.onSeek(this.state.progress);
     }
   }
 
@@ -85,8 +85,9 @@ class Html5VideoRenderer extends BaseRenderer {
     if (this.vidRef.readyState === 0) {
       return;
     }
-    this.setState({ progress: this.props.seek + this.vidRef.currentTime });
-    this.props.onProgress(this.state.progress);
+    const progress = this.props.seek + this.vidRef.currentTime;
+    this.setState({ progress });
+    this.props.onProgress(progress);
   }
 
   onTrackRef(ref) {
