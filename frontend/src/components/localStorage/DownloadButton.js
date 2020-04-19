@@ -36,9 +36,9 @@ class DownloadButton extends PureComponent {
       LocalStorage.delete(this.props.item);
       return;
     }
-    window.Materialize.toast('Starting download', 3000);
+    window.M.toast({ html: 'Starting download', displayLength: 3000 });
     if (!await LocalStorage.download(this.props.item)) {
-      window.Materialize.toast('Not enough space, please increase quota', 5000);
+      window.M.toast({ html: 'Not enough space, please increase quota', displayLength: 5000 });
     }
   }
 

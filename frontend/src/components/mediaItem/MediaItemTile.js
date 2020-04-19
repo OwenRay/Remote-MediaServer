@@ -112,10 +112,11 @@ class MediaItemTile extends Component {
           <Button
             floating
             className="play"
-            icon="play_arrow"
             action="play"
             onClick={this.play}
-          />
+          >
+            <Icon>play_arrow</Icon>
+          </Button>
           <span className="title">{this.state.title}</span>
           <span className="year">{this.state.year}</span>
           {seasonEpisode}

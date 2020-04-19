@@ -52,7 +52,7 @@ class App extends Component {
   }
 
   onToast(toastMessage) {
-    window.Materialize.toast(toastMessage, 3000);
+    window.M.toast({ html: toastMessage, displayLength: 3000 });
   }
 
   onShortcut(result) {
@@ -75,41 +75,31 @@ class App extends Component {
       <Provider store={store}>
         <div className="App">
           <Navbar
-            options={{ closeOnClick: true }}
+            className="mainmenu"
+            options={{ closeOnClick: true, edge: "right" }}
             brand={<div><img alt="Remote MediaServer" src="/assets/img/logo_small.png" height={25} /> {this.state.name}</div>}
-            right
           >
-            <li>
-              <NavLink to="/" exact>
-                <Icon left>home</Icon>
+            <NavLink to="/" exact>
+              <Icon left>home</Icon>
                 Home
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/Library">
-                <Icon left>video_library</Icon>
+            </NavLink>
+            <NavLink to="/Library">
+              <Icon left>video_library</Icon>
                 Library
-              </NavLink>
-            </li>
+            </NavLink>
             {LocalStorage.isSupported ?
-              <li>
-                <NavLink to="/LocalStorage" exact>
-                  <LocalStorageIcon />
+              <NavLink to="/LocalStorage" exact>
+                <LocalStorageIcon />
                   Offline
-                </NavLink>
-              </li>
+              </NavLink>
             : ''}
-            <li>
-              <NavLink to="/Settings">
-                <Icon left>settings</Icon>
+            <NavLink to="/Settings">
+              <Icon left>settings</Icon>
                 Settings
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/About">
-                <Icon left>help</Icon>
-              </NavLink>
-            </li>
+            </NavLink>
+            <NavLink to="/About">
+              <Icon left>help</Icon>
+            </NavLink>
           </Navbar>
           <Flipper
             flipKey={this.props.location.pathname + this.props.location.search}

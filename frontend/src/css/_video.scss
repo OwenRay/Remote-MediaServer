@@ -311,6 +311,21 @@
         bottom: 33px;
       }
     }
+    .menuButton{
+      position: relative;
+      overflow: visible;
+      margin-right: 4px;
+      &:hover .collection{
+        display: block;
+      }
+      .collection {
+        display: none;
+        position: absolute;
+        bottom:25px;
+        right: 0px;
+        z-index: 2;
+      }
+    }
     .collection-item{
       cursor:pointer;
       min-width: 130px;

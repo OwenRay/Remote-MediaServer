@@ -188,7 +188,7 @@ class Video extends PureComponent {
 
   loadingOrPaused() {
     if (this.state.paused) {
-      return <Button floating large className="play" icon="play_arrow" onClick={this.togglePause} flat />;
+      return <Button floating large className="play" onClick={this.togglePause} flat><Icon>play_arrow</Icon></Button>;
     } else if (this.state.loading || this.props.playQueue.loading) {
       return <Preloader mode="circular" size="small" flashing style={{ zIndex: 99 }} />;
     }

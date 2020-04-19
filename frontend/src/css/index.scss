@@ -4,6 +4,10 @@ body {
   font-family: sans-serif;
 }
 
+input {
+  color: white !important;
+}
+
 //#8
 $primary-color: #1c1d36;
 $primary-color-light: #534c67;
@@ -69,7 +73,7 @@ html, body{
     height: auto;
     min-height: 56px;
 
-    .modal-action {
+    .btn {
       color: white;
       margin-left: 10px;
     }
@@ -103,9 +107,9 @@ html, body{
   margin-bottom: 25px;
 }
 
-.select-wrapper span.caret
+.select-wrapper svg.caret
 {
-  color:white;
+  fill: white;
 }
 
 .brand-logo{
@@ -157,7 +161,7 @@ html, body{
     button{
       position:absolute;
       right:10px;
-      bottom:15px;
+      bottom:25px;
       background:none;
       border:none;
       font-size: 21px;
@@ -505,26 +509,31 @@ button a{
   left:0px;
 }
 
-nav {
-  height: 50px;
-  line-height: 49px;
+nav, .sidenav {
+  &.mainmenu {
+    line-height: 49px;
+    height: 50px;
+  }
   .brand-logo {
     font-size: 1.6rem;
     text-transform: uppercase;
   }
+  .hide-on-med-and-down{
+    float:right;
+  }
   a{
     height:49px;
   }
-  a.button-collapse, a.button-collapse i, .nav-wrapper i {
-    height: 49px;
-    line-height: 49px;
+  a.button-collapse, a.button-collapse i, .nav-wrapper i, a.sidenav-trigger {
+    height: 49px !important;
+    line-height: 49px !important;
   }
   li:last-child i{
     margin: 0px;
   }
-  .side-nav li{
-    width:100%;
-    float:left;
+  li{
+    //width:100%;
+    //float:left;
     i{
       color:white !important;
     }
@@ -576,7 +585,7 @@ button.marked{
   white-space: nowrap;
 }
 
-.side-nav{
+.sidenav{
   height: auto;
   bottom:0px;
   .localStorageIcon {
@@ -776,4 +785,8 @@ code {
     font-size: 64px;
     display: block;
   }
+}
+
+.row > label > span {
+  margin: 0 1rem;
 }
