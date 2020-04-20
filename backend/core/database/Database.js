@@ -169,9 +169,7 @@ class Database {
         return value > filter[0] && value < filter[1];
       default:
         if (Array.isArray(value)) {
-          return filter.split(',').every(
-            i => value.includes(i) || value.includes(parseInt(filter, 10))
-          );
+          return filter.split(',').every(i => value.includes(i) || value.includes(parseInt(filter, 10)));
         }
         return value === filter;
     }
