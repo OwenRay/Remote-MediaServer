@@ -218,6 +218,15 @@
     .scrollable{
       left:70px;
     }
+    .blurred .poster {
+      width:100%;
+      bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      background-size: cover;
+      background-position: center center;
+    }
   }
   .movie-detail-backdrop {
     display:none;

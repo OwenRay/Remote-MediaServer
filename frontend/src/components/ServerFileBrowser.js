@@ -48,7 +48,7 @@ class ServerFileBrowser extends Component {
    * @param val
    */
   update(val) {
-    if (this.state !== val) {
+    if (this.state.value !== val) {
       this.props.onChange(val);
     }
 

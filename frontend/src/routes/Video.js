@@ -295,7 +295,7 @@ class Video extends PureComponent {
     const id = playing ? playing.id : loading;
 
     const position = playing ? playing._fetchedPlayPosition : 0;
-    if (this.showingDialog() || loading) {
+    if (this.showingDialog() || loading || !playing) {
       return (
         <div className="video">
           <div className="movie-detail-backdrop-wrapper">

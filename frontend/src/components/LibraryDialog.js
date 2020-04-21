@@ -1,12 +1,12 @@
 /**
  * Created by owenray on 6/30/2017.
  */
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Select, Row, Button, Modal, TextInput, Checkbox } from 'react-materialize';
 import PropTypes from 'prop-types';
 import ServerFileBrowser from './ServerFileBrowser';
 
-class LibraryDialog extends PureComponent {
+class LibraryDialog extends Component {
   constructor(props) {
     super(props);
     this.onChange = this.onChange.bind(this);
@@ -52,6 +52,11 @@ class LibraryDialog extends PureComponent {
     this.onClose();
   }
 
+  // should never rerender because of a bug in the modal
+  shouldComponentUpdate() {
+    return false;
+  }
+
   /**
    * called when the input changes
    * @param val
@@ -72,6 +77,7 @@ class LibraryDialog extends PureComponent {
           onChange={this.onChange}
           label="Share this library"
           checked={this.state.shared}
+          value="shared"
         />
         <ServerFileBrowser value={this.state.folder} onChange={this.fileBrowserChange} label="Directory" />
       </Row>
@@ -79,10 +85,11 @@ class LibraryDialog extends PureComponent {
   }
 
   render() {
-    console.log(this.props.onLibraryClose);
     return (
       <Modal
+        id="libdialog"
         open
+        header="Add library"
         actions={[
           <Button modal="close">close</Button>,
           <Button onClick={this.onSubmit} modal="confirm">confirm</Button>,
@@ -91,7 +98,6 @@ class LibraryDialog extends PureComponent {
           onCloseEnd: this.props.onClose,
         }}
       >
-        <h4>Add library</h4>
         <Row>
           <Select value={this.state.type} name="type" onChange={this.onChange} label="Type" s={12}>
             <option value="folder">Unspecified</option>
