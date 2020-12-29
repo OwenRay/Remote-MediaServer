@@ -77,6 +77,8 @@ class TcpClient {
 
   onPeer(peer) {
     if (this.ended) return;
+    if (peer.host === '0.0.0.0') return;
+
     const p = `${peer.host}:${peer.port}`;
     if (this.connections[p]) {
       return;
@@ -118,8 +120,8 @@ class TcpClient {
     const p = `${con.peer.host}:${con.peer.port}`;
     this.downloading = false;
     delete this.connections[p];
-    const nxt = Object.values(this.connections).find(c => c.connected);
-    if (nxt) this.onConnect(nxt);
+    // const nxt = Object.values(this.connections).find(c => c.connected);
+    // if (nxt) this.onConnect(nxt);
   }
 
   getDecodeBuffer() {
