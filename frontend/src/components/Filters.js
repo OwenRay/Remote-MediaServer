@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 /* global $ */
-import { Button, Col, Row, Icon, SideNav, Select, Chip } from 'react-materialize';
+import { Button, Col, Row, Icon, Select, Chip } from 'react-materialize';
 import { Handle, Range } from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
@@ -174,8 +174,8 @@ class ButtonMenu extends PureComponent {
             </Select>
           </Row>
           <Row>
+            <label>Actors</label>
             <Chip
-              title="Actors"
               options={this.autoCompleteOptions}
             />
           </Row>
@@ -222,15 +222,28 @@ class ButtonMenu extends PureComponent {
     );
   }
 
+  toggle = () => {
+    this.setState({ open: !this.state.open });
+  }
+
   render() {
     console.log('rerander');
     return (
-      <SideNav
-        trigger={<Button className="bottom-right-fab" floating><Icon>tune</Icon></Button>}
-        options={this.options}
-      >
-        {this.content()}
-      </SideNav>
+      <div>
+        <Button className="bottom-right-fab" onClick={this.toggle} floating>
+          <Icon>tune</Icon>
+        </Button>
+        <div className={`filter${this.state.open ? 'Open' : 'Closed'}`}>
+          <div className="filterBg" onClick={this.toggle}/>
+          <div
+            className="content card"
+            // trigger={<Button className="bottom-right-fab" floating><Icon>tune</Icon></Button>}
+            // options={this.options}
+          >
+            {this.content()}
+          </div>
+        </div>
+      </div>
     );
   }
 }

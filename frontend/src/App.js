@@ -76,7 +76,7 @@ class App extends Component {
         <div className="App">
           <Navbar
             className="mainmenu"
-            options={{ closeOnClick: true, edge: "right" }}
+            options={{ closeOnClick: true, edge: 'left' }}
             brand={<div><img alt="Remote MediaServer" src="/assets/img/logo_small.png" height={25} /> {this.state.name}</div>}
           >
             <NavLink to="/" exact>

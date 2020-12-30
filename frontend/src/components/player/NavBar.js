@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Icon } from 'react-materialize';
-import ButtonMenu from './ButtonMenu';
 import { connect } from 'react-redux';
+import ButtonMenu from './ButtonMenu';
 import { playQueueActions } from '../../helpers/stores/playQueue';
 
 class NavBar extends Component {
