@@ -144,8 +144,9 @@ class Mpeg4Container extends RequestHandler {
     }
     this.offset += data.length;
 
-    if (this.waitToKill) {
+    if (this.waitToKill || this.ffmpegEnded) {
       Log.warning('ondata after close!!!');
+      return;
     }
 
     this.bufferedChuncks += 1;
