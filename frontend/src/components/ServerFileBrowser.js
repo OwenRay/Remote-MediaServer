@@ -3,7 +3,7 @@
  */
 /* global $ */
 import React, { Component } from 'react';
-import { CollectionItem, Collection, Preloader, Input, Row } from 'react-materialize';
+import { CollectionItem, Collection, Preloader, Row, TextInput } from 'react-materialize';
 import PropTypes from 'prop-types';
 
 class ServerFileBrowser extends Component {
@@ -48,7 +48,7 @@ class ServerFileBrowser extends Component {
    * @param val
    */
   update(val) {
-    if (this.state !== val) {
+    if (this.state.value !== val) {
       this.props.onChange(val);
     }
 
@@ -116,7 +116,7 @@ class ServerFileBrowser extends Component {
     return (
       <div>
         <Row>
-          <Input
+          <TextInput
             ref={(input) => { this.input = input; }}
             onChange={this.valueChange}
             s={12}

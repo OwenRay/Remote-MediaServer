@@ -4,7 +4,7 @@
  */
 
 import React, { Component } from 'react';
-import { Button, Icon, Input, Row } from 'react-materialize';
+import { Button, Icon, Select, Row, TextInput } from 'react-materialize';
 import { deserialize } from 'redux-jsonapi';
 import store from '../helpers/stores/settingsStore';
 
@@ -65,7 +65,7 @@ class SearchBar extends Component {
     return (
       <div className={props.className}>
         <Row>
-          <Input s={3} name="libraryId" type="select" label="Library:" value={filters.libraryId} onChange={this.onChange}>
+          <Select s={3} name="libraryId" label="Library:" value={filters.libraryId} onChange={this.onChange}>
             <option value="">All libraries</option>
             {this.state.settings.libraries.map((lib) => {
               let { uuid } = lib;
@@ -73,23 +73,24 @@ class SearchBar extends Component {
 
               return <option key={uuid} value={uuid}>{lib.name}</option>;
             })}
-          </Input>
+          </Select>
           <div className="col search s6">
-            <Input s={12} name="title" type="text" label="" value={filters.title || ''} onChange={this.onChange} />
+            <TextInput s={12} name="title" type="text" label="" value={filters.title || ''} onChange={this.onChange} />
             <Button className="mdi-action-search"><Icon>search</Icon></Button>
           </div>
-          <Input s={3} name="sort" type="select" label="Sort by:" value={filters.sort} onChange={this.onChange}>
+          <Select s={3} name="sort" label="Sort by:" value={filters.sort} onChange={this.onChange}>
             <option value="title">Title</option>
             <option value="date_added:DESC">Date added</option>
             <option value="release-date:DESC">Date released</option>
-          </Input>
+          </Select>
           <Button
             className="toggleGroup"
             data-tip={filters.distinct ? 'Disable grouping' : 'Enable grouping'}
             floating
             onClick={this.toggleGrouped}
-            icon={filters.distinct ? 'layers_clear' : 'layers'}
-          />
+          >
+            <Icon>{filters.distinct ? 'layers_clear' : 'layers'}</Icon>
+          </Button>
         </Row>
       </div>
     );

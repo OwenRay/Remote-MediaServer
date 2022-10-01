@@ -206,6 +206,7 @@ class Library extends PureComponent {
         cache.filterValues = res.meta.filterValues;
         cache.loadCount = this.state.loadCount + 1;
         cache.rowCount = res.meta.totalItems;
+        if (cache.filters.title !== this.state.filters.title) return;
 
         this.setState(cache);
         if (this.collection) {

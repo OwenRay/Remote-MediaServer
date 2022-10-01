@@ -91,6 +91,10 @@
 
     .tabs{
       background:transparentize($primary-color-dark, .2);
+      top: 0px;
+      left: -5px;
+      margin-right: 115px;
+      width: auto;
     }
 
     cursor:pointer;
@@ -101,12 +105,6 @@
         top: 49px;
         left: 0px;
         bottom: 0px;
-
-        &:first-child {
-          top: 0px;
-          left: -5px;
-          padding-right: 115px;
-        }
       }
     }
   }
@@ -219,6 +217,15 @@
     }
     .scrollable{
       left:70px;
+    }
+    .blurred .poster {
+      width:100%;
+      bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      background-size: cover;
+      background-position: center center;
     }
   }
   .movie-detail-backdrop {

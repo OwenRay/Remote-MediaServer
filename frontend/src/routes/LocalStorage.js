@@ -4,7 +4,7 @@
 
 import React, { PureComponent } from 'react';
 import { Flipped } from 'react-flip-toolkit';
-import { Card, Row, Col, Input, Button } from 'react-materialize';
+import { Card, Row, Col, Button, TextInput } from 'react-materialize';
 import Slider from 'rc-slider';
 import LocalStorage from '../helpers/LocalStorage';
 import { throttle } from 'throttle-debounce';
@@ -61,7 +61,7 @@ class LocalStorageRoute extends PureComponent {
             <h3>Offline Storage Quota</h3>
             <div>
               <Row>
-                <Input
+                <TextInput
                   s={3}
                   label={`${this.state.quota.used}G / ${this.state.quota.granted}G`}
                   value={`${this.state.desiredQuota}`}

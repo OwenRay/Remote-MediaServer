@@ -88,17 +88,14 @@ class DatabaseApiHandler extends RequestHandler {
 
     let data;
     let included = [];
-    let metadata = {};
     if (itemId) {
       data = Database.getById(singularType, itemId);
     } else {
-      ({ data, included, metadata } = DatabaseSearch.query(singularType, {
+      ({ data, included } = DatabaseSearch.query(singularType, {
         where: query,
         sort,
         distinct,
         join,
-        offset,
-        limit,
         relationConditions,
       }));
     }
@@ -119,6 +116,13 @@ class DatabaseApiHandler extends RequestHandler {
         values[a] = Object.keys(items).sort();
       });
       filterValues = values;
+    }
+
+    let metadata = {};
+    if (offset || limit) {
+      metadata.totalPages = Math.ceil(data.length / limit);
+      metadata.totalItems = data.length;
+      data = data.splice(offset, limit);
     }
 
     // build return data

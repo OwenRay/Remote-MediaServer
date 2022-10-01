@@ -87,7 +87,6 @@ class TcpClient {
     // try to connect to peer
     const con = new TcpConnection(peer);
     con.setOnConnect(this.onConnect.bind(this));
-    con.setOnResult(this.onResult.bind(this));
     this.connections[p] = con;
   }
 
@@ -103,6 +102,7 @@ class TcpClient {
 
     // tell the peer to start download
     this.downloading = connection;
+    connection.setOnResult(this.onResult.bind(this));
     connection.writeAndStream(
       this.reference.toString('hex'),
       this.extraInfo ? `-${this.extraInfo}` : '',

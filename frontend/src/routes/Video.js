@@ -188,7 +188,7 @@ class Video extends PureComponent {
 
   loadingOrPaused() {
     if (this.state.paused) {
-      return <Button floating large className="play" icon="play_arrow" onClick={this.togglePause} flat />;
+      return <Button floating large className="play" onClick={this.togglePause} flat><Icon>play_arrow</Icon></Button>;
     } else if (this.state.loading || this.props.playQueue.loading) {
       return <Preloader mode="circular" size="small" flashing style={{ zIndex: 99 }} />;
     }
@@ -295,7 +295,7 @@ class Video extends PureComponent {
     const id = playing ? playing.id : loading;
 
     const position = playing ? playing._fetchedPlayPosition : 0;
-    if (this.showingDialog() || loading) {
+    if (this.showingDialog() || loading || !playing) {
       return (
         <div className="video">
           <div className="movie-detail-backdrop-wrapper">
@@ -356,6 +356,7 @@ class Video extends PureComponent {
             mediaItem={playing}
             onProgress={this.onProgress}
             onStart={this.onStart}
+            onSeek={this.onSeek}
             onLoadStarted={this.onLoadStarted}
             seek={this.state.seek}
             audioChannel={this.state.audio}

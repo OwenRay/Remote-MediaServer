@@ -247,7 +247,7 @@ class Detail extends Component {
             <Modal
               header={s.item ? s.item.title : ''}
               fixedFooter
-              trigger={<Button onClick={this.toggleDetails} data-tip="Info" icon="info_outline" />}
+              trigger={<Button onClick={this.toggleDetails} data-tip="Info"><Icon>info_outline</Icon></Button>}
             >
               <MediaInfo item={this.state.item} />
             </Modal>
@@ -268,7 +268,7 @@ class Detail extends Component {
                   </div>
                   {s.showTabs ? this.seasonTabs() : this.mediaInfo()}
                   <div className="poster" style={this.poster()} />
-                  <Button large floating id="play" icon="play_arrow" onClick={this.play} />
+                  <Button large floating id="play" onClick={this.play}><Icon>play_arrow</Icon></Button>
                 </div>
               </Flipped>
             </main>

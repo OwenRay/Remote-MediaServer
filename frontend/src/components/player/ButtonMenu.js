@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button } from 'react-materialize';
+import { Button, Icon } from 'react-materialize';
 
 class ButtonMenu extends Component {
   shouldComponentUpdate() {
@@ -17,9 +17,9 @@ class ButtonMenu extends Component {
     }
     return (
       <Button
-        icon={{ video: 'videocam', audio: 'audiotrack', subtitles: 'subtitles' }[type]}
-        fab="vertical"
+        className="menuButton"
         floating
+        icon={<Icon>{{ video: 'videocam', audio: 'audiotrack', subtitles: 'subtitles' }[type]}</Icon>}
       >
         <div className="collection">
           {items.map(item =>

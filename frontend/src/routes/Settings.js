@@ -4,7 +4,7 @@
  */
 /* global $ */
 import React, { Component } from 'react';
-import { Card, Input, Row, Col, Button, Icon, Collection, CollectionItem, Modal } from 'react-materialize';
+import { Card, Row, Col, Button, Select, Checkbox, Icon, Collection, TextInput, CollectionItem, Modal } from 'react-materialize';
 import { apiActions, deserialize } from 'redux-jsonapi';
 import { Flipped } from 'react-flip-toolkit';
 import Slider from 'rc-slider';
@@ -63,7 +63,7 @@ class Settings extends Component {
     const o = this.state.settings;
     o._type = 'settings';
     await store.dispatch(apiActions.write(o));
-    window.Materialize.toast('Settings saved', 3000);
+    window.M.toast({ html: 'Settings saved', displayLength: 3000 });
   }
 
   /**
@@ -99,7 +99,8 @@ class Settings extends Component {
    */
   onChange(e, value) {
     const { target } = e;
-    const { settings } = this.state;
+    const { settings } = this.state
+    if (target.type === 'checkbox') value = target.checked;
     if (target.type === 'checkbox' && Array.isArray(settings[target.name])) {
       const i = settings[target.name].indexOf(target.value);
       if (i === -1) settings[target.name].push(target.value);
@@ -151,6 +152,7 @@ class Settings extends Component {
   }
 
   render() {
+    console.log(Select);
     if (!this.state || !this.state.settings) {
       return (<p>Loading</p>);
     }
@@ -168,12 +170,13 @@ class Settings extends Component {
       >
         {lib.name}
         <Button
-          icon="delete"
           onClick={(e) => {
             e.stopPropagation();
             this.removeLib(lib);
           }}
-        />
+        >
+          <Icon>delete</Icon>
+        </Button>
       </CollectionItem>));
 
     let deletingModal;
@@ -198,63 +201,67 @@ class Settings extends Component {
           key="save"
           floating
           onClick={this.onSubmit}
-          icon="save"
-        />
+        >
+          <Icon>save</Icon>
+        </Button>
         <Flipped flipId="page">
           <div className={settings.advanced ? 'advanced' : ''}>
             <Row style={{ margin: 20, float: 'right' }}>
-              <Input
+              <Checkbox
+                id="checkbox"
                 type="checkbox"
                 checked={settings.advanced}
                 onChange={this.onChange}
                 name="advanced"
                 label="Show advanced"
+                value="advanced"
               />
             </Row>
             <Card
               title="Server settings"
             >
               <Row>
-                <Input
+                <TextInput
                   name="name"
                   onChange={this.onChange}
-                  defaultValue={settings.name}
+                  value={settings.name}
                   icon="label"
                   label="Server name"
                   s={12}
                 />
               </Row>
               <Row className="advancedItem">
-                <Input
+                <TextInput
                   name="port"
                   onChange={this.onChange}
-                  defaultValue={`${settings.port}`}
+                  value={`${settings.port}`}
                   icon="input"
                   label="Port"
                   s={12}
                 />
               </Row>
               <Row className="advancedItem">
-                <Input
+                <Select
                   s={12}
                   name="filewatcher"
                   onChange={this.onChange}
-                  type="select"
                   label="File watcher"
-                  defaultValue={settings.filewatcher}
-                  icon="remove_red_eye"
+                  value={settings.filewatcher}
+                  icon={<Icon>remove_red_eye</Icon>}
                 >
                   <option value="native">Use native filesystem events</option>
                   <option value="polling">Alternative (Polling)</option>
-                </Input>
+                </Select>
               </Row>
               <Row>
-                <Input
+                <Checkbox
+                  id="startscan"
                   type="checkbox"
                   name="startscan"
                   onChange={this.onChange}
                   label="Full rescan on start"
                   checked={settings.startscan}
+                  value="startscan"
                 />
               </Row>
             </Card>
@@ -262,41 +269,43 @@ class Settings extends Component {
             {settings.modules.indexOf('ssl') !== -1 ? (
               <Card title="SSL">
                 <Row>
-                  <Input
+                  <TextInput
                     name="ssldomain"
                     onChange={this.onChange}
-                    defaultValue={`${settings.ssldomain || ''}`}
+                    value={`${settings.ssldomain || ''}`}
                     icon="enhanced_encryption"
                     label="SSL Subdomain name (yourname.theremote.io)"
                     s={12}
                   />
                 </Row>
                 <Row>
-                  <Input
+                  <TextInput
                     name="sslport"
                     onChange={this.onChange}
-                    defaultValue={`${settings.sslport || ''}`}
+                    value={`${settings.sslport || ''}`}
                     icon="input"
                     label="SSL port"
                     s={12}
                   />
                 </Row>
                 <Row>
-                  <Input
+                  <TextInput
                     name="sslemail"
                     onChange={this.onChange}
-                    defaultValue={`${settings.sslemail || ''}`}
+                    value={`${settings.sslemail || ''}`}
                     icon="email"
                     label="Email address (necessary for certificate registration)"
                     s={12}
                   />
                 </Row>
                 <Row>
-                  <Input
+                  <Checkbox
+                    id="sslredirect"
                     type="checkbox"
                     name="sslredirect"
                     onChange={this.onChange}
-                    defaultValue={`${settings.sslredirect}`}
+                    checked={settings.sslredirect}
+                    value="sslredirect"
                     label="Automatically redirect to https"
                     s={12}
                   />
@@ -308,30 +317,30 @@ class Settings extends Component {
                 title="Share settings"
               >
                 <Row className="advancedItem">
-                  <Input
+                  <TextInput
                     name="sharehost"
                     onChange={this.onChange}
-                    defaultValue={`${settings.sharehost}`}
+                    value={`${settings.sharehost}`}
                     icon="input"
                     label="Sharing host (empty for autodetect)"
                     s={6}
                   />
-                  <Input
+                  <TextInput
                     name="shareport"
                     onChange={this.onChange}
-                    defaultValue={`${settings.shareport}`}
+                    value={`${settings.shareport}`}
                     icon="input"
                     label="Sharing port (make sure this port is reachable)"
                     s={6}
                   />
                 </Row>
                 <Row s={12} className="input-field">
-                  <Input
+                  <TextInput
                     s={4}
                     name="sharespace"
                     onChange={this.onChange}
                     label="Space reserved for shared files"
-                    defaultValue={settings.sharespace}
+                    value={`${settings.sharespace}`}
                     icon="space"
                   />
                   <Col s={8}>
@@ -345,11 +354,12 @@ class Settings extends Component {
                   </Col>
                 </Row>
                 <Row s={12}>
-                  <Input
+                  <TextInput
                     icon="share"
                     s={12}
                     label="Share key"
                     value={`${settings.sharekey}-${settings.dbKey}-${settings.dbNonce}`}
+                    readOnly
                   />
                 </Row>
               </Card>
@@ -371,15 +381,15 @@ class Settings extends Component {
               <Row>Changing these requires a restart of the mediaserver</Row>
               {this.state.availableModules
                 .map(i => (
-                  <Row>
-                    <Input
-                      label={<span><b>{i}</b> - {moduleDescription[i]}</span>}
-                      key={i}
+                  <Row key={i}>
+                    <Checkbox
+                      label={`${i} - ${moduleDescription[i]}`}
                       value={i}
                       checked={settings.modules.indexOf(i) !== -1}
                       onChange={this.onChange}
                       type="checkbox"
                       name="modules"
+                      id={i}
                     />
                   </Row>
                 ))

@@ -1,9 +1,8 @@
 /**
  * Created by owenray on 6/30/2017.
  */
-/* global $ */
 import React, { Component } from 'react';
-import { Input, Row, Button, Modal } from 'react-materialize';
+import { Select, Row, Button, Modal, TextInput, Checkbox } from 'react-materialize';
 import PropTypes from 'prop-types';
 import ServerFileBrowser from './ServerFileBrowser';
 
@@ -22,29 +21,6 @@ class LibraryDialog extends Component {
    */
   componentWillMount() {
     this.setState(this.props.editing);
-  }
-
-  componentDidMount() {
-    this.componentDidUpdate();
-  }
-
-  /**
-   * make sure the modal is always open
-   */
-  componentDidUpdate() {
-    $('#createModal').modal({
-      complete: () => {
-        this.onClose();
-      },
-    })
-      .modal('open');
-  }
-
-  /**
-   * make sure the modal closes before object is destroyed (to hide the transparent background)
-   */
-  componentWillUnmount() {
-    $('#createModal').modal('close');
   }
 
   /**
@@ -76,6 +52,11 @@ class LibraryDialog extends Component {
     this.onClose();
   }
 
+  // should never rerender because of a bug in the modal
+  shouldComponentUpdate() {
+    return false;
+  }
+
   /**
    * called when the input changes
    * @param val
@@ -86,42 +67,46 @@ class LibraryDialog extends Component {
 
   sharedOrOther() {
     if (this.state.type === 'shared') {
-      return <Input value={this.state.uuid} name="uuid" onChange={this.onChange} s={12} label="Code" />;
+      return <TextInput value={this.state.uuid} name="uuid" onChange={this.onChange} s={12} label="Code" />;
     }
     return (
-      <div>
-        <Input
+      <Row>
+        <Checkbox
           type="checkbox"
           name="shared"
           onChange={this.onChange}
           label="Share this library"
           checked={this.state.shared}
+          value="shared"
         />
         <ServerFileBrowser value={this.state.folder} onChange={this.fileBrowserChange} label="Directory" />
-      </div>
+      </Row>
     );
   }
 
   render() {
     return (
       <Modal
-        ref={(modal) => { this.modal = modal; }}
-        id="createModal"
+        id="libdialog"
+        open
+        header="Add library"
         actions={[
           <Button modal="close">close</Button>,
           <Button onClick={this.onSubmit} modal="confirm">confirm</Button>,
         ]}
+        options={{
+          onCloseEnd: this.props.onClose,
+        }}
       >
-        <h4>Add library</h4>
         <Row>
-          <Input value={this.state.type} name="type" onChange={this.onChange} label="Type" s={12} type="select">
+          <Select value={this.state.type} name="type" onChange={this.onChange} label="Type" s={12}>
             <option value="folder">Unspecified</option>
             <option value="tv">TV Shows</option>
             <option value="movie">Movies</option>
             <option value="library_music">Music</option>
             <option value="shared">External Library</option>
-          </Input>
-          <Input defaultValue={this.state.name} onChange={this.onChange} name="name" s={12} label="Name" />
+          </Select>
+          <TextInput defaultValue={this.state.name} onChange={this.onChange} name="name" s={12} label="Name" />
           {this.sharedOrOther()}
         </Row>
       </Modal>

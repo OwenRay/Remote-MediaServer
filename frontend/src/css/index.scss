@@ -4,6 +4,14 @@ body {
   font-family: sans-serif;
 }
 
+.App{
+  overflow: hidden;
+}
+
+input {
+  color: white !important;
+}
+
 //#8
 $primary-color: #1c1d36;
 $primary-color-light: #534c67;
@@ -69,7 +77,7 @@ html, body{
     height: auto;
     min-height: 56px;
 
-    .modal-action {
+    .btn {
       color: white;
       margin-left: 10px;
     }
@@ -103,9 +111,9 @@ html, body{
   margin-bottom: 25px;
 }
 
-.select-wrapper span.caret
+.select-wrapper svg.caret
 {
-  color:white;
+  fill: white;
 }
 
 .brand-logo{
@@ -157,7 +165,7 @@ html, body{
     button{
       position:absolute;
       right:10px;
-      bottom:15px;
+      bottom:25px;
       background:none;
       border:none;
       font-size: 21px;
@@ -411,7 +419,40 @@ nav{
   position:absolute;
   z-index:100;
   visibility: hidden;
-  .close{
+  .row {
+    padding: 10px 30px;
+    margin: 0px;
+    .input-field {
+      padding: 0;
+      float: none;
+    }
+    .switch {
+      text-align: right;
+    }
+    label {
+      left: 0;
+    }
+    input {
+      margin: 0px;
+    }
+  }
+  .top {
+    position: absolute;
+    bottom: 60px;
+    top:0;
+    left:0;
+    right:0;
+    overflow: auto;
+  }
+  .filterBg{
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(0,0,0,.5);
+  }
+  > div > .close{
     transition: all 0.3s;
     opacity: 0;
     position:absolute;
@@ -422,17 +463,35 @@ nav{
     background:transparentize($primary-color-dark, .2);
   }
   .content {
-    width: 90%;
+    width:80%;
     top: 0px;
     bottom: 0px;
     right: 0px;
     position: absolute;
-    background: $primary-color-dark;
+    background: $primary-color;
+    margin:0;
     margin-right: -100%;
-    max-width:300px;
+    max-width:350px;
+    overflow: auto;
     transition: all 0.3s;
     padding:30px;
     border-left: solid 1px $primary-color;
+    >div >.row{
+      background: $primary-color-dark;
+      .col{
+        padding:0px 5px;
+      }
+      button {
+        width: 100%;
+      }
+      margin:0px;
+      padding:10px;
+      position: absolute;
+      bottom:0px;
+      right:0px;
+      left:0px;
+      overflow: hidden;
+    }
     .red-text
     {
       display:none;
@@ -449,7 +508,7 @@ nav{
   visibility: visible;
   //transition: visibility 0.3s;
   //transition-delay: 0.3s;
-  .close {
+  > div > .close {
     opacity: 1;
   }
   .content {
@@ -505,26 +564,31 @@ button a{
   left:0px;
 }
 
-nav {
-  height: 50px;
-  line-height: 49px;
+nav, .sidenav {
+  &.mainmenu {
+    line-height: 49px;
+    height: 50px;
+  }
   .brand-logo {
     font-size: 1.6rem;
     text-transform: uppercase;
   }
+  .hide-on-med-and-down{
+    float:right;
+  }
   a{
     height:49px;
   }
-  a.button-collapse, a.button-collapse i, .nav-wrapper i {
-    height: 49px;
-    line-height: 49px;
+  a.button-collapse, a.button-collapse i, .nav-wrapper i, a.sidenav-trigger {
+    height: 49px !important;
+    line-height: 49px !important;
   }
   li:last-child i{
     margin: 0px;
   }
-  .side-nav li{
-    width:100%;
-    float:left;
+  li{
+    //width:100%;
+    //float:left;
     i{
       color:white !important;
     }
@@ -566,7 +630,7 @@ button.marked{
 .bottom-right-fab {
   right:10px;
   bottom:10px;
-  position: fixed;
+  position: absolute;
   .input-field.col label{
     left:0;
   }
@@ -576,54 +640,11 @@ button.marked{
   white-space: nowrap;
 }
 
-.side-nav{
+.sidenav{
   height: auto;
   bottom:0px;
   .localStorageIcon {
     margin-right:28px;
-  }
-  .top {
-    position: absolute;
-    bottom: 60px;
-    top:0;
-    left:0;
-    right:0;
-    overflow: auto;
-    .row {
-      padding: 20px;
-      margin: 0px;
-      border-bottom: solid 1px $primary-color-dark;
-      border-top: solid 1px $primary-color-light;
-      .input-field {
-        padding: 0;
-        float: none;
-      }
-      .switch {
-        text-align: right;
-      }
-      label {
-        left: 0;
-      }
-      input {
-        margin: 0px;
-      }
-    }
-  }
-  >div >.row{
-    background: $primary-color-dark;
-    .col{
-      padding:0px 5px;
-    }
-    button {
-      width: 100%;
-    }
-    margin:0px;
-    padding:10px;
-    position: fixed;
-    bottom:0px;
-    right:0px;
-    left:0px;
-    overflow: hidden;
   }
 }
 
@@ -776,4 +797,8 @@ code {
     font-size: 64px;
     display: block;
   }
+}
+
+.row > label > span {
+  margin: 0 1rem;
 }
