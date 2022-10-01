@@ -1,10 +1,8 @@
-
-
 /**
  * Created by owenray on 7/9/16.
  */
-const IImageHandler = require('../IImageHandler');
 const fs = require('fs');
+const IImageHandler = require('../IImageHandler');
 const httpServer = require('..');
 
 class ImageCacheHandler extends IImageHandler {
@@ -12,9 +10,9 @@ class ImageCacheHandler extends IImageHandler {
     if (!this.item) {
       return null;
     }
-    const id = this.item.attributes['external-id'] ?
-      `tmdb_${this.item.attributes['external-id']}` :
-      this.item.id;
+    const id = this.item.attributes['external-id']
+      ? `tmdb_${this.item.attributes['external-id']}`
+      : this.item.id;
     const filename = `cache/thumb_${id}_${this.type}`;
     try {
       fs.statSync(filename);
@@ -31,11 +29,11 @@ class ImageCacheHandler extends IImageHandler {
   }
 
   put(data) {
-    const id = this.item.attributes['external-id'] ?
-      `tmdb_${this.item.attributes['external-id']}` :
-      this.item.id;
+    const id = this.item.attributes['external-id']
+      ? `tmdb_${this.item.attributes['external-id']}`
+      : this.item.id;
     const filename = `cache/thumb_${id}_${this.type}`;
-    fs.writeFile(filename, data, () => {});
+    if (data) fs.writeFile(filename, data, () => {});
   }
 
   static getDescription() {

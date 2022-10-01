@@ -1,11 +1,11 @@
-FROM node:10 AS build_backend
+FROM node:16 AS build_backend
 
 WORKDIR /backend
 COPY ./package* ./
 RUN npm install --production
 
 ##################################
-FROM node:10 AS build_frontend
+FROM node:16 AS build_frontend
 
 WORKDIR /frontend
 COPY ./frontend/package* ./
@@ -17,7 +17,7 @@ RUN npm run build
 
 
 ##################################
-FROM node:10
+FROM node:16
 
 WORKDIR /app
 

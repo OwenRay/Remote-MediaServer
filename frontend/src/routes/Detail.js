@@ -107,8 +107,8 @@ class Detail extends Component {
 
     return (
       <div id="tabs">
-        <Tabs defaultValue="0">
-          <Tab key={-1} active title={title}>
+        <Tabs defaultValue={"0"}>
+          <Tab idx={"0"} active title={title}>
             {this.mediaInfo()}
           </Tab>
           {tabs}

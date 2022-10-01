@@ -68,8 +68,8 @@
   },
   "devDependencies": {
     "ajv": "^6.12.6",
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb": "^16.1.0",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.7.0",

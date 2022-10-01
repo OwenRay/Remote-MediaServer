@@ -1,6 +1,6 @@
 /* global window */
 import 'react-circular-progressbar/dist/styles.css';
-import CircularProgressbar from 'react-circular-progressbar';
+import { CircularProgressbar } from 'react-circular-progressbar';
 import React, { Component } from 'react';
 import LocalStorage from '../../helpers/LocalStorage';
 
@@ -23,6 +23,7 @@ class LocalStorageIcon extends Component {
   render() {
     return (
       <CircularProgressbar
+        value={this.state.useRatio}
         className="localStorageIcon"
         percentage={this.state.useRatio}
         strokeWidth={10}

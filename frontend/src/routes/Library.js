@@ -5,7 +5,7 @@
 /* global window */
 import React, { PureComponent } from 'react';
 import { apiActions, deserialize } from 'redux-jsonapi';
-import { Collection, AutoSizer } from 'react-virtualized';
+import { Collection, AutoSizer } from '@enykeev/react-virtualized';
 import { debounce } from 'throttle-debounce';
 import { Flipped } from 'react-flip-toolkit';
 import ReactTooltip from 'react-tooltip';
