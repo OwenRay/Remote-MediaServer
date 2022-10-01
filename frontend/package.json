@@ -8,7 +8,7 @@
     "bluebird": "^3.5.0",
     "humps": "^1.1.0",
     "libjass": "^0.11.0",
-    "markdown-it": "^8.4.2",
+    "markdown-it": "^12.3.2",
     "materialize-css": "^1.0.0",
     "node-sass-chokidar": "^1.3.4",
     "pluralize": "^7.0.0",
