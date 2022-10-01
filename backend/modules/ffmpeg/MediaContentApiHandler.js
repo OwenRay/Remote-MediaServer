@@ -100,7 +100,7 @@ class SubtitleApiHandler extends RequestHandler {
   }
 }
 
-httpServer.registerRoute('get', '/api/mediacontent/:id', SubtitleApiHandler);
-httpServer.registerRoute('get', '/api/mediacontent/subtitle/:id/:file', SubtitleApiHandler);
+httpServer.registerRoute('get', '/api/mediacontent/:id', SubtitleApiHandler, Infinity);
+httpServer.registerRoute('get', '/api/mediacontent/subtitle/:id/:file', SubtitleApiHandler, Infinity);
 
 module.exports = SubtitleApiHandler;

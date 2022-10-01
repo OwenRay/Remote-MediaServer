@@ -34,7 +34,7 @@ export default class HLSDownloader {
     const file = await this.getFileRef(segment || url);
     const req = await fetch(url);
     this.req = req;
-    const reader = req.body.getReader('');
+    const reader = req.body.getReader()
     let data;
 
 

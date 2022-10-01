@@ -58,12 +58,12 @@
   "/user/movies/Toy Story (1995)(1080P)(DTS) TBS/Movie/Toy.Story.1.1995.1080p.Bluray.DTS.x264-SHiTSoNy.mkv": {
     "type": "movie",
     "title": "Toy Story 1",
-    "year": "1995"
+    "year": 1995
   },
   "/user/movies/If I Stay (2014) 1080p/If I Stay.mkv": {
     "type": "movie",
     "title": "If I Stay",
-    "year": "2014"
+    "year": 2014
   },
   "/user/movies/American History X (1998)/American History X 1998 720p BluRay x264-REKD.mkv": {
     "type": "movie",
@@ -73,7 +73,7 @@
   "/user/movies/Life of Brian (1979)/Life of Brian cd1 (1979).mkv": {
     "type": "movie",
     "title": "Life of Brian",
-    "year": "1979"
+    "year": 1979
   },
   "/user/movies/The_Prince_of_Egypt_(1998)_De_Prins_van_Egypte_WEB-DL_720p_NL_Audio_&_Subs/The Prince of Egypt (1998) WEB-DL 720p NL Audio & Subs.mkv": {
     "type": "movie",

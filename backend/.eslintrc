@@ -1,0 +1,9 @@
+{
+  "extends": "airbnb",
+  "env": {
+    "jest": true
+  },
+  "rules": {
+        "no-param-reassign": 0
+    }
+}
