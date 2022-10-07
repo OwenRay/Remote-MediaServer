@@ -138,21 +138,25 @@ class Library extends PureComponent {
     const items = cache.media;
     itemsCache[filterKey] = cache;
 
-    // mark items as loading
-    let needsLoad = false;
-    let overlap = false;
-    for (let c = offset; c < offset + limit && c < items.length; c += 1) {
-      overlap = true;
-      if (items[c].id) {
-        continue;
+    if(!fresh) {
+      // mark items as loading
+      let needsLoad = false;
+      let overlap = false;
+      for (let c = offset; c < offset + limit && c < items.length; c += 1) {
+        overlap = true;
+        if (items[c].id) {
+          continue;
+        }
+        needsLoad = true;
+        items[c].loading = true;
       }
-      needsLoad = true;
-      items[c].loading = true;
-    }
-    if (overlap && !needsLoad) {
-      this.setState(cache);
-      if (this.collection) { this.collection.recomputeCellSizesAndPositions(); }
-      return;
+      if (overlap && !needsLoad) {
+        this.setState(cache);
+        if (this.collection) {
+          this.collection.recomputeCellSizesAndPositions();
+        }
+        return;
+      }
     }
 
     const queryParams = { page: { offset, limit } };
@@ -206,7 +210,6 @@ class Library extends PureComponent {
         cache.filterValues = res.meta.filterValues;
         cache.loadCount = this.state.loadCount + 1;
         cache.rowCount = res.meta.totalItems;
-        if (cache.filters.title !== this.state.filters.title) return;
 
         this.setState(cache);
         if (this.collection) {
