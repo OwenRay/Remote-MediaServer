@@ -41,6 +41,7 @@
     ]
   },
   "dependencies": {
+    "@sentry/node": "^7.15.0",
     "acme-client": "^4.2.5",
     "ass-to-vtt": "^1.1.1",
     "bencode": "^2.0.0",

@@ -13,6 +13,7 @@ import LibraryDialog from '../components/LibraryDialog';
 
 let availableModules = [];
 const moduleDescription = {
+  error_reporting: 'Turns on error reporting, help improve RMS!',
   debug: 'Adds some basic debugging tools',
   ffmpeg: 'For playing and encoding videos',
   sharing: 'Allows you to share libraries p2p end-to-end encrypted',
@@ -383,7 +384,7 @@ class Settings extends Component {
                 .map(i => (
                   <Row key={i}>
                     <Checkbox
-                      label={`${i} - ${moduleDescription[i]}`}
+                      label={`${i.replace("_", " ")} - ${moduleDescription[i]}`}
                       value={i}
                       checked={settings.modules.indexOf(i) !== -1}
                       onChange={this.onChange}
