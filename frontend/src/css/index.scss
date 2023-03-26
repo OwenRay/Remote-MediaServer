@@ -630,7 +630,7 @@ button.marked{
 .bottom-right-fab {
   right:10px;
   bottom:10px;
-  position: absolute;
+  position: fixed;
   .input-field.col label{
     left:0;
   }

@@ -26,7 +26,7 @@ const moduleDescription = {
 class Settings extends Component {
   constructor() {
     super();
-    this.state = { activeTab: 0, availableModules };
+    this.state = { activeTab: 0, availableModules, removing:null };
     if (!availableModules.length) {
       $.get('/api/modules', (result) => {
         availableModules = result;
@@ -98,11 +98,13 @@ class Settings extends Component {
    * @param e
    * called when user types in field, applies typed value to state
    */
-  onChange(e, value) {
+  onChange(e, v) {
+    console.log(arguments);
     const { target } = e;
     const { settings } = this.state
-    if (target.type === 'checkbox') value = target.checked;
-    if (target.type === 'checkbox' && Array.isArray(settings[target.name])) {
+    let value = target?.value || v;
+    if (target?.type === 'checkbox') value = target.checked;
+    if (target?.type === 'checkbox' && Array.isArray(settings[target.name])) {
       const i = settings[target.name].indexOf(target.value);
       if (i === -1) settings[target.name].push(target.value);
       else settings[target.name].splice(i, 1);
@@ -140,7 +142,9 @@ class Settings extends Component {
    * Remove library
    */
   removeLib(lib, confirm) {
+    console.log(arguments);
     if (confirm === undefined) {
+      console.log('qqq');
       this.setState({ removing: lib });
     } else {
       $('#deleteModal').modal('close');
@@ -182,8 +186,10 @@ class Settings extends Component {
 
     let deletingModal;
     if (this.state.removing) {
+      console.log('deleting!!!');
       deletingModal = (
         <Modal
+          open={true}
           id="deleteModal"
           actions={[
             <Button modal="close">close</Button>,
