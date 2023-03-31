@@ -18,7 +18,8 @@ class Mpeg4Container extends RequestHandler {
   handleRequest(profile) {
     if (!this.context.query.id) {
       this.response.status = 302;
-      this.response.set('Location', `?id=${Math.random()}`);
+      const params = new URLSearchParams({id: Math.random(), ...this.context.query});
+      this.response.set('Location', `?${params.toString()}`);
       return null;
     }
     this.context.set('Accept-Ranges', 'bytes');

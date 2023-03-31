@@ -82,7 +82,7 @@ async function setupCerts(changed) {
 
     if (!Settings.getValue('sslpassword')) {
       Settings.setValue('sslpassword', crypto.randomBytes(32)
-        .toString('base64'));
+        .toString('hex'));
       Settings.save();
     }
 
