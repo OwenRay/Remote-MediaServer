@@ -58,6 +58,9 @@ body, .modal-content{
 
 html, body{
   overflow-x: hidden;
+  position: relative;
+  height: 100%;
+  width:100%;
 }
 
 #scrollContainer {
