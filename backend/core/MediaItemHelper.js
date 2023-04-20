@@ -7,7 +7,7 @@ class MediaItemHelper {
 
   static getLibrary(item) {
     return Settings.getValue('libraries')
-      .find(l => l.uuid.split('-')[0] === item.attributes.libraryId);
+      .find((l) => l.uuid.split('-')[0] === item.attributes.libraryId);
   }
 }
 

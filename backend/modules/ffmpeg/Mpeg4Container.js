@@ -2,13 +2,12 @@
  * Created by owenray on 08-04-16.
  */
 
-
+const { PassThrough } = require('stream');
 const FFMpeg = require('./FFMpeg');
 const Database = require('../../core/database/Database');
 
 const Log = require('../../core/Log');
 const RequestHandler = require('../../core/http/RequestHandler');
-const { PassThrough } = require('stream');
 
 const sessions = {};
 
@@ -18,7 +17,7 @@ class Mpeg4Container extends RequestHandler {
   handleRequest(profile) {
     if (!this.context.query.id) {
       this.response.status = 302;
-      const params = new URLSearchParams({id: Math.random(), ...this.context.query});
+      const params = new URLSearchParams({ id: Math.random(), ...this.context.query });
       this.response.set('Location', `?${params.toString()}`);
       return null;
     }
@@ -75,8 +74,8 @@ class Mpeg4Container extends RequestHandler {
 
   static getDescription(nethod, url) {
     if (url === '/ply/:id/:offset') {
-      return 'will serve an mp4 h264 aac from :offset in seconds,  \n' +
-      'for more info check /ply/:id';
+      return 'will serve an mp4 h264 aac from :offset in seconds,  \n'
+      + 'for more info check /ply/:id';
     }
     return `${__dirname}/playhandler.md`;
   }
@@ -153,9 +152,9 @@ class Mpeg4Container extends RequestHandler {
     this.bufferedChuncks += 1;
     let pause = !this.context.body.write(data, () => {
       this.bufferedChuncks -= 1;
-      if (!this.waitToKill &&
-        this.ffmpeg.paused &&
-        this.bufferedChuncks <= 19) {
+      if (!this.waitToKill
+        && this.ffmpeg.paused
+        && this.bufferedChuncks <= 19) {
         this.ffmpeg.resume();
       }
     });

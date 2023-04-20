@@ -1,10 +1,10 @@
 const DHT = require('bittorrent-dht');
-const Log = require('../../core/Log');
-const Settings = require('../../core/Settings');
 const ed = require('supercop.js');
 const ip = require('ip');
-const core = require('../../core');
 const bencode = require('bencode');
+const Log = require('../../core/Log');
+const Settings = require('../../core/Settings');
+const core = require('../../core');
 
 const enc = bencode.encode;
 const dec = bencode.decode;
@@ -16,8 +16,7 @@ bencode.encode = (data) => {
   return buffer;
 };
 
-bencode.decode = buffer => dec(buffer, 2);
-
+bencode.decode = (buffer) => dec(buffer, 2);
 
 class EDHT {
   constructor() {
@@ -79,7 +78,7 @@ class EDHT {
   onReady() {
     this.ready = true;
     this.publishDatabase();
-    this.readyListeners.forEach(cb => cb());
+    this.readyListeners.forEach((cb) => cb());
   }
 
   onPeer(peer, infoHash, host) {
@@ -115,46 +114,47 @@ class EDHT {
       this.pendingPublish = true;
       return this.publishing;
     }
-    this.publishing = new Promise(async (resolve) => {
-      let offset = Settings.getValue('dhtoffset');
-      if (changed) {
-        offset += 1;
-        Settings.setValue('dhtoffset', offset);
-      }
-
-      const value = await this.share(this.keypair.publicKey.toString('base64') + offset);
-      Settings.setValue('currentSharedDB', value.toString('hex'));
-      if (changed) Settings.save();
-
-      const opts = {
-        k: this.keypair.publicKey,
-        seq: offset,
-        v: value,
-        sign: buf => ed.sign(buf, this.keypair.publicKey, this.keypair.secretKey),
-      };
-
-      // publish new version of db
-      let hash = await this.share(opts);
-
-      // tell everyone we have all the data
-      await this.share(hash);
-
-      hash = hash.toString('hex');
-      Settings.setValue('dhtoffset', offset);
-      Settings.setValue('sharekey', hash);
-      Settings.save();
-
-
-      resolve(hash);
-      this.publishing = false;
-
-      if (this.pendingPublish) {
-        this.pendingPublish = false;
-        this.publishDatabase(this.pendingPublishChanged);
-      }
-      this.pendingPublishChanged = false;
-    });
+    this.publishing = this.doPublish(changed);
     return this.publishing;
+  }
+
+  async doPublish(changed) {
+    let offset = Settings.getValue('dhtoffset');
+    if (changed) {
+      offset += 1;
+      Settings.setValue('dhtoffset', offset);
+    }
+
+    const value = await this.share(this.keypair.publicKey.toString('base64') + offset);
+    Settings.setValue('currentSharedDB', value.toString('hex'));
+    if (changed) Settings.save();
+
+    const opts = {
+      k: this.keypair.publicKey,
+      seq: offset,
+      v: value,
+      sign: (buf) => ed.sign(buf, this.keypair.publicKey, this.keypair.secretKey),
+    };
+
+    // publish new version of db
+    let hash = await this.share(opts);
+
+    // tell everyone we have all the data
+    await this.share(hash);
+
+    hash = hash.toString('hex');
+    Settings.setValue('dhtoffset', offset);
+    Settings.setValue('sharekey', hash);
+    Settings.save();
+
+    this.publishing = false;
+
+    if (this.pendingPublish) {
+      this.pendingPublish = false;
+      await this.doPublish(this.pendingPublishChanged);
+    }
+    this.pendingPublishChanged = false;
+    return hash;
   }
 
   addPeerObserver(hash, cb) {

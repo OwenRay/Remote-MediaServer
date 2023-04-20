@@ -1,12 +1,10 @@
-
-
+const { spawn } = require('child_process');
+const os = require('os');
+const fs = require('fs');
 const Settings = require('../../core/Settings');
 const FFProbe = require('./FFProbe');
 const MediaItemHelper = require('../../core/MediaItemHelper');
 const Log = require('../../core/Log');
-const { spawn } = require('child_process');
-const os = require('os');
-const fs = require('fs');
 
 class FFMpeg {
   constructor(mediaItem, output, profile) {
@@ -94,7 +92,6 @@ class FFMpeg {
     return this;
   }
 
-
   gotInfo(info) {
     const { demux, encoder } = this.profile;
     if (!this.vCodec) this.vCodec = encoder.video;
@@ -137,12 +134,12 @@ class FFMpeg {
 
     // OK... this is a hack to specify the video duration...
     this.tmpFile = `${os.tmpdir()}/${Math.random()}.txt`;
-    const metadata = `${';FFMETADATA1\n' +
-            '[CHAPTER]\n' +
-            'TIMEBASE=1/1000\n' +
+    const metadata = `${';FFMETADATA1\n'
+            + '[CHAPTER]\n'
+            + 'TIMEBASE=1/1000\n'
             // "START=0\n"+
-            'END='}${duration}\n` +
-            'title=chapter #1\n';
+            + 'END='}${duration}\n`
+            + 'title=chapter #1\n';
 
     fs.writeFileSync(this.tmpFile, metadata);
 
@@ -236,7 +233,6 @@ class FFMpeg {
       this.onCloseEvent();
     }
   }
-
 
   static onError(data) {
     Log.debug('ffmpeg:', `${data}`.split('\\n').join('\n'));

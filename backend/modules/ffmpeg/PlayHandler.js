@@ -1,8 +1,8 @@
+const fs = require('fs');
+const Mpeg4Container = require('./Mpeg4Container');
+const HLSContainer = require('./HLSContainer');
 const httpServer = require('../../core/http');
 const RequestHandler = require('../../core/http/RequestHandler');
-const fs = require('fs');
-const Mpeg4Container = require('./Mpeg4Container.js');
-const HLSContainer = require('./HLSContainer.js');
 
 const containers = {
   mpeg4: Mpeg4Container,
@@ -12,7 +12,7 @@ const containers = {
 // read all the profiles, parse their json and add remember the filename for reference
 const profileDir = `${__dirname}/profiles/`;
 const profiles = fs.readdirSync(profileDir)
-  .map(filename => ({
+  .map((filename) => ({
     name: filename.split('.')[0],
     ...(JSON.parse(fs.readFileSync(`${profileDir}${filename}`))),
   }))
@@ -25,10 +25,10 @@ class PlayHandler extends RequestHandler {
     const ua = this.request.headers['user-agent'];
     let profile;
     if (query.profile) {
-      profile = profiles.find(p => p.name === query.profile);
+      profile = profiles.find((p) => p.name === query.profile);
     }
     if (!profile) {
-      profile = profiles.find(p => p.useragent && ua.match(new RegExp(p.useragent)));
+      profile = profiles.find((p) => p.useragent && ua.match(new RegExp(p.useragent)));
     }
 
     const Container = containers[profile.container];

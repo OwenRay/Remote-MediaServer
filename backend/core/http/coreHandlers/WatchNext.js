@@ -1,8 +1,8 @@
+const MovieDB = require('moviedb-api');
 const RequestHandler = require('../RequestHandler');
 const httpServer = require('..');
 const DatabaseSearch = require('../../database/DatabaseSearch');
 const Database = require('../../database/Database');
-const MovieDB = require('moviedb-api');
 const Settings = require('../../Settings');
 
 const movieDB = new MovieDB({
@@ -26,7 +26,6 @@ class WatchNext extends RequestHandler {
 
     WatchNext.sortByRecentWatch(continueWatching);
 
-
     continueWatching = continueWatching
       // now find the next episode if available
       .map(({ attributes }) => {
@@ -39,7 +38,7 @@ class WatchNext extends RequestHandler {
         return i || Database.findByMatchFilters('media-item', { season, episode, 'external-id': id }).pop();
       })
       // filter out the one's that are not found
-      .filter(i => i);
+      .filter((i) => i);
 
     const newMovies = DatabaseSearch.query(
       'media-item',
@@ -78,11 +77,11 @@ class WatchNext extends RequestHandler {
 
     // last 5
     WatchNext.sortByRecentWatch(data);
-    data = data.slice(0, 5).map(i => i.attributes);
+    data = data.slice(0, 5).map((i) => i.attributes);
 
     // fetch rec's, get relevant movies, filter out missing, and count double
     const itemsById = {};
-    (await Promise.all(data.map(i => WatchNext.getRecommendation(i['external-id']))))
+    (await Promise.all(data.map((i) => WatchNext.getRecommendation(i['external-id']))))
       .reduce((acc, { results }) => acc.concat(results), [])
       .map(({ id }) => DatabaseSearch.query(
         'media-item',
@@ -93,7 +92,7 @@ class WatchNext extends RequestHandler {
           relationConditions: { 'play-position': { watched: 'false' } },
         },
       ).data.pop())
-      .filter(i => i)
+      .filter((i) => i)
       .forEach((i) => {
         if (itemsById[i.id]) {
           itemsById[i.id].count += 1;
@@ -123,8 +122,7 @@ class WatchNext extends RequestHandler {
 
   static sortByRecentWatch(items) {
     // sort by the most recently watched items
-    items.sort((a, b) =>
-      (Database.getById('play-position', b.relationships['play-position'].data.id).attributes.created || 0)
+    items.sort((a, b) => (Database.getById('play-position', b.relationships['play-position'].data.id).attributes.created || 0)
       - (Database.getById('play-position', a.relationships['play-position'].data.id).attributes.created || 0));
   }
 }

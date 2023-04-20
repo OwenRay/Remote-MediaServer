@@ -10,7 +10,6 @@ const beforeListeners = [];
 const afterListeners = [];
 const modules = {};
 
-
 /**
  * @todo to simplify some things create a restart command
  * - Will need a wrapping process
@@ -26,11 +25,11 @@ class RemoteCore {
     });
 
     http.preflight();
-    await Promise.all(beforeListeners.map(f => f()));
+    await Promise.all(beforeListeners.map((f) => f()));
     await http.start();
-    afterListeners.forEach(f => f());
+    afterListeners.forEach((f) => f());
 
-    require('./scanner/MovieScanner.js');
+    require('./scanner/MovieScanner');
     require('./database/Migrate');
   }
 

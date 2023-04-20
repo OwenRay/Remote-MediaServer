@@ -2,9 +2,8 @@
  * Created by Owen on 14-4-2016.
  */
 
-
-const Database = require('../../database/Database');
 const pluralize = require('pluralize');
+const Database = require('../../database/Database');
 const RequestHandler = require('../RequestHandler');
 const httpServer = require('..');
 const DatabaseSearch = require('../../database/DatabaseSearch');
@@ -80,7 +79,6 @@ class DatabaseApiHandler extends RequestHandler {
         }
       });
 
-
     if (query.filterValues) {
       filterValues = query.filterValues.split(',');
       delete query.filterValues;
@@ -127,7 +125,6 @@ class DatabaseApiHandler extends RequestHandler {
 
     // build return data
     metadata = { filterValues, ...metadata };
-
 
     this.respond(data, metadata, included);
     return true;

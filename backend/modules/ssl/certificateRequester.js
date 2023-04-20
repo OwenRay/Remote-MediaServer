@@ -1,16 +1,15 @@
-const core = require('../../core');
-const Settings = require('../../core/Settings');
 const https = require('https');
 const querystring = require('querystring');
 const ip = require('ip');
 const crypto = require('crypto');
-const HttpServer = require('../../core/http');
 const acme = require('acme-client');
-const Log = require('../../core/Log');
 const dns = require('dns');
+const HttpServer = require('../../core/http');
+const Log = require('../../core/Log');
+const Settings = require('../../core/Settings');
+const core = require('../../core');
 
-
-const get = url => new Promise((resolve, reject) => {
+const get = (url) => new Promise((resolve, reject) => {
   https.get(url, (res) => {
     if (res.statusCode === 200) resolve(res);
     else reject(res);
@@ -35,15 +34,15 @@ async function waitForTxt(domain, txt, tryCount = 0) {
 
 async function setupCerts(changed) {
   try {
-    if (!Settings.getValue('sslemail') ||
-      !Settings.getValue('ssldomain') ||
-      !Settings.getValue('sslport')) {
+    if (!Settings.getValue('sslemail')
+      || !Settings.getValue('ssldomain')
+      || !Settings.getValue('sslport')) {
       return;
     }
     Log.notifyUser('toast', 'requesting certificate');
 
-    if (changed !== 'ssldomain' &&
-      Settings.getValue('ssl').expire - new Date().getTime() > 0) {
+    if (changed !== 'ssldomain'
+      && Settings.getValue('ssl').expire - new Date().getTime() > 0) {
       return;
     }
     Settings.setValue('ssl', {});
@@ -77,7 +76,7 @@ async function setupCerts(changed) {
     /* Get authorizations and select challenges */
     const [authz] = await client.getAuthorizations(order);
 
-    const challenge = authz.challenges.find(o => o.type === 'dns-01');
+    const challenge = authz.challenges.find((o) => o.type === 'dns-01');
     const keyAuthorization = await client.getChallengeKeyAuthorization(challenge);
 
     if (!Settings.getValue('sslpassword')) {
@@ -103,14 +102,12 @@ async function setupCerts(changed) {
     /* Wait for ACME provider to respond with valid status */
     await client.waitForValidStatus(challenge);
 
-
     const [key, csr] = await acme.forge.createCsr({
       commonName: `${subdomain}.theremote.io`,
     });
 
     await client.finalizeOrder(order, csr);
     const cert = await client.getCertificate(order);
-
 
     /* Done */
     Settings.setValue('ssl', {
@@ -128,12 +125,10 @@ async function setupCerts(changed) {
   }
 }
 
-
 Settings.addObserver('sslport', setupCerts);
 Settings.addObserver('ssldomain', setupCerts);
 Settings.addObserver('sslredirect', setupCerts);
 
 setInterval(setupCerts, 24 * 60 * 60 * 1000);
-
 
 core.addBeforeStartListener(setupCerts);

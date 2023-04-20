@@ -1,13 +1,13 @@
+const fs = require('fs');
+const crypto = require('crypto');
+const { promisify } = require('util');
 const Settings = require('../../core/Settings');
 const Database = require('../../core/database/Database');
 const Log = require('../../core/Log');
 const extendedInfoQueue = require('../../core/scanner/ExtendedInfoQueue');
 const core = require('../../core');
-const fs = require('fs');
 const EDHT = require('./EDHT');
-const crypto = require('crypto');
 const Crypt = require('./Crypt');
-const { promisify } = require('util');
 
 const stat = promisify(fs.stat);
 
@@ -40,7 +40,7 @@ class FileProcessor {
     const key = Settings.getValue('sharekey');
     const items = Database
       .getAll('media-item', true)
-      .filter(item => !!item.attributes.shared);
+      .filter((item) => !!item.attributes.shared);
 
     return JSON.parse(JSON.stringify(items))
       .map((item) => {
@@ -83,22 +83,23 @@ class FileProcessor {
 
   publishDatabaseFiles() {
     const libIds = Settings.getValue('libraries')
-      .filter(lib => lib.shared && lib.shared !== 'off')
-      .map(lib => lib.uuid);
+      .filter((lib) => lib.shared && lib.shared !== 'off')
+      .map((lib) => lib.uuid);
     this.toProcess = Database.getAll('media-item', true)
       .filter(({ attributes }) => (
-        libIds.indexOf(attributes.libraryId) !== -1 &&
-        (!attributes.shared || !attributes.hashes) &&
-        attributes.filesize &&
-        attributes.fileduration
+        libIds.indexOf(attributes.libraryId) !== -1
+        && (!attributes.shared || !attributes.hashes)
+        && attributes.filesize
+        && attributes.fileduration
       ));
     if (!this.toProcess.length) return false;
 
-    return new Promise(async (resolve) => {
-      // first make sure we have a clientid
-      await EDHT.publishDatabase();
-      this.announceNext(resolve);
-    });
+    return new Promise(
+      (resolve) => {
+        EDHT.publishDatabase()
+          .then(() => this.announceNext(resolve));
+      },
+    );
   }
 
   async announceNext(resolve) {
@@ -127,7 +128,6 @@ class FileProcessor {
       lastChunkSize = filesize - (regularChunksSize * (parts - 1));
     }
 
-
     return Promise.all(hashes.map(async (val, index) => {
       const buf = [
         Buffer.from(Settings.getValue('sharekey'), 'hex'),
@@ -152,7 +152,7 @@ class FileProcessor {
     if (item) {
       const { hashes } = item.attributes;
       if (hashes) {
-        hashObj = hashes.find(h => h.hash === hash);
+        hashObj = hashes.find((h) => h.hash === hash);
       }
     }
     if (!item || !item.attributes.shared || !hashObj) {

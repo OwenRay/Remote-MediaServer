@@ -1,10 +1,8 @@
-
-
 /**
  * Created by owenray on 7/9/16.
  */
-const IImageHandler = require('../../core/http/IImageHandler');
 const { spawn } = require('child_process');
+const IImageHandler = require('../../core/http/IImageHandler');
 const Settings = require('../../core/Settings');
 const MediaItemHelper = require('../../core/MediaItemHelper');
 const Log = require('../../core/Log');

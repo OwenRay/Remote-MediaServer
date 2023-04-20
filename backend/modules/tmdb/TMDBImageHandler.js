@@ -1,10 +1,8 @@
-
-
 /**
  * Created by owenray on 7/9/16.
  */
-const IImageHandler = require('../../core/http/IImageHandler');
 const http = require('http');
+const IImageHandler = require('../../core/http/IImageHandler');
 const httpServer = require('../../core/http');
 const ImageCacheHandler = require('../../core/http/coreHandlers/ImageCacheHandler');
 

@@ -2,9 +2,8 @@
  * Created by owenray on 18-4-2016.
  */
 
-
-const RequestHandler = require('../RequestHandler');
 const fs = require('fs');
+const RequestHandler = require('../RequestHandler');
 const httpServer = require('..');
 
 class DirectoryBrowserHandler extends RequestHandler {
@@ -17,7 +16,6 @@ class DirectoryBrowserHandler extends RequestHandler {
       query.directory += '/';
     }
     this.dir = query.directory;
-
 
     fs.readdir(
       query.directory,

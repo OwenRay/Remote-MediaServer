@@ -1,11 +1,11 @@
+const fs = require('fs');
+const { spawn } = require('child_process');
 const Settings = require('../Settings');
 const Database = require('../database/Database');
 const MediaItemHelper = require('../MediaItemHelper');
-const fs = require('fs');
-const { spawn } = require('child_process');
 const Log = require('../Log');
 const extendedInfoQueue = require('./ExtendedInfoQueue');
-const core = require('../');
+const core = require('..');
 
 const onFileFoundCallbacks = [];
 
@@ -32,12 +32,12 @@ class MovieScanner {
 
   static getLibraries() {
     return Settings.getValue('libraries')
-      .filter(lib => lib.type !== 'shared');
+      .filter((lib) => lib.type !== 'shared');
   }
 
   startWatchingAll() {
     if (this.watchers) {
-      this.watchers.forEach(watcher => watcher.kill());
+      this.watchers.forEach((watcher) => watcher.kill());
     }
     this.watchers = MovieScanner.getLibraries()
       .map(this.startWatching.bind(this));
@@ -115,7 +115,7 @@ class MovieScanner {
   }
 
   static checkForMediaItemsWithMissingLibrary() {
-    const libIds = MovieScanner.getLibraries().map(l => l.uuid);
+    const libIds = MovieScanner.getLibraries().map((l) => l.uuid);
 
     const items = Database.getAll('media-item', true);
     Object.keys(items).forEach((key) => {
@@ -193,7 +193,7 @@ class MovieScanner {
     }
     const f = file.split('.');
     const type = f[f.length - 1];
-    return this.types.some(i => i === type);
+    return this.types.some((i) => i === type);
   }
 
   static addFileToDatabase(library, file, stat = null) {
@@ -215,7 +215,7 @@ class MovieScanner {
       }
       item = Database.setObject('media-item', obj);
       extendedInfoQueue.push(item);
-      onFileFoundCallbacks.forEach(cb => cb(item));
+      onFileFoundCallbacks.forEach((cb) => cb(item));
     } else if (stat && stat.size !== item.attributes.filesize) {
       item.attributes = {
         ...item.attributes,

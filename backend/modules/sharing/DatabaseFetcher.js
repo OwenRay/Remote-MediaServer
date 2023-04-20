@@ -30,7 +30,7 @@ class DatabaseFetcher {
   async refreshDatabase() {
     if (this.refreshing) return;
     this.refreshing = true;
-    const libs = Settings.getValue('libraries').filter(lib => lib.type === 'shared');
+    const libs = Settings.getValue('libraries').filter((lib) => lib.type === 'shared');
     try {
       await Promise.all(libs.map(this.fetchLib.bind(this)));
     } catch (e) {
@@ -86,7 +86,7 @@ class DatabaseFetcher {
     }
 
     if (!this.diffs[libId]) this.diffs[libId] = {};
-    const localItem = localLib.find(i => i.id === item.id);
+    const localItem = localLib.find((i) => i.id === item.id);
     this.diffs[libId][item.id] = {
       attributes: DatabaseFetcher.diff(localItem.attributes || {}, item.attributes || {}),
       relationships: DatabaseFetcher.diff(localItem.relationships || {}, item.relationships || {}),

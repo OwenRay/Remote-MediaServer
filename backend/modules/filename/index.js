@@ -1,8 +1,8 @@
 /**
  * Created by owenray on 29-06-16.
  */
-const IExtendedInfo = require('../../core/scanner/IExtendedInfo');
 const path = require('path');
+const IExtendedInfo = require('../../core/scanner/IExtendedInfo');
 const Log = require('../../core/Log');
 const core = require('../../core');
 const ExtendedInfoQueue = require('../../core/scanner/ExtendedInfoQueue');
@@ -97,7 +97,7 @@ class ParseFileNameExtendedInfo extends IExtendedInfo {
     name = name.replace(/[ \\._]+/g, ' ');
 
     if (library.type === 'tv') {
-      name = name.split('-').filter(value => value.length > 1);
+      name = name.split('-').filter((value) => value.length > 1);
       while (name.length > 1) mediaItem.attributes['episode-title'] = name.pop().trim();
       name = name.join(' ').trim();
 
@@ -121,7 +121,6 @@ class ParseFileNameExtendedInfo extends IExtendedInfo {
       mediaItem.attributes.title = title.replace(commaForAlpabeticRegex, '$2 $1');
     }
 
-
     mediaItem.attributes.type = library.type;
     if (!mediaItem.attributes.episode === undefined || !mediaItem.attributes.title) {
       Log.warning('Problem extracting info from mediaItem', mediaItem.attributes);
@@ -129,7 +128,8 @@ class ParseFileNameExtendedInfo extends IExtendedInfo {
   }
 }
 
-core.addBeforeStartListener(() =>
-  ExtendedInfoQueue.registerExtendedInfoProvider(ParseFileNameExtendedInfo, true));
+core.addBeforeStartListener(
+  () => ExtendedInfoQueue.registerExtendedInfoProvider(ParseFileNameExtendedInfo, true),
+);
 
 module.exports = ParseFileNameExtendedInfo;

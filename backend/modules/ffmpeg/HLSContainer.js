@@ -2,9 +2,9 @@
  * Created by owenray on 08-04-16.
  */
 
-
 const os = require('os');
 const fs = require('fs');
+const util = require('util');
 const uuid = require('node-uuid');
 
 const Log = require('../../core/Log');
@@ -12,6 +12,8 @@ const RequestHandler = require('../../core/http/RequestHandler');
 const FileRequestHandler = require('../../core/http/coreHandlers/FileRequestHandler');
 const Database = require('../../core/database/Database');
 const FFMpeg = require('./FFMpeg');
+
+const readFile = util.promisify(fs.readFile);
 
 class HLSContainer extends RequestHandler {
   handleRequest(profile) {
@@ -58,7 +60,6 @@ class HLSContainer extends RequestHandler {
       .setOnClose(this.onClose.bind(this))
       .setOnReadyListener(this.onReady.bind(this))
       .run();
-
 
     if (query.session) {
       return this.newRequest(this.context);
@@ -109,28 +110,23 @@ class HLSContainer extends RequestHandler {
 
   newRequest(context, segment) {
     this.setSessionTimeout();
-    return new Promise((resolve) => {
-      if (segment) { // serve ts file
-        context.response['Accept-Ranges'] = 'none';
-        const file = `${os.tmpdir()}/remote_cache/${this.session}/${segment}`;
-        Log.debug('return hls');
-        if (!this.playStart) { // set the play start time when serving first ts file
-          this.playStart = new Date().getTime();
-        }
-        return new FileRequestHandler(context)
-          .serveFile(file, true, resolve);
+    if (segment) { // serve ts file
+      context.response['Accept-Ranges'] = 'none';
+      const file = `${os.tmpdir()}/remote_cache/${this.session}/${segment}`;
+      Log.debug('return hls');
+      if (!this.playStart) { // set the play start time when serving first ts file
+        this.playStart = new Date().getTime();
       }
+      return new FileRequestHandler(context)
+        .serveFile(file, true);
+    }
 
-      if (!this.profile.neverPause && !this.ffmpeg.paused && !this.playStart) {
-        setTimeout(() => {
-          this.newRequest(context, segment).then(resolve);
-        }, 1000);
-        return null;
-      }
-
-      this.serveHls(context, resolve);
+    if (!this.profile.neverPause && !this.ffmpeg.paused && !this.playStart) {
+      setTimeout(() => this.newRequest(context, segment), 1000);
       return null;
-    });
+    }
+
+    return this.serveHls(context);
   }
 
   /**
@@ -139,43 +135,36 @@ class HLSContainer extends RequestHandler {
      * Make sure the first hls that's requested has no more then three chunks
      * this is to ensure the browser will not skip any chunks
      */
-  serveHls(context, resolve) {
+  serveHls(context) {
     context.response.set('Content-Type', 'application/x-mpegURL');
-    if (context.query.nothrottle) {
-      new FileRequestHandler(context)
-        .serveFile(this.m3u8, false, resolve);
-      return;
-    }
+    if (context.query.nothrottle)
+      return new FileRequestHandler(context)
+        .serveFile(this.m3u8, false);
 
-    fs.readFile(this.m3u8, (err, data) => {
-      if (err) {
-        resolve();
-        return;
-      }
-      context.body = '';
-      const currentTime = this.playStart ? (new Date().getTime() - this.playStart) / 1000 : 0;
-      let segmentTime = 0;
+    return readFile(this.m3u8)
+      .then((data) => {
+        context.body = '';
+        const currentTime = this.playStart ? (new Date().getTime() - this.playStart) / 1000 : 0;
+        let segmentTime = 0;
 
-      const lines = `${data}`.split('\n');
-      lines.splice(1, 0, '#EXT-X-START:TIME-OFFSET=0');
-      let newSegments = 0;
-      for (let c = 0; c < lines.length; c += 1) {
-        context.body += `${lines[c]}\n`;
-        if (lines[c][0] !== '#' && segmentTime >= currentTime) {
-          newSegments += 1;
-        } else {
-          const ext = lines[c].substring(1).split(':');
-          if (ext[0] === 'EXTINF') {
-            segmentTime += parseFloat(ext[1]);
+        const lines = `${data}`.split('\n');
+        lines.splice(1, 0, '#EXT-X-START:TIME-OFFSET=0');
+        let newSegments = 0;
+        for (let c = 0; c < lines.length; c += 1) {
+          context.body += `${lines[c]}\n`;
+          if (lines[c][0] !== '#' && segmentTime >= currentTime) {
+            newSegments += 1;
+          } else {
+            const ext = lines[c].substring(1).split(':');
+            if (ext[0] === 'EXTINF') {
+              segmentTime += parseFloat(ext[1]);
+            }
+          }
+          if (newSegments === (!this.playStart ? 3 : 5)) {
+            break;
           }
         }
-        if (newSegments === (!this.playStart ? 3 : 5)) {
-          break;
-        }
-      }
-
-      resolve();
-    });
+      });
   }
 
   onReady() {
@@ -183,7 +172,6 @@ class HLSContainer extends RequestHandler {
     this.checkPause();
     this.checkPauseInterval = setInterval(this.checkPause.bind(this), 100);
   }
-
 
   /**
      * pauses the video encoding process when there are enough chunks available

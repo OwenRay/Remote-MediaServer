@@ -1,11 +1,9 @@
-
-
 /**
  * Created by owenray on 29-06-16.
  */
+const path = require('path');
 const IExtendedInfo = require('../../core/scanner/IExtendedInfo');
 const Guessit = require('./Guessit');
-const path = require('path');
 const Log = require('../../core/Log');
 const core = require('../../core');
 const ExtendedInfoQueue = require('../../core/scanner/ExtendedInfoQueue');
@@ -85,7 +83,8 @@ class ParseFileNameExtendedInfo extends IExtendedInfo {
   }
 }
 
-core.addBeforeStartListener(() =>
-  ExtendedInfoQueue.registerExtendedInfoProvider(ParseFileNameExtendedInfo, true));
+core.addBeforeStartListener(
+  () => ExtendedInfoQueue.registerExtendedInfoProvider(ParseFileNameExtendedInfo, true),
+);
 
 module.exports = ParseFileNameExtendedInfo;

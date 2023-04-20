@@ -1,5 +1,3 @@
-
-
 /**
  * Created by owenray on 29-06-16.
  */
@@ -22,7 +20,7 @@ class FFProbeExtendedInfo extends IExtendedInfo {
       return;
     }
 
-    const videoStream = fileData.streams.find(s => s.codec_type === 'video');
+    const videoStream = fileData.streams.find((s) => s.codec_type === 'video');
     if (videoStream) {
       mediaItem.attributes.width = videoStream.width;
       mediaItem.attributes.height = videoStream.height;
@@ -36,7 +34,6 @@ class FFProbeExtendedInfo extends IExtendedInfo {
   }
 }
 
-core.addBeforeStartListener(() =>
-  ExtendedInfoQueue.registerExtendedInfoProvider(FFProbeExtendedInfo));
+core.addBeforeStartListener(() => ExtendedInfoQueue.registerExtendedInfoProvider(FFProbeExtendedInfo));
 
 module.exports = FFProbeExtendedInfo;

@@ -1,9 +1,9 @@
 const net = require('net');
-const Settings = require('../../core/Settings');
 const readline = require('readline');
+const fs = require('fs');
+const Settings = require('../../core/Settings');
 const Crypt = require('./Crypt');
 const Log = require('../../core/Log');
-const fs = require('fs');
 const FileProcessor = require('./FileProcessor');
 
 class TcpServer {

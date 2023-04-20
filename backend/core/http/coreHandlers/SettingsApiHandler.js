@@ -2,10 +2,11 @@
  * Created by Owen on 14-4-2016.
  */
 
-const RequestHandler = require('../RequestHandler');
-const Settings = require('../../Settings.js');
+// eslint-disable-next-line max-classes-per-file
 const fs = require('fs');
 const util = require('util');
+const RequestHandler = require('../RequestHandler');
+const Settings = require('../../Settings');
 
 const readdir = util.promisify(fs.readdir);
 
@@ -16,7 +17,7 @@ class SettingsApiHandler extends RequestHandler {
     if (this.request.method === 'PATCH') {
       const data = this.context.request.body;
       const attrs = data.data.attributes;
-      Object.keys(attrs).forEach(key => Settings.setValue(key, attrs[key]));
+      Object.keys(attrs).forEach((key) => Settings.setValue(key, attrs[key]));
       Settings.save();
     }
     this.respond();
@@ -28,7 +29,6 @@ class SettingsApiHandler extends RequestHandler {
     this.context.body = { data: { id: 1, type: 'setting', attributes: Settings.getAll() } };
   }
 }
-
 
 class ModuleApiHandler extends RequestHandler {
   async handleRequest() {

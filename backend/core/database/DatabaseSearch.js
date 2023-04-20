@@ -20,7 +20,7 @@ class DatabaseSearch {
     // parse sort params, example params: key:ASC,key2:DESC
     let sortArray = [];
     if (sort) {
-      sortArray = sort.split(',').map(i => i.split(':'));
+      sortArray = sort.split(',').map((i) => i.split(':'));
     }
     const sortFunction = (a, b) => {
       // eslint-disable-next-line guard-for-in,no-restricted-syntax

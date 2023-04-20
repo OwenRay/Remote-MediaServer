@@ -4,9 +4,9 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const ass2vtt = require('ass-to-vtt');
 const srt2vtt = require('srt-to-vtt');
+const shift = require('vtt-shift');
 const Settings = require('./Settings');
 const Log = require('./Log');
-const shift = require('vtt-shift');
 
 const converters = {
   '.srt': srt2vtt,

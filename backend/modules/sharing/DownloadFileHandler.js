@@ -1,8 +1,8 @@
+const fs = require('fs');
+const mime = require('mime');
 const RequestHandler = require('../../core/http/RequestHandler');
 const httpServer = require('../../core/http');
 const Database = require('../../core/database/Database');
-const fs = require('fs');
-const mime = require('mime');
 const MediaFetcher = require('./MediaFetcher');
 const MediaItemHelper = require('../../core/MediaItemHelper');
 

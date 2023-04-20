@@ -1,11 +1,11 @@
 /**
  * Created by owenray on 18-09-16.
  */
+const NodeCache = require('node-cache');
+const MovieDB = require('moviedb-api');
 const IExtendedInfo = require('../../core/scanner/IExtendedInfo');
 const Settings = require('../../core/Settings');
-const NodeCache = require('node-cache');
 const Log = require('../../core/Log');
-const MovieDB = require('moviedb-api');
 const core = require('../../core');
 const ExtendedInfoQueue = require('../../core/scanner/ExtendedInfoQueue');
 
@@ -25,7 +25,6 @@ class TheMovieDBSeriesAndSeasonsExtendedInfo extends IExtendedInfo {
       return;
     }
 
-
     Log.debug('process serie', mediaItem.id);
 
     // find series info
@@ -34,7 +33,7 @@ class TheMovieDBSeriesAndSeasonsExtendedInfo extends IExtendedInfo {
     const items = cache || await movieDB.searchTv({ query: title });
     nodeCache.set(`1:${title}`, items);
 
-    let res = items.results.find(i => i.name.toLocaleLowerCase() === title.toLocaleLowerCase());
+    let res = items.results.find((i) => i.name.toLocaleLowerCase() === title.toLocaleLowerCase());
     if (!res) [res] = items.results;
 
     if (res) {
@@ -67,7 +66,7 @@ class TheMovieDBSeriesAndSeasonsExtendedInfo extends IExtendedInfo {
         id: mediaItem.attributes['external-id'],
       });
       nodeCache.set(`3:${title}:${mediaItem.attributes.season}`, res);
-      mediaItem.attributes.actors = res.cast.map(actor => actor.name);
+      mediaItem.attributes.actors = res.cast.map((actor) => actor.name);
     } catch (e) {
       Log.debug(e);
     }
@@ -81,7 +80,7 @@ class TheMovieDBSeriesAndSeasonsExtendedInfo extends IExtendedInfo {
       nodeCache.set(`4:${title}:${mediaItem.attributes.season}`, res);
       // is there a US release? get it. otherwise whichever's first
       res = res.results;
-      let r = res.find(d => d.iso_3166_1 === 'US');
+      let r = res.find((d) => d.iso_3166_1 === 'US');
       if (!r && res.length) {
         [r] = res;
       }
@@ -96,7 +95,8 @@ class TheMovieDBSeriesAndSeasonsExtendedInfo extends IExtendedInfo {
   }
 }
 
-core.addBeforeStartListener(() =>
-  ExtendedInfoQueue.registerExtendedInfoProvider(TheMovieDBSeriesAndSeasonsExtendedInfo));
+core.addBeforeStartListener(
+  () => ExtendedInfoQueue.registerExtendedInfoProvider(TheMovieDBSeriesAndSeasonsExtendedInfo),
+);
 
 module.exports = TheMovieDBSeriesAndSeasonsExtendedInfo;

@@ -1,5 +1,5 @@
-const TcpClient = require('./TcpClient');
 const { PassThrough } = require('stream');
+const TcpClient = require('./TcpClient');
 const MediaItemHelper = require('../../core/MediaItemHelper');
 const Log = require('../../core/Log');
 
@@ -19,7 +19,7 @@ class MediaFetcher {
   }
 
   startStream(offset) {
-    this.offset = this.hashes.findIndex(h => offset <= h.offset + h.size);
+    this.offset = this.hashes.findIndex((h) => offset <= h.offset + h.size);
     Log.debug('starting to download from offset: ', offset, `${this.offset}/${this.hashes.length - 1}`);
     this.skipBytes = offset - this.hashes[this.offset].offset;
     this.output = new PassThrough();
@@ -66,9 +66,9 @@ class MediaFetcher {
    * used to "throw away" the first x bytes of data (when handling ranged requests)
    */
   onReadable() {
-    const read = this.input.readableLength > this.skipBytes ?
-      this.skipBytes :
-      this.input.readableLength;
+    const read = this.input.readableLength > this.skipBytes
+      ? this.skipBytes
+      : this.input.readableLength;
     this.input.read(read);
     this.skipBytes -= read;
     if (this.skipBytes === 0) {

@@ -1,7 +1,7 @@
 const Database = require('../database/Database');
 const Log = require('../Log');
 const Settings = require('../Settings');
-const core = require('../../core');
+const core = require('..');
 require('./ExtrasExtendedInfo');
 
 const extendedInfoProviders = [];
@@ -28,7 +28,7 @@ class ExtendedInfoQueue {
   }
 
   static concat(items) {
-    items.forEach(item => ExtendedInfoQueue.push(item));
+    items.forEach((item) => ExtendedInfoQueue.push(item));
   }
 
   static async start(qNumber = 0, libs = null) {
@@ -46,14 +46,15 @@ class ExtendedInfoQueue {
     Log.debug('starting queue', qNumber);
     ExtendedInfoQueue.next(libs, qNumber);
   }
+
   static async next(libs, currentQ) {
     const item = queue[currentQ].pop();
     // this queue has emptied out?
     if (!item) {
       running[currentQ] = false;
       // all queues empty?
-      if (!queue.some(q => q.length)) {
-        onDrainCallbacks.forEach(cb => cb());
+      if (!queue.some((q) => q.length)) {
+        onDrainCallbacks.forEach((cb) => cb());
       }
       return;
     }
@@ -82,7 +83,7 @@ class ExtendedInfoQueue {
 
   static debugInfo() {
     return {
-      extendedInfoQuelength: queue.map(a => a.length),
+      extendedInfoQuelength: queue.map((a) => a.length),
       running,
     };
   }

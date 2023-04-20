@@ -2,10 +2,10 @@
  * Created by owenray on 31-3-2017.
  */
 
-const RequestHandler = require('../../core/http/RequestHandler');
 const fs = require('fs');
-const db = require('../../core/database/Database');
 const path = require('path');
+const RequestHandler = require('../../core/http/RequestHandler');
+const db = require('../../core/database/Database');
 const FileRequestHandler = require('../../core/http/coreHandlers/FileRequestHandler');
 const FFProbe = require('./FFProbe');
 const httpServer = require('../../core/http');
@@ -45,17 +45,14 @@ class SubtitleApiHandler extends RequestHandler {
     fs.readdir(directory, this.onReadDir.bind(this));
   }
 
-  serveSubs(id, filepath, dir, filename) {
-    return new Promise(async (resolve) => {
-      let f = await Subtitles.getVtt(id, filepath, dir, filename);
-      let deleteAfter = false;
-      if (this.context.query.offset) {
-        deleteAfter = true;
-        f = await Subtitles.getTimeShiftedTmpFile(f, this.context.query.offset);
-      }
-      new FileRequestHandler(this.context)
-        .serveFile(f, deleteAfter, resolve);
-    });
+  async serveSubs(id, filepath, dir, filename) {
+    let f = await Subtitles.getVtt(id, filepath, dir, filename);
+    let deleteAfter = false;
+    if (this.context.query.offset) {
+      deleteAfter = true;
+      f = await Subtitles.getTimeShiftedTmpFile(f, this.context.query.offset);
+    }
+    return new FileRequestHandler(this.context).serveFile(f, deleteAfter)
   }
 
   returnEmpty() {
@@ -64,8 +61,8 @@ class SubtitleApiHandler extends RequestHandler {
 
   async onReadDir(err, result = []) {
     const subtitles = result
-      .filter(file => supportedSubtitleFormats.indexOf(path.extname(file)) !== -1)
-      .map(file => ({ label: file, value: file }));
+      .filter((file) => supportedSubtitleFormats.indexOf(path.extname(file)) !== -1)
+      .map((file) => ({ label: file, value: file }));
     const response = { subtitles };
 
     let { streams } = this.item.attributes;

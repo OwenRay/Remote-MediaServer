@@ -1,7 +1,7 @@
+const MovieDB = require('moviedb-api');
 const RequestHandler = require('../../core/http/RequestHandler');
 const httpServer = require('../../core/http');
 const Settings = require('../../core/Settings');
-const MovieDB = require('moviedb-api');
 
 const movieDB = new MovieDB({
   consume: true,
@@ -23,7 +23,7 @@ class TMDBApiHandler extends RequestHandler {
       haveIds[item.id] = true;
       return item;
     });
-    genreCache.concat(res2.filter(item => !haveIds[item.id]));
+    genreCache.concat(res2.filter((item) => !haveIds[item.id]));
     genreCache.sort((a, b) => a.name.localeCompare(b.name));
 
     this.context.body = genreCache;

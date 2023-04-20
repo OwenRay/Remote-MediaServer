@@ -1,7 +1,7 @@
+const MovieDB = require('moviedb-api');
 const RequestHandler = require('../../core/http/RequestHandler');
 const httpServer = require('../../core/http');
 const Database = require('../../core/database/Database');
-const MovieDB = require('moviedb-api');
 const Settings = require('../../core/Settings');
 
 const movieDB = new MovieDB({

@@ -4,6 +4,10 @@
 
 const fs = require('fs');
 const mime = require('mime');
+const { promisify } = require('util');
+
+const readFile = promisify(fs.readFile);
+const unlink = promisify(fs.unlink);
 
 const RequestHandler = require('../RequestHandler');
 
@@ -18,30 +22,14 @@ class FileRequestHandler extends RequestHandler {
     return promise;
   }
 
-  serveFile(filename, andDelete, callback) {
+  serveFile(filename, andDelete) {
     this.response.header['Content-Type'] = mime.lookup(filename);
-    this.andDelete = andDelete;
-    this.file = filename;
-    this.resolve = callback;
-    fs.readFile(filename, this.fileRead.bind(this));
-  }
-
-  fileRead(err, data) {
-    if (err) {
-      this.resolve();
-      return;
-    }
-
-    this.context.body = data;
-    if (this.resolve) {
-      this.resolve();
-    }
-
-    if (this.andDelete) {
-      fs.unlink(this.file, () => { });
-    }
+    return readFile(filename)
+      .then((data) => {
+        if (andDelete) unlink(filename);
+        return data;
+      });
   }
 }
 
-// export RequestHandler;
 module.exports = FileRequestHandler;

@@ -1,6 +1,6 @@
+const fs = require('fs');
 const RequestHandler = require('../RequestHandler');
 const httpServer = require('..');
-const fs = require('fs');
 
 class DocumentationRequestHandler extends RequestHandler {
   async handleRequest() {

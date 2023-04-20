@@ -1,11 +1,11 @@
 /**
  * Created by owenray on 29-06-16.
  */
+const path = require('path');
+const MovieDB = require('moviedb-api');
 const IExtendedInfo = require('../../core/scanner/IExtendedInfo');
 const Settings = require('../../core/Settings');
-const path = require('path');
 const Log = require('../../core/Log');
-const MovieDB = require('moviedb-api');
 const core = require('../../core');
 const ExtendedInfoQueue = require('../../core/scanner/ExtendedInfoQueue');
 
@@ -14,8 +14,7 @@ const movieDB = new MovieDB({
   apiKey: Settings.getValue('tmdb_apikey'),
 });
 
-const discardRegex = new RegExp('\\W|-|_|([0-9]+p)|(LKRG)', 'g');
-
+const discardRegex = /\\W|-|_|([0-9]+p)|(LKRG)/g;
 
 class TheMovieDBExtendedInfo extends IExtendedInfo {
   static async extendInfo(mediaItem, library, tryCount = 0) {
@@ -23,12 +22,11 @@ class TheMovieDBExtendedInfo extends IExtendedInfo {
       tryCount = 0;
     }
 
-    if (mediaItem.attributes.gotExtendedInfo >= 2 ||
-      !['tv', 'movie'].includes(mediaItem.attributes.type)) {
+    if (mediaItem.attributes.gotExtendedInfo >= 2
+      || !['tv', 'movie'].includes(mediaItem.attributes.type)) {
       return;
     }
     Log.debug('process tmdb', mediaItem.id);
-
 
     // If the movie cannot be found:
     // 1. try again without year,
@@ -67,7 +65,9 @@ class TheMovieDBExtendedInfo extends IExtendedInfo {
     let res = await searchMethod(params);
     if (library.type !== 'tv' && res) {
       const match = res.results
-        .find(i => mediaItem.attributes.title.toLocaleLowerCase() === i.title.toLocaleLowerCase());
+        .find(
+          (i) => mediaItem.attributes.title.toLocaleLowerCase() === i.title.toLocaleLowerCase(),
+        );
       if (match) res = match;
       else [res] = res.results;
     }
@@ -84,7 +84,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo {
       if (library.type === 'movie') {
         const { crew, date } = await TheMovieDBExtendedInfo.getMoreMovieInfo(res.id);
         if (crew && crew.cast) {
-          mediaItem.attributes.actors = crew.cast.map(actor => actor.name);
+          mediaItem.attributes.actors = crew.cast.map((actor) => actor.name);
         }
         if (date) {
           mediaItem.attributes.mpaa = date.certification;
@@ -113,7 +113,7 @@ class TheMovieDBExtendedInfo extends IExtendedInfo {
 
     // is there a US release? get it. otherwise whichever's first
     dates = dates.results;
-    let date = dates.find(d => d.iso_3166_1 === 'US');
+    let date = dates.find((d) => d.iso_3166_1 === 'US');
     if (!date && dates.length) {
       [date] = dates;
     }
@@ -128,7 +128,8 @@ class TheMovieDBExtendedInfo extends IExtendedInfo {
 
 TheMovieDBExtendedInfo.lastRequest = 0;
 
-core.addBeforeStartListener(() =>
-  ExtendedInfoQueue.registerExtendedInfoProvider(TheMovieDBExtendedInfo));
+core.addBeforeStartListener(
+  () => ExtendedInfoQueue.registerExtendedInfoProvider(TheMovieDBExtendedInfo),
+);
 
 module.exports = TheMovieDBExtendedInfo;

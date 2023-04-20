@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const uuid = require('node-uuid');
-const Log = require('../Log.js');
+const Log = require('../Log');
 
 const TYPES = ['media-item', 'play-position', 'chunks'];
 
@@ -71,8 +71,8 @@ class Database {
       return [];
     }
     return Object.keys(table)
-      .filter(k => table[k] && table[k].attributes[key] === value)
-      .map(k => table[k]);
+      .filter((k) => table[k] && table[k].attributes[key] === value)
+      .map((k) => table[k]);
   }
 
   findByMatchFilters(tableType, filters) {
@@ -112,7 +112,7 @@ class Database {
           value = parseFloat(f.substring(1));
         } else if (f.match(/^[0-9.]+><?[0-9.]+$/)) {
           type = 'ltgt';
-          value = f.split('><').map(flt => parseFloat(flt));
+          value = f.split('><').map((flt) => parseFloat(flt));
         } else {
           value = (`${f}`).toLocaleLowerCase();
         }
@@ -139,7 +139,7 @@ class Database {
           );
         });
       })
-      .map(key => items[key]);
+      .map((key) => items[key]);
   }
 
   static matches(value, filter, filterProp) {
@@ -151,7 +151,7 @@ class Database {
     } else if (!Array.isArray(value)) {
       value = (`${value}`).toLowerCase();
     } else {
-      value = value.map(v => (`${v}`).toLocaleLowerCase());
+      value = value.map((v) => (`${v}`).toLocaleLowerCase());
     }
 
     switch (filterProp) {
@@ -169,7 +169,7 @@ class Database {
         return value > filter[0] && value < filter[1];
       default:
         if (Array.isArray(value)) {
-          return filter.split(',').every(i => value.includes(i) || value.includes(parseInt(filter, 10)));
+          return filter.split(',').every((i) => value.includes(i) || value.includes(parseInt(filter, 10)));
         }
         return value === filter;
     }
@@ -180,7 +180,7 @@ class Database {
       return null;
     }
     let item = this.tables[type][id];
-    if (!item) item = this.getAll(type).find(i => i.id === id);
+    if (!item) item = this.getAll(type).find((i) => i.id === id);
     if (!item) return null;
     // clone item before returning
     return JSON.parse(JSON.stringify(item));
@@ -252,7 +252,6 @@ class Database {
     this.updateOverwriters.push(func);
   }
 }
-
 
 const db = new Database();
 db.load();

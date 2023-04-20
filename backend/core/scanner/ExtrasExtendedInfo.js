@@ -1,11 +1,9 @@
-
-
 /**
  * Created by owenray on 29-06-16.
  */
+const path = require('path');
 const IExtendedInfo = require('./IExtendedInfo');
 const Database = require('../database/Database');
-const path = require('path');
 
 class ExtrasExtendedInfo extends IExtendedInfo {
   static extendInfo(mediaItem) {
@@ -21,7 +19,7 @@ class ExtrasExtendedInfo extends IExtendedInfo {
       fileParts = path.parse(fileParts).dir;
       items = Database
         .findByMatchFilters('media-item', { filepath: `${fileParts}%` })
-        .filter(item => item.id !== mediaItem.id);
+        .filter((item) => item.id !== mediaItem.id);
       if (items.length) {
         break;
       }

@@ -30,7 +30,7 @@ class Log {
   }
 
   static log(level, message) {
-    listeners.forEach(f => f(level, message));
+    listeners.forEach((f) => f(level, message));
     message.unshift(new Date());
     if (level >= Settings.getValue('verbosity')) {
       switch (level) {

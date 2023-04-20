@@ -1,5 +1,3 @@
-
-
 /**
  * Created by owenray on 7/9/16.
  */
@@ -28,12 +26,12 @@ class IImageHandler extends RequestHandler {
   }
 
   static getDescription() {
-    return ':image should be [id]_[type]  \n' +
-    'where type is one of  \n' +
-    '- backdrop  \n' +
-    '- poster  \n' +
-    '- posterlarge  \n' +
-    '- postersmall';
+    return ':image should be [id]_[type]  \n'
+    + 'where type is one of  \n'
+    + '- backdrop  \n'
+    + '- poster  \n'
+    + '- posterlarge  \n'
+    + '- postersmall';
   }
 }
 

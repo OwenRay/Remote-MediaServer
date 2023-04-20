@@ -2,9 +2,6 @@
  * Created by Owen on 15-4-2016.
  */
 
-const Settings = require('../Settings');
-const Log = require('../Log');
-
 const Koa = require('koa');
 const Router = require('koa-router');
 const Static = require('koa-static');
@@ -14,7 +11,8 @@ const bodyParser = require('koa-bodyparser');
 const opn = require('opn');
 const ip = require('ip');
 const https = require('https');
-
+const Log = require('../Log');
+const Settings = require('../Settings');
 
 let server;
 let serverInstance;
@@ -127,7 +125,7 @@ class HttpServer {
     if (!routes[route]) {
       routes[route] = {};
 
-      router[method](routepath, context => HttpServer.checkCache(
+      router[method](routepath, (context) => HttpServer.checkCache(
         context,
         `${route}@${priority}`,
         () => {

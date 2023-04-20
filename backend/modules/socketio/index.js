@@ -1,8 +1,8 @@
+const io = require('socket.io')();
+
 const core = require('../../core');
 const httpServer = require('../../core/http');
 const Log = require('../../core/Log');
-const io = require('socket.io')();
-
 
 class SocketIO {
   static emit(event, message) {
@@ -23,6 +23,5 @@ class SocketIO {
 Log.addListener(SocketIO.onLog);
 
 core.addAfterStartListener(SocketIO.init);
-
 
 module.exports = SocketIO;

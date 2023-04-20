@@ -1,7 +1,7 @@
-const server = require('../http');
 const http = require('http');
 const fs = require('fs');
 const util = require('util');
+const server = require('../http');
 
 const mkdir = util.promisify(fs.mkdir);
 

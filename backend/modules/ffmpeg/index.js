@@ -4,7 +4,6 @@ const http = require('http');
 const unzip = require('node-unzip-2');
 const Settings = require('../../core/Settings');
 
-
 if (!fs.existsSync('ffmpeg') && !fs.existsSync('ffmpeg.exe')) {
   http.get(`http://downloadffmpeg.s3-website-eu-west-1.amazonaws.com/ffmpeg_${os.platform()}_${os.arch()}.zip`, (response) => {
     const e = unzip.Extract({ path: './' });
@@ -27,7 +26,6 @@ if (os.platform() === 'win32') {
   }
   Settings.save();
 }
-
 
 require('./FFProbeExtendedInfo');
 require('./FFProbeImageHandler');

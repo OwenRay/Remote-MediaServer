@@ -1,6 +1,6 @@
+const net = require('net');
 const EDHT = require('./EDHT');
 const Log = require('../../core/Log');
-const net = require('net');
 
 class TcpConnection {
   constructor({ host, port }) {
@@ -65,17 +65,17 @@ class TcpConnection {
     this.client.on('close', () => {
       clearTimeout(this.timeoutTimer);
       if (this.client.bytesRead > 0) {
-        writeOut.forEach(s => s.end());
+        writeOut.forEach((s) => s.end());
       } else {
-        writeOut.forEach(s => s.off('finish', onFinish));
+        writeOut.forEach((s) => s.off('finish', onFinish));
         this.onResult(false);
       }
     });
     // timeout the connection when not receiving data for 10 seconds
     this.timeoutTimer = setTimeout(this.timeOut, 10000);
 
-    writeOut.forEach(s => this.client.pipe(s, { end: false }));
-    writeOut.forEach(s => s.on('finish', onFinish));
+    writeOut.forEach((s) => this.client.pipe(s, { end: false }));
+    writeOut.forEach((s) => s.on('finish', onFinish));
   }
 
   timeOut() {

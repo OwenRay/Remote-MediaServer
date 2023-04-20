@@ -7,7 +7,7 @@ class DebugApiHandler extends RequestHandler {
   handleRequest() {
     const result = {};
     providers.forEach(({ category, target }) => {
-      result[category] = Object.assign({}, target(), result[category]);
+      result[category] = { ...target(), ...result[category] };
     });
     this.context.body = result;
   }

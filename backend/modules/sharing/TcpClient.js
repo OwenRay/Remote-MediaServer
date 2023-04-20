@@ -1,6 +1,6 @@
+const fs = require('fs');
 const EDHT = require('./EDHT');
 const Crypt = require('./Crypt');
-const fs = require('fs');
 const Log = require('../../core/Log');
 const TcpConnection = require('./TcpConnection');
 const FileProcessor = require('./FileProcessor');
@@ -144,7 +144,7 @@ class TcpClient {
 
   async complete(success) {
     Log.debug('finished downloading', this.reference.toString('hex'));
-    Object.values(this.connections).forEach(con => con.end());
+    Object.values(this.connections).forEach((con) => con.end());
     this.ended = true;
     clearInterval(this.findPeerInterval);
     EDHT.removePeerObserver(this.reference, this.onPeer);
