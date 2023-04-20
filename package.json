@@ -14,7 +14,7 @@
     "start": "nodemon --inspect --watch backend main.js",
     "test": "npm-run-all test:unit test:lint",
     "test:lint": "eslint --config backend/.eslintrc backend/",
-    "test:unit": "jest backend",
+    "test:unit": "jest backend --forceExit",
     "package": "cp -r node_modules/moviedb-api/",
     "build": "pkg package.json && npm-run-all build:mac build:win build:linux build:arm",
     "build:arm": "docker run --rm -v $(pwd):/src owenray/rms-buildenv sh -c \"npm install && npm run build:arm:indocker\" && zip file.zip remote-mediaserver && mv file.zip dist/arm.zip",
@@ -82,7 +82,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.32.2",
-    "jest": "^29.1.2",
+    "jest": "^29.5.0",
     "nodemon": "^2.0.20",
     "pkg": "^5.8.1",
     "prettier": "^2.8.7"

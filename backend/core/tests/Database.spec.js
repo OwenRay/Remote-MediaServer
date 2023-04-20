@@ -1,3 +1,5 @@
+jest.useFakeTimers()
+
 const fs = require('fs');
 const util = require('util');
 const DatabaseSpec = require('../database/Database');

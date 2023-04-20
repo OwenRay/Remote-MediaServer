@@ -1,3 +1,5 @@
+jest.useFakeTimers()
+
 const fs = require('fs');
 const filenameSpec = require('../../modules/filename');
 

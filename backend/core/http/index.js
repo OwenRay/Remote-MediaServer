@@ -61,7 +61,10 @@ class HttpServer {
     serverInstance = server.listen(Settings.getValue('port'), Settings.getValue('bind'), HttpServer.onConnected);
     destroyable(serverInstance);
 
-    if (!Settings.getValue('ssl').key) return;
+    if (!Settings.getValue('ssl').key) {
+      running = true;
+      return;
+    }
     httpsServerInstance = https.createServer(Settings.getValue('ssl'), server.callback());
     httpsServerInstance.listen(Settings.getValue('sslport'), Settings.getValue('bind'));
     destroyable(httpsServerInstance);
