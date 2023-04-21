@@ -4,7 +4,7 @@ node_js:
 services:
   - docker
 before_install:
-  - rvm install 2.2.5
+  - rvm install 2.7.7
   - nvm --version
   - node --version
   - npm --version
