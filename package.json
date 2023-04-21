@@ -21,7 +21,7 @@
     "build:mac": "zip file.zip remote-mediaserver-*macos && mv file.zip dist/osx.zip",
     "build:win": "zip file.zip remote-mediaserver-*win.exe && mv file.zip dist/win.zip",
     "build:linux": "zip file.zip remote-mediaserver-*linux && mv file.zip dist/linux.zip",
-    "build:arm:indocker": "pkg --targets node10.15.3-linux-armv7 package.json",
+    "build:arm:indocker": "pkg --targets node16-linux-armv7 package.json",
     "build:nasos:arm": "platform_scripts/nasos/buildscript.sh armv7",
     "build:nasos:x86": "platform_scripts/nasos/buildscript.sh x86_64"
   },
@@ -39,9 +39,9 @@
       "backend/**/*.json"
     ],
     "targets": [
-      "node10-linux-x64",
-      "node8-win-x64",
-      "node10-macos-x64"
+      "node16-linux-x64",
+      "node16-win-x64",
+      "node16-macos-x64"
     ]
   },
   "dependencies": {
