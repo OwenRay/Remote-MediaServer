@@ -197,7 +197,10 @@ class FileProcessor {
       // to much space used?
       while (totalSize > Settings.getValue('sharespace')) {
         // get least requested
-        const delChunk = Database.getAll('chunks').reduce((acc, i) => (
+        const chunks = Database.getAll('chunks');
+        if(!chunks || !chunks.length)
+          return;
+        const delChunk = chunks.reduce((acc, i) => (
           i.attributes.requested > acc.attributes.requested ? i : acc
         ));
         fs.unlink(`share/${delChunk.hash}`, () => Log.debug('deleted', delChunk.hash));

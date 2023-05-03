@@ -10,6 +10,9 @@ class TcpServer {
   constructor() {
     this.server = net.createServer(TcpServer.connected);
     this.server.listen(Settings.getValue('shareport'));
+    this.server.on('error', (error) => {
+      Log.exception('error in incoming share connection', error);
+    });
   }
 
   /**
@@ -18,9 +21,7 @@ class TcpServer {
    */
   static connected(socket) {
     Log.debug('sharing, new peer connection');
-    socket.on('error', (e) => {
-      Log.debug('error in share socket connection', e);
-    });
+    socket.on('error', Log.exception);
     const timeout = setTimeout(() => { socket.end(); }, 30000);
 
     readline
@@ -36,6 +37,7 @@ class TcpServer {
             Buffer.from(Settings.getValue('dbNonce'), 'hex'),
           );
           stream.pipe(socket);
+          stream.on('error', Log.exception)
         } else {
           const [hash, , id] = line.split('-');
           const stream = await FileProcessor.getReadStream(id, hash);
@@ -48,6 +50,7 @@ class TcpServer {
           socket.on('close', () => {
             if (typeof stream.end === 'function') stream.end();
           });
+          stream.on('error', Log.exception)
         }
       });
   }
