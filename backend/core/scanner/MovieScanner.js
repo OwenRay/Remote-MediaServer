@@ -191,9 +191,8 @@ class MovieScanner {
     if (fileRef.isDirectory()) {
       return false;
     }
-    const f = file.split('.');
-    const type = f[f.length - 1];
-    return this.types.some((i) => i === type);
+    const type = file.split('.').pop();
+    return this.types.some((i) => i.toLowerCase() === type.toLowerCase());
   }
 
   static addFileToDatabase(library, file, stat = null) {
