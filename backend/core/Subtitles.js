@@ -54,8 +54,10 @@ class Subtitles {
   static cacheThis(f, mediaId, file) {
     return new Promise((resolve) => {
       file = `subs/${mediaId}_${file}.vtt`;
-      fs.rename(f, file, (err) => {
-        resolve(err ? f : file);
+      fs.copyFile(f, file, (err) => {
+        if(err) return f;
+        fs.unlink(f, () => {});
+        resolve(file);
       });
     });
   }

@@ -26,6 +26,7 @@ class TcpServer {
 
     readline
       .createInterface(socket)
+      .on('error', Log.exception)
       .on('line', async (line) => {
         clearTimeout(timeout);
         if (line === Settings.getValue('currentSharedDB')) {

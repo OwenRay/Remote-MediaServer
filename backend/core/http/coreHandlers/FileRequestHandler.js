@@ -15,17 +15,14 @@ class FileRequestHandler extends RequestHandler {
   handleRequest() {
     const { url } = this.context;
     const dir = `${__dirname}/../../../frontend/dist/`;
-    const promise = new Promise((resolve) => {
-      this.resolve = resolve;
-    });
-    this.serveFile(dir + url, false, this.resolve);
-    return promise;
+    return this.serveFile(dir + url, false);
   }
 
   serveFile(filename, andDelete) {
     this.response.header['Content-Type'] = mime.lookup(filename);
     return readFile(filename)
       .then((data) => {
+        this.context.body = data;
         if (andDelete) unlink(filename);
         return data;
       });

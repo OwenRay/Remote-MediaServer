@@ -44,7 +44,7 @@ class TcpClient {
       } else if (!err) {
         this.resolve();
       } else {
-        Log.debug('downloaded', this.reference);
+        Log.debug('start download', this.reference);
         const writeCache = fs.createWriteStream(`${this.cachePath}.incomplete`, { flags: 'w' });
         writeCache.on('error', (e) => { Log.warning('share cache warn:', e); });
         this.writeOut.push(writeCache);
