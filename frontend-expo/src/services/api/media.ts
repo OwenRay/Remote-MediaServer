@@ -1,15 +1,32 @@
-import { api, deserializeList, JsonApiListResponse } from '@/src/services/api/base';
+import {api, deserializeList, JsonApiListResponse, BASE_URL} from '@/src/services/api/base';
+
+import {z} from 'zod';
 
 export type Library = {
   id: string;
   name: string;
 };
 
-export type MediaItem = {
-  id: string;
-  title: string;
-  thumbnailUrl?: string;
-};
+export const MediaItemSchema = z.object({
+  id: z.string(),
+  attributes: z.object({
+    title: z.string().optional().default('Untitled'),
+    season: z.union([z.number(), z.boolean()]).transform(val => typeof val === 'boolean' ? undefined : val).optional(),
+    episode: z.union([z.number(), z.boolean()]).transform(val => typeof val === 'boolean' ? undefined : val).optional()
+  })
+}).transform((obj) => ({
+  id: obj.id,
+  ...obj.attributes,
+  thumbnailUrl: `${BASE_URL}/img/${obj.id}_postersmall.jpg`
+})).transform((obj) => ({
+  ...obj,
+  title: obj.season !== undefined && obj.episode !== undefined
+    ? `${obj.title} S${obj.season.toString().padStart(2, '0')}E${obj.episode.toString().padStart(2, '0')}`
+    : obj.title,
+}));
+
+
+export type MediaItem = z.infer<typeof MediaItemSchema>;
 
 export const mediaApi = api.injectEndpoints({
   endpoints: (build) => ({
@@ -24,18 +41,15 @@ export const mediaApi = api.injectEndpoints({
       query: (arg) => {
         const params: Record<string, string> = {
           'extra': 'false',
-          'sort': 'season:ASC,episode:ASC',
+          'sort': 'date_added:DESC',
           'join': 'play-position',
+          'page[offset]': '0',
+          'page[limit]': '100'
         };
         if (arg && 'libraryId' in arg && arg.libraryId) params['filter[library]'] = arg.libraryId;
         return { url: '/media-items', params };
       },
-      transformResponse: (response: JsonApiListResponse<{ title: string; thumbnail?: string }>) =>
-        deserializeList(response, (r) => ({
-          id: r.id,
-          title: r.attributes.title,
-          thumbnailUrl: (r.attributes as any).thumbnail,
-        })),
+      transformResponse: (response: JsonApiListResponse<MediaItem>) => response.data.map(i => MediaItemSchema.parse(i)),
       providesTags: (result) =>
         result ? [...result.map((i) => ({ type: 'Item' as const, id: i.id })), 'Item'] : ['Item'],
     }),

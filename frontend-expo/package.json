@@ -23,7 +23,10 @@
     },
     "transformIgnorePatterns": [
       "node_modules/(?!(jest-)?react-native|@react-native|@react-native-community|@react-navigation|expo(nent)?|@expo|expo-router|msw|until-async)/"
-    ]
+    ],
+    "fakeTimers": {
+      "enableGlobally": true
+    }
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
