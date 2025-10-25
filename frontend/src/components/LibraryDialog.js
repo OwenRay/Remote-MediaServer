@@ -52,11 +52,6 @@ class LibraryDialog extends Component {
     this.onClose();
   }
 
-  // should never rerender because of a bug in the modal
-  shouldComponentUpdate() {
-    return false;
-  }
-
   /**
    * called when the input changes
    * @param val
@@ -87,6 +82,7 @@ class LibraryDialog extends Component {
   render() {
     return (
       <Modal
+        key={"library_modal"}
         id="libdialog"
         open
         header="Add library"
