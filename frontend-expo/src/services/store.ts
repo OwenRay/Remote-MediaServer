@@ -1,11 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { api } from '@/src/services/api/base';
-
-// Placeholder UI slice could be added later (theme, playback UI, etc.)
+import { playerUiReducer } from '@/src/features/player/controlsSlice';
 
 export const store = configureStore({
   reducer: {
     [api.reducerPath]: api.reducer,
+    playerUi: playerUiReducer,
   },
   middleware: (getDefault) => getDefault().concat(api.middleware),
 });

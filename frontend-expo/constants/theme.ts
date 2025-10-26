@@ -1,29 +1,52 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * App theme constants.
+ * Primary palette derived from legacy SCSS:
+ * - primary: #1c1d36
+ * - primaryLight: #534c67
+ * - primaryDark: #0a0c1a
+ * - secondary (accent): #b8a300
  */
 
 import { Platform } from 'react-native';
+import {DarkTheme, Theme as NavigationTheme} from '@react-navigation/native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+const secondary = '#b8a300';
 
 export const Colors = {
   light: {
+    // Light theme values are defined for completeness; app uses dark by default
+    primary: '#d1d2fb',
     text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
+    background: '#ffffff',
+    tint: secondary,
     icon: '#687076',
     tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    tabIconSelected: secondary,
+    border: '#cccccc',
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
+    primary: '#1c1d36', // card surfaces
+    text: '#ffffff',
+    background: '#0a0c1a',
+    tint: secondary,
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+    tabIconSelected: secondary,
+    border: '#534c67',
+  },
+};
+
+// React Navigation theme that matches the SCSS dark palette
+export const NavigationDarkTheme: NavigationTheme = {
+  ...DarkTheme,
+  dark: true,
+  colors: {
+    primary: secondary,            // interactive elements (tint)
+    background: '#0a0c1a',         // primary-dark
+    card: '#1c1d36',               // primary
+    text: '#ffffff',               // white
+    border: '#534c67',             // primary-light
+    notification: secondary,       // same as accent
   },
 };
 

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "frontend-expo",
-    "slug": "frontend-expo",
+    "name": "RMS",
+    "slug": "RMS",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -12,6 +12,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "nl.owenray.rms",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -38,11 +39,18 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "263a47e3-d3c5-4d78-b31e-b19a5c7be3f4"
+      }
     }
   }
 }

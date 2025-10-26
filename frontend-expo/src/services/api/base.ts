@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 // Use relative base URL; Expo dev server will proxy to backend if configured, otherwise
 // expect the backend to be reachable at the same origin under /api during web dev.
-export const BASE_URL = 'http://localhost:8234';
+export const BASE_URL = 'http://192.168.111.210:8234';
 export const API_BASE_URL = `${BASE_URL}/api`;
 
 export const baseQuery = fetchBaseQuery({
@@ -14,10 +14,9 @@ export const baseQuery = fetchBaseQuery({
 });
 
 export const api = createApi({
-  reducerPath: 'api',
   baseQuery,
   endpoints: () => ({}),
-  tagTypes: ['Library', 'Item'],
+  tagTypes: ['Library', 'Item', 'MediaContent', 'Settings'],
   keepUnusedDataFor: 0,
   refetchOnFocus: false,
   refetchOnReconnect: false,

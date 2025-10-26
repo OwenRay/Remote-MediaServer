@@ -37,7 +37,6 @@ export default function HomeScreen() {
         </ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        {/* @ts-expect-error expo-router typed routes may not include this path in tests */}
         <Link href="/modal">
           <Link.Trigger>
             <ThemedText type="subtitle">Step 2: Explore</ThemedText>

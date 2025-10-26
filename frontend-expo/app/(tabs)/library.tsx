@@ -1,62 +1,152 @@
-import React from 'react';
-import { FlatList, Image, StyleSheet, View } from 'react-native';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, FlatList, ListRenderItemInfo, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useTheme } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+
+import SearchBar, {FiltersState} from '@/src/components/search/SearchBar';
+import {MediaItemTile} from '@/src/components/media/MediaItemTile';
+import MediaItemTilePlaceholder from '@/src/components/media/MediaItemTilePlaceholder';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { useGetItemsQuery } from '@/src/services/api/media';
+import { useLazyGetItemsPagedQuery } from '@/src/services/api/media';
+
+const CELL_WIDTH = 150;
+const CELL_HEIGHT = 236;
+const GUTTER = 15;
+const H_PADDING = 16; // matches container paddingHorizontal
+const PAGE_SIZE = 48;
 
 export default function LibraryScreen() {
-  const { data: items, isLoading, isError } = useGetItemsQuery();
+  const theme = useTheme();
+  const insets = useSafeAreaInsets();
+  const { width: windowWidth } = useWindowDimensions();
+  const router = useRouter();
+
+  const [trigger, { isFetching, isError } ] = useLazyGetItemsPagedQuery();
+  const [totalCount, setTotalCount] = useState(0);
+  const [items, setItems] = useState<any[]>([]);
+  const loadingPagesRef = useRef(new Set<string>());
+
+  const [query, setQuery] = useState('');
+  const [filters, setFilters] = useState<FiltersState>({ sort: 'date_added:DESC' });
+
+  // compute columns based on width
+  const cols = useMemo(() => {
+    const innerWidth = Math.max(0, windowWidth - H_PADDING * 2);
+    const c = Math.max(1, Math.floor((innerWidth + GUTTER) / (CELL_WIDTH + GUTTER)));
+    return c;
+  }, [windowWidth]);
+
+  const ensurePageLoaded = (index: number) => {
+    const pageStart = Math.floor(index / PAGE_SIZE) * PAGE_SIZE;
+    const key = `${pageStart}-${query}-${filters.libraryId ?? ''}-${filters.sort ?? ''}`;
+    if (loadingPagesRef.current.has(key)) return;
+    loadingPagesRef.current.add(key);
+    trigger({ offset: pageStart, limit: PAGE_SIZE, title: query || undefined, libraryId: filters.libraryId, sort: filters.sort })
+      .unwrap()
+      .then((res) => {
+        if(!res) throw new Error("No response");
+        return res;
+      })
+      .then(({ items: pageItems, total }) => {
+        setTotalCount((prev) => (prev === 0 ? total : prev));
+        setItems((prev) => {
+          const next = prev.length === 0 && total ? new Array(total).fill(undefined) : [...prev];
+          if (total && next.length < total) {
+            next.length = total;
+          }
+          pageItems.forEach((it, i) => {
+            next[pageStart + i] = it;
+          });
+          return next;
+        });
+      })
+      .catch(console.error)
+      .finally(() => {
+        loadingPagesRef.current.delete(key);
+      });
+  };
+
+  // Reset results on query/filter change and load first page
+  useEffect(() => {
+    setItems([]);
+    setTotalCount(0);
+    loadingPagesRef.current.clear();
+    ensurePageLoaded(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, filters.libraryId, filters.sort]);
+
+  const data = useMemo(() => {
+    const count = totalCount || items.length || 0;
+    return Array.from({ length: count }, (_, i) => i);
+  }, [totalCount, items.length]);
+
+  const renderItem = ({ item: index }: ListRenderItemInfo<number>) => {
+    const itm = items[index];
+    if (!itm) {
+      ensurePageLoaded(index);
+      return (
+        <View style={{ width: CELL_WIDTH }}>
+          <View style={{ height: CELL_HEIGHT, marginBottom: GUTTER }}>
+            <MediaItemTilePlaceholder width={CELL_WIDTH} height={CELL_HEIGHT} />
+          </View>
+        </View>
+      );
+    }
+    return (
+      <View style={{ width: CELL_WIDTH }}>
+        <View style={{ height: CELL_HEIGHT, marginBottom: GUTTER }}>
+          <MediaItemTile
+            width={CELL_WIDTH}
+            height={CELL_HEIGHT}
+            item={itm}
+            onPress={() => router.push(`/details/${itm.id}`)}
+            onPlay={() => router.push(`/player/${itm.id}`)}
+          />
+        </View>
+      </View>
+    );
+  };
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#E6F0F2', dark: '#1E2A2E' }}
-      headerImage={<ThemedView />}
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Library</ThemedText>
-      </ThemedView>
-      {isLoading && <ThemedText>Loading…</ThemedText>}
+    <View style={styles.container}>
+      <ThemedText type="title" style={{ paddingHorizontal: 16, paddingTop: 12 }}>Library</ThemedText>
+      <SearchBar filters={filters} onFiltersChange={setFilters} value={query} onChange={setQuery} />
+      {/*<Filters value={filters} onChange={setFilters} />*/}
       {isError && <ThemedText>Failed to load items.</ThemedText>}
-      {!isLoading && !isError && (
-        <FlatList
-          data={items ?? []}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.itemRow}>
-              {item.thumbnailUrl ? (
-                <Image source={{ uri: item.thumbnailUrl }} style={styles.thumbnail} />
-              ) : (
-                <View style={[styles.thumbnail, styles.placeholder]} />
-              )}
-              <ThemedText>{item.title}</ThemedText>
+      <FlatList
+        testID="search-list"
+        key={cols}
+        style={{ paddingTop: insets.top + GUTTER }}
+        contentContainerStyle={{ paddingBottom: 24 }}
+        data={data}
+        numColumns={cols}
+        centerContent
+        keyExtractor={(index) => `row-${index}`}
+        columnWrapperStyle={{ gap: GUTTER, justifyContent: 'center' }}
+        renderItem={renderItem}
+        indicatorStyle={theme.dark ? 'white' : 'black'}
+        onEndReachedThreshold={0.5}
+        onEndReached={() => {
+          const nextIndex = Math.max(0, data.length - 1);
+          ensurePageLoaded(nextIndex + 1);
+        }}
+        ListEmptyComponent={
+          isFetching ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color={theme.colors.text} />
             </View>
-          )}
-          ListEmptyComponent={<ThemedText>No items found.</ThemedText>}
-        />
-      )}
-    </ParallaxScrollView>
+          ) : (
+            <ThemedText style={{ padding: 16 }}>No items found.</ThemedText>
+          )
+        }
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  itemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    gap: 12,
-  },
-  thumbnail: {
-    width: 64,
-    height: 36,
-    borderRadius: 4,
-    backgroundColor: '#ccc',
-  },
-  placeholder: {
-    opacity: 0.5,
+  container: {
+    flex: 1,
   },
 });

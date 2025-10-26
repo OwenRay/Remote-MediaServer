@@ -27,7 +27,58 @@ const items = {
 
 export const server = setupServer(
   http.get('*/api/libraries', () => HttpResponse.json(libraries)),
-  http.get('*/api/media-items', () => HttpResponse.json(items))
+  // List endpoint
+  http.get('*/api/media-items', () => HttpResponse.json(items)),
+  // Details endpoint
+  http.get('*/api/media-items/:id', ({ params }) => {
+    const id = String((params as any).id);
+    const found = (items.data as any[]).find((i) => i.id === id) ?? items.data[0];
+    return HttpResponse.json({ data: found });
+  }),
+  http.post('*/api/play-positions', async ({ request }) => {
+    const body: any = await request.json();
+    return HttpResponse.json({ data: { id: 'pp1', type: 'play-positions', attributes: body?.data?.attributes ?? {} } });
+  }),
+  // Settings endpoints for Task 9
+  http.get('*/api/settings/1', () =>
+    HttpResponse.json({ data: { id: 1, type: 'setting', attributes: {
+      name: 'My Media Server',
+      port: 8234,
+      filewatcher: 'native',
+      startscan: true,
+      modules: ['debug','ffmpeg','filename','sharing','tmdb','ssl','socketio'],
+      ssldomain: '',
+      sslport: 8443,
+      sslemail: '',
+      sslredirect: false,
+      sharehost: '',
+      shareport: 8235,
+      sharespace: 15,
+      libraries: [],
+      dbKey: 'dbk',
+      dbNonce: 'dbn',
+      sharekey: 'shk',
+      advanced: false,
+    } } })
+  ),
+  http.patch('*/api/settings/1', async ({ request }) => {
+    const body: any = await request.json();
+    // Echo back attributes merged with defaults
+    const attrs = body?.data?.attributes ?? {};
+    return HttpResponse.json({ data: { id: 1, type: 'setting', attributes: {
+      name: 'My Media Server',
+      port: 8234,
+      filewatcher: 'native',
+      startscan: true,
+      modules: ['debug','ffmpeg','filename','sharing','tmdb','ssl','socketio'],
+      libraries: [],
+      ...attrs,
+      dbKey: 'dbk',
+      dbNonce: 'dbn',
+      sharekey: 'shk',
+    } } });
+  }),
+  http.get('*/api/modules', () => HttpResponse.json(['debug','ffmpeg','filename','sharing','tmdb','ssl','socketio']))
 );
 
 // Establish API mocking before all tests.
@@ -53,6 +104,25 @@ afterEach(() => {
 
 // Clean up after the tests are finished.
 afterAll(() => server.close());
+
+// Provide minimal mocks for native-only components in tests
+jest.mock('expo-blur', () => ({
+  BlurView: ({ children }: any) => children,
+}));
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const { Text } = require('react-native');
+  const IconProxy = new Proxy({}, {
+    get: () => ({ name = 'Icon', color = 'black', size = 16 }: any) => React.createElement(Text, { accessibilityLabel: name, style: { color, fontSize: size } }, 'icon'),
+  });
+  return IconProxy;
+});
+// Simplify ThemedText during tests
+jest.mock('@/components/themed-text', () => {
+  const React = require('react');
+  const { Text } = require('react-native');
+  return { ThemedText: (props: any) => React.createElement(Text, props) };
+});
 
 const originalConsoleWarn = console.warn;
 let reanimatedWarnSpy: jest.SpyInstance | undefined;
