@@ -2,7 +2,7 @@ import React from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useGetItemQuery } from '@/src/services/api/media';
-import { ThemedText } from '@/components/themed-text';
+import { ThemedText } from '@/src/components/themed-text';
 import { useTheme } from '@react-navigation/native';
 
 export default function DetailsScreen() {

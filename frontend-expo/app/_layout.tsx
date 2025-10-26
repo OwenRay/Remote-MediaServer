@@ -5,7 +5,7 @@ import 'react-native-reanimated';
 
 import { Provider } from 'react-redux';
 import { store } from '@/src/services/store';
-import { NavigationDarkTheme } from '@/constants/theme';
+import { NavigationDarkTheme } from '@/src/theme';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -17,7 +17,6 @@ export default function RootLayout() {
       <ThemeProvider value={NavigationDarkTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
         </Stack>
         <StatusBar style="light" />
       </ThemeProvider>

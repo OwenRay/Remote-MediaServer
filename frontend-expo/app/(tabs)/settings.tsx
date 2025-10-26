@@ -5,7 +5,7 @@ import { useTheme } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 
 import { useGetModulesQuery, useGetSettingsQuery, useUpdateSettingsMutation, SettingsAttributes } from '@/src/services/api/settings';
-import {ThemedPicker} from "@/components/form/ThemedPicker";
+import {ThemedPicker} from "@/src/components/form/ThemedPicker";
 
 function CheckboxRow({ label, value, onValueChange }: { label: string; value: boolean; onValueChange: (next: boolean) => void }) {
   const theme = useTheme();
@@ -161,7 +161,6 @@ export default function SettingsScreen() {
                   setDraft({ ...draft, libraries: libs });
                 }}
               />
-              <View style={[{ flex: 1, borderWidth: StyleSheet.hairlineWidth, borderColor: theme.colors.border, borderRadius: 6 }]}>
                 <ThemedPicker
                   selectedValue={lib.type ?? 'folder'}
                   onValueChange={(val) => {
@@ -176,7 +175,6 @@ export default function SettingsScreen() {
                   <Picker.Item label="Music" value="library_music" />
                   <Picker.Item label="External Library" value="shared" />
                 </ThemedPicker>
-              </View>
               {(lib.type === 'shared') ? (
                 <TextInput
                   style={[styles.input, { flex: 1, color: theme.colors.text, borderColor: theme.colors.border }]}

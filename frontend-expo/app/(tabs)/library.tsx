@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import SearchBar, {FiltersState} from '@/src/components/search/SearchBar';
 import {MediaItemTile} from '@/src/components/media/MediaItemTile';
 import MediaItemTilePlaceholder from '@/src/components/media/MediaItemTilePlaceholder';
-import { ThemedText } from '@/components/themed-text';
+import { ThemedText } from '@/src/components/themed-text';
 import { useLazyGetItemsPagedQuery } from '@/src/services/api/media';
 
 const CELL_WIDTH = 150;
@@ -110,7 +110,6 @@ export default function LibraryScreen() {
 
   return (
     <View style={styles.container}>
-      <ThemedText type="title" style={{ paddingHorizontal: 16, paddingTop: 12 }}>Library</ThemedText>
       <SearchBar filters={filters} onFiltersChange={setFilters} value={query} onChange={setQuery} />
       {/*<Filters value={filters} onChange={setFilters} />*/}
       {isError && <ThemedText>Failed to load items.</ThemedText>}

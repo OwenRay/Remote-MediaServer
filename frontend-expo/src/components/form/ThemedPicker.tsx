@@ -2,20 +2,19 @@ import {Picker, PickerProps} from "@react-native-picker/picker";
 import React from "react";
 import {useTheme} from "@react-navigation/native";
 
-export const ThemedPicker = (props:PickerProps) => {
+export const ThemedPicker = <T extends unknown>(props: PickerProps<T>) => {
   const {colors} = useTheme();
   return (
-    <Picker
+    <Picker<T>
       itemStyle={{borderWidth: 0}}
       style={{
         backgroundColor: colors.background,
         borderColor: colors.border,
+        borderWidth: 1,
         color: colors.text,
         paddingHorizontal: 10,
         paddingVertical: 8,
         borderRadius: 6,
-        borderWidth: 0,
-        marginRight: 8,
       }}
       {...props}
     >

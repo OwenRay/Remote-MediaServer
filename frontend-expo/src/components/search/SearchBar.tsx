@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, useWindowDimensions} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
-import {ThemedText} from '@/components/themed-text';
 import {useGetLibrariesQuery} from '@/src/services/api/media';
-import ThemedTextInput from "@/components/form/ThemedTextInput";
+import ThemedTextInput from "@/src/components/form/ThemedTextInput";
+import {ThemedText} from "@/src/components/themed-text";
+import {ThemedPicker} from "@/src/components/form/ThemedPicker";
 
 export type SearchBarProps = {
   value: string;
@@ -58,7 +59,7 @@ export default function SearchBar({
           <View style={styles.field}>
             <ThemedText style={styles.label}>Library</ThemedText>
             <View style={styles.pickerContainer}>
-              <Picker
+              <ThemedPicker
                 selectedValue={filters.libraryId}
                 onValueChange={(itemValue) => onFiltersChange({...filters, libraryId: itemValue})}
                 testID="library-picker"
@@ -67,7 +68,7 @@ export default function SearchBar({
                 {(libraries ?? []).map((l) => (
                   <Picker.Item key={l.id} label={l.name} value={l.id}/>
                 ))}
-              </Picker>
+              </ThemedPicker>
             </View>
           </View>
 
@@ -83,9 +84,9 @@ export default function SearchBar({
           )}
 
           <View style={styles.field}>
-            <ThemedText style={styles.label}>Sort by</ThemedText>
+            <ThemedText type={'default'} style={styles.label}>Sort by</ThemedText>
             <View style={styles.pickerContainer}>
-              <Picker
+              <ThemedPicker
                 selectedValue={filters.sort ?? 'date_added:DESC'}
                 onValueChange={(itemValue) => onFiltersChange({...filters, sort: itemValue})}
                 testID="sort-picker"
@@ -93,7 +94,7 @@ export default function SearchBar({
                 {sortOptions.map((option) => (
                   <Picker.Item key={option.value} label={option.label} value={option.value}/>
                 ))}
-              </Picker>
+              </ThemedPicker>
             </View>
           </View>
         </View>
@@ -124,27 +125,23 @@ const styles = StyleSheet.create({
   filtersContainer: {
     flex: 1,
     gap: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    alignItems: 'flex-end',
   },
   field: {
+    minWidth: 150,
     flex: 1,
-    minWidth: 120,
-    borderRadius: 8,
-    borderWidth: StyleSheet.hairlineWidth,
     overflow: 'hidden',
   },
   label: {
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    fontWeight: '600',
+    paddingVertical: 6
   },
   pickerContainer: {
     paddingHorizontal: 8,
     paddingBottom: 8,
   },
   input: {
-    flexGrow: 10,
     width: '100%',
+    marginBottom: 8,
   },
 });

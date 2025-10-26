@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Image, Platform, Pressable, StyleSheet, View } from 'react-native';
-import { ThemedText } from '@/components/themed-text';
+import { ThemedText } from '@/src/components/themed-text';
 import type { MediaItem } from '@/src/services/api/media';
 import {BlurView} from "expo-blur";
 import {Ionicons} from "@expo/vector-icons";
@@ -94,19 +94,21 @@ export function MediaItemTile({ item, onPress = () => {}, onPlay = () => {}, wid
 
 
         {/* Floating play button (appears on hover) */}
-        <Pressable
-          accessibilityLabel="Play"
-          testID="play-button"
-          style={[styles.playButton, overlayVisible ? styles.playButtonVisible : styles.playButtonHidden]}
-          onPress={(e) => {
-            // prevent accidental parent navigation on web
-            e?.stopPropagation();
-            onPlay();
-          }}
-        >
-          <Ionicons color={'white'} name={'play'}/>
-        </Pressable>
       </BlurView>
+      <Pressable
+        onHoverIn={Platform.OS === 'web' ? () => showOverlay(true) : undefined}
+        accessibilityLabel="Play"
+        testID="play-button"
+        style={[styles.playButton, overlayVisible ? styles.playButtonVisible : styles.playButtonHidden]}
+        onPress={(e) => {
+          console.log("play button pressed");
+          // prevent accidental parent navigation on web
+          e?.stopPropagation();
+          onPlay();
+        }}
+      >
+        <Ionicons color={'white'} name={'play'}/>
+      </Pressable>
 
     </Pressable>
   );
@@ -151,7 +153,7 @@ const styles = StyleSheet.create({
   },
   progress: {
     height: 3,
-    backgroundColor: '#d9c31f', // approx $secondary-color-light
+    backgroundColor: '#d9c31f',
   },
   // Floating play button like .grid-item .btn-floating
   playButton: {
@@ -165,14 +167,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     textAlign: 'center',
     backgroundColor: 'rgb(217,195,31)',
-    transitionProperty: 'top',
-    transitionDuration: '0.3s',
+    transitionProperty: 'bottom',
+    transitionDuration: '0.4s',
+
   },
   playButtonHidden: {
-    top: 90,
+    bottom: -80,
   },
   playButtonVisible: {
-    top: -19,
+    bottom: 60,
   },
   playIcon: {
     color: 'white',

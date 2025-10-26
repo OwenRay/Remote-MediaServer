@@ -48,8 +48,8 @@ const mediaApi = api.injectEndpoints({
           'page[offset]': String(offset),
           'page[limit]': String(limit),
         };
-        if (libraryId) params['filter[library]'] = libraryId;
-        if (title) params['filter[title]'] = `%${title}%`;
+        if (libraryId) params['library'] = libraryId;
+        if (title) params['title'] = `%${title}%`;
         return { url: '/media-items', params };
       },
       transformResponse: (response: any) => {

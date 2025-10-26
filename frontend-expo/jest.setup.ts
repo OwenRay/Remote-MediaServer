@@ -118,7 +118,7 @@ jest.mock('@expo/vector-icons', () => {
   return IconProxy;
 });
 // Simplify ThemedText during tests
-jest.mock('@/components/themed-text', () => {
+jest.mock('@/src/components/themed-text', () => {
   const React = require('react');
   const { Text } = require('react-native');
   return { ThemedText: (props: any) => React.createElement(Text, props) };

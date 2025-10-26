@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {ActivityIndicator, Platform, Pressable, StyleSheet, Text, View} from 'react-native';
-import {ThemedText} from '@/components/themed-text';
+import {ThemedText} from '@/src/components/themed-text';
 import {useLocalSearchParams} from 'expo-router';
 import {useVideoPlayer, VideoView} from 'expo-video';
 import {BASE_URL} from '@/src/services/api/base';
@@ -95,9 +95,6 @@ export default function PlayerScreen() {
           nativeControls={false}
           player={player}
         />
-        {buffering && (
-          <View style={styles.overlayCenter}><ActivityIndicator/></View>
-        )}
         {error && (
           <View style={[styles.overlayCenter, styles.errorBox]}>
             <Text style={styles.errorText}>Playback error. Tap retry.</Text>
