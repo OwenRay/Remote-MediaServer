@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Platform } from 'react-native';
-import { ThemedText } from '@/src/components/themed-text';
+import { ThemedText } from '@/src/features/shared/view/themed-text';
 import type { MediaItem } from '@/src/features/library/model/media';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -206,5 +206,3 @@ const PlayButton = styled.Pressable<{ visible?: boolean }>`
   bottom: ${({ visible }: { visible?: boolean }) => (visible ? '45px' : '-40px')};
   transition: bottom 0.3s cubic-bezier(0.66, 0, 0.34, 1);
 `;
-
-export default MediaItemTile;

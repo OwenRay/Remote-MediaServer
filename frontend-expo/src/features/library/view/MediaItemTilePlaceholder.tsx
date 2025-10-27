@@ -6,7 +6,7 @@ export type MediaItemTilePlaceholderProps = {
   height?: number;
 };
 
-export default function MediaItemTilePlaceholder({ width = 236, height = 150 }: MediaItemTilePlaceholderProps) {
+export function MediaItemTilePlaceholder({ width = 236, height = 150 }: MediaItemTilePlaceholderProps) {
   return (
     <Tile
       testID="media-item-placeholder"

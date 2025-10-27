@@ -1,7 +1,7 @@
 import { fireEvent } from '@testing-library/react-native';
 import {MediaItemTile} from "./MediaItemTile";
-import {renderWithProviders} from "../../../test-utils";
-import {MediaItem} from "../../features/library/model/media";
+import {renderWithProviders} from "../../../../test-utils";
+import {MediaItem} from "../model/media";
 
 
 function makeItem(overrides: Partial<MediaItem & { playPos?: number }> = {}): MediaItem & { playPos?: number } {

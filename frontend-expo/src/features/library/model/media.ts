@@ -18,7 +18,7 @@ export const MediaItemSchema = z.object({
     title: z.string().optional().default('Untitled'),
     season: serieNumber,
     episode: serieNumber,
-    year: z.union([z.string(), z.number()]).transform(v => v.toString()).optional(),
+    year: z.union([z.string(), z.number()]).nullish().transform(v => v?.toString() || undefined),
     fileduration: z.number().optional().default(0),
   })
 }).transform((obj) => ({

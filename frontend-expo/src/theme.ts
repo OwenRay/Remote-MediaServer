@@ -10,43 +10,17 @@
 import { Platform } from 'react-native';
 import {DarkTheme, Theme as NavigationTheme} from '@react-navigation/native';
 
-const secondary = '#b8a300';
-
-export const Colors = {
-  light: {
-    // Light theme values are defined for completeness; app uses dark by default
-    primary: '#d1d2fb',
-    text: '#11181C',
-    background: '#ffffff',
-    tint: secondary,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: secondary,
-    border: '#cccccc',
-  },
-  dark: {
-    primary: '#1c1d36', // card surfaces
-    text: '#ffffff',
-    background: '#0a0c1a',
-    tint: secondary,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: secondary,
-    border: '#534c67',
-  },
-};
-
 // React Navigation theme that matches the SCSS dark palette
 export const NavigationDarkTheme: NavigationTheme = {
   ...DarkTheme,
   dark: true,
   colors: {
-    primary: secondary,            // interactive elements (tint)
+    primary: '#b8a300',            // interactive elements (tint)
     background: '#0a0c1a',         // primary-dark
     card: '#1c1d36',               // primary
     text: '#ffffff',               // white
     border: '#534c67',             // primary-light
-    notification: secondary,       // same as accent
+    notification: '#b8a300',       // same as accent
   },
 };
 

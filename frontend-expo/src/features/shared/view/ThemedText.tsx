@@ -1,1 +1,1 @@
-export { ThemedText } from '@/src/components/themed-text';
+export { ThemedText } from '@/src/features/shared/view/themed-text';

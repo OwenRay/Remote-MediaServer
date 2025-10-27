@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {SeekBarAllPlatform, SeekBarProps} from "@/src/components/SeekBarAllPlatform";
+import {SeekBarAllPlatform, SeekBarProps} from "@/src/features/player/view/SeekBarAllPlatform";
 
 export function SeekBar(props: SeekBarProps) {
   const {max, value, onComplete} = props;

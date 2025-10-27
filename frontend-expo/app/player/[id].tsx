@@ -1,11 +1,11 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {ActivityIndicator, Platform} from 'react-native';
-import {ThemedText} from '@/src/components/themed-text';
+import {ThemedText} from '@/src/features/shared/view/themed-text';
 import {useLocalSearchParams} from 'expo-router';
 import {useVideoPlayer, VideoView} from 'expo-video';
 import {getBaseUrl} from '@/src/features/shared/model/api/base';
 import {useWritePlayPositionMutation} from '@/src/features/player/model/playback';
-import {SeekBar} from '@/src/components/SeekBar';
+import {SeekBar} from '@/src/features/player/view/SeekBar';
 import {useGetItemQuery} from '@/src/features/library/model/media';
 import {default as styled} from 'styled-components/native';
 
