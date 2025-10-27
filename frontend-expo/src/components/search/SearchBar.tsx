@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, useWindowDimensions} from 'react-native';
+import styled from 'styled-components/native';
+import { useWindowDimensions } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import {useGetLibrariesQuery} from '@/src/services/api/media';
-import ThemedTextInput from "@/src/components/form/ThemedTextInput";
+import {ThemedTextInput} from "@/src/components/form/ThemedTextInput";
 import {ThemedText} from "@/src/components/themed-text";
 import {ThemedPicker} from "@/src/components/form/ThemedPicker";
 
@@ -47,18 +48,11 @@ export default function SearchBar({
   const isWideScreen = width >= 768; // Adjust breakpoint as needed
 
   return (
-    <View style={styles.container}>
-      <View style={[
-        styles.content,
-        {flexDirection: isWideScreen ? 'row' : 'column'}
-      ]}>
-        <View style={[
-          styles.filtersContainer,
-          {flexDirection: isWideScreen ? 'row' : 'column'}
-        ]}>
-          <View style={styles.field}>
-            <ThemedText style={styles.label}>Library</ThemedText>
-            <View style={styles.pickerContainer}>
+      <Content isWide={isWideScreen}>
+        <FiltersContainer>
+          <Field>
+            <ThemedText>Library</ThemedText>
+            <PickerContainer>
               <ThemedPicker
                 selectedValue={filters.libraryId}
                 onValueChange={(itemValue) => onFiltersChange({...filters, libraryId: itemValue})}
@@ -69,12 +63,11 @@ export default function SearchBar({
                   <Picker.Item key={l.id} label={l.name} value={l.id}/>
                 ))}
               </ThemedPicker>
-            </View>
-          </View>
+            </PickerContainer>
+          </Field>
 
           {isWideScreen && (
-            <ThemedTextInput
-              style={styles.input}
+            <StyledTextInput
               accessibilityLabel="search-input"
               placeholder={"Search..."}
               value={text}
@@ -83,9 +76,9 @@ export default function SearchBar({
             />
           )}
 
-          <View style={styles.field}>
-            <ThemedText type={'default'} style={styles.label}>Sort by</ThemedText>
-            <View style={styles.pickerContainer}>
+          <Field>
+            <ThemedText type={'default'}>Sort by</ThemedText>
+            <PickerContainer>
               <ThemedPicker
                 selectedValue={filters.sort ?? 'date_added:DESC'}
                 onValueChange={(itemValue) => onFiltersChange({...filters, sort: itemValue})}
@@ -95,13 +88,12 @@ export default function SearchBar({
                   <Picker.Item key={option.value} label={option.label} value={option.value}/>
                 ))}
               </ThemedPicker>
-            </View>
-          </View>
-        </View>
+            </PickerContainer>
+          </Field>
+        </FiltersContainer>
 
         {!isWideScreen && (
-          <ThemedTextInput
-            style={styles.input}
+          <StyledTextInput
             accessibilityLabel="search-input"
             placeholder={"Search..."}
             value={text}
@@ -109,39 +101,39 @@ export default function SearchBar({
             returnKeyType="search"
           />
         )}
-      </View>
-    </View>
+      </Content>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-  },
-  content: {
-    gap: 8,
-  },
-  filtersContainer: {
-    flex: 1,
-    gap: 8,
-    alignItems: 'flex-end',
-  },
-  field: {
-    minWidth: 150,
-    flex: 1,
-    overflow: 'hidden',
-  },
-  label: {
-    paddingHorizontal: 12,
-    paddingVertical: 6
-  },
-  pickerContainer: {
-    paddingHorizontal: 8,
-    paddingBottom: 8,
-  },
-  input: {
-    width: '100%',
-    marginBottom: 8,
-  },
-});
+const Content = styled.View<{ isWide: boolean }>`
+  padding: 16px;
+  gap: 8px;
+  flex-direction: ${({ isWide }: { isWide: boolean }) => {
+    console.log('isWide', isWide);
+    return (isWide ? 'row' : 'column')
+  }};
+  justify-content: stretch;
+  width: 100%;
+`;
+
+const FiltersContainer = styled.View`
+  gap: 8px;
+  align-items: flex-end;
+  flex-direction: row;
+  width: 100%;
+`;
+
+const Field = styled.View`
+  min-width: 150px;
+  flex: 1;
+`;
+
+const PickerContainer = styled.View`
+  padding-bottom: 8px;
+`;
+
+const StyledTextInput = styled(ThemedTextInput)`
+  width: 100%;
+  flex-grow: 1;
+  marginBottom: 8px;
+`;

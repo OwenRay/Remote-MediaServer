@@ -1,6 +1,6 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
 import Slider from "@react-native-community/slider";
+import styled from 'styled-components/native';
 
 export type SeekBarProps = {
   min: number;
@@ -10,10 +10,8 @@ export type SeekBarProps = {
 };
 
 export function SeekBarAllPlatform({max, value, onComplete}: SeekBarProps) {
-
   return (
-    <Slider
-      style={styles.container}
+    <StyledSlider
       minimumValue={0}
       maximumValue={max}
       value={value}
@@ -22,22 +20,8 @@ export function SeekBarAllPlatform({max, value, onComplete}: SeekBarProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    height: 24,
-    flex: 1,
-    justifyContent: 'center',
-  },
-  track: {
-    height: 4,
-    backgroundColor: '#444',
-    borderRadius: 2,
-  },
-  thumb: {
-    position: 'absolute',
-    left: 0,
-    height: 4,
-    backgroundColor: '#0af',
-    borderRadius: 2,
-  },
-});
+const StyledSlider = styled(Slider)`
+  height: 24px;
+  flex: 1;
+  justify-content: center;
+`;

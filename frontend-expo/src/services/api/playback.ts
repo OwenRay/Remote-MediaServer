@@ -1,4 +1,4 @@
-import { api, JsonApiSingleResponse, API_BASE_URL } from '@/src/services/api/base';
+import { api, JsonApiSingleResponse } from '@/src/services/api/base';
 
 export type PlayPositionAttributes = {
   position: number; // seconds
@@ -41,7 +41,7 @@ export const playbackApi = api.injectEndpoints({
           },
         };
         return {
-          url: `${API_BASE_URL}/play-positions`,
+          url: '/play-positions',
           method: 'POST',
           body,
         };

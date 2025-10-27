@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import styled from 'styled-components/native';
 
 export type MediaItemTilePlaceholderProps = {
   width?: number;
@@ -8,39 +8,42 @@ export type MediaItemTilePlaceholderProps = {
 
 export default function MediaItemTilePlaceholder({ width = 236, height = 150 }: MediaItemTilePlaceholderProps) {
   return (
-    <View
+    <Tile
       testID="media-item-placeholder"
-      style={[styles.tile, { width, height }]}
+      width={width}
+      height={height}
       accessibilityLabel="Loading media item"
       accessibilityRole="image"
     >
-      <View style={styles.poster} />
-      <View style={styles.footer} />
-    </View>
+      <Poster />
+      <Footer />
+    </Tile>
   );
 }
 
-const styles = StyleSheet.create({
-  tile: {
-    borderRadius: 6,
-    overflow: 'hidden',
-    backgroundColor: '#1f1f1f',
-    position: 'relative',
-  },
-  poster: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    backgroundColor: '#2a2a2a',
-  },
-  footer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 6,
-    backgroundColor: '#333',
-  },
-});
+const Tile = styled.View<{ width: number; height: number }>`
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #1f1f1f;
+  position: relative;
+  width: ${({ width }: { width: number }) => `${width}px`};
+  height: ${({ height }: { height: number }) => `${height}px`};
+`;
+
+const Poster = styled.View`
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: #2a2a2a;
+`;
+
+const Footer = styled.View`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6px;
+  background-color: #333;
+`;

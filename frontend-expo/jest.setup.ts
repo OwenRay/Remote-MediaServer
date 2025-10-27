@@ -109,6 +109,8 @@ afterAll(() => server.close());
 jest.mock('expo-blur', () => ({
   BlurView: ({ children }: any) => children,
 }));
+// Mock AsyncStorage for Jest to avoid native module errors
+jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock'));
 jest.mock('@expo/vector-icons', () => {
   const React = require('react');
   const { Text } = require('react-native');

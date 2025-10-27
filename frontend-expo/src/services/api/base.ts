@@ -1,17 +1,21 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery, type BaseQueryFn } from '@reduxjs/toolkit/query/react';
+import { getApiBaseUrl, getBaseUrl } from '@/src/services/serverConfig';
 
-// Use relative base URL; Expo dev server will proxy to backend if configured, otherwise
-// expect the backend to be reachable at the same origin under /api during web dev.
-export const BASE_URL = 'http://192.168.111.210:8234';
-export const API_BASE_URL = `${BASE_URL}/api`;
+// Expose getters for dynamic server URL
+export { getBaseUrl } from '@/src/services/serverConfig';
+export { getApiBaseUrl } from '@/src/services/serverConfig';
 
-export const baseQuery = fetchBaseQuery({
-  baseUrl: API_BASE_URL,
-  prepareHeaders: (headers) => {
-    // Attach headers if needed (auth, etc.)
-    return headers;
-  },
-});
+// @todo recreate after url change
+export const baseQuery: BaseQueryFn = async (args, api, extraOptions) => {
+  const dynamicBaseQuery = fetchBaseQuery({
+    baseUrl: getApiBaseUrl(), // ← Now called on every request
+    prepareHeaders: (headers) => {
+      return headers;
+    },
+  });
+
+  return dynamicBaseQuery(args, api, extraOptions);
+};
 
 export const api = createApi({
   baseQuery,

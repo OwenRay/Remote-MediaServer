@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@react-navigation/native';
+import { ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
@@ -6,6 +6,7 @@ import 'react-native-reanimated';
 import { Provider } from 'react-redux';
 import { store } from '@/src/services/store';
 import { NavigationDarkTheme } from '@/src/theme';
+import { ThemeProvider as StyledThemeProvider, DefaultTheme } from 'styled-components/native';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -14,12 +15,25 @@ export const unstable_settings = {
 export default function RootLayout() {
   return (
     <Provider store={store}>
-      <ThemeProvider value={NavigationDarkTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
-        <StatusBar style="light" />
-      </ThemeProvider>
+      <NavigationThemeProvider value={NavigationDarkTheme}>
+        <StyledThemeProvider theme={{
+          colors: {
+            primary: '#1c1d36',
+            text: NavigationDarkTheme.colors.text,
+            background: NavigationDarkTheme.colors.background,
+            tint: NavigationDarkTheme.colors.primary,
+            icon: '#9BA1A6',
+            tabIconDefault: '#9BA1A6',
+            tabIconSelected: NavigationDarkTheme.colors.primary,
+            border: NavigationDarkTheme.colors.border,
+          },
+        } as DefaultTheme}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          </Stack>
+          <StatusBar style="light" />
+        </StyledThemeProvider>
+      </NavigationThemeProvider>
     </Provider>
   );
 }

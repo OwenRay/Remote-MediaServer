@@ -1,9 +1,10 @@
 import React from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useGetItemQuery } from '@/src/services/api/media';
 import { ThemedText } from '@/src/components/themed-text';
 import { useTheme } from '@react-navigation/native';
+import styled from 'styled-components/native';
 
 export default function DetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -13,64 +14,68 @@ export default function DetailsScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
+      <Center>
         <ActivityIndicator size="large" color={theme.colors.text} />
-      </View>
+      </Center>
     );
   }
 
   if (isError || !item) {
     return (
-      <View style={styles.center}>
+      <Center>
         <ThemedText>Failed to load item.</ThemedText>
-      </View>
+      </Center>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <ThemedText type="title" style={styles.title}>{item.title}</ThemedText>
-      <ThemedText style={styles.meta}>Duration: {Math.round((item.fileduration ?? 0) / 60)} min</ThemedText>
-      <View style={styles.actions}>
-        <Pressable accessibilityLabel="Play" style={styles.playBtn} onPress={() => router.push(`/player/${item.id}`)}>
-          <ThemedText style={styles.playText}>Play</ThemedText>
-        </Pressable>
-      </View>
-    </View>
+    <Container>
+      <Title type="title">{item.title}</Title>
+      <Meta>Duration: {Math.round((item.fileduration ?? 0) / 60)} min</Meta>
+      <Actions>
+        <PlayBtn accessibilityLabel="Play" onPress={() => router.push(`/player/${item.id}`)}>
+          <PlayText>Play</PlayText>
+        </PlayBtn>
+      </Actions>
+    </Container>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    gap: 12,
-    padding: 16,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontWeight: '700',
-    fontSize: 20,
-  },
-  meta: {
-    opacity: 0.8,
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-  },
-  playBtn: {
-    backgroundColor: '#00b894',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  playText: {
-    color: 'white',
-    fontWeight: '700',
-  }
-});
+const Container = styled.View`
+  flex: 1;
+  gap: 12px;
+  padding: 16px;
+`;
+
+const Center = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+`;
+
+const Title = styled(ThemedText)`
+  font-weight: 700;
+  font-size: 20px;
+`;
+
+const Meta = styled(ThemedText)`
+  opacity: 0.8;
+`;
+
+const Actions = styled.View`
+  flex-direction: row;
+  gap: 12px;
+  margin-top: 8px;
+`;
+
+const PlayBtn = styled.Pressable`
+  background-color: #00b894;
+  padding-horizontal: 16px;
+  padding-vertical: 10px;
+  border-radius: 8px;
+`;
+
+const PlayText = styled(ThemedText)`
+  color: white;
+  font-weight: 700;
+`;

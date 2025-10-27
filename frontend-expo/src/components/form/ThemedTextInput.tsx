@@ -1,42 +1,14 @@
-import React from 'react';
-import {TextInput, StyleSheet, TextInputProps} from 'react-native';
-import {useTheme} from '@react-navigation/native';
+import styled from 'styled-components/native';
 
-interface ThemedTextInputProps extends TextInputProps {
-  containerStyle?: object;
-}
+import type { DefaultTheme } from 'styled-components/native';
+import {TextInput} from "react-native";
 
-export default function ThemedTextInput({style, containerStyle, ...props}: ThemedTextInputProps) {
-  const theme = useTheme();
-
-  return (
-    <TextInput
-      style={
-        [
-          styles.input,
-          {
-            color: theme.colors.text, borderColor:
-            theme.colors.border
-          }
-          ,
-          style,
-          containerStyle,
-        ]
-      }
-      placeholderTextColor={theme.colors.border}
-      {...
-        props
-      }
-    />
-  );
-}
-
-const styles = StyleSheet.create({
-  input: {
-    borderWidth: StyleSheet.hairlineWidth,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 6,
-    minWidth: 120,
-  },
-});
+export const ThemedTextInput: typeof TextInput = styled.TextInput`
+  border-width: 0.5px;
+  padding-horizontal: 10px;
+  padding-vertical: 8px;
+  border-radius: 6px;
+  min-width: 120px;
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
+  border-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.border};
+`;

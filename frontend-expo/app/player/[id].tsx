@@ -1,12 +1,13 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {ActivityIndicator, Platform, Pressable, StyleSheet, Text, View} from 'react-native';
+import {ActivityIndicator, Platform} from 'react-native';
 import {ThemedText} from '@/src/components/themed-text';
 import {useLocalSearchParams} from 'expo-router';
 import {useVideoPlayer, VideoView} from 'expo-video';
-import {BASE_URL} from '@/src/services/api/base';
+import {getBaseUrl} from '@/src/services/api/base';
 import {useWritePlayPositionMutation} from '@/src/services/api/playback';
 import {SeekBar} from '@/src/components/SeekBar';
 import {useGetItemQuery} from '@/src/services/api/media';
+import styled from 'styled-components/native';
 
 export default function PlayerScreen() {
   const {id} = useLocalSearchParams<{ id: string }>();
@@ -30,7 +31,7 @@ export default function PlayerScreen() {
 
   const source = useMemo(() => {
     const seek = Math.floor(position);
-    return {uri: `${BASE_URL}/ply/${id}/${seek}`};
+    return {uri: `${getBaseUrl()}/ply/${id}/${seek}`};
   }, [id, position]);
 
   const player = useVideoPlayer(source, (v) => {
@@ -70,61 +71,62 @@ export default function PlayerScreen() {
 
   if (!id) {
     return (
-      <View style={styles.center}>
-        <Text>Missing media id.</Text>
-      </View>
+      <Center>
+        <ThemedText>Missing media id.</ThemedText>
+      </Center>
     );
   }
 
   if (!data) {
     return (
-      <View style={styles.container}>
-        <View style={styles.center}>
+      <Container>
+        <Center>
           <ActivityIndicator size="large"/>
-          <ThemedText style={styles.loadingText}>Loading media...</ThemedText>
-        </View>
-      </View>
+          <LoadingText>Loading media...</LoadingText>
+        </Center>
+      </Container>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Pressable onPress={togglePlay} style={styles.videoContainer}>
-        <VideoView
-          style={{width: '100%', height: '100%'}}
+    <Container>
+      <VideoContainer onPress={togglePlay}>
+        <StyledVideoView
           nativeControls={false}
           player={player}
         />
         {error && (
-          <View style={[styles.overlayCenter, styles.errorBox]}>
-            <Text style={styles.errorText}>Playback error. Tap retry.</Text>
-            <Pressable onPress={retry} style={styles.retryBtn}><Text style={styles.retryText}>Retry</Text></Pressable>
-          </View>
+          <OverlayCenter>
+            <ErrorBox>
+              <ErrorText>Playback error. Tap retry.</ErrorText>
+              <RetryBtn onPress={retry}><RetryText>Retry</RetryText></RetryBtn>
+            </ErrorBox>
+          </OverlayCenter>
         )}
-      </Pressable>
+      </VideoContainer>
 
-      <View style={styles.controls}>
-        <Pressable onPress={togglePlay} style={styles.btn}><Text>{paused ? 'Play' : 'Pause'}</Text></Pressable>
-        <View style={styles.row}>
-          <Text style={styles.time}>{formatTime(position + player.currentTime)}</Text>
+      <Controls>
+        <Btn onPress={togglePlay}><ThemedText>{paused ? 'Play' : 'Pause'}</ThemedText></Btn>
+        <Row>
+          <Time>{formatTime(position + player.currentTime)}</Time>
           <SeekBar
             min={0}
             max={data.fileduration}
             value={position + player.currentTime || 0.01}
             onComplete={onSeek}
           />
-          <Text style={styles.time}>{formatTime(data.fileduration)}</Text>
-        </View>
-        <View style={styles.row}>
-          <Pressable onPress={() => setVolume(volume > 0 ? 0 : 1)} style={styles.btn}>
-            <Text>{volume > 0 ? 'Mute' : 'Unmute'}</Text>
-          </Pressable>
+          <Time>{formatTime(data.fileduration)}</Time>
+        </Row>
+        <Row>
+          <Btn onPress={() => setVolume(volume > 0 ? 0 : 1)}>
+            <ThemedText>{volume > 0 ? 'Mute' : 'Unmute'}</ThemedText>
+          </Btn>
           {Platform.OS === 'web' && (
-            <Pressable onPress={() => toggleFullscreen()} style={styles.btn}><Text>Fullscreen</Text></Pressable>
+            <Btn onPress={() => toggleFullscreen()}><ThemedText>Fullscreen</ThemedText></Btn>
           )}
-        </View>
-      </View>
-    </View>
+        </Row>
+      </Controls>
+    </Container>
   );
 }
 
@@ -143,19 +145,84 @@ function toggleFullscreen() {
   else (el as any).exitFullscreen?.();
 }
 
-const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: 'black'},
-  videoContainer: {flex: 1, backgroundColor: 'black', justifyContent: 'center'},
-  controls: {padding: 12, backgroundColor: '#111', gap: 8},
-  row: {flexDirection: 'row', alignItems: 'center', gap: 8},
-  slider: {flex: 1},
-  btn: {paddingVertical: 8, paddingHorizontal: 12, backgroundColor: '#333', borderRadius: 4},
-  time: {color: 'white', width: 48, textAlign: 'center'},
-  overlayCenter: {...StyleSheet.absoluteFillObject as any, alignItems: 'center', justifyContent: 'center'},
-  errorBox: {backgroundColor: 'rgba(0,0,0,0.6)', padding: 12, borderRadius: 8},
-  retryBtn: {marginTop: 8, padding: 8, backgroundColor: '#222', borderRadius: 4},
-  retryText: {color: 'white'},
-  errorText: {color: 'white'},
-  center: {flex: 1, alignItems: 'center', justifyContent: 'center'},
-  loadingText: {marginTop: 12},
-});
+const Container = styled.View`
+  flex: 1;
+  background-color: black;
+`;
+
+const VideoContainer = styled.Pressable`
+  flex: 1;
+  background-color: black;
+  justify-content: center;
+`;
+
+const StyledVideoView = styled(VideoView)`
+  width: 100%;
+  height: 100%;
+`;
+
+const Controls = styled.View`
+  padding: 12px;
+  background-color: #111;
+  gap: 8px;
+`;
+
+const Row = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+`;
+
+const Btn = styled.Pressable`
+  padding-vertical: 8px;
+  padding-horizontal: 12px;
+  background-color: #333;
+  border-radius: 4px;
+`;
+
+const Time = styled(ThemedText)`
+  color: white;
+  width: 48px;
+  text-align: center;
+`;
+
+const OverlayCenter = styled.View`
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ErrorBox = styled.View`
+  background-color: rgba(0,0,0,0.6);
+  padding: 12px;
+  border-radius: 8px;
+`;
+
+const RetryBtn = styled.Pressable`
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #222;
+  border-radius: 4px;
+`;
+
+const RetryText = styled(ThemedText)`
+  color: white;
+`;
+
+const ErrorText = styled(ThemedText)`
+  color: white;
+`;
+
+const Center = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+`;
+
+const LoadingText = styled(ThemedText)`
+  margin-top: 12px;
+`;

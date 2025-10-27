@@ -1,50 +1,117 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import { Alert, Platform, StyleSheet, Switch, ScrollView } from 'react-native';
 import Slider from '@react-native-community/slider';
-import { useTheme } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
+import styled, {DefaultTheme} from 'styled-components/native';
 
 import { useGetModulesQuery, useGetSettingsQuery, useUpdateSettingsMutation, SettingsAttributes } from '@/src/services/api/settings';
 import {ThemedPicker} from "@/src/components/form/ThemedPicker";
+import { getBaseUrl } from '@/src/services/api/base';
+import { setBaseUrl } from '@/src/services/serverConfig';
+import { ThemedText } from '@/src/components/themed-text';
+import {ThemedTextInput} from '@/src/components/form/ThemedTextInput';
+
+const Row = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+`;
+
+const RowRight = styled(Row)`
+  justify-content: flex-end;
+`;
+
+const Column = styled.View`
+  gap: 8px;
+  margin-bottom: 12px;
+`;
+
+const Card = styled.View`
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  border-width: ${StyleSheet.hairlineWidth}px;
+  border-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.border};
+`;
+
+const LabelText:typeof ThemedText = styled(ThemedText)`
+  font-size: 16px;
+`;
+
+const InputFlex: typeof ThemedTextInput = styled(ThemedTextInput)`
+  flex: 1;
+`;
+
+const Pill = styled.Pressable<{ active?: boolean }>`
+  padding-horizontal: 12px;
+  padding-vertical: 6px;
+  border-radius: 999px;
+  border-width: ${StyleSheet.hairlineWidth}px;
+  border-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.border};
+  background-color: ${({ active, theme }: { active?: boolean; theme: DefaultTheme }) => (active ? theme.colors.primary : 'transparent')};
+`;
+
+const PillText = styled(ThemedText)`
+  color: white;
+  font-weight: 600;
+`;
+
+const LibRow = styled(Row)`
+  gap: 8px;
+`;
+
+const MonoText = styled(ThemedText)`
+  font-family: ${Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' })};
+  font-size: 12px;
+`;
 
 function CheckboxRow({ label, value, onValueChange }: { label: string; value: boolean; onValueChange: (next: boolean) => void }) {
-  const theme = useTheme();
   return (
-    <View style={styles.row}>
-      <Text style={[styles.label, { color: theme.colors.text }]}>{label}</Text>
+    <Row>
+      <LabelText>{label}</LabelText>
       <Switch value={value} onValueChange={onValueChange} />
-    </View>
+    </Row>
   );
 }
 
 function TextRow({ label, value, onChangeText, keyboardType = 'default' as const, placeholder }: { label: string; value: string; placeholder?: string; keyboardType?: 'default' | 'numeric' | 'email-address'; onChangeText: (t: string) => void }) {
-  const theme = useTheme();
   return (
-    <View style={styles.row}>
-      <Text style={[styles.label, { color: theme.colors.text }]}>{label}</Text>
-      <TextInput
-        style={[styles.input, { color: theme.colors.text, borderColor: theme.colors.border }]}
+    <Row>
+      <LabelText>{label}</LabelText>
+      <ThemedTextInput
         value={value ?? ''}
         placeholder={placeholder}
-        placeholderTextColor={theme.colors.border}
         onChangeText={onChangeText}
         keyboardType={keyboardType}
       />
-    </View>
+    </Row>
   );
 }
 
 export default function SettingsScreen() {
-  const theme = useTheme();
   const { data: settings, isFetching } = useGetSettingsQuery();
   const { data: availableModules } = useGetModulesQuery();
   const [updateSettings, { isLoading: isSaving }] = useUpdateSettingsMutation();
 
   const [draft, setDraft] = useState<SettingsAttributes | undefined>(undefined);
+  const [serverEndpoint, setServerEndpointState] = useState<string>('');
 
   useEffect(() => {
     if (settings && !draft) setDraft(settings);
   }, [settings, draft]);
+
+  useEffect(() => {
+    setServerEndpoint(getBaseUrl());
+  }, []);
+
+  const setServerEndpoint = useCallback((value:string) => {
+    setBaseUrl(value);
+    setServerEndpointState(value);
+  }, [setServerEndpointState]);
+
+
 
   const hasModule = (name: string) => (draft?.modules ?? []).includes(name);
 
@@ -58,6 +125,7 @@ export default function SettingsScreen() {
   const onSave = async () => {
     if (!draft) return;
     try {
+      // Save frontend-only server endpoint first
       const patch: Partial<SettingsAttributes> = {
         name: draft.name,
         port: Number(draft.port) as any,
@@ -83,54 +151,69 @@ export default function SettingsScreen() {
     }
   };
 
+  // @todo move into seperate element and refresh state properly
+  const serverElement = (
+    <Card>
+      <CardTitle>Frontend</CardTitle>
+      <TextRow label="Server endpoint" value={serverEndpoint} placeholder="http://host:port" onChangeText={setServerEndpoint} />
+      <HelpText>This only affects the app. Use it to connect to a different server address.</HelpText>
+    </Card>
+  )
+
   if (!draft) {
-    return <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: theme.colors.text }}>{isFetching ? 'Loading...' : 'No settings'}</Text></View>;
+    return <>
+      {serverElement}
+      <Center><ThemedText>{isFetching ? 'Loading...' : 'No settings'}</ThemedText></Center>
+    </>
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <View style={{ alignItems: 'flex-end' }}>
-          <Pressable onPress={onSave} style={[styles.saveBtn, { backgroundColor: theme.colors.card }]} accessibilityLabel="save">
-            <Text style={{ color: theme.colors.text }}>{isSaving ? 'Saving…' : 'Save'}</Text>
-          </Pressable>
-        </View>
+    <ScreenContainer>
+      <ScrollView>
+        <ContentPad>
+        <AlignEnd>
+          <SaveBtn onPress={onSave} accessibilityLabel="save">
+            <SaveBtnText>{isSaving ? 'Saving…' : 'Save'}</SaveBtnText>
+          </SaveBtn>
+        </AlignEnd>
 
-        <View style={styles.card}>
-          <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Server settings</Text>
+        {serverElement}
+
+        <Card>
+          <CardTitle>Server settings</CardTitle>
           <TextRow label="Server name" value={draft.name ?? ''} onChangeText={(t) => setDraft({ ...draft, name: t })} />
           <TextRow label="Port" value={String(draft.port ?? '')} keyboardType="numeric" onChangeText={(t) => setDraft({ ...draft, port: Number(t) as any })} />
-          <View style={styles.row}>
-            <Text style={[styles.label, { color: theme.colors.text }]}>File watcher</Text>
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-              <Pressable onPress={() => setDraft({ ...draft, filewatcher: 'native' })} style={[styles.pill, draft.filewatcher === 'native' && styles.pillActive]}><Text style={styles.pillText}>Native</Text></Pressable>
-              <Pressable onPress={() => setDraft({ ...draft, filewatcher: 'polling' })} style={[styles.pill, draft.filewatcher === 'polling' && styles.pillActive]}><Text style={styles.pillText}>Polling</Text></Pressable>
-            </View>
-          </View>
+          <Row>
+            <LabelText>File watcher</LabelText>
+            <RowGap>
+              <Pill onPress={() => setDraft({ ...draft, filewatcher: 'native' })} active={draft.filewatcher === 'native'}><PillText>Native</PillText></Pill>
+              <Pill onPress={() => setDraft({ ...draft, filewatcher: 'polling' })} active={draft.filewatcher === 'polling'}><PillText>Polling</PillText></Pill>
+            </RowGap>
+          </Row>
           <CheckboxRow label="Full rescan on start" value={!!draft.startscan} onValueChange={(v) => setDraft({ ...draft, startscan: v })} />
-        </View>
+        </Card>
 
-        <View style={styles.rowRight}>
+        <RowRight>
           <CheckboxRow label="Show advanced" value={!!draft.advanced} onValueChange={(v) => setDraft({ ...draft, advanced: v })} />
-        </View>
+        </RowRight>
 
         {hasModule('ssl') && (
-          <View style={styles.card}>
-            <Text style={[styles.cardTitle, { color: theme.colors.text }]}>SSL</Text>
+          <Card>
+            <CardTitle>SSL</CardTitle>
             <TextRow label="SSL Subdomain" value={draft.ssldomain ?? ''} onChangeText={(t) => setDraft({ ...draft, ssldomain: t })} />
             <TextRow label="SSL port" value={draft.sslport ? String(draft.sslport) : ''} keyboardType="numeric" onChangeText={(t) => setDraft({ ...draft, sslport: Number(t) as any })} />
             <TextRow label="Email" value={draft.sslemail ?? ''} keyboardType="email-address" onChangeText={(t) => setDraft({ ...draft, sslemail: t })} />
             <CheckboxRow label="Automatically redirect to https" value={!!draft.sslredirect} onValueChange={(v) => setDraft({ ...draft, sslredirect: v })} />
-          </View>
+          </Card>
         )}
 
         {hasModule('sharing') && (
-          <View style={styles.card}>
-            <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Share settings</Text>
+          <Card>
+            <CardTitle>Share settings</CardTitle>
             <TextRow label="Sharing host" value={draft.sharehost ?? ''} onChangeText={(t) => setDraft({ ...draft, sharehost: t })} />
             <TextRow label="Sharing port" value={draft.shareport ? String(draft.shareport) : ''} keyboardType="numeric" onChangeText={(t) => setDraft({ ...draft, shareport: Number(t) as any })} />
-            <View style={styles.column}>
-              <Text style={[styles.label, { color: theme.colors.text }]}>Space reserved for shared files ({draft.sharespace ?? 0})</Text>
+            <Column>
+              <LabelText>Space reserved for shared files ({draft.sharespace ?? 0})</LabelText>
               <Slider
                 minimumValue={1}
                 maximumValue={1000}
@@ -138,22 +221,20 @@ export default function SettingsScreen() {
                 value={draft.sharespace ?? 1}
                 onValueChange={(v) => setDraft({ ...draft, sharespace: Math.round(v) })}
               />
-            </View>
-            <View style={styles.row}>
-              <Text style={[styles.label, { color: theme.colors.text }]}>Share key</Text>
-              <Text selectable style={[styles.mono, { color: theme.colors.text }]}>{`${draft.sharekey ?? ''}-${draft.dbKey ?? ''}-${draft.dbNonce ?? ''}`}</Text>
-            </View>
-          </View>
+            </Column>
+            <Row>
+              <LabelText>Share key</LabelText>
+              <MonoText selectable>{`${draft.sharekey ?? ''}-${draft.dbKey ?? ''}-${draft.dbNonce ?? ''}`}</MonoText>
+            </Row>
+          </Card>
         )}
 
-        <View style={styles.card}>
-          <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Media libraries</Text>
+        <Card>
+          <CardTitle>Media libraries</CardTitle>
           {(draft.libraries ?? []).map((lib, idx) => (
-            <View key={lib.uuid ?? `idx-${idx}`} style={[styles.row, styles.libRow]}>
-              <TextInput
-                style={[styles.input, { flex: 1, color: theme.colors.text, borderColor: theme.colors.border }]}
+            <LibRow key={lib.uuid ?? `idx-${idx}`}>
+              <InputFlex
                 placeholder="Name"
-                placeholderTextColor={theme.colors.border}
                 value={lib.name ?? ''}
                 onChangeText={(t) => {
                   const libs = [...(draft.libraries ?? [])];
@@ -176,10 +257,8 @@ export default function SettingsScreen() {
                   <Picker.Item label="External Library" value="shared" />
                 </ThemedPicker>
               {(lib.type === 'shared') ? (
-                <TextInput
-                  style={[styles.input, { flex: 1, color: theme.colors.text, borderColor: theme.colors.border }]}
+                <InputFlex
                   placeholder="Code"
-                  placeholderTextColor={theme.colors.border}
                   value={(lib as any).uuid ?? ''}
                   onChangeText={(t) => {
                     const libs = [...(draft.libraries ?? [])];
@@ -188,10 +267,8 @@ export default function SettingsScreen() {
                   }}
                 />
               ) : (
-                <TextInput
-                  style={[styles.input, { flex: 1, color: theme.colors.text, borderColor: theme.colors.border }]}
+                <InputFlex
                   placeholder="Directory"
-                  placeholderTextColor={theme.colors.border}
                   value={lib.folder ?? ''}
                   onChangeText={(t) => {
                     const libs = [...(draft.libraries ?? [])];
@@ -200,49 +277,97 @@ export default function SettingsScreen() {
                   }}
                 />
               )}
-              <Pressable style={[styles.removeBtn, { borderColor: theme.colors.border }]} onPress={() => {
+              <RemoveBtn onPress={() => {
                 const libs = [...(draft.libraries ?? [])];
                 libs.splice(idx, 1);
                 setDraft({ ...draft, libraries: libs });
               }}>
-                <Text style={{ color: theme.colors.text }}>Delete</Text>
-              </Pressable>
-            </View>
+                <SaveBtnText>Delete</SaveBtnText>
+              </RemoveBtn>
+            </LibRow>
           ))}
-          <View style={{ alignItems: 'flex-start' }}>
-            <Pressable style={[styles.addBtn, { borderColor: theme.colors.border }]} onPress={() => setDraft({ ...draft, libraries: [...(draft.libraries ?? []), { name: '', type: 'folder', folder: '' }] })}>
-              <Text style={{ color: theme.colors.text }}>Add new</Text>
-            </Pressable>
-          </View>
-        </View>
+          <AlignStart>
+            <AddBtn onPress={() => setDraft({ ...draft, libraries: [...(draft.libraries ?? []), { name: '', type: 'folder', folder: '' }] })}>
+              <SaveBtnText>Add new</SaveBtnText>
+            </AddBtn>
+          </AlignStart>
+        </Card>
 
-        <View style={styles.card}>
-          <Text style={[styles.cardTitle, { color: theme.colors.text }]}>Modules</Text>
+        <Card>
+          <CardTitle>Modules</CardTitle>
           {(availableModules ?? []).map((m) => (
             <CheckboxRow key={m} label={`${m.replace('_', ' ')}`} value={hasModule(m)} onValueChange={() => toggleModule(m)} />
           ))}
-          <Text style={[styles.help, { color: theme.colors.text }]}>Changing these requires a restart of the mediaserver</Text>
-        </View>
+          <HelpText>Changing these requires a restart of the mediaserver</HelpText>
+        </Card>
+        </ContentPad>
       </ScrollView>
-    </View>
+    </ScreenContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 12 },
-  rowRight: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 12, marginBottom: 12 },
-  column: { gap: 8, marginBottom: 12 },
-  card: { borderRadius: 8, padding: 12, marginBottom: 16, borderWidth: StyleSheet.hairlineWidth },
-  cardTitle: { fontSize: 18, fontWeight: '600', marginBottom: 8 },
-  label: { fontSize: 16 },
-  input: { borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 10, paddingVertical: 8, borderRadius: 6, minWidth: 120 },
-  pill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth },
-  pillActive: { backgroundColor: '#444' },
-  pillText: { color: 'white', fontWeight: '600' },
-  saveBtn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8 },
-  addBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, borderWidth: StyleSheet.hairlineWidth },
-  removeBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, borderWidth: StyleSheet.hairlineWidth },
-  libRow: { gap: 8 },
-  mono: { fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }), fontSize: 12 },
-  help: { fontSize: 12, opacity: 0.8 },
-});
+
+const ScreenContainer = styled.View`
+  flex: 1;
+`;
+
+const ContentPad = styled.View`
+  padding: 16px;
+`;
+
+const Center = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+`;
+
+const AlignEnd = styled.View`
+  align-items: flex-end;
+`;
+
+const AlignStart = styled.View`
+  align-items: flex-start;
+`;
+
+const SaveBtn = styled.Pressable`
+  padding-horizontal: 16px;
+  padding-vertical: 10px;
+  border-radius: 8px;
+  background-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.background};
+`;
+
+const SaveBtnText = styled(ThemedText)`
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
+`;
+
+const CardTitle = styled(ThemedText)`
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+`;
+
+const HelpText = styled(ThemedText)`
+  font-size: 12px;
+  opacity: 0.8;
+`;
+
+const RowGap = styled.View`
+  flex-direction: row;
+  gap: 12px;
+`;
+
+const AddBtn = styled.Pressable`
+  padding-horizontal: 12px;
+  padding-vertical: 8px;
+  border-radius: 8px;
+  border-width: ${StyleSheet.hairlineWidth}px;
+  border-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.border};
+`;
+
+const RemoveBtn = styled.Pressable`
+  padding-horizontal: 12px;
+  padding-vertical: 8px;
+  border-radius: 8px;
+  border-width: ${StyleSheet.hairlineWidth}px;
+  border-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.border};
+`;

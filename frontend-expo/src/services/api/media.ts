@@ -1,4 +1,4 @@
-import {api, deserializeList, JsonApiListResponse, BASE_URL} from '@/src/services/api/base';
+import {api, deserializeList, JsonApiListResponse, getBaseUrl} from '@/src/services/api/base';
 
 import {z} from 'zod';
 
@@ -24,7 +24,7 @@ export const MediaItemSchema = z.object({
 }).transform((obj) => ({
   id: obj.id,
   ...obj.attributes,
-  thumbnailUrl: `${BASE_URL}/img/${obj.id}_postersmall.jpg`
+  thumbnailUrl: `${getBaseUrl()}/img/${obj.id}_postersmall.jpg`
 }));
 
 

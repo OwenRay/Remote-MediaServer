@@ -1,14 +1,16 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, ListRenderItemInfo, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, FlatList, ListRenderItemInfo, useWindowDimensions } from 'react-native';
 import { useTheme } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import styled from 'styled-components/native';
 
 import SearchBar, {FiltersState} from '@/src/components/search/SearchBar';
 import {MediaItemTile} from '@/src/components/media/MediaItemTile';
 import MediaItemTilePlaceholder from '@/src/components/media/MediaItemTilePlaceholder';
 import { ThemedText } from '@/src/components/themed-text';
 import { useLazyGetItemsPagedQuery } from '@/src/services/api/media';
+
+const ColumnWrapper = { gap: 15, justifyContent: 'center' } as const;
 
 const CELL_WIDTH = 150;
 const CELL_HEIGHT = 236;
@@ -18,7 +20,6 @@ const PAGE_SIZE = 48;
 
 export default function LibraryScreen() {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
   const router = useRouter();
 
@@ -86,16 +87,16 @@ export default function LibraryScreen() {
     if (!itm) {
       ensurePageLoaded(index);
       return (
-        <View style={{ width: CELL_WIDTH }}>
-          <View style={{ height: CELL_HEIGHT, marginBottom: GUTTER }}>
+        <Cell>
+          <CellInner>
             <MediaItemTilePlaceholder width={CELL_WIDTH} height={CELL_HEIGHT} />
-          </View>
-        </View>
+          </CellInner>
+        </Cell>
       );
     }
     return (
-      <View style={{ width: CELL_WIDTH }}>
-        <View style={{ height: CELL_HEIGHT, marginBottom: GUTTER }}>
+      <Cell>
+        <CellInner>
           <MediaItemTile
             width={CELL_WIDTH}
             height={CELL_HEIGHT}
@@ -103,49 +104,72 @@ export default function LibraryScreen() {
             onPress={() => router.push(`/details/${itm.id}`)}
             onPlay={() => router.push(`/player/${itm.id}`)}
           />
-        </View>
-      </View>
+        </CellInner>
+      </Cell>
     );
   };
 
   return (
-    <View style={styles.container}>
+    <Container>
       <SearchBar filters={filters} onFiltersChange={setFilters} value={query} onChange={setQuery} />
-      {/*<Filters value={filters} onChange={setFilters} />*/}
       {isError && <ThemedText>Failed to load items.</ThemedText>}
-      <FlatList
-        testID="search-list"
-        key={cols}
-        style={{ paddingTop: insets.top + GUTTER }}
-        contentContainerStyle={{ paddingBottom: 24 }}
-        data={data}
-        numColumns={cols}
-        centerContent
-        keyExtractor={(index) => `row-${index}`}
-        columnWrapperStyle={{ gap: GUTTER, justifyContent: 'center' }}
-        renderItem={renderItem}
-        indicatorStyle={theme.dark ? 'white' : 'black'}
-        onEndReachedThreshold={0.5}
-        onEndReached={() => {
-          const nextIndex = Math.max(0, data.length - 1);
-          ensurePageLoaded(nextIndex + 1);
-        }}
-        ListEmptyComponent={
-          isFetching ? (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <ActivityIndicator size="large" color={theme.colors.text} />
-            </View>
-          ) : (
-            <ThemedText style={{ padding: 16 }}>No items found.</ThemedText>
-          )
-        }
-      />
-    </View>
+        <FlatList
+          testID="search-list"
+          key={cols}
+          data={data}
+          numColumns={cols}
+          centerContent
+          keyExtractor={(index) => `row-${index}`}
+          renderItem={renderItem}
+          indicatorStyle={theme.dark ? 'white' : 'black'}
+          columnWrapperStyle={ColumnWrapper}
+          onEndReachedThreshold={0.5}
+          onEndReached={() => {
+            const nextIndex = Math.max(0, data.length - 1);
+            ensurePageLoaded(nextIndex + 1);
+          }}
+          ListFooterComponent={<FooterSpace />}
+          ListEmptyComponent={
+            isFetching ? (
+              <Center>
+                <ActivityIndicator size="large" color={theme.colors.text} />
+              </Center>
+            ) : (
+              <NoItemsText>No items found.</NoItemsText>
+            )
+          }
+        />
+    </Container>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+const Container = styled.View`
+  flex: 1;
+`;
+
+const ListContainer = styled.View<{ topPad: number }>`
+  padding-top: ${({ topPad }: { topPad: number }) => `${topPad}px`};
+`;
+
+const Cell = styled.View`
+  width: ${CELL_WIDTH}px;
+`;
+
+const CellInner = styled.View`
+  height: ${CELL_HEIGHT}px;
+  margin-bottom: ${GUTTER}px;
+`;
+
+const NoItemsText = styled(ThemedText)`
+  padding: 16px;
+`;
+
+const FooterSpace = styled.View`
+  height: 24px;
+`;
+
+const Center = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+`;
