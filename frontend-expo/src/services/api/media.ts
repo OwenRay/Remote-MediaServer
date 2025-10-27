@@ -13,7 +13,7 @@ const serieNumber = z.union([z.number(), z.boolean()])
   .transform(val => val == null ? undefined : val)
   .transform(val => typeof val === 'boolean' ? undefined : val).optional();
 export const MediaItemSchema = z.object({
-  id: z.string(),
+  id: z.union([z.string(), z.number()]),
   attributes: z.object({
     title: z.string().optional().default('Untitled'),
     season: serieNumber,

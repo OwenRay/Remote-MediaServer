@@ -203,7 +203,7 @@ const PlayButton = styled.Pressable<{ visible?: boolean }>`
   justify-content: center;
   text-align: center;
   background-color: rgb(217,195,31);
-  bottom: ${({ visible }: { visible?: boolean }) => (visible ? '60px' : '-80px')};
+  bottom: ${({ visible }: { visible?: boolean }) => (visible ? '45px' : '-40px')};
   transition: bottom 0.3s cubic-bezier(0.66, 0, 0.34, 1);
 `;
 

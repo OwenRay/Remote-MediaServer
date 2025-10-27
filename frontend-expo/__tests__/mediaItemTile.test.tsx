@@ -39,8 +39,8 @@ describe('MediaItemTile (expo)', () => {
     const onPress = jest.fn();
 
     renderWithProviders(<MediaItemTile item={item} onPress={onPress} />);
-    fireEvent.press(screen.getByTestId('media-item-tile'));
-    fireEvent.press(screen.getByTestId('media-item-tile'));
+    fireEvent.press(screen.getByText('My Show'));
+    fireEvent.press(screen.getByText('My Show'));
 
     expect(onPress).toHaveBeenCalled();
   });

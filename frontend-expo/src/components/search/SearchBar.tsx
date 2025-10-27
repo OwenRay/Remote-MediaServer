@@ -108,10 +108,7 @@ export default function SearchBar({
 const Content = styled.View<{ isWide: boolean }>`
   padding: 16px;
   gap: 8px;
-  flex-direction: ${({ isWide }: { isWide: boolean }) => {
-    console.log('isWide', isWide);
-    return (isWide ? 'row' : 'column')
-  }};
+  flex-direction: ${({ isWide }: { isWide: boolean }) => isWide ? 'row' : 'column'};
   justify-content: stretch;
   width: 100%;
 `;
