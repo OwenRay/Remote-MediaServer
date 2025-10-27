@@ -1,5 +1,5 @@
 import { Picker } from "@react-native-picker/picker";
-import styled from "styled-components/native";
+import {default as styled} from "styled-components/native";
 import type { DefaultTheme } from "styled-components/native";
 
 type PickerType = typeof Picker;

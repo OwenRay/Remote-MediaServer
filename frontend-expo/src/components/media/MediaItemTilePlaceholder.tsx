@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components/native';
+import {default as styled} from 'styled-components/native';
 
 export type MediaItemTilePlaceholderProps = {
   width?: number;

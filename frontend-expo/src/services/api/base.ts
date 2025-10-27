@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery, type BaseQueryFn } from '@reduxjs/toolkit/query/react';
-import { getApiBaseUrl, getBaseUrl } from '@/src/services/serverConfig';
+import { getApiBaseUrl } from '@/src/services/serverConfig';
 
 // Expose getters for dynamic server URL
 export { getBaseUrl } from '@/src/services/serverConfig';

@@ -1,4 +1,4 @@
-import styled from 'styled-components/native';
+import {default as styled} from 'styled-components/native';
 
 import type { DefaultTheme } from 'styled-components/native';
 import {TextInput} from "react-native";

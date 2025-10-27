@@ -7,7 +7,7 @@ import {getBaseUrl} from '@/src/services/api/base';
 import {useWritePlayPositionMutation} from '@/src/services/api/playback';
 import {SeekBar} from '@/src/components/SeekBar';
 import {useGetItemQuery} from '@/src/services/api/media';
-import styled from 'styled-components/native';
+import {default as styled} from 'styled-components/native';
 
 export default function PlayerScreen() {
   const {id} = useLocalSearchParams<{ id: string }>();

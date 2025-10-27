@@ -4,7 +4,7 @@ import { ThemedText } from '@/src/components/themed-text';
 import type { MediaItem } from '@/src/services/api/media';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
-import styled from 'styled-components/native';
+import {default as styled} from 'styled-components/native';
 
 export type MediaItemTileProps = {
   item: MediaItem & Partial<{ playPos: number }>;
@@ -12,11 +12,9 @@ export type MediaItemTileProps = {
   onPlay?: () => void; // explicit play action (overlay button)
   width?: number; // cell width (default 150)
   height?: number; // cell height (default 218)
-  style?: any;
-  testID?: string;
 };
 
-export function MediaItemTile({ item, onPress = () => {}, onPlay = () => {}, width = 150, height = 218, style, testID }: MediaItemTileProps) {
+export function MediaItemTile({ item, onPress = () => {}, onPlay = () => {}, width = 150, height = 218 }: MediaItemTileProps) {
   const hasThumb = !!item.thumbnailUrl;
   const season = typeof item.season === 'number' ? item.season : undefined;
   const episode = typeof item.episode === 'number' ? item.episode : undefined;
@@ -52,8 +50,6 @@ export function MediaItemTile({ item, onPress = () => {}, onPlay = () => {}, wid
       onHoverOut={Platform.OS === 'web' ? () => showOverlay(false) : undefined}
       width={width}
       height={height}
-      style={style}
-      testID={testID ?? 'media-item-tile'}
     >
       {/* Poster */}
       {hasThumb ? (

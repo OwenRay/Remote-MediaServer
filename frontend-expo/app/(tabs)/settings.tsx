@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import { Alert, Platform, StyleSheet, Switch, ScrollView } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Picker } from '@react-native-picker/picker';
-import styled, {DefaultTheme} from 'styled-components/native';
+import {default as styled, DefaultTheme} from 'styled-components/native';
 
 import { useGetModulesQuery, useGetSettingsQuery, useUpdateSettingsMutation, SettingsAttributes } from '@/src/services/api/settings';
 import {ThemedPicker} from "@/src/components/form/ThemedPicker";
@@ -102,14 +102,15 @@ export default function SettingsScreen() {
     if (settings && !draft) setDraft(settings);
   }, [settings, draft]);
 
-  useEffect(() => {
-    setServerEndpoint(getBaseUrl());
-  }, []);
 
   const setServerEndpoint = useCallback((value:string) => {
     setBaseUrl(value);
     setServerEndpointState(value);
   }, [setServerEndpointState]);
+
+  useEffect(() => {
+    setServerEndpoint(getBaseUrl());
+  }, [setServerEndpoint]);
 
 
 

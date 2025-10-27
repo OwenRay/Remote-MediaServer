@@ -1,6 +1,6 @@
 import React from 'react';
 import Slider from "@react-native-community/slider";
-import styled from 'styled-components/native';
+import {default as styled} from 'styled-components/native';
 
 export type SeekBarProps = {
   min: number;

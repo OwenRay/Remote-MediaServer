@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, ListRenderItemInfo, useWindowDimensions } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import styled from 'styled-components/native';
+import {default as styled} from 'styled-components/native';
 
 import SearchBar, {FiltersState} from '@/src/components/search/SearchBar';
 import {MediaItemTile} from '@/src/components/media/MediaItemTile';
@@ -147,9 +147,6 @@ const Container = styled.View`
   flex: 1;
 `;
 
-const ListContainer = styled.View<{ topPad: number }>`
-  padding-top: ${({ topPad }: { topPad: number }) => `${topPad}px`};
-`;
 
 const Cell = styled.View`
   width: ${CELL_WIDTH}px;

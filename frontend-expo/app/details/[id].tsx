@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useGetItemQuery } from '@/src/services/api/media';
 import { ThemedText } from '@/src/components/themed-text';
 import { useTheme } from '@react-navigation/native';
-import styled from 'styled-components/native';
+import {default as styled} from 'styled-components/native';
 
 export default function DetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

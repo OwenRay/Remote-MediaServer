@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import styled from 'styled-components/native';
+import {default as styled} from 'styled-components/native';
 import { useWindowDimensions } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import {useGetLibrariesQuery} from '@/src/services/api/media';
