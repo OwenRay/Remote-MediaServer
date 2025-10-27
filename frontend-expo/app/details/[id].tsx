@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useGetItemQuery } from '@/src/services/api/media';
+import { useGetItemQuery } from '@/src/features/library/model/media';
 import { ThemedText } from '@/src/components/themed-text';
 import { useTheme } from '@react-navigation/native';
 import {default as styled} from 'styled-components/native';

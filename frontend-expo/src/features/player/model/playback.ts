@@ -1,4 +1,4 @@
-import { api, JsonApiSingleResponse } from '@/src/services/api/base';
+import { api, JsonApiSingleResponse } from '@/src/features/shared/model/api/base';
 
 export type PlayPositionAttributes = {
   position: number; // seconds

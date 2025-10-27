@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { Provider } from 'react-redux';
-import { store } from '@/src/services/store';
+import { store } from '@/src/features/shared/model/store';
 import { NavigationDarkTheme } from '@/src/theme';
 import { ThemeProvider as StyledThemeProvider, DefaultTheme } from 'styled-components/native';
 

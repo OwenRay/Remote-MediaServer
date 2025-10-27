@@ -1,5 +1,5 @@
-import { endpoints } from '@/src/services/api/media';
-import { store } from '@/src/services/store';
+import { endpoints } from './media';
+import {store} from "../../shared/model/store";
 
 // Using msw server from jest.setup.ts
 

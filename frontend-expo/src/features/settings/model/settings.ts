@@ -1,4 +1,4 @@
-import { api, JsonApiSingleResponse } from '@/src/services/api/base';
+import { api, JsonApiSingleResponse } from '@/src/features/shared/model/api/base';
 
 export type SettingsAttributes = {
   // Exact fields as used in legacy Settings.js UI

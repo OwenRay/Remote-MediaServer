@@ -2,7 +2,7 @@ import React, { PropsWithChildren } from 'react';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { render } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
-import { store } from '@/src/services/store';
+import { store } from '@/src/features/shared/model/store';
 import { ThemeProvider as StyledThemeProvider, DefaultTheme as SCDefaultTheme } from 'styled-components/native';
 
 import mock from 'react-native-safe-area-context/jest/mock';

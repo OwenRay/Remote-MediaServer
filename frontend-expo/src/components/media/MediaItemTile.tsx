@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Platform } from 'react-native';
 import { ThemedText } from '@/src/components/themed-text';
-import type { MediaItem } from '@/src/services/api/media';
+import type { MediaItem } from '@/src/features/library/model/media';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import {default as styled} from 'styled-components/native';

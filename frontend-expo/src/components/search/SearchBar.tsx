@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {default as styled} from 'styled-components/native';
 import { useWindowDimensions } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
-import {useGetLibrariesQuery} from '@/src/services/api/media';
+import {useGetLibrariesQuery} from '@/src/features/library/model/media';
 import {ThemedTextInput} from "@/src/components/form/ThemedTextInput";
 import {ThemedText} from "@/src/components/themed-text";
 import {ThemedPicker} from "@/src/components/form/ThemedPicker";

@@ -1,9 +1,9 @@
 import { createApi, fetchBaseQuery, type BaseQueryFn } from '@reduxjs/toolkit/query/react';
-import { getApiBaseUrl } from '@/src/services/serverConfig';
+import { getApiBaseUrl } from '@/src/features/shared/model/serverConfig';
 
 // Expose getters for dynamic server URL
-export { getBaseUrl } from '@/src/services/serverConfig';
-export { getApiBaseUrl } from '@/src/services/serverConfig';
+export { getBaseUrl } from '@/src/features/shared/model/serverConfig';
+export { getApiBaseUrl } from '@/src/features/shared/model/serverConfig';
 
 // @todo recreate after url change
 export const baseQuery: BaseQueryFn = async (args, api, extraOptions) => {

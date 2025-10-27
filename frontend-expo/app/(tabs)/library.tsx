@@ -8,7 +8,7 @@ import SearchBar, {FiltersState} from '@/src/components/search/SearchBar';
 import {MediaItemTile} from '@/src/components/media/MediaItemTile';
 import MediaItemTilePlaceholder from '@/src/components/media/MediaItemTilePlaceholder';
 import { ThemedText } from '@/src/components/themed-text';
-import { useLazyGetItemsPagedQuery } from '@/src/services/api/media';
+import { useLazyGetItemsPagedQuery } from '@/src/features/library/model/media';
 
 const ColumnWrapper = { gap: 15, justifyContent: 'center' } as const;
 

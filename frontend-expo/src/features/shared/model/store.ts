@@ -1,11 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { api } from '@/src/services/api/base';
-import { playerUiReducer } from '@/src/features/player/controlsSlice';
+import { api } from '@/src/features/shared/model/api/base';
 
 export const store = configureStore({
   reducer: {
     [api.reducerPath]: api.reducer,
-    playerUi: playerUiReducer,
   },
   middleware: (getDefault) => getDefault().concat(api.middleware),
 });

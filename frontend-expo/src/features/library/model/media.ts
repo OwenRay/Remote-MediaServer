@@ -1,4 +1,4 @@
-import {api, deserializeList, JsonApiListResponse, getBaseUrl} from '@/src/services/api/base';
+import {api, deserializeList, JsonApiListResponse, getBaseUrl} from '@/src/features/shared/model/api/base';
 
 import {z} from 'zod';
 
