@@ -125,6 +125,14 @@ jest.mock('@/src/features/shared/view/themed-text', () => {
   const { Text } = require('react-native');
   return { ThemedText: (props: any) => React.createElement(Text, props) };
 });
+// Mock expo-video components for Jest environment
+jest.mock('expo-video', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    VideoView: ({ children, ...props }: any) => React.createElement(View, { accessibilityLabel: 'VideoView', ...props }, children),
+  };
+});
 
 const originalConsoleWarn = console.warn;
 let reanimatedWarnSpy: jest.SpyInstance | undefined;

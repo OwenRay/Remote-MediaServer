@@ -11,7 +11,8 @@
     "lint": "expo lint --fix",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "test:watch": "jest --watchAll"
+    "test:watch": "jest --watchAll",
+    "test:all": "yarn lint && yarn typecheck && yarn test"
   },
   "jest": {
     "preset": "jest-expo",
