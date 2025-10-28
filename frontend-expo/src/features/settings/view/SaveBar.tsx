@@ -1,6 +1,7 @@
 import React from 'react';
 import { default as styled, DefaultTheme } from 'styled-components/native';
 import { ThemedText } from '@/src/features/shared/view/themed-text';
+import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 
 export type SaveBarProps = {
   isSaving: boolean;
@@ -11,11 +12,10 @@ const AlignEnd = styled.View`
   align-items: flex-end;
 `;
 
-const SaveBtn = styled.Pressable`
+const SaveBtn = styled(SecondaryButton)`
   padding-horizontal: 16px;
   padding-vertical: 10px;
   border-radius: 8px;
-  background-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.background};
 `;
 
 const SaveBtnText = styled(ThemedText)`

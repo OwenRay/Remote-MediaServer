@@ -6,6 +6,8 @@ import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import {default as styled} from 'styled-components/native';
 
+import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
+
 export type MediaItemTileProps = {
   item: MediaItem & Partial<{ playPos: number }>;
   onPress?: () => void; // navigate to detail/player
@@ -193,7 +195,7 @@ const SeasonEpisode = styled(ThemedText)`
 
 const Spacer = styled.View``;
 
-const PlayButton = styled.Pressable<{ visible?: boolean }>`
+const PlayButton = styled(SecondaryButton)<{ visible?: boolean }>`
   position: absolute;
   right: 10px;
   width: 36px;
@@ -202,7 +204,6 @@ const PlayButton = styled.Pressable<{ visible?: boolean }>`
   align-items: center;
   justify-content: center;
   text-align: center;
-  background-color: rgb(217,195,31);
   bottom: ${({ visible }: { visible?: boolean }) => (visible ? '45px' : '-40px')};
   transition: bottom 0.3s cubic-bezier(0.66, 0, 0.34, 1);
 `;

@@ -6,6 +6,7 @@ import {useGetLibrariesQuery} from '@/src/features/library/model/media';
 import {ThemedTextInput} from "@/src/features/shared/view/ThemedTextInput";
 import {ThemedText} from "@/src/features/shared/view/themed-text";
 import {ThemedPicker} from "@/src/features/shared/view/ThemedPicker";
+import {Card} from "@/src/features/shared/view/Card";
 
 export type SearchBarProps = {
   value: string;
@@ -105,7 +106,7 @@ export function SearchBar({
   );
 }
 
-const Content = styled.View<{ isWide: boolean }>`
+const Content = styled(Card)<{ isWide: boolean }>`
   padding: 16px;
   gap: 8px;
   flex-direction: ${({ isWide }: { isWide: boolean }) => isWide ? 'row' : 'column'};

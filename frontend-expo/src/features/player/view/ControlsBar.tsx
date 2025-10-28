@@ -2,6 +2,7 @@ import React from 'react';
 import {Platform} from 'react-native';
 import {default as styled} from 'styled-components/native';
 import {ThemedText} from '@/src/features/shared/view/themed-text';
+import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import {SeekBar} from '@/src/features/player/view/SeekBar';
 import type {PlayerController} from '@/src/features/player/domain/usePlayerController';
 
@@ -57,10 +58,9 @@ const Row = styled.View`
   gap: 8px;
 `;
 
-const Btn = styled.Pressable`
+const Btn = styled(SecondaryButton)`
   padding-vertical: 8px;
   padding-horizontal: 12px;
-  background-color: #333;
   border-radius: 4px;
 `;
 

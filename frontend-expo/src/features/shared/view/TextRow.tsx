@@ -21,6 +21,8 @@ const Row = styled.View`
 
 const LabelText: typeof ThemedText = styled(ThemedText)`
   font-size: 16px;
+  min-width: 150px;
+  text-align: right;
 `;
 
 const InputFlex: typeof ThemedTextInput = styled(ThemedTextInput)`

@@ -18,7 +18,7 @@ export default function RootLayout() {
       <NavigationThemeProvider value={NavigationDarkTheme}>
         <StyledThemeProvider theme={{
           colors: {
-            primary: '#1c1d36',
+            primary: NavigationDarkTheme.colors.primary,
             text: NavigationDarkTheme.colors.text,
             background: NavigationDarkTheme.colors.background,
             tint: NavigationDarkTheme.colors.primary,
@@ -26,6 +26,7 @@ export default function RootLayout() {
             tabIconDefault: '#9BA1A6',
             tabIconSelected: NavigationDarkTheme.colors.primary,
             border: NavigationDarkTheme.colors.border,
+            card: NavigationDarkTheme.colors.card,
           },
         } as DefaultTheme}>
           <Stack>

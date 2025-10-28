@@ -11,4 +11,5 @@ export const ThemedTextInput: typeof TextInput = styled.TextInput`
   min-width: 120px;
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
   border-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.border};
+  background-color: transparent;
 `;

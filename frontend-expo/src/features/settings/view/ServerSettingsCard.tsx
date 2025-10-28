@@ -4,6 +4,7 @@ import { CardTitle, Card } from '@/src/features/shared/view/Card';
 import { TextRow } from '@/src/features/shared/view/TextRow';
 import { CheckboxRow } from '@/src/features/shared/view/CheckboxRow';
 import { ThemedText } from '@/src/features/shared/view/themed-text';
+import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import { SettingsAttributes } from '@/src/features/settings/model/settings';
 
 export type ServerSettingsCardProps = {
@@ -24,7 +25,7 @@ const RowGap = styled.View`
   gap: 12px;
 `;
 
-const Pill = styled.Pressable<{ active?: boolean }>`
+const Pill = styled(SecondaryButton)<{ active?: boolean }>`
   padding-horizontal: 12px;
   padding-vertical: 6px;
   border-radius: 999px;

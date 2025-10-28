@@ -3,6 +3,7 @@ import { ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useGetItemQuery } from '@/src/features/library/model/media';
 import { ThemedText } from '@/src/features/shared/view/themed-text';
+import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import { useTheme } from '@react-navigation/native';
 import {default as styled} from 'styled-components/native';
 
@@ -68,12 +69,7 @@ const Actions = styled.View`
   margin-top: 8px;
 `;
 
-const PlayBtn = styled.Pressable`
-  background-color: #00b894;
-  padding-horizontal: 16px;
-  padding-vertical: 10px;
-  border-radius: 8px;
-`;
+const PlayBtn = styled(SecondaryButton)``;
 
 const PlayText = styled(ThemedText)`
   color: white;

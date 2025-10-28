@@ -8,6 +8,7 @@ export const Card = styled.View`
   margin-bottom: 16px;
   border-width: ${StyleSheet.hairlineWidth}px;
   border-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.border};
+  background-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.card};
 `;
 
 export const CardTitle = styled(ThemedText)`

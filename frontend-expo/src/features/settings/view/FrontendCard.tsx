@@ -1,27 +1,13 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { default as styled, DefaultTheme } from 'styled-components/native';
+import { default as styled } from 'styled-components/native';
 import { ThemedText } from '@/src/features/shared/view/themed-text';
 import { TextRow} from '@/src/features/shared/view/TextRow';
+import {Card, CardTitle} from "@/src/features/shared/view/Card";
 
 export type FrontendCardProps = {
   serverEndpoint: string;
   setServerEndpoint: (v: string) => void;
 };
-
-const Card = styled.View`
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 16px;
-  border-width: ${StyleSheet.hairlineWidth}px;
-  border-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.border};
-`;
-
-const CardTitle = styled(ThemedText)`
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 8px;
-`;
 
 const HelpText = styled(ThemedText)`
   font-size: 12px;

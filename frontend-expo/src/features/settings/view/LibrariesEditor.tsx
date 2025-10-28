@@ -6,6 +6,7 @@ import { ThemedText } from '@/src/features/shared/view/themed-text';
 import { ThemedTextInput } from '@/src/features/shared/view/ThemedTextInput';
 import { SettingsAttributes } from '@/src/features/settings/model/settings';
 import {ThemedPicker} from "@/src/features/shared/view/ThemedPicker";
+import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 
 export type LibrariesEditorProps = {
   draft: SettingsAttributes;
@@ -28,7 +29,7 @@ const AlignStart = styled.View`
   align-items: flex-start;
 `;
 
-const ActionBtn = styled.Pressable`
+const ActionBtn = styled(SecondaryButton)`
   padding-horizontal: 12px;
   padding-vertical: 8px;
   border-radius: 8px;

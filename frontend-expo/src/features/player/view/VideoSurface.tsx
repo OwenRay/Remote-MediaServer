@@ -2,6 +2,7 @@ import React from 'react';
 import {default as styled} from 'styled-components/native';
 import {VideoView} from 'expo-video';
 import {ThemedText} from '@/src/features/shared/view/themed-text';
+import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import type {PlayerController} from '@/src/features/player/domain/usePlayerController';
 
 export type VideoSurfaceProps = {
@@ -53,10 +54,9 @@ const ErrorBox = styled.View`
   border-radius: 8px;
 `;
 
-const RetryBtn = styled.Pressable`
+const RetryBtn = styled(SecondaryButton)`
   margin-top: 8px;
   padding: 8px;
-  background-color: #222;
   border-radius: 4px;
 `;
 
