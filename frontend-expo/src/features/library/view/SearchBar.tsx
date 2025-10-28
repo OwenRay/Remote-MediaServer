@@ -107,6 +107,7 @@ export function SearchBar({
 }
 
 const Content = styled(Card)<{ isWide: boolean }>`
+  margin-bottom: 0;
   padding: 16px;
   gap: 8px;
   flex-direction: ${({ isWide }: { isWide: boolean }) => isWide ? 'row' : 'column'};

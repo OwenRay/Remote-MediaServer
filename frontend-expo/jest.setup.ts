@@ -39,6 +39,12 @@ export const server = setupServer(
     const body: any = await request.json();
     return HttpResponse.json({ data: { id: 'pp1', type: 'play-positions', attributes: body?.data?.attributes ?? {} } });
   }),
+  // Fallback GET for play-positions by id
+  http.get('*/api/play-positions/:id', ({ params }) => {
+    const id = String((params as any).id);
+    // Simple default: return zero position unless overridden in tests
+    return HttpResponse.json({ data: { id, type: 'play-positions', attributes: { position: 0, watched: false } } });
+  }),
   // Settings endpoints for Task 9
   http.get('*/api/settings/1', () =>
     HttpResponse.json({ data: { id: 1, type: 'setting', attributes: {
@@ -106,9 +112,13 @@ afterEach(() => {
 afterAll(() => server.close());
 
 // Provide minimal mocks for native-only components in tests
-jest.mock('expo-blur', () => ({
-  BlurView: ({ children }: any) => children,
-}));
+jest.mock('expo-blur', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    BlurView: ({ children, ...props }: any) => React.createElement(View, props, children),
+  };
+});
 // Mock AsyncStorage for Jest to avoid native module errors
 jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock'));
 jest.mock('@expo/vector-icons', () => {

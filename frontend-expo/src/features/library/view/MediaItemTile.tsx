@@ -5,18 +5,18 @@ import type { MediaItem } from '@/src/features/library/model/media';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import {default as styled} from 'styled-components/native';
+import { useRouter } from 'expo-router';
 
 import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 
 export type MediaItemTileProps = {
   item: MediaItem & Partial<{ playPos: number }>;
-  onPress?: () => void; // navigate to detail/player
-  onPlay?: () => void; // explicit play action (overlay button)
   width?: number; // cell width (default 150)
   height?: number; // cell height (default 218)
 };
 
-export function MediaItemTile({ item, onPress = () => {}, onPlay = () => {}, width = 150, height = 218 }: MediaItemTileProps) {
+export function MediaItemTile({ item, width = 150, height = 218 }: MediaItemTileProps) {
+  const router = useRouter();
   const hasThumb = !!item.thumbnailUrl;
   const season = typeof item.season === 'number' ? item.season : undefined;
   const episode = typeof item.episode === 'number' ? item.episode : undefined;
@@ -41,7 +41,13 @@ export function MediaItemTile({ item, onPress = () => {}, onPlay = () => {}, wid
         return; // don't navigate on first tap
       }
     }
-    onPress();
+    router.push(`/details/${item.id}`);
+  };
+
+  const handlePlay = (e?: any) => {
+    // prevent accidental parent navigation on web
+    e?.stopPropagation?.();
+    router.push(`/player/${item.id}`);
   };
 
   return (
@@ -96,11 +102,7 @@ export function MediaItemTile({ item, onPress = () => {}, onPlay = () => {}, wid
         accessibilityLabel="Play"
         testID="play-button"
         visible={overlayVisible}
-        onPress={(e: any) => {
-          // prevent accidental parent navigation on web
-          e?.stopPropagation?.();
-          onPlay();
-        }}
+        onPress={handlePlay}
       >
         <Ionicons color={'white'} name={'play'} />
       </PlayButton>

@@ -1,7 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, FlatList, ListRenderItemInfo, useWindowDimensions } from 'react-native';
 import { useTheme } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
 import {default as styled} from 'styled-components/native';
 
 import {SearchBar} from '@/src/features/library/view/SearchBar';
@@ -22,7 +21,6 @@ const PAGE_SIZE = 48;
 export default function LibraryScreen() {
   const theme = useTheme();
   const { width: windowWidth } = useWindowDimensions();
-  const router = useRouter();
 
   const { query, setQuery, filters, setFilters, dataIndices, items, isFetching, isError, ensurePageLoaded } = usePagedMedia({ pageSize: PAGE_SIZE });
 
@@ -48,8 +46,6 @@ export default function LibraryScreen() {
             width={CELL_WIDTH}
             height={CELL_HEIGHT}
             item={itm}
-            onPress={() => router.push(`/details/${itm.id}`)}
-            onPlay={() => router.push(`/player/${itm.id}`)}
           />
         </CellInner>
       </Cell>
