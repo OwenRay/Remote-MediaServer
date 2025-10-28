@@ -1,10 +1,11 @@
 import React from 'react';
-import { ActivityIndicator, Modal, Pressable, ScrollView } from 'react-native';
+import {ActivityIndicator, Pressable, ScrollView} from 'react-native';
 import { useTheme } from '@react-navigation/native';
-import {default as styled} from 'styled-components/native';
+import {default as styled, DefaultTheme} from 'styled-components/native';
 import { BlurView } from 'expo-blur';
 import { MaterialIcons } from '@expo/vector-icons';
 import { ThemedText } from '@/src/features/shared/view/themed-text';
+import { DetailsInfoDialog } from '@/src/features/details/view/DetailsInfoDialog';
 import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import type { DetailsViewModel } from '@/src/features/details/domain/useDetailsViewModel';
 
@@ -49,96 +50,78 @@ export function DetailsScreenView(props: DetailsScreenViewProps) {
   }
 
   return (
-    <Container>
+    <>
       {!!item.backdropUrl && <Backdrop source={{ uri: item.backdropUrl }} resizeMode="cover" />}
-      <TopRight>
-        <IconBtn accessibilityLabel={watched ? 'Mark unwatched' : 'Mark watched'} onPress={onToggleWatched}>
-          <MaterialIcons name={watched ? 'check-box' : 'check-box-outline-blank'} size={28} color="#fff" />
-        </IconBtn>
-      </TopRight>
-      <Overlay intensity={50} tint="dark" testID="details-blur-overlay">
-        <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
-          <Content>
-            <Title type="title">{item.title}</Title>
-            {subTitle ? <SubTitle>{subTitle}</SubTitle> : null}
-            <Meta>
-              {minutes ? `${minutes} min` : ''}
-              {item.year ? `  •  ${item.year}` : ''}
-            </Meta>
+      <Container>
+        <TopRight>
+          <IconBtn accessibilityLabel={watched ? 'Mark unwatched' : 'Mark watched'} onPress={onToggleWatched}>
+            <MaterialIcons name={watched ? 'check-box' : 'check-box-outline-blank'} size={28} color="#fff" />
+          </IconBtn>
+        </TopRight>
+        <ScrollView>
+          <Overlay experimentalBlurMethod={true} intensity={50} tint="dark" testID="details-blur-overlay">
             {progressPct > 0 || watched ? (
               <ProgressRow>
                 <ProgressBar>
                   <ProgressFill style={{ width: `${watched ? 100 : progressPct}%` }} />
                 </ProgressBar>
-                <ProgressText>{watched ? 'Watched' : `Progress: ${progressPct}%`}</ProgressText>
               </ProgressRow>
             ) : null}
-            {item.overview ? <Overview numberOfLines={5}>{item.overview}</Overview> : null}
-            <Actions>
+            <Content>
               <PlayBtn accessibilityLabel="Play" onPress={onPlay}>
-                <PlayText>Play</PlayText>
+                <MaterialIcons name={'play-arrow'} size={24} color={'white'} />
               </PlayBtn>
-              <Secondary onPress={onOpenInfo} accessibilityLabel="Show info">
-                <SecondaryText>Info</SecondaryText>
-              </Secondary>
-              {item.imdbUrl ? (
-                <Secondary onPress={onOpenImdb} accessibilityLabel="Open IMDb">
-                  <SecondaryText>IMDb</SecondaryText>
+              <Title type="title">{item.title}</Title>
+              {subTitle ? <SubTitle>{subTitle}</SubTitle> : null}
+              <Meta>
+                {minutes ? `${minutes} min` : ''}
+                {item.year ? `  •  ${item.year}` : ''}
+              </Meta>
+              {item.overview ? <Overview numberOfLines={5}>{item.overview}</Overview> : null}
+              <Actions>
+                <Secondary onPress={onOpenInfo} accessibilityLabel="Show info">
+                  <SecondaryText>Info</SecondaryText>
                 </Secondary>
+                {item.imdbUrl ? (
+                  <Pressable onPress={onOpenImdb} accessibilityLabel="Open IMDb">
+                    <StyledIMDB  source={require('@/assets/images/imdb.svg')}/>
+                  </Pressable>
+                ) : null}
+              </Actions>
+
+              {Object.keys(grouped).length > 1 || (item.type === 'tv' && Object.values(grouped).flat().length) ? (
+                <TabsContainer>
+                  <TabsHeader horizontal showsHorizontalScrollIndicator={false}>
+                    {Object.keys(grouped).map((seasonKey) => (
+                      <TabPill key={seasonKey} active={String(activeSeason) === seasonKey} onPress={() => setActiveSeason(seasonKey)}>
+                        <PillText>{seasonKey === '0' ? 'Extras' : `Season ${seasonKey}`}</PillText>
+                      </TabPill>
+                    ))}
+                  </TabsHeader>
+                  <EpisodesList>
+                    {(grouped[String(activeSeason)] ?? []).map((ep) => (
+                      <EpisodeRow key={String(ep.id)} onPress={() => onEpisodePress(ep.id)}>
+                        <EpisodeTitle>{`S${ep.season ?? 0}E${ep.episode ?? 0}${ep.episodeTitle ? ` - ${ep.episodeTitle}` : ''}`}</EpisodeTitle>
+                        <EpisodeMeta>
+                          {ep.playPosition?.watched ? 'Watched' : ep.fileduration ? `${Math.round(((ep.playPosition?.position ?? 0) / (ep.fileduration || 1)) * 100)}%` : ''}
+                        </EpisodeMeta>
+                      </EpisodeRow>
+                    ))}
+                  </EpisodesList>
+                </TabsContainer>
               ) : null}
-            </Actions>
-
-            {Object.keys(grouped).length > 1 || (item.type === 'tv' && Object.values(grouped).flat().length) ? (
-              <TabsContainer>
-                <TabsHeader horizontal showsHorizontalScrollIndicator={false}>
-                  {Object.keys(grouped).map((seasonKey) => (
-                    <TabPill key={seasonKey} active={String(activeSeason) === seasonKey} onPress={() => setActiveSeason(seasonKey)}>
-                      <PillText>{seasonKey === '0' ? 'Extras' : `Season ${seasonKey}`}</PillText>
-                    </TabPill>
-                  ))}
-                </TabsHeader>
-                <EpisodesList>
-                  {(grouped[String(activeSeason)] ?? []).map((ep) => (
-                    <EpisodeRow key={String(ep.id)} onPress={() => onEpisodePress(ep.id)}>
-                      <EpisodeTitle>{`S${ep.season ?? 0}E${ep.episode ?? 0}${ep.episodeTitle ? ` - ${ep.episodeTitle}` : ''}`}</EpisodeTitle>
-                      <EpisodeMeta>
-                        {ep.playPosition?.watched ? 'Watched' : ep.fileduration ? `${Math.round(((ep.playPosition?.position ?? 0) / (ep.fileduration || 1)) * 100)}%` : ''}
-                      </EpisodeMeta>
-                    </EpisodeRow>
-                  ))}
-                </EpisodesList>
-              </TabsContainer>
-            ) : null}
-          </Content>
+            </Content>
+          </Overlay>
         </ScrollView>
-      </Overlay>
 
-      <Modal transparent visible={infoVisible} onRequestClose={onCloseInfo} animationType="fade">
-        <ModalBackdrop as={Pressable} onPress={onCloseInfo}>
-          <ModalCard>
-            <Title type="title">{item.title}</Title>
-            {subTitle ? <SubTitle>{subTitle}</SubTitle> : null}
-            <Meta>
-              {minutes ? `${minutes} min` : ''}
-              {item.year ? `  •  ${item.year}` : ''}
-              {typeof item.rating === 'number' ? `  •  Rating: ${Math.round(item.rating)}%` : ''}
-            </Meta>
-            {item.overview ? <Overview>{item.overview}</Overview> : null}
-            <Actions>
-              <Secondary onPress={onCloseInfo} accessibilityLabel="Close info">
-                <SecondaryText>Close</SecondaryText>
-              </Secondary>
-            </Actions>
-          </ModalCard>
-        </ModalBackdrop>
-      </Modal>
-    </Container>
+        <DetailsInfoDialog visible={infoVisible} onClose={onCloseInfo} item={item} subTitle={subTitle} />
+      </Container>
+    </>
   );
 }
 
 const Container = styled.View`
   flex: 1;
-  background-color: #000;
 `;
 
 const Center = styled.View`
@@ -148,8 +131,11 @@ const Center = styled.View`
 `;
 
 const Backdrop = styled.Image`
-  width: 100%;
-  height: 240px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position:absolute;
 `;
 
 const TopRight = styled.View`
@@ -164,16 +150,13 @@ const IconBtn = styled.Pressable`
 `;
 
 const Overlay = styled(BlurView)`
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
+  top: max(calc(100vh - 320px), calc(100cqh - 100% - 64px));
 `;
 
 const Content = styled.View`
   gap: 12px;
   padding: 16px;
+  background-color: rgba(0,0,0,0.3);
 `;
 
 const Title = styled(ThemedText)`
@@ -198,18 +181,15 @@ const ProgressRow = styled.View`
 const ProgressBar = styled.View`
   flex: 1;
   height: 6px;
-  background-color: rgba(255,255,255,0.2);
+  background-color: rgba(0, 0, 0, 0.6);
   border-radius: 3px;
   overflow: hidden;
 `;
 
 const ProgressFill = styled.View`
   height: 100%;
-  background-color: #4caf50;
-`;
+  background-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.primary};
 
-const ProgressText = styled(ThemedText)`
-  opacity: 0.9;
 `;
 
 const Overview = styled(ThemedText)`
@@ -222,11 +202,20 @@ const Actions = styled.View`
   margin-top: 8px;
 `;
 
-const PlayBtn = styled(SecondaryButton)``;
+const PlayBtn = styled(SecondaryButton)`
+    position:absolute;
+    right: 20px;
+    top: -45px;
+    width:64px;
+    height:64px;
+    border-radius: 32px;
+    justify-content: center;
+    align-items: center;
+    shadow-color: #000;
+    shadow-offset: 0px 4px;
+    shadow-opacity: 0.2;
+    shadow-radius: 4px;
 
-const PlayText = styled(ThemedText)`
-  color: white;
-  font-weight: 700;
 `;
 
 const Secondary = styled(SecondaryButton)`
@@ -251,7 +240,11 @@ const TabPill = styled.Pressable<{ active?: boolean }>`
   padding: 8px 12px;
   margin-right: 8px;
   border-radius: 16px;
-  background-color: ${(p: { active?: boolean }) => (p.active ? '#fff' : 'rgba(255,255,255,0.2)')};
+  color: ${(p: { active?: boolean, theme:DefaultTheme }) => (p.active ? p.theme.colors.primary : 'white')};
+  background-color: ${(p: { active?: boolean, theme:DefaultTheme }) => (p.active ? p.theme.colors.background : 'rgba(0,0,0,0.2)')};
+  border-width: ${(p: { active?: boolean }) => (p.active ? '1px' : '0')};
+  border-color: ${(p: { active?: boolean, theme: DefaultTheme }) => (p.active ? p.theme.colors.primary : 'white')};
+
 `;
 
 const PillText = styled(ThemedText)<{ active?: boolean }>`
@@ -280,16 +273,7 @@ const EpisodeMeta = styled(ThemedText)`
   opacity: 0.8;
 `;
 
-const ModalBackdrop = styled.View`
-  flex: 1;
-  background-color: rgba(0,0,0,0.7);
-  justify-content: center;
-  align-items: center;
-`;
-
-const ModalCard = styled.View`
-  width: 90%;
-  background-color: #222;
-  border-radius: 8px;
-  padding: 16px;
+const StyledIMDB = styled.Image`
+  width: 74px;
+  height: 36px;
 `;

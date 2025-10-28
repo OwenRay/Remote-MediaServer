@@ -7,21 +7,32 @@ export type SeekBarProps = {
   max: number;
   value: number;
   onComplete: (val: number) => void;
+  variant?: 'progress' | 'volume';
 };
 
-export function SeekBarAllPlatform({max, value, onComplete}: SeekBarProps) {
+export function SeekBarAllPlatform({min, max, value, onComplete, variant = 'progress'}: SeekBarProps) {
+  // Basic styling to better match legacy look: thinner volume bar
+  const height = variant === 'volume' ? 12 : 18;
+  const minimumTrackTintColor = variant === 'volume' ? '#b8a300' : '#b8a300';
+  const maximumTrackTintColor = '#534c67';
+  const thumbTintColor = '#ffffff';
   return (
     <StyledSlider
-      minimumValue={0}
+      minimumValue={min}
       maximumValue={max}
       value={value}
       onSlidingComplete={onComplete}
+      minimumTrackTintColor={minimumTrackTintColor}
+      maximumTrackTintColor={maximumTrackTintColor}
+      thumbTintColor={thumbTintColor}
+      height={height}
     />
   );
 }
 
-const StyledSlider = styled(Slider)`
-  height: 24px;
+type StyledProps = { $height: number };
+const StyledSlider = styled(Slider)<StyledProps>`
+  height: ${({height}: {height:number}) => `${height}px`};
   flex: 1;
   justify-content: center;
 `;

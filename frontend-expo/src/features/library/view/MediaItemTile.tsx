@@ -84,6 +84,7 @@ export function MediaItemTile({ item, width = 150, height = 218 }: MediaItemTile
       <DetailOverlay
         pointerEvents="none"
         visible={overlayVisible}
+        experimentalBlurMethod={true}
       >
         <Title numberOfLines={1} adjustsFontSizeToFit>
           {item.title}

@@ -30,6 +30,15 @@ export const MediaItemSchema = z.object({
     type: z.string().optional(),
     episodeTitle: z.string().optional(),
     'external-id': z.union([z.string(), z.number()]).nullish().transform(v => v?.toString() || undefined).optional(),
+    filepath: z.string().optional(),
+    mediaType: z.string().optional(),
+    width: z.number().optional(),
+    height: z.number().optional(),
+    bitrate: z.string().optional().transform(v => parseInt(v ?? '0', 10)),
+    filesize: z.number().optional(),
+    date_added: z.number().optional(),
+    release_date: z.string().optional(),
+
   })
 }).transform((obj) => ({
   id: obj.id,
@@ -40,6 +49,8 @@ export const MediaItemSchema = z.object({
   backdropUrl: `${getBaseUrl()}/img/${obj.id}_backdrop.jpg`,
   imdbUrl: obj.attributes['external-id'] ? `${getBaseUrl()}/api/redirectToIMDB/${obj.id}` : undefined,
   externalId: obj.attributes['external-id'],
+  dateAdded: obj.attributes.date_added,
+  releaseDate: obj.attributes.release_date,
 }));
 
 
