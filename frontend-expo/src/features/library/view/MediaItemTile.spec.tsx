@@ -35,11 +35,12 @@ describe('MediaItemTile (expo)', () => {
     expect(getByTestId('progress-bar')).toBeTruthy();
   });
 
+  // @todo navigate on press
   it('invokes onPress when tapped twice', () => {
     const item = makeItem();
     const onPress = jest.fn();
 
-    const {getByText} = renderWithProviders(<MediaItemTile item={item} onPress={onPress} />);
+    const {getByText} = renderWithProviders(<MediaItemTile item={item} />);
     fireEvent.press(getByText('My Show'));
     fireEvent.press(getByText('My Show'));
 
@@ -52,7 +53,7 @@ describe('MediaItemTile play overlay', () => {
   it('renders play button and calls onPlay', () => {
     const item = makeItem();
     const onPlay = jest.fn();
-    const {getByLabelText} = renderWithProviders(<MediaItemTile item={item} onPlay={onPlay} />);
+    const {getByLabelText} = renderWithProviders(<MediaItemTile item={item} />);
     const play = getByLabelText('Play');
     fireEvent.press(play);
     expect(onPlay).toHaveBeenCalled();

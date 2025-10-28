@@ -66,7 +66,11 @@ export function MediaItemTile({ item, width = 150, height = 218 }: MediaItemTile
           zoomed={overlayVisible}
         />
       ) : (
-        <PosterPlaceholder />
+        <PosterPlaceholder>
+          {/* Branded placeholder logo */}
+          { }
+          <LogoImage source={require('@/assets/images/rms-logo-192.png')} resizeMode="contain" />
+        </PosterPlaceholder>
       )}
 
       {/* Progress bar (top) */}
@@ -138,8 +142,9 @@ const PosterPlaceholder = styled.View`
   right: 0;
   top: 0;
   bottom: 0;
-  background-color: #333;
-  opacity: 0.5;
+  align-items: center;
+  justify-content: center;
+  background-color: #111318;
 `;
 
 const ProgressBar = styled.View<{ hover?: boolean }>`
@@ -208,4 +213,10 @@ const PlayButton = styled(SecondaryButton)<{ visible?: boolean }>`
   text-align: center;
   bottom: ${({ visible }: { visible?: boolean }) => (visible ? '45px' : '-40px')};
   transition: bottom 0.3s cubic-bezier(0.66, 0, 0.34, 1);
+`;
+
+const LogoImage = styled.Image`
+  width: 60%;
+  height: 60%;
+  opacity: 0.9;
 `;

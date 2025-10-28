@@ -144,6 +144,15 @@ jest.mock('expo-video', () => {
   };
 });
 
+// Stub expo-router navigation for unit tests to avoid global routing dependency
+jest.mock('expo-router', () => {
+  const actual = jest.requireActual('expo-router');
+  return {
+    ...actual,
+    useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn() }),
+  };
+});
+
 const originalConsoleWarn = console.warn;
 let reanimatedWarnSpy: jest.SpyInstance | undefined;
 

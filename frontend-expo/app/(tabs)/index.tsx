@@ -3,11 +3,15 @@ import { ScrollView } from 'react-native';
 import { default as styled } from 'styled-components/native';
 
 import { ItemsRow } from '@/src/features/home/view/ItemsRow';
+import { Logo } from '@/src/features/shared/view/Logo';
 
 export default function HomeScreen() {
   return (
     <ScreenContainer>
       <ScrollView>
+        <HeaderHero>
+          <Logo size={96} />
+        </HeaderHero>
         <ContentPad>
           <ItemsRow title="Continue watching" row="continueWatching" />
           <ItemsRow title="Recommended Movies" row="recommended" />
@@ -21,6 +25,11 @@ export default function HomeScreen() {
 
 const ScreenContainer = styled.View`
   flex: 1;
+`;
+
+const HeaderHero = styled.View`
+  padding: 24px 16px 8px 16px;
+  align-items: center;
 `;
 
 const ContentPad = styled.View`
