@@ -1,6 +1,6 @@
 import React from 'react';
 import { default as styled, DefaultTheme } from 'styled-components/native';
-import { ThemedText } from '@/src/features/shared/view/themed-text';
+import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 
 export type SaveBarProps = {

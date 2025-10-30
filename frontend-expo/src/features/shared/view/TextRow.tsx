@@ -1,6 +1,6 @@
 import React from 'react';
 import {default as styled} from 'styled-components/native';
-import { ThemedText } from '@/src/features/shared/view/themed-text';
+import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import { ThemedTextInput } from '@/src/features/shared/view/ThemedTextInput';
 
 export type TextRowProps = {

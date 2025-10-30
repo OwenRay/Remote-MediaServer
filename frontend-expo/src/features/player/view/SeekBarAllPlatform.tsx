@@ -1,21 +1,21 @@
 import React from 'react';
 import Slider from "@react-native-community/slider";
 import {default as styled} from 'styled-components/native';
+import {useTheme} from "@react-navigation/native";
 
 export type SeekBarProps = {
   min: number;
   max: number;
   value: number;
   onComplete: (val: number) => void;
-  variant?: 'progress' | 'volume';
 };
 
-export function SeekBarAllPlatform({min, max, value, onComplete, variant = 'progress'}: SeekBarProps) {
+export function SeekBarAllPlatform({min, max, value, onComplete}: SeekBarProps) {
   // Basic styling to better match legacy look: thinner volume bar
-  const height = variant === 'volume' ? 12 : 18;
-  const minimumTrackTintColor = variant === 'volume' ? '#b8a300' : '#b8a300';
-  const maximumTrackTintColor = '#534c67';
-  const thumbTintColor = '#ffffff';
+  const {colors} = useTheme();
+  const minimumTrackTintColor = colors.primary;
+  const maximumTrackTintColor = colors.background;
+  const thumbTintColor = colors.primary;
   return (
     <StyledSlider
       minimumValue={min}
@@ -25,7 +25,6 @@ export function SeekBarAllPlatform({min, max, value, onComplete, variant = 'prog
       minimumTrackTintColor={minimumTrackTintColor}
       maximumTrackTintColor={maximumTrackTintColor}
       thumbTintColor={thumbTintColor}
-      height={height}
     />
   );
 }

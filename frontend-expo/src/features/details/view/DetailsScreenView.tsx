@@ -1,17 +1,20 @@
 import React from 'react';
-import {ActivityIndicator, Pressable, ScrollView} from 'react-native';
+import {ActivityIndicator, Pressable, ScrollView, useWindowDimensions} from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import {default as styled, DefaultTheme} from 'styled-components/native';
 import { BlurView } from 'expo-blur';
 import { MaterialIcons } from '@expo/vector-icons';
-import { ThemedText } from '@/src/features/shared/view/themed-text';
+import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import { DetailsInfoDialog } from '@/src/features/details/view/DetailsInfoDialog';
 import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
+import { DownloadButton as DownloadBtn } from '@/src/features/shared/view/DownloadButton';
+import { ProgressBar as SharedProgressBar } from '@/src/features/shared/view/ProgressBar';
 import type { DetailsViewModel } from '@/src/features/details/domain/useDetailsViewModel';
 
 export type DetailsScreenViewProps = DetailsViewModel;
 
 export function DetailsScreenView(props: DetailsScreenViewProps) {
+  const {height} = useWindowDimensions();
   const theme = useTheme();
   const {
     isLoading,
@@ -57,14 +60,15 @@ export function DetailsScreenView(props: DetailsScreenViewProps) {
           <IconBtn accessibilityLabel={watched ? 'Mark unwatched' : 'Mark watched'} onPress={onToggleWatched}>
             <MaterialIcons name={watched ? 'check-box' : 'check-box-outline-blank'} size={28} color="#fff" />
           </IconBtn>
+          <DownloadBtnWrap>
+            <DownloadBtn id={item?.id} />
+          </DownloadBtnWrap>
         </TopRight>
-        <ScrollView>
-          <Overlay experimentalBlurMethod={true} intensity={50} tint="dark" testID="details-blur-overlay">
+        <ScrollView contentContainerStyle={{minHeight: '100%'}}>
+          <Overlay height={height} experimentalBlurMethod="dimezisBlurView" intensity={50} tint="dark" testID="details-blur-overlay" hasEpisodes={!!grouped}>
             {progressPct > 0 || watched ? (
               <ProgressRow>
-                <ProgressBar>
-                  <ProgressFill style={{ width: `${watched ? 100 : progressPct}%` }} />
-                </ProgressBar>
+                <SharedProgressBar progress={(watched ? 1 : (progressPct / 100))} />
               </ProgressRow>
             ) : null}
             <Content>
@@ -83,13 +87,13 @@ export function DetailsScreenView(props: DetailsScreenViewProps) {
                   <SecondaryText>Info</SecondaryText>
                 </Secondary>
                 {item.imdbUrl ? (
-                  <Pressable onPress={onOpenImdb} accessibilityLabel="Open IMDb">
+                  <Pressable onPress={onOpenImdb} accessibilityLabel="Open IMDb" role={'link'}>
                     <StyledIMDB  source={require('@/assets/images/imdb.svg')}/>
                   </Pressable>
                 ) : null}
               </Actions>
 
-              {Object.keys(grouped).length > 1 || (item.type === 'tv' && Object.values(grouped).flat().length) ? (
+              {grouped ? (
                 <TabsContainer>
                   <TabsHeader horizontal showsHorizontalScrollIndicator={false}>
                     {Object.keys(grouped).map((seasonKey) => (
@@ -122,6 +126,7 @@ export function DetailsScreenView(props: DetailsScreenViewProps) {
 
 const Container = styled.View`
   flex: 1;
+  margin-top: 60px;
 `;
 
 const Center = styled.View`
@@ -149,14 +154,23 @@ const IconBtn = styled.Pressable`
   padding: 6px;
 `;
 
-const Overlay = styled(BlurView)`
-  top: max(calc(100vh - 320px), calc(100cqh - 100% - 64px));
+const DownloadBtnWrap = styled.View`
+  padding: 6px;
+`;
+
+const Overlay = styled(BlurView)<{height:number, hasEpisodes:boolean}>`
+  background-color: rgba(0,0,0,0.5);
+  /* top: max(calc(100vh - 320px), calc(100cqh - 100%)); */
+  /* margin-top: ${({height}:{height:number}) => `max(calc(${height-320}px), calc(${height}px - 100%));`}; */
+  ${({hasEpisodes, height}:{hasEpisodes:boolean, height:number}) => `
+    ${hasEpisodes ? `margin-top: ${height - 320}px;` : 'position: absolute; bottom: 0px;'}
+  `}
+  height: auto;
 `;
 
 const Content = styled.View`
   gap: 12px;
   padding: 16px;
-  background-color: rgba(0,0,0,0.3);
 `;
 
 const Title = styled(ThemedText)`
@@ -176,20 +190,6 @@ const ProgressRow = styled.View`
   flex-direction: row;
   align-items: center;
   gap: 8px;
-`;
-
-const ProgressBar = styled.View`
-  flex: 1;
-  height: 6px;
-  background-color: rgba(0, 0, 0, 0.6);
-  border-radius: 3px;
-  overflow: hidden;
-`;
-
-const ProgressFill = styled.View`
-  height: 100%;
-  background-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.primary};
-
 `;
 
 const Overview = styled(ThemedText)`

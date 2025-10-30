@@ -1,21 +1,27 @@
-import React from 'react';
-import {useLocalSearchParams} from 'expo-router';
-import {useGetItemQuery} from '@/src/features/library/model/media';
+import React, {useEffect, useState} from 'react';
+import {useLocalSearchParams, useNavigation} from 'expo-router';
 import {usePlayerController} from '@/src/features/player/domain/usePlayerController';
 import {PlayerScreenView} from '@/src/features/player/view/PlayerScreenView';
 
 export default function PlayerScreen() {
   const {id} = useLocalSearchParams<{ id: string }>();
-  const {data} = useGetItemQuery(id);
+  const navigation = useNavigation();
 
-  const controller = usePlayerController({id: String(id), duration: data?.fileduration});
+  const controller = usePlayerController({id});
+  const [controlsVisible, setControlsVisible] = useState(true);
+
+  useEffect(() => {
+    navigation.setOptions?.({
+      title: controller.item?.title,
+      headerTransparent: true,
+      headerShown: controlsVisible,
+    });
+  }, [controller.item?.title, controlsVisible, navigation]);
 
   return (
     <PlayerScreenView
       controller={controller}
-      duration={data?.fileduration}
-      hasData={!!data}
-      missingId={!id}
+      onControlsVisibilityChange={setControlsVisible}
     />
   );
 }

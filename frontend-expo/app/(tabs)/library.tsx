@@ -6,7 +6,7 @@ import {default as styled} from 'styled-components/native';
 import {SearchBar} from '@/src/features/library/view/SearchBar';
 import {MediaItemTile} from '@/src/features/library/view/MediaItemTile';
 import { MediaItemTilePlaceholder} from '@/src/features/library/view/MediaItemTilePlaceholder';
-import { ThemedText } from '@/src/features/shared/view/themed-text';
+import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import { useGridColumns } from '@/src/features/library/view/useGridColumns';
 import { usePagedMedia } from '@/src/features/library/model/usePagedMedia';
 
@@ -27,17 +27,24 @@ export default function LibraryScreen() {
   // compute columns based on width
   const cols = useGridColumns(windowWidth, { cellWidth: CELL_WIDTH, gutter: GUTTER, horizontalPadding: H_PADDING });
 
+  const PlaceholderCell: React.FC<{ index: number }> = ({ index }) => {
+    React.useEffect(() => {
+      ensurePageLoaded(index);
+
+    }, [index]);
+    return (
+      <Cell>
+        <CellInner>
+          <MediaItemTilePlaceholder width={CELL_WIDTH} height={CELL_HEIGHT} />
+        </CellInner>
+      </Cell>
+    );
+  };
+
   const renderItem = ({ item: index }: ListRenderItemInfo<number>) => {
     const itm = items[index];
     if (!itm) {
-      ensurePageLoaded(index);
-      return (
-        <Cell>
-          <CellInner>
-            <MediaItemTilePlaceholder width={CELL_WIDTH} height={CELL_HEIGHT} />
-          </CellInner>
-        </Cell>
-      );
+      return <PlaceholderCell index={index} />;
     }
     return (
       <Cell>
@@ -62,6 +69,7 @@ export default function LibraryScreen() {
           data={dataIndices}
           numColumns={cols}
           centerContent
+          removeClippedSubviews={false}
           keyExtractor={(index) => `row-${index}`}
           renderItem={renderItem}
           indicatorStyle={theme.dark ? 'white' : 'black'}
@@ -97,7 +105,7 @@ const Cell = styled.View`
 
 const CellInner = styled.View`
   height: ${CELL_HEIGHT}px;
-  margin-bottom: ${GUTTER}px;
+  margin-top: ${GUTTER}px;
 `;
 
 const NoItemsText = styled(ThemedText)`

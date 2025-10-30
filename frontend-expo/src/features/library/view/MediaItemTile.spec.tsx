@@ -4,6 +4,11 @@ import {renderWithProviders} from "../../../../test-utils";
 import {MediaItem} from "../model/media";
 
 
+import * as expoRouter from "expo-router";
+jest.mock('expo-router', () => ({
+  useRouter: jest.fn()
+}))
+
 function makeItem(overrides: Partial<MediaItem & { playPos?: number }> = {}): MediaItem & { playPos?: number } {
   return {
     id: 'abc123',
@@ -16,6 +21,7 @@ function makeItem(overrides: Partial<MediaItem & { playPos?: number }> = {}): Me
     ...overrides,
   } as any;
 }
+
 
 describe('MediaItemTile (expo)', () => {
   it('renders title and season/episode badge', () => {
@@ -36,26 +42,31 @@ describe('MediaItemTile (expo)', () => {
   });
 
   // @todo navigate on press
-  it('invokes onPress when tapped twice', () => {
+  it('goes to details page when media item is tapped twice', () => {
+    const mockRouter:any = {push: jest.fn()};
+    jest.spyOn(expoRouter, 'useRouter').mockReturnValue(mockRouter);
+
     const item = makeItem();
-    const onPress = jest.fn();
 
-    const {getByText} = renderWithProviders(<MediaItemTile item={item} />);
+    const {getByText} = renderWithProviders(<MediaItemTile item={item}/>);
     fireEvent.press(getByText('My Show'));
     fireEvent.press(getByText('My Show'));
 
-    expect(onPress).toHaveBeenCalled();
+    expect(mockRouter.push).toHaveBeenCalledWith(`/details/${item.id}`);
   });
 });
 
 
 describe('MediaItemTile play overlay', () => {
-  it('renders play button and calls onPlay', () => {
+  it('goes to play page when play button is pressed', () => {
+    const mockRouter:any = {push: jest.fn()};
+    jest.spyOn(expoRouter, 'useRouter').mockReturnValue(mockRouter);;
+
     const item = makeItem();
-    const onPlay = jest.fn();
-    const {getByLabelText} = renderWithProviders(<MediaItemTile item={item} />);
+    const {getByLabelText} = renderWithProviders(<MediaItemTile item={item}/>);
     const play = getByLabelText('Play');
     fireEvent.press(play);
-    expect(onPlay).toHaveBeenCalled();
+
+    expect(mockRouter.push).toHaveBeenCalledWith(`/player/${item.id}`);
   });
 });

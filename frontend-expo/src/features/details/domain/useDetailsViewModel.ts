@@ -10,7 +10,7 @@ export type DetailsViewModel = {
   isLoading: boolean;
   isError: boolean;
   item?: MediaItem;
-  grouped: GroupedEpisodes;
+  grouped?: GroupedEpisodes;
   activeSeason: string | number;
   setActiveSeason: (val: string | number) => void;
   infoVisible: boolean;
@@ -40,6 +40,7 @@ export function useDetailsViewModel(id: string): DetailsViewModel {
   });
 
   const grouped = React.useMemo(() => {
+    if((episodes?.length || 0) <= 1) return;
     const groups: Record<string, MediaItem[]> = {};
     (episodes ?? []).forEach((ep) => {
       const key = String(ep.season ?? 0);

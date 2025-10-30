@@ -3,7 +3,7 @@ import { FlatList, View } from 'react-native';
 import { default as styled } from 'styled-components/native';
 
 import { Card, CardTitle } from '@/src/features/shared/view/Card';
-import { ThemedText } from '@/src/features/shared/view/themed-text';
+import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import { MediaItemTile } from '@/src/features/library/view/MediaItemTile';
 import type { MediaItem } from '@/src/features/library/model/media';
 import { useGetHomeQuery, type HomeRowKey } from '@/src/features/home/model/home';
@@ -38,6 +38,7 @@ export function ItemsRow({ title, row }: ItemsRowProps) {
           renderItem={({ item }) => (
             <MediaItemTile item={item} />
           )}
+          removeClippedSubviews={false}
           showsHorizontalScrollIndicator={false}
         />
       )}

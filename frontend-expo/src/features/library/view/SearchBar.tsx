@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {default as styled} from 'styled-components/native';
 import { useWindowDimensions } from 'react-native';
-import {Picker} from '@react-native-picker/picker';
 import {useGetLibrariesQuery} from '@/src/features/library/model/media';
 import {ThemedTextInput} from "@/src/features/shared/view/ThemedTextInput";
-import {ThemedText} from "@/src/features/shared/view/themed-text";
+import {ThemedText} from "@/src/features/shared/view/ThemedText";
 import {ThemedPicker} from "@/src/features/shared/view/ThemedPicker";
 import {Card} from "@/src/features/shared/view/Card";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 export type SearchBarProps = {
   value: string;
@@ -26,6 +26,7 @@ export function SearchBar({
                                     filters,
                                     onFiltersChange
                                   }: SearchBarProps) {
+  const {top} = useSafeAreaInsets();
   const [text, setText] = useState(value);
   const {width} = useWindowDimensions();
   const {data: libraries} = useGetLibrariesQuery();
@@ -49,21 +50,20 @@ export function SearchBar({
   const isWideScreen = width >= 768; // Adjust breakpoint as needed
 
   return (
-      <Content isWide={isWideScreen}>
+      <Content style={{paddingTop: top + 8}} isWide={isWideScreen}>
         <FiltersContainer>
           <Field>
-            <ThemedText>Library</ThemedText>
+            <ThemedText type={'default'}>Library</ThemedText>
             <PickerContainer>
               <ThemedPicker
                 selectedValue={filters.libraryId}
                 onValueChange={(itemValue) => onFiltersChange({...filters, libraryId: itemValue})}
                 testID="library-picker"
-              >
-                <Picker.Item label="All" value={undefined}/>
-                {(libraries ?? []).map((l) => (
-                  <Picker.Item key={l.id} label={l.name} value={l.id}/>
-                ))}
-              </ThemedPicker>
+                options={libraries ? [
+                  {label: 'All', value: undefined},
+                  ...libraries.map((l) => ({label: l.name, value: l.id}))
+                ]: [{label: 'All', value: undefined}]}
+              />
             </PickerContainer>
           </Field>
 
@@ -84,11 +84,8 @@ export function SearchBar({
                 selectedValue={filters.sort ?? 'date_added:DESC'}
                 onValueChange={(itemValue) => onFiltersChange({...filters, sort: itemValue})}
                 testID="sort-picker"
-              >
-                {sortOptions.map((option) => (
-                  <Picker.Item key={option.value} label={option.label} value={option.value}/>
-                ))}
-              </ThemedPicker>
+                options={sortOptions}
+              />
             </PickerContainer>
           </Field>
         </FiltersContainer>
@@ -108,11 +105,13 @@ export function SearchBar({
 
 const Content = styled(Card)<{ isWide: boolean }>`
   margin-bottom: 0;
-  padding: 16px;
+  padding-horizontal: 8px;
   gap: 8px;
   flex-direction: ${({ isWide }: { isWide: boolean }) => isWide ? 'row' : 'column'};
   justify-content: stretch;
   width: 100%;
+  position: relative;
+  z-index: 999
 `;
 
 const FiltersContainer = styled.View`
@@ -128,11 +127,8 @@ const Field = styled.View`
 `;
 
 const PickerContainer = styled.View`
-  padding-bottom: 8px;
 `;
 
 const StyledTextInput = styled(ThemedTextInput)`
-  width: 100%;
   flex-grow: 1;
-  marginBottom: 8px;
 `;

@@ -38,6 +38,7 @@ export const MediaItemSchema = z.object({
     filesize: z.number().optional(),
     date_added: z.number().optional(),
     release_date: z.string().optional(),
+    'episode-title': z.string().optional(),
 
   })
 }).transform((obj) => ({
@@ -51,6 +52,8 @@ export const MediaItemSchema = z.object({
   externalId: obj.attributes['external-id'],
   dateAdded: obj.attributes.date_added,
   releaseDate: obj.attributes.release_date,
+  episodeTitle: obj.attributes['episode-title'],
+  title: obj.attributes.title + (obj.attributes['episode-title'] ? ` • ${obj.attributes['episode-title']}` : ''),
 }));
 
 

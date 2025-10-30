@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test-utils';
+import { Platform } from 'react-native';
 import { VideoSurface } from './VideoSurface';
 import type { PlayerController } from '@/src/features/player/domain/usePlayerController';
 
@@ -25,12 +26,32 @@ function makeController(overrides: Partial<PlayerController> = {}): PlayerContro
 }
 
 describe('VideoSurface', () => {
-  it('calls onTogglePlay when pressed', () => {
+  const originalOS = Platform.OS;
+  afterEach(() => {
+    // restore after each
+     
+    (Platform as any).OS = originalOS;
+    jest.clearAllMocks();
+  });
+
+  it('calls onTogglePlay when pressed on web', () => {
+     
+    (Platform as any).OS = 'web';
     const controller = makeController();
     const onTogglePlay = jest.fn();
     const { getByTestId } = renderWithProviders(<VideoSurface controller={controller} onTogglePlay={onTogglePlay} />);
     fireEvent.press(getByTestId('video-surface'));
     expect(onTogglePlay).toHaveBeenCalled();
+  });
+
+  it('does not call onTogglePlay when pressed on native (ios)', () => {
+     
+    (Platform as any).OS = 'ios';
+    const controller = makeController();
+    const onTogglePlay = jest.fn();
+    const { getByTestId } = renderWithProviders(<VideoSurface controller={controller} onTogglePlay={onTogglePlay} />);
+    fireEvent.press(getByTestId('video-surface'));
+    expect(onTogglePlay).not.toHaveBeenCalled();
   });
 
   it('shows retry overlay when error exists', () => {

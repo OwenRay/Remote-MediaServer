@@ -8,7 +8,7 @@ import { Logo } from '@/src/features/shared/view/Logo';
 export default function HomeScreen() {
   return (
     <ScreenContainer>
-      <ScrollView>
+      <ScrollView nestedScrollEnabled>
         <HeaderHero>
           <Logo size={96} />
         </HeaderHero>
@@ -33,6 +33,5 @@ const HeaderHero = styled.View`
 `;
 
 const ContentPad = styled.View`
-  padding: 16px;
-  gap: 16px;
+  padding: 8px;
 `;

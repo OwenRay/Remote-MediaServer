@@ -3,7 +3,7 @@ import { DefaultTheme, default as styled } from 'styled-components/native';
 import { CardTitle, Card } from '@/src/features/shared/view/Card';
 import { TextRow } from '@/src/features/shared/view/TextRow';
 import { CheckboxRow } from '@/src/features/shared/view/CheckboxRow';
-import { ThemedText } from '@/src/features/shared/view/themed-text';
+import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import { SettingsAttributes } from '@/src/features/settings/model/settings';
 

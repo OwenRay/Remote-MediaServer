@@ -32,7 +32,7 @@ export default function RootLayout() {
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           </Stack>
-          <StatusBar style="light" />
+          <StatusBar style="dark" />
         </StyledThemeProvider>
       </NavigationThemeProvider>
     </Provider>

@@ -4,10 +4,13 @@ import DetailsScreen from './[id]';
 import { renderWithProviders } from '@/test-utils';
 import * as mediaApi from '@/src/features/library/model/media';
 import * as playbackApi from '@/src/features/player/model/playback';
+import {useNavigation} from "expo-router";
 
+const mockNavigation = { setOptions: jest.fn() };
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ id: 'itm1' }),
   useRouter: () => ({ push: jest.fn() }),
+  useNavigation: () => mockNavigation,
 }));
 
 describe('DetailsScreen', () => {
@@ -32,6 +35,25 @@ describe('DetailsScreen', () => {
     return { ...base, ...overrides } as mediaApi.MediaItem;
   }
 
+  it('sets header title from item title', async () => {
+    jest.spyOn(mediaApi, 'useGetItemQuery').mockReturnValue({
+      data: mockItem({ title: 'Detail Title' }),
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    const mockWrite = jest.fn().mockReturnValue({ unwrap: async () => ({}) });
+    jest.spyOn(playbackApi, 'useWritePlayPositionMutation').mockReturnValue([mockWrite] as any);
+
+    renderWithProviders(<DetailsScreen />);
+
+    await waitFor(() => expect(useNavigation().setOptions).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Detail Title',
+      headerTransparent: true,
+      headerBackground: expect.any(Function),
+    })));
+  });
+
   it('renders BlurView overlay and IMDb button', async () => {
     jest.spyOn(mediaApi, 'useGetItemQuery').mockReturnValue({
       data: mockItem(),
@@ -45,7 +67,7 @@ describe('DetailsScreen', () => {
     renderWithProviders(<DetailsScreen />);
 
     await waitFor(() => expect(screen.getByTestId('details-blur-overlay')).toBeTruthy());
-    expect(screen.getByText('IMDb')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Open IMDb' })).toBeTruthy();
   });
 
   it('toggles watched via checkbox button', async () => {

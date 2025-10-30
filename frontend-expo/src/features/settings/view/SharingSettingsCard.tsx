@@ -3,7 +3,7 @@ import Slider from '@react-native-community/slider';
 import {default as styled} from 'styled-components/native';
 import { Card, CardTitle } from '@/src/features/shared/view/Card';
 import { TextRow } from '@/src/features/shared/view/TextRow';
-import { ThemedText } from '@/src/features/shared/view/themed-text';
+import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import { SettingsAttributes } from '@/src/features/settings/model/settings';
 import { Platform } from 'react-native';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, Pressable } from 'react-native';
 import {default as styled} from 'styled-components/native';
-import { ThemedText } from '@/src/features/shared/view/themed-text';
+import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import {MediaItem} from "@/src/features/library/model/media";
 

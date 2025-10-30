@@ -1,6 +1,6 @@
 import React from 'react';
 import { default as styled } from 'styled-components/native';
-import { ThemedText } from '@/src/features/shared/view/themed-text';
+import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import { TextRow} from '@/src/features/shared/view/TextRow';
 import {Card, CardTitle} from "@/src/features/shared/view/Card";
 

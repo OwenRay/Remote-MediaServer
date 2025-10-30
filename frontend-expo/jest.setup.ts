@@ -130,7 +130,7 @@ jest.mock('@expo/vector-icons', () => {
   return IconProxy;
 });
 // Simplify ThemedText during tests
-jest.mock('@/src/features/shared/view/themed-text', () => {
+jest.mock('@/src/features/shared/view/ThemedText', () => {
   const React = require('react');
   const { Text } = require('react-native');
   return { ThemedText: (props: any) => React.createElement(Text, props) };
@@ -141,6 +141,7 @@ jest.mock('expo-video', () => {
   const { View } = require('react-native');
   return {
     VideoView: ({ children, ...props }: any) => React.createElement(View, { accessibilityLabel: 'VideoView', ...props }, children),
+    useVideoPlayer: jest.fn().mockReturnValue({currentTime:0, play:jest.fn()})
   };
 });
 
