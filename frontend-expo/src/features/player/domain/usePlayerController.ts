@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Platform} from 'react-native';
 import {useVideoPlayer} from 'expo-video';
 import {getBaseUrl} from '@/src/features/shared/model/api/base';
@@ -36,6 +36,7 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
   const [writePos] = useWritePlayPositionMutation();
   const [resumeConfirmed, setResumeConfirmed] = useState(false);
   const [offlineUri, setOfflineUri] = useState<string | undefined>();
+  const lastPositionSave = useRef(0);
 
   // Resolve offline availability for this id
   useEffect(() => {
@@ -81,9 +82,11 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
   // Auto play once we have a player and we're not waiting on the resume dialog
   useEffect(() => {
     if (!shouldHoldForResume) {
+      console.log('auto play');
       player.play();
       setPaused(false);
     } else {
+      console.log('waiting for resume')
       // ensure paused when waiting
       try { player.pause(); } catch { /* noop */ }
       setPaused(true);
@@ -93,23 +96,13 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
 
   // Persist last known position on unmount
   useEffect(() => () => {
-    if (id && data?.fileduration && data?.fileduration > 0) {
-      writePos({mediaItemId: String(id), position, duration: data?.fileduration});
+    const newTime = position + player.currentTime;
+    const diff = Math.abs(newTime - lastPositionSave.current)
+    if (id && data?.fileduration > 0 && diff > 5) {
+      lastPositionSave.current = position + player.currentTime;
+      writePos({mediaItemId: String(id), position: newTime, duration: data?.fileduration});
     }
-  }, [id, data?.fileduration, position, writePos]);
-
-  // When using offline playback, we cannot pass a seek anchor via URL; attempt to seek after player is (re)created
-  useEffect(() => {
-    if (!offlineUri) return; // only for offline
-    const seekTo = Math.floor(position);
-    try {
-      // expo-video 6 exposes a "seek" method on the player
-      // @ts-ignore
-      if (typeof (player as any).seek === 'function') {
-        (player as any).seek(seekTo);
-      }
-    } catch { /* noop */ }
-  }, [offlineUri, position, player]);
+  }, [id, data?.fileduration, position + player.currentTime, writePos]);
 
   const togglePlay = useCallback(() => {
     setPaused((p) => {
@@ -121,9 +114,12 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
   }, [player]);
 
   const onSeek = useCallback((val: number) => {
+    if(player?.bufferedPosition > val) {
+      player.seek(val);
+      return;
+    }
     setPosition(val);
     setPaused(false);
-    // switching source with new seek anchor will cause player to continue from there
   }, []);
 
   const retry = useCallback(() => {
@@ -151,7 +147,6 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
     player,
     paused,
     setPaused,
-    position,
     onSeek,
     currentTime: player.currentTime,
     volume,
@@ -162,5 +157,6 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
     toggleFullscreen,
     confirmResumeChoice,
     item: data,
+    position: position + player.currentTime || 0
   };
 }

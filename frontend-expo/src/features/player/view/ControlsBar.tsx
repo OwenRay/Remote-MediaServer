@@ -8,6 +8,7 @@ import type {PlayerController} from '@/src/features/player/domain/usePlayerContr
 import { MaterialIcons } from '@expo/vector-icons';
 import {useCast} from '@/src/features/cast/domain/useCast';
 import {getBaseUrl} from '@/src/features/shared/model/api/base';
+import {useSafeAreaFrame, useSafeAreaInsets} from "react-native-safe-area-context";
 
 export type ControlsBarProps = {
   controller: PlayerController;
@@ -16,16 +17,15 @@ export type ControlsBarProps = {
 };
 
 export function ControlsBar({controller, visible = true, onToggleFullscreen}: ControlsBarProps) {
+  const {bottom} = useSafeAreaInsets();
   const {paused, togglePlay, position, onSeek, setVolume, volume, player, toggleFullscreen, item, setPaused} = controller as PlayerController & {setPaused?: (p:boolean)=>void};
   const [openMenu, setOpenMenu] = useState<null | 'audio' | 'video' | 'subtitles'>(null);
   const cast = useCast();
 
-  const current = position + player.currentTime || 0;
-
   // When casting starts, load current media into receiver and pause local playback
   useEffect(() => {
     if (!cast.casting || !item?.id) return;
-    const url = `${getBaseUrl()}/ply/${item.id}/${Math.floor(current)}`;
+    const url = `${getBaseUrl()}/ply/${item.id}/${Math.floor(controller.position)}`;
     cast.loadMedia(url, 'video/mp4', item.title, item.posterUrl, 0);
     try { cast.play(); } catch {}
     try { player.pause(); } catch {}
@@ -43,7 +43,7 @@ export function ControlsBar({controller, visible = true, onToggleFullscreen}: Co
 
 
   return (
-    <Controls visible={visible}>
+    <Controls style={{paddingBottom:bottom + 8}} visible={visible}>
       <CenterControls>
         <IconBtn disabled>
           <MaterialIcons name="skip-previous" size={20} color="#fff" />
@@ -122,21 +122,25 @@ export function ControlsBar({controller, visible = true, onToggleFullscreen}: Co
           ) : (
             <PosterPlaceholder />
           )}
-        <Time>{formatTime(current)}</Time>
+        <Time>{formatTime(controller.position)}</Time>
         <SeekBar
           min={0}
           max={item?.fileduration || 0}
-          value={current || 0.01}
+          value={controller.position || 0.01}
           onComplete={onSeek}
         />
         <Time>{formatTime(item?.fileduration || 0)}</Time>
-        <IconBtn onPress={() => setVolume(volume > 0 ? 0 : 1)} accessibilityRole="button">
-          <MaterialIcons name={volume > 0 ? 'volume-up' : 'volume-off'} size={20} color="#fff" />
-          <HiddenLabel>{volume > 0 ? 'Mute' : 'Unmute'}</HiddenLabel>
-        </IconBtn>
-        <VolumeBarContainer>
-          <SeekBar min={0} max={1} value={volume} onComplete={setVolume}/>
-        </VolumeBarContainer>
+        {Platform.OS==='web' ? (
+          <>
+            <IconBtn onPress={() => setVolume(volume > 0 ? 0 : 1)} accessibilityRole="button">
+              <MaterialIcons name={volume > 0 ? 'volume-up' : 'volume-off'} size={20} color="#fff" />
+              <HiddenLabel>{volume > 0 ? 'Mute' : 'Unmute'}</HiddenLabel>
+            </IconBtn>
+            <VolumeBarContainer>
+              <SeekBar min={0} max={1} value={volume} onComplete={setVolume}/>
+            </VolumeBarContainer>
+          </>
+        ) : undefined}
       </Row>
     </Controls>
   );
@@ -152,7 +156,6 @@ function formatTime(totalSeconds?: number) {
 const Controls = styled.View<{visible:boolean}>`
   padding: 12px;
   background-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.card};
-
   gap: 8px;
   opacity: ${(props: { visible: boolean }) => props.visible ? 1 : 0};
   transition: margin-bottom 0.2s ease-out, opacity 0.2s ease-out;
@@ -181,9 +184,9 @@ const Right = styled.View`
 const Row = styled.View`
   flex-direction: row;
   align-items: center;
-  gap: 8px;
   marginTop: 10px;
-  padding-left: calc(10% + 10px);
+  padding-left: 10%;
+  ${Platform.OS === 'android' ? 'margin-top:20px;' : ''}
 `;
 
 const IconBtn = styled(SecondaryButton)`
@@ -200,7 +203,7 @@ const Poster = styled(Image)`
   position:absolute;
   left:0px;
   bottom:0px;
-  aspect-ratio: 9/15;
+  aspect-ratio: 9/14;
   width: 10%;
   border-radius: 6px;
 `;
@@ -209,12 +212,18 @@ const PosterPlaceholder = styled.View`
   width: 36px;
   height: 54px;
   background-color: #333;
+  position:absolute;
+  left:0px;
+  bottom:0px;
+  aspect-ratio: 9/15;
+  width: 10%;
 `;
 
 const Time = styled(ThemedText)`
   color: white;
   width: 48px;
   text-align: center;
+  margin-horizontal: 4px;
 `;
 
 const VolumeBarContainer = styled(View)`
@@ -231,7 +240,7 @@ const HiddenLabel = styled(ThemedText)`
   overflow: hidden;
 `;
 
-const MenuAnchor = styled.TouchableOpacity`
+const MenuAnchor = styled.View`
   position: relative;
 `;
 

@@ -57,12 +57,6 @@ export function DetailsScreenView(props: DetailsScreenViewProps) {
       {!!item.backdropUrl && <Backdrop source={{ uri: item.backdropUrl }} resizeMode="cover" />}
       <Container>
         <TopRight>
-          <IconBtn accessibilityLabel={watched ? 'Mark unwatched' : 'Mark watched'} onPress={onToggleWatched}>
-            <MaterialIcons name={watched ? 'check-box' : 'check-box-outline-blank'} size={28} color="#fff" />
-          </IconBtn>
-          <DownloadBtnWrap>
-            <DownloadBtn id={item?.id} />
-          </DownloadBtnWrap>
         </TopRight>
         <ScrollView contentContainerStyle={{minHeight: '100%'}}>
           <Overlay height={height} experimentalBlurMethod="dimezisBlurView" intensity={50} tint="dark" testID="details-blur-overlay" hasEpisodes={!!grouped}>
@@ -85,6 +79,10 @@ export function DetailsScreenView(props: DetailsScreenViewProps) {
               <Actions>
                 <Secondary onPress={onOpenInfo} accessibilityLabel="Show info">
                   <SecondaryText>Info</SecondaryText>
+                </Secondary>
+                <Secondary accessibilityLabel={watched ? 'Mark unwatched' : 'Mark watched'} onPress={onToggleWatched}>
+                  <MaterialIcons name={watched ? 'check-box' : 'check-box-outline-blank'} size={16} color="#fff" />
+                  <SecondaryText>{watched ? 'Watched' : 'Mark Watched'}</SecondaryText>
                 </Secondary>
                 {item.imdbUrl ? (
                   <Pressable onPress={onOpenImdb} accessibilityLabel="Open IMDb" role={'link'}>
@@ -154,9 +152,6 @@ const IconBtn = styled.Pressable`
   padding: 6px;
 `;
 
-const DownloadBtnWrap = styled.View`
-  padding: 6px;
-`;
 
 const Overlay = styled(BlurView)<{height:number, hasEpisodes:boolean}>`
   background-color: rgba(0,0,0,0.5);
@@ -220,6 +215,8 @@ const PlayBtn = styled(SecondaryButton)`
 
 const Secondary = styled(SecondaryButton)`
   background-color: #444;
+  flex-direction: row;
+  gap: 8px;
 `;
 
 const SecondaryText = styled(ThemedText)`

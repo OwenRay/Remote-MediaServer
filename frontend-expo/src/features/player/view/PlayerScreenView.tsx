@@ -119,21 +119,11 @@ export function PlayerScreenView({controller, onControlsVisibilityChange}: Playe
         </SurfaceContainer>
       </TouchableWithoutFeedback>
 
-      {Platform.OS === 'web' ? (
-        <ControlsBar
-          controller={controller}
-          visible={controlsVisible}
-          onToggleFullscreen={onToggleFullscreen}
-        />
-      ) : (
-        controlsVisible ? (
-          <ControlsBar
-            controller={controller}
-            visible
-            onToggleFullscreen={onToggleFullscreen}
-          />
-        ) : null
-      )}
+      <ControlsBar
+        controller={controller}
+        visible={controlsVisible}
+        onToggleFullscreen={onToggleFullscreen}
+      />
 
       <Modal
         transparent

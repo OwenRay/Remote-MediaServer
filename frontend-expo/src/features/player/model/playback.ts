@@ -3,18 +3,12 @@ import { api, JsonApiSingleResponse } from '@/src/features/shared/model/api/base
 export type PlayPositionAttributes = {
   position: number; // seconds
   watched: boolean;
-  // Optionally could include media-item relation, but backend may infer from body
 };
 
 export type PlayPositionResource = {
   id?: string;
   type: 'play-positions';
   attributes: PlayPositionAttributes;
-  relationships?: {
-    'media-item'?: {
-      data: { type: 'media-items'; id: string };
-    };
-  };
 };
 
 export type WritePlayPositionArg = {
@@ -29,22 +23,40 @@ export const playbackApi = api.injectEndpoints({
       JsonApiSingleResponse<PlayPositionAttributes>,
       WritePlayPositionArg
     >({
-      query: ({ mediaItemId, position, duration }) => {
+      async queryFn({ mediaItemId, position, duration }, _api, _extra, baseQuery) {
         const watched = position >= duration * 0.97;
-        const body: { data: PlayPositionResource } = {
-          data: {
-            type: 'play-positions',
-            attributes: { position, watched },
-            relationships: {
-              'media-item': { data: { type: 'media-items', id: mediaItemId } },
-            },
-          },
-        };
-        return {
+        // 1) Create play-position without linking it to media item
+        const createResp: any = await baseQuery({
           url: '/play-positions',
           method: 'POST',
-          body,
-        };
+          body: {
+            data: {
+              type: 'play-positions',
+              attributes: { position, watched },
+            } as PlayPositionResource,
+          },
+        });
+        if (createResp.error) return { error: createResp.error } as any;
+        const created = (createResp.data as JsonApiSingleResponse<PlayPositionAttributes>)?.data as any;
+        const playPositionId = created?.id;
+        if (!playPositionId) return { error: { status: 500, data: 'Missing play-position id' } } as any;
+        // 2) Link the play-position from the media item side
+        const linkResp: any = await baseQuery({
+          url: `/media-items/${mediaItemId}`,
+          method: 'PATCH',
+          body: {
+            data: {
+              type: 'media-items',
+              id: mediaItemId,
+              relationships: {
+                'play-position': { data: { type: 'play-positions', id: playPositionId } },
+              },
+            },
+          },
+        });
+        if (linkResp.error) return { error: linkResp.error } as any;
+        // Return the created play-position response to keep API stable
+        return { data: createResp.data } as { data: JsonApiSingleResponse<PlayPositionAttributes> };
       },
     }),
   }),
