@@ -141,7 +141,7 @@ jest.mock('expo-video', () => {
   const { View } = require('react-native');
   return {
     VideoView: ({ children, ...props }: any) => React.createElement(View, { accessibilityLabel: 'VideoView', ...props }, children),
-    useVideoPlayer: jest.fn().mockReturnValue({currentTime:0, play:jest.fn()})
+    useVideoPlayer: jest.fn().mockReturnValue({currentTime:0, play:jest.fn(), seek: jest.fn()})
   };
 });
 

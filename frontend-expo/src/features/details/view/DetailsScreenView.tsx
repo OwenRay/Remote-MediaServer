@@ -7,7 +7,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import { DetailsInfoDialog } from '@/src/features/details/view/DetailsInfoDialog';
 import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
-import { DownloadButton as DownloadBtn } from '@/src/features/shared/view/DownloadButton';
 import { ProgressBar as SharedProgressBar } from '@/src/features/shared/view/ProgressBar';
 import type { DetailsViewModel } from '@/src/features/details/domain/useDetailsViewModel';
 
@@ -147,11 +146,6 @@ const TopRight = styled.View`
   right: 12px;
   z-index: 2;
 `;
-
-const IconBtn = styled.Pressable`
-  padding: 6px;
-`;
-
 
 const Overlay = styled(BlurView)<{height:number, hasEpisodes:boolean}>`
   background-color: rgba(0,0,0,0.5);

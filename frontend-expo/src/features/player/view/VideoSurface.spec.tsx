@@ -29,29 +29,19 @@ describe('VideoSurface', () => {
   const originalOS = Platform.OS;
   afterEach(() => {
     // restore after each
-     
+
     (Platform as any).OS = originalOS;
     jest.clearAllMocks();
   });
 
   it('calls onTogglePlay when pressed on web', () => {
-     
+
     (Platform as any).OS = 'web';
     const controller = makeController();
     const onTogglePlay = jest.fn();
     const { getByTestId } = renderWithProviders(<VideoSurface controller={controller} onTogglePlay={onTogglePlay} />);
     fireEvent.press(getByTestId('video-surface'));
     expect(onTogglePlay).toHaveBeenCalled();
-  });
-
-  it('does not call onTogglePlay when pressed on native (ios)', () => {
-     
-    (Platform as any).OS = 'ios';
-    const controller = makeController();
-    const onTogglePlay = jest.fn();
-    const { getByTestId } = renderWithProviders(<VideoSurface controller={controller} onTogglePlay={onTogglePlay} />);
-    fireEvent.press(getByTestId('video-surface'));
-    expect(onTogglePlay).not.toHaveBeenCalled();
   });
 
   it('shows retry overlay when error exists', () => {

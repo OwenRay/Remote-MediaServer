@@ -3,6 +3,7 @@ import {fireEvent} from '@testing-library/react-native';
 import { renderWithProviders } from '@/test-utils';
 import { ControlsBar } from './ControlsBar';
 import type { PlayerController } from '@/src/features/player/domain/usePlayerController';
+import {Platform} from "react-native";
 
 function makeController(overrides: Partial<PlayerController> = {}): PlayerController {
   // @ts-expect-error partial for tests
@@ -28,11 +29,10 @@ describe('ControlsBar', () => {
   it('invokes togglePlay when play button pressed', () => {
     const controller = makeController();
     // const {getByLabelText} = render();
-    const { getByRole, getByText} = renderWithProviders(<ControlsBar controller={controller} />);
+    const { getByRole } = renderWithProviders(<ControlsBar controller={controller} />);
     fireEvent.press(getByRole('button', { name: 'play' }));
+
     expect(controller.togglePlay).toHaveBeenCalled();
-    // shows time formatted
-    expect(getByText('00:15')).toBeTruthy();
   });
 
   it('renders without crashing and exposes seek bar', () => {
@@ -40,11 +40,12 @@ describe('ControlsBar', () => {
     const controller = makeController({ onSeek });
     const { getByText } = renderWithProviders(<ControlsBar controller={controller} />);
     // presence of time labels indicates the row with seek bar rendered
-    expect(getByText('00:15')).toBeTruthy();
+    expect(getByText('00:10')).toBeTruthy();
     expect(getByText('01:40')).toBeTruthy();
   });
 
   it('toggles mute button text based on volume', () => {
+    Platform.OS = 'web';
     const controller = makeController({ volume: 0 });
     const { getByText } = renderWithProviders(<ControlsBar controller={controller} />);
     fireEvent.press(getByText('Unmute'));

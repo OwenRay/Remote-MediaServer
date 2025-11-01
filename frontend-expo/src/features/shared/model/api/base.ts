@@ -21,9 +21,10 @@ export const api = createApi({
   baseQuery,
   endpoints: () => ({}),
   tagTypes: ['Library', 'Item', 'MediaContent', 'Settings'],
-  keepUnusedDataFor: 0,
-  refetchOnFocus: false,
-  refetchOnReconnect: false,
+  keepUnusedDataFor: 600 * 24 * 365,
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
+  refetchOnMountOrArgChange: true,
 });
 
 export type JsonApiResource<TAttr = Record<string, unknown>> = {

@@ -64,6 +64,7 @@ async function resolvePlayPosition(
   included: any[] | undefined,
   baseQueryFn?: (arg: any) => any
 ): Promise<PlayPosition | undefined> {
+  console.log('resolvePlayPosition', itemResource, included);
   // Try to resolve via relationship linkage first
   const rel = itemResource?.relationships?.['play-position']?.data;
   const relId: string | undefined = rel?.id;
@@ -153,6 +154,7 @@ const mediaApi = api.injectEndpoints({
     }),
     getItem: build.query<MediaItem, string>({
       async queryFn(id, _api, _extra, baseQuery) {
+        console.log('getItem resolved');
         const resp = await baseQuery({ url: `/media-items/${id}`, params: { extra: 'false', join: 'play-position' } });
         if ((resp as any).error) return { error: (resp as any).error } as any;
         const response = (resp as any).data as JsonApiSingleResponse<any>;

@@ -22,13 +22,19 @@ Within each feature we can have the following structure
 - treat linting warnings as if they are errors
 - only export named imports
 
-- We keep implement single responsibility and keep our components as small as possible
-- use typescript expo
-- we don't use workspaces, frontend-expo is a seperate project!
+## React
+- use typescript / expo
+- Every file contains a maximum of 1 component (excluding styled components)
+- We don't put business logic in our components, we put them in hooks.
+
+# Styles
 - We use Styled Components
 - The styled components that are specifically needed for the current layout will be put bellow the current component in the same file
 - The styled components that are generic will be put in features/shared/view
-- to follow linting rules always import  styled like this: `import {default as styled} from 'styled-components/native';`
+- always import styled like this: `import {default as styled} from 'styled-components/native';`
+-
+## Architecture
+- We implement single responsibility and keep our components as small as possible
 - We use the solid principles
 **S - Single Responsibility Principle** A class/function should have only one reason to change (one job).
 **O - Open/Closed Principle** Open for extension, closed for modification.
@@ -36,9 +42,11 @@ Within each feature we can have the following structure
 **I - Interface Segregation Principle** Many specific interfaces are better than one general interface.
 **D - Dependency Inversion Principle** Depend on abstractions, not concretions.
 
-Testing
+## Testing
 - Test in jest
 - Test interaction according to react native guidelines
 - Don't use snapshot tests
 - Tests should live alongside the implementation with the following naming convention src/somefile.tsx -> src/somefile.spec.tsx
 
+## general
+- we don't use workspaces, frontend-expo is a seperate project!

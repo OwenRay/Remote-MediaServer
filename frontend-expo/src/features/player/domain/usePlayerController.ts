@@ -1,10 +1,11 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Platform} from 'react-native';
-import {useVideoPlayer} from 'expo-video';
-import {getBaseUrl} from '@/src/features/shared/model/api/base';
-import {useWritePlayPositionMutation} from '@/src/features/player/model/playback';
-import {MediaItem, useGetItemQuery} from "@/src/features/library/model/media";
-import * as offline from '@/src/features/shared/model/offline';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Platform } from 'react-native';
+import { useVideoPlayer } from 'expo-video';
+import { useWritePlayPositionMutation } from '@/src/features/player/model/playback';
+import { MediaItem, useGetItemQuery } from '@/src/features/library/model/media';
+import { useOfflineUri } from '@/src/features/player/domain/useOfflineUri';
+import { usePlayerSource } from '@/src/features/player/domain/usePlayerSource';
+import { useResumeGate } from '@/src/features/player/domain/useResumeGate';
 
 export type PlayerControllerOptions = {
   id: string;
@@ -35,58 +36,31 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
   const [error, setError] = useState<string>();
   const [writePos] = useWritePlayPositionMutation();
   const [resumeConfirmed, setResumeConfirmed] = useState(false);
-  const [offlineUri, setOfflineUri] = useState<string | undefined>();
   const lastPositionSave = useRef(0);
 
-  // Resolve offline availability for this id
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        if (!id) return setOfflineUri(undefined);
-        const uri = await offline.getUri(String(id));
-        if (mounted) setOfflineUri(uri);
-      } catch {
-        if (mounted) setOfflineUri(undefined);
-      }
-    })();
-    return () => { mounted = false; };
-  }, [id]);
+  // Resolve offline availability for this id and build the source
+  const offlineUri = useOfflineUri(id);
+  const source = usePlayerSource(id, position, offlineUri);
 
-  // The source prefers offline file when present; otherwise stream with seek anchor
-  const source = useMemo(() => {
-    if (offlineUri) return { uri: offlineUri };
-    const seek = Math.floor(position);
-    return {uri: `${getBaseUrl()}/ply/${id}/${seek}`};
-  }, [id, position, offlineUri]);
-
-  const player = useVideoPlayer(source, () => {
-    // no-op, but keeps parity with previous implementation
-    // console.log('video player created');
-  });
+  const player = useVideoPlayer(source);
+  // player.stat
 
   // Keep an interval to force view updates based on currentTime changes
   const [, setReRender] = useState(0);
   useEffect(() => {
     const interval = setInterval(() => setReRender(Math.random()), 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [player]);
 
   // Decide if we should hold autoplay to show a resume dialog
-  const shouldHoldForResume = useMemo(() => {
-    const resumePos = data?.playPosition?.position ?? 0;
-    const watched = Boolean(data?.playPosition?.watched);
-    return resumePos >= 5 && !watched && !resumeConfirmed;
-  }, [data?.playPosition?.position, data?.playPosition?.watched, resumeConfirmed]);
+  const shouldHoldForResume = useResumeGate(data, resumeConfirmed);
 
   // Auto play once we have a player and we're not waiting on the resume dialog
   useEffect(() => {
     if (!shouldHoldForResume) {
-      console.log('auto play');
       player.play();
       setPaused(false);
     } else {
-      console.log('waiting for resume')
       // ensure paused when waiting
       try { player.pause(); } catch { /* noop */ }
       setPaused(true);
@@ -96,13 +70,15 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
 
   // Persist last known position on unmount
   useEffect(() => () => {
-    const newTime = position + player.currentTime;
-    const diff = Math.abs(newTime - lastPositionSave.current)
-    if (id && data?.fileduration > 0 && diff > 5) {
-      lastPositionSave.current = position + player.currentTime;
-      writePos({mediaItemId: String(id), position: newTime, duration: data?.fileduration});
-    }
-  }, [id, data?.fileduration, position + player.currentTime, writePos]);
+    try {
+      const newTime = position + player.currentTime;
+      const diff = Math.abs(newTime - lastPositionSave.current)
+      if (id && data?.fileduration && diff > 5) {
+        lastPositionSave.current = position + player.currentTime;
+        writePos({mediaItemId: String(id), position: newTime, duration: data.fileduration});
+      }
+    }catch (e) {}
+  }, [id, data?.fileduration, position, player, player.currentTime, writePos]);
 
   const togglePlay = useCallback(() => {
     setPaused((p) => {
@@ -114,15 +90,12 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
   }, [player]);
 
   const onSeek = useCallback((val: number) => {
-    if(player?.bufferedPosition > val) {
-      player.seek(val);
-      return;
-    }
     setPosition(val);
     setPaused(false);
   }, []);
 
   const retry = useCallback(() => {
+    console.log('retry!!');
     setError(undefined);
     setPosition((p) => p + 0.001);
   }, []);

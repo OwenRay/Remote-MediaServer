@@ -20,7 +20,8 @@
         "monochromeImage": "./assets/images/rms-logo-512.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": []
     },
     "web": {
       "output": "single",
@@ -51,6 +52,7 @@
       "eas": {
         "projectId": "263a47e3-d3c5-4d78-b31e-b19a5c7be3f4"
       }
-    }
+    },
+    "permissions": []
   }
 }

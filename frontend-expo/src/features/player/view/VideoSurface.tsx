@@ -1,5 +1,4 @@
 import React from 'react';
-import { Platform } from 'react-native';
 import {default as styled} from 'styled-components/native';
 import {VideoView} from 'expo-video';
 import {ThemedText} from '@/src/features/shared/view/ThemedText';
@@ -13,8 +12,6 @@ export type VideoSurfaceProps = {
 
 export function VideoSurface({controller, onTogglePlay}: VideoSurfaceProps) {
   const {player, error, retry} = controller;
-  // On native (iOS/Android), a single tap should toggle the controls visibility, not play/pause.
-  // Therefore, only wire tap-to-toggle-play on web.
   return (
     <VideoContainer onPress={onTogglePlay} testID="video-surface">
       <StyledVideoView nativeControls={false} player={player} />
