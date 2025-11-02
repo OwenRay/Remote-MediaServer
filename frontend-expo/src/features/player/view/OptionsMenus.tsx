@@ -4,10 +4,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import {default as styled} from 'styled-components/native';
+import {CastButtonControl} from "@/src/features/player/view/CastButtonControl";
+import {PlayerController} from "@/src/features/player/domain/usePlayerController";
+import {CastingController} from "@/src/features/player/domain/useGoogleCast";
 
-export type OptionsMenusProps = { onToggleFullscreen: () => void };
+export type OptionsMenusProps = { controller: PlayerController, castingController: CastingController };
 
-export function OptionsMenus({ onToggleFullscreen }: OptionsMenusProps) {
+export function OptionsMenus({ controller, castingController }: OptionsMenusProps) {
   const [openMenu, setOpenMenu] = useState<null | 'audio' | 'video' | 'subtitles'>(
     null,
   );
@@ -60,11 +63,12 @@ export function OptionsMenus({ onToggleFullscreen }: OptionsMenusProps) {
       </MenuAnchor>
 
       {Platform.OS === 'web' && (
-        <IconBtn onPress={onToggleFullscreen} accessibilityRole="button">
+        <IconBtn onPress={controller.toggleFullscreen} accessibilityRole="button">
           <MaterialIcons name="fullscreen" size={20} color="#fff" />
           <HiddenLabel>Fullscreen</HiddenLabel>
         </IconBtn>
       )}
+      <CastButtonControl controller={castingController} />
     </Right>
   );
 }
@@ -79,12 +83,13 @@ const Right = styled.View`
 `;
 
 const IconBtn = styled(SecondaryButton)`
-  padding-vertical: 6px;
-  padding-horizontal: 8px;
+  padding: 0;
   border-radius: 50%;
   aspect-ratio: 1;
   align-items: center;
   justify-content: center;
+  height: 36px;
+  width: 36px;
 `;
 
 const HiddenLabel = styled(ThemedText)`

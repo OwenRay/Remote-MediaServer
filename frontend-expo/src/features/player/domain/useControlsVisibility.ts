@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Platform } from 'react-native';
 
 export type ControlsVisibility = {
   controlsVisible: boolean;
@@ -30,23 +29,20 @@ export function useControlsVisibility(): ControlsVisibility {
     scheduleHide();
   }, [scheduleHide]);
 
+  const onSurfacePress = useCallback(() => {
+    // Toggle visibility; when showing, (re)start auto-hide timer
+    setControlsVisible(prev => {
+      const next = !prev;
+      if (next) scheduleHide();
+      return next;
+    });
+  }, [scheduleHide]);
+
   useEffect(() => {
     // start auto-hide after mount
     scheduleHide();
     return () => clearHideTimer();
   }, [scheduleHide, clearHideTimer]);
-
-  const onSurfacePress = useCallback(() => {
-    // On native (iOS/Android), tap toggles visibility; on web handled by VideoSurface
-    if (Platform.OS !== 'web') {
-      setControlsVisible(v => {
-        const next = !v;
-        if (next) scheduleHide();
-        else clearHideTimer();
-        return next;
-      });
-    }
-  }, [clearHideTimer, scheduleHide]);
 
   return { controlsVisible, showControls, setControlsVisible, onSurfacePress };
 }

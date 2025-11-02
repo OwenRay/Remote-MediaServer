@@ -2,12 +2,18 @@ import React, {useEffect, useState} from 'react';
 import {useLocalSearchParams, useNavigation} from 'expo-router';
 import {usePlayerController} from '@/src/features/player/domain/usePlayerController';
 import {PlayerScreenView} from '@/src/features/player/view/PlayerScreenView';
+import {useGoogleCast} from "@/src/features/player/domain/useGoogleCast";
 
 export default function PlayerScreen() {
   const {id} = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
 
-  const controller = usePlayerController({id});
+  let controller = usePlayerController({id});
+  const castingController = useGoogleCast(controller);
+  if(castingController.isCasting) {
+    controller = castingController;
+  }
+
   const [controlsVisible, setControlsVisible] = useState(true);
 
   useEffect(() => {
@@ -21,6 +27,7 @@ export default function PlayerScreen() {
   return (
     <PlayerScreenView
       controller={controller}
+      castingController={castingController}
       onControlsVisibilityChange={setControlsVisible}
     />
   );

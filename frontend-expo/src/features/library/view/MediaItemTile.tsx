@@ -63,7 +63,7 @@ export function MediaItemTile({ item, width = 150, height = 218 }: MediaItemTile
       {/* Poster */}
       {hasThumb ? (
         <Poster
-          source={{ uri: item.thumbnailUrl }}
+          source={{ uri: item.posterUrl }}
           zoomed={overlayVisible}
         />
       ) : (
@@ -80,7 +80,7 @@ export function MediaItemTile({ item, width = 150, height = 218 }: MediaItemTile
         pointerEvents="none"
         visible={overlayVisible}
       >
-        <Title numberOfLines={1} adjustsFontSizeToFit onPress={handlePress}>
+        <Title numberOfLines={1} onPress={handlePress}>
           {item.title}
         </Title>
         <DetailRow>

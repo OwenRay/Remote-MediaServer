@@ -6,36 +6,48 @@ import {default as styled} from 'styled-components/native';
 import {SearchBar} from '@/src/features/library/view/SearchBar';
 import {MediaItemTile} from '@/src/features/library/view/MediaItemTile';
 import { MediaItemTilePlaceholder} from '@/src/features/library/view/MediaItemTilePlaceholder';
+import { useScrollbarWidth } from '@/src/features/shared/model/useScrollbarWidth';
 import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import { useGridColumns } from '@/src/features/library/view/useGridColumns';
 import { usePagedMedia } from '@/src/features/library/model/usePagedMedia';
 
-const ColumnWrapper = { gap: 15, justifyContent: 'center' } as const;
-
-const CELL_WIDTH = 150;
-const CELL_HEIGHT = 236;
+const BASE_CELL_WIDTH = 150; // used only for determining column count
+const BASE_CELL_HEIGHT = 236; // used for aspect ratio
 const GUTTER = 15;
-const H_PADDING = 16; // matches container paddingHorizontal
+const H_PADDING = 16; // matches contentContainerStyle paddingHorizontal
 const PAGE_SIZE = 48;
+
+const ColumnWrapper = { gap: GUTTER } as const;
 
 export default function LibraryScreen() {
   const theme = useTheme();
   const { width: windowWidth } = useWindowDimensions();
+  const scrollbarWidth = useScrollbarWidth();
+  const layoutWidth = Math.max(0, windowWidth - scrollbarWidth);
 
   const { query, setQuery, filters, setFilters, dataIndices, items, isFetching, isError, ensurePageLoaded } = usePagedMedia({ pageSize: PAGE_SIZE });
 
-  // compute columns based on width
-  const cols = useGridColumns(windowWidth, { cellWidth: CELL_WIDTH, gutter: GUTTER, horizontalPadding: H_PADDING });
+  // compute columns based on window width (logic unchanged)
+  const cols = useGridColumns(layoutWidth, { cellWidth: BASE_CELL_WIDTH, gutter: GUTTER, horizontalPadding: H_PADDING });
+
+  // compute dynamic cell size so the row fills the width exactly
+  const innerWidth = Math.max(0, layoutWidth - H_PADDING * 2);
+  const cellWidth = React.useMemo(() => {
+    const totalGutters = GUTTER * Math.max(0, cols - 1);
+    const available = Math.max(0, innerWidth - totalGutters);
+    return Math.floor(available / Math.max(1, cols));
+  }, [innerWidth, cols]);
+  const aspect = BASE_CELL_HEIGHT / BASE_CELL_WIDTH;
+  const cellHeight = Math.round(cellWidth * aspect);
 
   const PlaceholderCell: React.FC<{ index: number }> = ({ index }) => {
     React.useEffect(() => {
       ensurePageLoaded(index);
-
     }, [index]);
     return (
-      <Cell>
-        <CellInner>
-          <MediaItemTilePlaceholder width={CELL_WIDTH} height={CELL_HEIGHT} />
+      <Cell width={cellWidth}>
+        <CellInner height={cellHeight}>
+          <MediaItemTilePlaceholder width={cellWidth} height={cellHeight} />
         </CellInner>
       </Cell>
     );
@@ -47,11 +59,11 @@ export default function LibraryScreen() {
       return <PlaceholderCell index={index} />;
     }
     return (
-      <Cell>
-        <CellInner>
+      <Cell width={cellWidth}>
+        <CellInner height={cellHeight}>
           <MediaItemTile
-            width={CELL_WIDTH}
-            height={CELL_HEIGHT}
+            width={cellWidth}
+            height={cellHeight}
             item={itm}
           />
         </CellInner>
@@ -68,12 +80,12 @@ export default function LibraryScreen() {
           key={cols}
           data={dataIndices}
           numColumns={cols}
-          centerContent
           removeClippedSubviews={false}
           keyExtractor={(index) => `row-${index}`}
           renderItem={renderItem}
           indicatorStyle={theme.dark ? 'white' : 'black'}
           columnWrapperStyle={ColumnWrapper}
+          contentContainerStyle={{ paddingHorizontal: H_PADDING }}
           onEndReachedThreshold={0.5}
           onEndReached={() => {
             const nextIndex = Math.max(0, dataIndices.length - 1);
@@ -99,12 +111,12 @@ const Container = styled.View`
 `;
 
 
-const Cell = styled.View`
-  width: ${CELL_WIDTH}px;
+const Cell = styled.View<{width: number}>`
+  width: ${(p: { width: number }) => p.width}px;
 `;
 
-const CellInner = styled.View`
-  height: ${CELL_HEIGHT}px;
+const CellInner = styled.View<{height: number}>`
+  height: ${(p: { height: number }) => p.height}px;
   margin-top: ${GUTTER}px;
 `;
 

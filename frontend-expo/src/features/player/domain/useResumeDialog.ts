@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { PlayerController } from './usePlayerController';
 
 export type ResumeDialogState = {
@@ -11,45 +11,42 @@ export type ResumeDialogState = {
 
 // Handles resume modal visibility and actions
 export function useResumeDialog(controller: PlayerController): ResumeDialogState {
-  const { item, player, setPaused, onSeek, confirmResumeChoice } = controller;
+  const { item, onSeek } = controller;
   const [showResumeDialog, setShowResumeDialog] = useState(false);
-  const resumePosRef = useRef(0);
+  const [isDone, setIsDone] = useState(false);
 
   useEffect(() => {
+    if(!item?.id) return;
+    if(isDone) return;
+
     const pos = item?.playPosition?.position ?? 0;
     const watched = Boolean(item?.playPosition?.watched);
-    if (item?.id && pos >= 5 && !watched) {
-      resumePosRef.current = pos;
+    if(pos <= 5 || watched) {
+      setIsDone(true);
+      controller.togglePlay();
+      return;
+    } else if(!showResumeDialog) {
       setShowResumeDialog(true);
-      try { player.pause(); } catch { /* noop */ }
-      setPaused(true);
-    } else {
-      setShowResumeDialog(false);
+      setIsDone(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item?.id]);
+  }, [item?.id, isDone, showResumeDialog]);
 
   const close = useCallback(() => setShowResumeDialog(false), []);
 
   const startFromBeginning = useCallback(() => {
-    confirmResumeChoice();
     setShowResumeDialog(false);
     onSeek(0);
-    try { player.play(); } catch { /* noop */ }
-    setPaused(false);
-  }, [confirmResumeChoice, onSeek, player, setPaused]);
+  }, [onSeek]);
 
   const continueWatching = useCallback(() => {
-    confirmResumeChoice();
     setShowResumeDialog(false);
-    onSeek(resumePosRef.current || 0);
-    try { player.play(); } catch { /* noop */ }
-    setPaused(false);
-  }, [confirmResumeChoice, onSeek, player, setPaused]);
+    onSeek(item?.playPosition?.position || 0);
+  }, [onSeek, item?.playPosition?.position]);
 
   return {
     showResumeDialog,
-    resumePos: resumePosRef.current,
+    resumePos: item?.playPosition?.position || 0,
     startFromBeginning,
     continueWatching,
     close,

@@ -3,16 +3,18 @@
     "name": "RMS",
     "slug": "RMS",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/rms-logo-512.png",
     "scheme": "frontendexpo",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "nl.owenray.rms"
     },
     "android": {
       "package": "nl.owenray.rms",
+      "versionCode": 5,
       "adaptiveIcon": {
         "backgroundColor": "#000000",
         "foregroundImage": "./assets/images/rms-logo-512.png",
@@ -21,7 +23,9 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "blockedPermissions": ["android.permission.RECORD_AUDIO"]
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "single",
@@ -41,7 +45,18 @@
           }
         }
       ],
-      "expo-video"
+      "expo-video",
+      [
+        "react-native-google-cast",
+        {
+          "android": {
+            "receiverApplicationId": "07EA9E92"
+          },
+          "ios": {
+            "receiverAppID": "07EA9E92"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
@@ -52,7 +67,6 @@
       "eas": {
         "projectId": "263a47e3-d3c5-4d78-b31e-b19a5c7be3f4"
       }
-    },
-    "permissions": []
+    }
   }
 }

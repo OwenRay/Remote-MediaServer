@@ -5,16 +5,13 @@ import { useWritePlayPositionMutation } from '@/src/features/player/model/playba
 import { MediaItem, useGetItemQuery } from '@/src/features/library/model/media';
 import { useOfflineUri } from '@/src/features/player/domain/useOfflineUri';
 import { usePlayerSource } from '@/src/features/player/domain/usePlayerSource';
-import { useResumeGate } from '@/src/features/player/domain/useResumeGate';
 
 export type PlayerControllerOptions = {
   id: string;
 };
 
 export type PlayerController = {
-  player: ReturnType<typeof useVideoPlayer>;
   paused: boolean;
-  setPaused: (p: boolean) => void;
   position: number; // manually tracked seek anchor
   onSeek: (val: number) => void;
   currentTime: number; // player current time
@@ -24,8 +21,9 @@ export type PlayerController = {
   error?: string;
   retry: () => void;
   toggleFullscreen: () => void;
-  confirmResumeChoice: () => void;
   item?:MediaItem;
+  isCasting: boolean;
+  player: ReturnType<typeof useVideoPlayer>;
 };
 
 export function usePlayerController({id}: PlayerControllerOptions): PlayerController {
@@ -35,15 +33,16 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
   const [volume, setVolume] = useState(1);
   const [error, setError] = useState<string>();
   const [writePos] = useWritePlayPositionMutation();
-  const [resumeConfirmed, setResumeConfirmed] = useState(false);
   const lastPositionSave = useRef(0);
 
   // Resolve offline availability for this id and build the source
   const offlineUri = useOfflineUri(id);
   const source = usePlayerSource(id, position, offlineUri);
 
-  const player = useVideoPlayer(source);
-  // player.stat
+  const player = useVideoPlayer(source, (p) => {
+    console.log('player done', paused);
+    if(!paused) p.play();
+  });
 
   // Keep an interval to force view updates based on currentTime changes
   const [, setReRender] = useState(0);
@@ -51,22 +50,6 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
     const interval = setInterval(() => setReRender(Math.random()), 1000);
     return () => clearInterval(interval);
   }, [player]);
-
-  // Decide if we should hold autoplay to show a resume dialog
-  const shouldHoldForResume = useResumeGate(data, resumeConfirmed);
-
-  // Auto play once we have a player and we're not waiting on the resume dialog
-  useEffect(() => {
-    if (!shouldHoldForResume) {
-      player.play();
-      setPaused(false);
-    } else {
-      // ensure paused when waiting
-      try { player.pause(); } catch { /* noop */ }
-      setPaused(true);
-    }
-
-  }, [id, data?.fileduration, player, position, shouldHoldForResume]);
 
   // Persist last known position on unmount
   useEffect(() => () => {
@@ -77,25 +60,23 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
         lastPositionSave.current = position + player.currentTime;
         writePos({mediaItemId: String(id), position: newTime, duration: data.fileduration});
       }
-    }catch (e) {}
+    }catch {
+      // ignore persistence errors
+    }
   }, [id, data?.fileduration, position, player, player.currentTime, writePos]);
 
   const togglePlay = useCallback(() => {
-    setPaused((p) => {
-      const next = !p;
-      if (player.playing) player.pause();
-      else player.play();
-      return next;
-    });
-  }, [player]);
+    if (paused) player.play();
+    else player.pause();
+    setPaused(!paused);
+  }, [paused, player]);
 
   const onSeek = useCallback((val: number) => {
-    setPosition(val);
     setPaused(false);
+    setPosition(val);
   }, []);
 
   const retry = useCallback(() => {
-    console.log('retry!!');
     setError(undefined);
     setPosition((p) => p + 0.001);
   }, []);
@@ -107,19 +88,8 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
     else el?.exitFullscreen?.();
   }, []);
 
-  // Reset resume confirmation when item changes
-  useEffect(() => {
-    setResumeConfirmed(false);
-  }, [id]);
-
-  const confirmResumeChoice = useCallback(() => {
-    setResumeConfirmed(true);
-  }, []);
-
   return {
-    player,
     paused,
-    setPaused,
     onSeek,
     currentTime: player.currentTime,
     volume,
@@ -128,8 +98,9 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
     error,
     retry,
     toggleFullscreen,
-    confirmResumeChoice,
     item: data,
-    position: position + player.currentTime || 0
+    position: position + player.currentTime || 0,
+    isCasting: false,
+    player,
   };
 }

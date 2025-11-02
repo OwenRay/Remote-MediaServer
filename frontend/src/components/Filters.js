@@ -73,7 +73,6 @@ class ButtonMenu extends PureComponent {
   }
 
   onValueChange(name, value) {
-    console.log(arguments);
     const o = this.state;
     if (name === 'fileduration') {
       value = value.map(v => v * 60);

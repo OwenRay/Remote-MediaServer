@@ -101,7 +101,11 @@ export function DetailsScreenView(props: DetailsScreenViewProps) {
                   </TabsHeader>
                   <EpisodesList>
                     {(grouped[String(activeSeason)] ?? []).map((ep) => (
-                      <EpisodeRow key={String(ep.id)} onPress={() => onEpisodePress(ep.id)}>
+
+                      <EpisodeRow
+                        key={String(ep.id)}
+                        onPress={() => onEpisodePress(ep.id)}
+                        isCurrent={ep.id === item.id}>
                         <EpisodeTitle>{`S${ep.season ?? 0}E${ep.episode ?? 0}${ep.episodeTitle ? ` - ${ep.episodeTitle}` : ''}`}</EpisodeTitle>
                         <EpisodeMeta>
                           {ep.playPosition?.watched ? 'Watched' : ep.fileduration ? `${Math.round(((ep.playPosition?.position ?? 0) / (ep.fileduration || 1)) * 100)}%` : ''}
@@ -149,12 +153,11 @@ const TopRight = styled.View`
 
 const Overlay = styled(BlurView)<{height:number, hasEpisodes:boolean}>`
   background-color: rgba(0,0,0,0.5);
-  /* top: max(calc(100vh - 320px), calc(100cqh - 100%)); */
-  /* margin-top: ${({height}:{height:number}) => `max(calc(${height-320}px), calc(${height}px - 100%));`}; */
   ${({hasEpisodes, height}:{hasEpisodes:boolean, height:number}) => `
     ${hasEpisodes ? `margin-top: ${height - 320}px;` : 'position: absolute; bottom: 0px;'}
   `}
   height: auto;
+  width: 100%;
 `;
 
 const Content = styled.View`
@@ -248,12 +251,20 @@ const EpisodesList = styled.View`
   border-top-color: rgba(255,255,255,0.2);
 `;
 
-const EpisodeRow = styled.Pressable`
+const EpisodeRow = styled.Pressable<{isCurrent:boolean}>`
   padding: 12px 0;
   flex-direction: row;
   justify-content: space-between;
   border-bottom-width: 1px;
   border-bottom-color: rgba(255,255,255,0.1);
+  ${({isCurrent}: {isCurrent:boolean}) => isCurrent ? `
+    background-color: rgba(255,255,255,0.1);
+    margin-left: -10px;
+    margin-right: -10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 10px;
+  ` : ''}
 `;
 
 const EpisodeTitle = styled(ThemedText)`

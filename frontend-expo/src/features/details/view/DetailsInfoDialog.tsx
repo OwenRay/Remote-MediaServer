@@ -16,7 +16,7 @@ export function DetailsInfoDialog({ visible, onClose, item, subTitle }: DetailsI
   if (!item) return null;
 
   return (
-    <Modal transparent visible={visible} onRequestClose={onClose} animationType="fade">
+    <Modal transparent visible={visible} onRequestClose={onClose} animationType="fade" statusBarTranslucent>
       <ModalBackdrop as={Pressable} onPress={onClose} accessibilityLabel="Close info modal backdrop">
         <ModalCard>
           {item.title ? <Title type="title">{item.title}</Title> : null}

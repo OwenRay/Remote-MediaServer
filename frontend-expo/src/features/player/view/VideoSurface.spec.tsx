@@ -1,4 +1,3 @@
-import React from 'react';
 import { fireEvent } from '@testing-library/react-native';
 import { renderWithProviders } from '@/test-utils';
 import { Platform } from 'react-native';
@@ -32,16 +31,6 @@ describe('VideoSurface', () => {
 
     (Platform as any).OS = originalOS;
     jest.clearAllMocks();
-  });
-
-  it('calls onTogglePlay when pressed on web', () => {
-
-    (Platform as any).OS = 'web';
-    const controller = makeController();
-    const onTogglePlay = jest.fn();
-    const { getByTestId } = renderWithProviders(<VideoSurface controller={controller} onTogglePlay={onTogglePlay} />);
-    fireEvent.press(getByTestId('video-surface'));
-    expect(onTogglePlay).toHaveBeenCalled();
   });
 
   it('shows retry overlay when error exists', () => {

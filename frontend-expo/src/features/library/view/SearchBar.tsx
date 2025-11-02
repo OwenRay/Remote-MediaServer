@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {default as styled} from 'styled-components/native';
-import { useWindowDimensions } from 'react-native';
-import {useGetLibrariesQuery} from '@/src/features/library/model/media';
+import {useWindowDimensions} from 'react-native';
+import { useLibraries } from '@/src/features/library/model/useLibraries';
 import {ThemedTextInput} from "@/src/features/shared/view/ThemedTextInput";
 import {ThemedText} from "@/src/features/shared/view/ThemedText";
 import {ThemedPicker} from "@/src/features/shared/view/ThemedPicker";
 import {Card} from "@/src/features/shared/view/Card";
+import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 export type SearchBarProps = {
@@ -18,18 +19,19 @@ export type SearchBarProps = {
 export type FiltersState = {
   libraryId?: string;
   sort?: string;
+  distinct?: string; // when set to 'external-id' groups items by external id
 };
 
 export function SearchBar({
-                                    value,
-                                    onChange,
-                                    filters,
-                                    onFiltersChange
-                                  }: SearchBarProps) {
+                            value,
+                            onChange,
+                            filters,
+                            onFiltersChange
+                          }: SearchBarProps) {
   const {top} = useSafeAreaInsets();
   const [text, setText] = useState(value);
   const {width} = useWindowDimensions();
-  const {data: libraries} = useGetLibrariesQuery();
+  const { libraries } = useLibraries();
 
   const sortOptions = [
     {label: 'Date added', value: 'date_added:DESC'},
@@ -50,10 +52,11 @@ export function SearchBar({
   const isWideScreen = width >= 768; // Adjust breakpoint as needed
 
   return (
-      <Content style={{paddingTop: top + 8}} isWide={isWideScreen}>
+    <>
+      <Content style={{paddingTop: top || 8}} isWide={isWideScreen}>
         <FiltersContainer>
           <Field>
-            <ThemedText type={'default'}>Library</ThemedText>
+            <PickerLabel type={'default'}>Library</PickerLabel>
             <PickerContainer>
               <ThemedPicker
                 selectedValue={filters.libraryId}
@@ -62,7 +65,7 @@ export function SearchBar({
                 options={libraries ? [
                   {label: 'All', value: undefined},
                   ...libraries.map((l) => ({label: l.name, value: l.id}))
-                ]: [{label: 'All', value: undefined}]}
+                ] : [{label: 'All', value: undefined}]}
               />
             </PickerContainer>
           </Field>
@@ -78,7 +81,7 @@ export function SearchBar({
           )}
 
           <Field>
-            <ThemedText type={'default'}>Sort by</ThemedText>
+            <PickerLabel type={'default'}>Sort by</PickerLabel>
             <PickerContainer>
               <ThemedPicker
                 selectedValue={filters.sort ?? 'date_added:DESC'}
@@ -88,6 +91,17 @@ export function SearchBar({
               />
             </PickerContainer>
           </Field>
+
+          <SecondaryButton
+            testID="group-toggle"
+            onPress={() => onFiltersChange({
+              ...filters,
+              distinct: filters.distinct ? undefined : 'external-id',
+            })}
+            accessibilityLabel="group-toggle"
+          >
+            <ThemedText>{filters.distinct ? 'Ungroup' : 'Group'}</ThemedText>
+          </SecondaryButton>
         </FiltersContainer>
 
         {!isWideScreen && (
@@ -100,6 +114,7 @@ export function SearchBar({
           />
         )}
       </Content>
+    </>
   );
 }
 
@@ -107,7 +122,7 @@ const Content = styled(Card)<{ isWide: boolean }>`
   margin-bottom: 0;
   padding-horizontal: 8px;
   gap: 8px;
-  flex-direction: ${({ isWide }: { isWide: boolean }) => isWide ? 'row' : 'column'};
+  flex-direction: ${({isWide}: { isWide: boolean }) => isWide ? 'row' : 'column'};
   justify-content: stretch;
   width: 100%;
   position: relative;
@@ -132,3 +147,8 @@ const PickerContainer = styled.View`
 const StyledTextInput = styled(ThemedTextInput)`
   flex-grow: 1;
 `;
+
+const PickerLabel = styled(ThemedText)`
+  padding-left: 6px;
+`
+

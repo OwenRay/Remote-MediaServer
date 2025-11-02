@@ -85,7 +85,7 @@ export function ServerFileBrowserModal({ visible, initialDirectory = '/', label 
   }, [load]);
 
   return (
-    <Modal transparent visible={visible} onRequestClose={onClose} animationType="fade">
+    <Modal statusBarTranslucent transparent visible={visible} onRequestClose={onClose} animationType="fade">
       <Backdrop>
         <Card>
           <HeaderRow>

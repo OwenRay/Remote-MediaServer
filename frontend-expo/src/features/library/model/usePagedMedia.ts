@@ -30,14 +30,21 @@ export function usePagedMedia({ pageSize = 48 }: UsePagedMediaParams = {}): UseP
   const loadingPagesRef = useRef(new Set<string>());
 
   const [query, setQuery] = useState('');
-  const [filters, setFilters] = useState<FiltersState>({ sort: 'date_added:DESC' });
+  const [filters, setFilters] = useState<FiltersState>({ sort: 'date_added:DESC', distinct: 'external-id' });
 
   const ensurePageLoaded = (index: number) => {
     const pageStart = Math.floor(index / pageSize) * pageSize;
-    const key = `${pageStart}-${query}-${filters.libraryId ?? ''}-${filters.sort ?? ''}`;
+    const key = `${pageStart}-${query}-${filters.libraryId ?? ''}-${filters.sort ?? ''}-${filters.distinct ?? ''}`;
     if (loadingPagesRef.current.has(key)) return;
     loadingPagesRef.current.add(key);
-    trigger({ offset: pageStart, limit: pageSize, title: query || undefined, libraryId: filters.libraryId, sort: filters.sort })
+    trigger({
+      offset: pageStart,
+      limit: pageSize,
+      title: query || undefined,
+      libraryId: filters.libraryId,
+      sort: filters.sort,
+      distinct: filters.distinct,
+    })
       .unwrap()
       .then((res) => {
         if(!res) throw new Error('No response');
@@ -56,10 +63,10 @@ export function usePagedMedia({ pageSize = 48 }: UsePagedMediaParams = {}): UseP
           return next;
         });
       })
-      .catch(console.error)
-      .finally(() => {
-        loadingPagesRef.current.delete(key);
-      });
+      // .catch(console.error)
+      // .finally(() => {
+      //   loadingPagesRef.current.delete(key);
+      // });
   };
 
   // Reset results on query/filter change and load first page
@@ -69,7 +76,7 @@ export function usePagedMedia({ pageSize = 48 }: UsePagedMediaParams = {}): UseP
     loadingPagesRef.current.clear();
     ensurePageLoaded(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, filters.libraryId, filters.sort]);
+  }, [query, filters.libraryId, filters.sort, filters.distinct]);
 
   const dataIndices = useMemo(() => {
     const count = totalCount || items.length || 0;

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ActivityIndicator, Platform, TouchableWithoutFeedback, Modal } from 'react-native';
+import { ActivityIndicator, Platform, Modal } from 'react-native';
 import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import { default as styled } from 'styled-components/native';
 import type { PlayerController } from '@/src/features/player/domain/usePlayerController';
@@ -10,14 +10,16 @@ import { useControlsVisibility } from '@/src/features/player/domain/useControlsV
 import { useFullscreenContainer } from '@/src/features/player/domain/useFullscreenContainer';
 import { useResumeDialog } from '@/src/features/player/domain/useResumeDialog';
 import {formatTime} from "@/src/features/shared/utils/time";
+import {CastingController} from "@/src/features/player/domain/useGoogleCast";
 
 export type PlayerScreenViewProps = {
   controller: PlayerController;
+  castingController: CastingController;
   onControlsVisibilityChange?: (visible: boolean) => void;
 };
 
-export function PlayerScreenView({ controller, onControlsVisibilityChange }: PlayerScreenViewProps) {
-  const { controlsVisible, showControls, setControlsVisible, onSurfacePress } = useControlsVisibility();
+export function PlayerScreenView({ controller, onControlsVisibilityChange, castingController }: PlayerScreenViewProps) {
+  const { controlsVisible, showControls, setControlsVisible } = useControlsVisibility();
   const { containerRef, onToggleFullscreen } = useFullscreenContainer(controller);
   const { showResumeDialog, resumePos, startFromBeginning, continueWatching, close } = useResumeDialog(controller);
   const { togglePlay } = controller;
@@ -42,21 +44,20 @@ export function PlayerScreenView({ controller, onControlsVisibilityChange }: Pla
       ref={containerRef as any}
       onMouseMove={Platform.OS === 'web' ? showControls : undefined}
     >
-      <TouchableWithoutFeedback onPress={onSurfacePress}>
-        <SurfaceContainer nativeID="video-surface">
-          <VideoSurface
-            controller={controller}
-            onTogglePlay={() => {
-              if (Platform.OS === 'web') return togglePlay();
-              setControlsVisible((v) => !v);
-            }}
-          />
-        </SurfaceContainer>
-      </TouchableWithoutFeedback>
+      <SurfaceContainer nativeID="video-surface">
+        <VideoSurface
+          controller={controller}
+          onTogglePlay={() => {
+            if (Platform.OS === 'web') return togglePlay();
+            console.log('onTogglePlay');
+            setControlsVisible((v) => !v);
+          }}
+        />
+      </SurfaceContainer>
 
-      <ControlsBar controller={controller} visible={controlsVisible} onToggleFullscreen={onToggleFullscreen} />
+      <ControlsBar controller={controller} visible={controlsVisible} castingController={castingController} onToggleFullscreen={onToggleFullscreen} />
 
-      <Modal transparent animationType="fade" visible={showResumeDialog} onRequestClose={close}>
+      <Modal statusBarTranslucent transparent animationType="fade" visible={showResumeDialog} onRequestClose={close}>
         <DialogBackdrop>
           <DialogCard>
             <DialogTitle>Continue watching?</DialogTitle>
@@ -81,7 +82,6 @@ export function PlayerScreenView({ controller, onControlsVisibilityChange }: Pla
 
 const Container = styled.View`
   flex: 1;
-  background-color: black;
 `;
 
 const SurfaceContainer = styled.View`

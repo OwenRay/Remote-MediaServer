@@ -7,6 +7,21 @@ import { ThemeProvider as StyledThemeProvider, DefaultTheme as SCDefaultTheme } 
 
 import mock from 'react-native-safe-area-context/jest/mock';
 
+// Mock react-native-google-cast to avoid native module calls in tests
+jest.mock('react-native-google-cast', () => {
+  const CastState = { CONNECTED: 'CONNECTED', NOT_CONNECTED: 'NOT_CONNECTED' } as const;
+  return {
+    __esModule: true,
+    default: { CastState, CastContext: { showCastDialog: async () => false, getSessionManager: () => ({ endCurrentSession: async () => {} }) } },
+    CastContext: { showCastDialog: async () => false, getSessionManager: () => ({ endCurrentSession: async () => {} }) },
+    useDevices: () => [],
+    useCastState: () => CastState.NOT_CONNECTED,
+    useRemoteMediaClient: () => undefined,
+    CastButton: () => null,
+    CastState,
+  };
+});
+
 const styledTheme: SCDefaultTheme = {
   colors: {
     primary: '#1c1d36',

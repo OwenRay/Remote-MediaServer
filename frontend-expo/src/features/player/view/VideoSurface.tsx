@@ -4,6 +4,7 @@ import {VideoView} from 'expo-video';
 import {ThemedText} from '@/src/features/shared/view/ThemedText';
 import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import type {PlayerController} from '@/src/features/player/domain/usePlayerController';
+import {ImageBackground, Pressable} from "react-native";
 
 export type VideoSurfaceProps = {
   controller: PlayerController;
@@ -11,11 +12,20 @@ export type VideoSurfaceProps = {
 };
 
 export function VideoSurface({controller, onTogglePlay}: VideoSurfaceProps) {
-  const {player, error, retry} = controller;
+  const {error, retry, isCasting} = controller;
+
+  const backdrop = controller.item?.backdropUrl;
+
   return (
-    <VideoContainer onPress={onTogglePlay} testID="video-surface">
-      <StyledVideoView nativeControls={false} player={player} />
-      {error && (
+    <VideoContainer onPressIn={() => {
+      onTogglePlay()
+    }} testID="video-surface">
+      {isCasting ? (
+        <BackdropImage source={{ uri: backdrop }} resizeMode="cover" />
+      ) : (
+        <StyledVideoView nativeControls={false} player={controller.player} />
+      )}
+      {error && !isCasting && (
         <OverlayCenter>
           <ErrorBox>
             <ErrorText>Playback error. Tap retry.</ErrorText>
@@ -27,13 +37,19 @@ export function VideoSurface({controller, onTogglePlay}: VideoSurfaceProps) {
   );
 }
 
-const VideoContainer = styled.Pressable`
+const VideoContainer:typeof Pressable = styled.Pressable`
   flex: 1;
   background-color: black;
   justify-content: center;
+  align-items: center;
 `;
 
-const StyledVideoView = styled(VideoView)`
+const StyledVideoView: typeof VideoView = styled(VideoView)`
+  width: 100%;
+  height: 100%;
+`;
+
+const BackdropImage: typeof ImageBackground = styled(ImageBackground)`
   width: 100%;
   height: 100%;
 `;

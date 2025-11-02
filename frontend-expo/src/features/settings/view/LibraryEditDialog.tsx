@@ -53,7 +53,7 @@ export function LibraryEditDialog({ visible, initial, title = 'Library', onCance
   }, [local, onSave, isShared]);
 
   return (
-    <Modal transparent visible={visible} onRequestClose={onCancel} animationType="fade">
+    <Modal statusBarTranslucent transparent visible={visible} onRequestClose={onCancel} animationType="fade">
       <Backdrop>
         <Card>
           <HeaderRow>

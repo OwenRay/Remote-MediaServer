@@ -7,21 +7,23 @@ import { TransportControls } from './TransportControls';
 import { OptionsMenus } from './OptionsMenus';
 import { TimelineBar } from './TimelineBar';
 import { VolumeControl } from './VolumeControl';
+import {CastingController} from '@/src/features/player/domain/useGoogleCast';
 
 export type ControlsBarProps = {
   controller: PlayerController;
+  castingController: CastingController;
   visible?: boolean;
   onToggleFullscreen?: () => void;
 };
 
-export function ControlsBar({controller, visible = true, onToggleFullscreen}: ControlsBarProps) {
+export function ControlsBar({controller, visible = true, castingController}: ControlsBarProps) {
   const {bottom} = useSafeAreaInsets();
-  const {paused, togglePlay, onSeek, setVolume, volume, toggleFullscreen, item} = controller as PlayerController & {setPaused?: (p:boolean)=>void};
+  const {paused, togglePlay, onSeek, setVolume, volume, item} = controller;
 
   return (
     <Controls style={{paddingBottom:bottom + 8}} visible={visible}>
       <TransportControls paused={paused} onTogglePlay={togglePlay} />
-      <OptionsMenus onToggleFullscreen={onToggleFullscreen ?? toggleFullscreen} />
+      <OptionsMenus castingController={castingController} controller={controller} />
       <TimelineBar
         itemPosterUrl={item?.posterUrl}
         currentPosition={controller.position}
@@ -44,8 +46,6 @@ const Controls = styled.View<{visible:boolean}>`
   transition: margin-bottom 0.2s ease-out, opacity 0.2s ease-out;
   margin-bottom: ${(props: { visible: boolean }) => props.visible ? 0 : '-100px'};
 `;
-
-
 
 
 

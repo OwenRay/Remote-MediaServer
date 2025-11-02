@@ -23,13 +23,13 @@ export const MediaItemSchema = z.object({
     title: z.string().optional().default('Untitled'),
     season: serieNumber,
     episode: serieNumber,
-    year: z.union([z.string(), z.number()]).nullish().transform(v => v?.toString() || undefined),
-    fileduration: z.number().optional().default(0),
+    year: z.union([z.string(), z.number(), z.boolean()]).nullish().transform(v => v?.toString() || undefined),
+    fileduration: serieNumber.default(0),
     overview: z.string().optional().default(''),
     rating: z.union([z.number(), z.string()]).nullish().transform(v => (v == null ? undefined : Number(v))).optional(),
     type: z.string().optional(),
     episodeTitle: z.string().optional(),
-    'external-id': z.union([z.string(), z.number()]).nullish().transform(v => v?.toString() || undefined).optional(),
+    'external-id': z.union([z.string(), z.number(), z.boolean()]).nullish().transform(v => v?.toString() || undefined).optional(),
     filepath: z.string().optional(),
     mediaType: z.string().optional(),
     width: z.number().optional(),
@@ -38,7 +38,7 @@ export const MediaItemSchema = z.object({
     filesize: z.number().optional(),
     date_added: z.number().optional(),
     release_date: z.string().optional(),
-    'episode-title': z.string().optional(),
+    'episode-title': z.string().nullish(),
 
   })
 }).transform((obj) => ({
@@ -64,7 +64,6 @@ async function resolvePlayPosition(
   included: any[] | undefined,
   baseQueryFn?: (arg: any) => any
 ): Promise<PlayPosition | undefined> {
-  console.log('resolvePlayPosition', itemResource, included);
   // Try to resolve via relationship linkage first
   const rel = itemResource?.relationships?.['play-position']?.data;
   const relId: string | undefined = rel?.id;
@@ -116,15 +115,16 @@ function toMediaItem(resource: any): MediaItem {
 const mediaApi = api.injectEndpoints({
   endpoints: (build) => ({
     getLibraries: build.query<Library[], void>({
-      query: () => ({ url: '/libraries' }),
+      // Use relative path so fetchBaseQuery's baseUrl `${getApiBaseUrl()}` with '/api' prefix is preserved
+      query: () => ({ url: 'libraries' }),
       transformResponse: (response: JsonApiListResponse<{ name: string }>) =>
         deserializeList(response, (r) => ({ id: r.id, name: r.attributes.name })),
       providesTags: (result) =>
         result ? [...result.map((l) => ({ type: 'Library' as const, id: l.id })), 'Library'] : ['Library'],
     }),
-    getItemsPaged: build.query<{ items: MediaItem[]; total: number }, { offset: number; limit: number; libraryId?: string; title?: string; sort?: string }>({
+    getItemsPaged: build.query<{ items: MediaItem[]; total: number }, { offset: number; limit: number; libraryId?: string; title?: string; sort?: string; distinct?: string }>({
       async queryFn(arg, _api, _extra, baseQuery) {
-        const { offset, limit, libraryId, title, sort } = arg;
+        const { offset, limit, libraryId, title, sort, distinct } = arg;
         const params: Record<string, string> = {
           extra: 'false',
           sort: sort ?? 'date_added:DESC',
@@ -134,6 +134,7 @@ const mediaApi = api.injectEndpoints({
         };
         if (libraryId) params['library'] = libraryId;
         if (title) params['title'] = `%${title}%`;
+        if (distinct) params['distinct'] = distinct;
         const resp = await baseQuery({ url: '/media-items', params });
         if ((resp as any).error) return { error: (resp as any).error } as any;
         const response: any = (resp as any).data;
@@ -154,7 +155,6 @@ const mediaApi = api.injectEndpoints({
     }),
     getItem: build.query<MediaItem, string>({
       async queryFn(id, _api, _extra, baseQuery) {
-        console.log('getItem resolved');
         const resp = await baseQuery({ url: `/media-items/${id}`, params: { extra: 'false', join: 'play-position' } });
         if ((resp as any).error) return { error: (resp as any).error } as any;
         const response = (resp as any).data as JsonApiSingleResponse<any>;

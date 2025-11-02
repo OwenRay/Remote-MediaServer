@@ -2,6 +2,14 @@ import React from 'react';
 import PlayerScreen from './[id]';
 import { renderWithProviders } from '@/test-utils';
 import * as mediaApi from '@/src/features/library/model/media';
+import {waitFor} from "@testing-library/react-native";
+
+jest.mock('react-native-google-cast', () => ({
+  ...jest.requireActual('react-native-google-cast'),
+  useDevices: jest.fn().mockReturnValue({ devices: [] }),
+  useCastState: jest.fn().mockReturnValue({ isConnected: false }),
+  useRemoteMediaClient: jest.fn().mockReturnValue(undefined),
+}));
 
 const mockNavigation = { setOptions: jest.fn() };
 jest.mock('expo-router', () => ({
@@ -27,6 +35,6 @@ describe('PlayerScreen', () => {
 
     renderWithProviders(<PlayerScreen />);
 
-    expect(mockNavigation.setOptions).toHaveBeenCalledWith(expect.objectContaining({ title: 'My Movie', headerTransparent: true }));
+    await waitFor(() => expect(mockNavigation.setOptions).toHaveBeenCalledWith(expect.objectContaining({ title: 'My Movie', headerTransparent: true })));
   });
 });

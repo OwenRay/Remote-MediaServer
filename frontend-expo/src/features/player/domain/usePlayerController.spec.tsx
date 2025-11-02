@@ -65,24 +65,6 @@ describe('usePlayerController', () => {
     });
   });
 
-  it('holds autoplay when resume is available and resumes after confirm', async () => {
-    const playerMock = { currentTime: 0, play: jest.fn(), pause: jest.fn(), seek: jest.fn(), playing: false } as any;
-    jest.spyOn(expoVideo, 'useVideoPlayer').mockReturnValue(playerMock);
-    jest.spyOn(mediaApi, 'useGetItemQuery').mockReturnValue({ data: { id: 'itm1', fileduration: 120, playPosition: { position: 30, watched: false } } } as any);
-
-    let ctl: any;
-    renderWithProviders(<HookHarness id="itm1" onReady={(c) => { ctl = c; }} />);
-
-    // Initially should be paused due to resume hold
-    await waitFor(() => expect(ctl.paused).toBe(true));
-    expect(playerMock.pause).toHaveBeenCalled();
-
-    // After confirming choice, should play and unpause
-    act(() => ctl.confirmResumeChoice());
-    await waitFor(() => expect(playerMock.play).toHaveBeenCalled());
-    expect(ctl.paused).toBe(false);
-  });
-
   it('togglePlay toggles paused state and calls player play/pause', async () => {
     const playerMock = { currentTime: 0, play: jest.fn(), pause: jest.fn(), seek: jest.fn(), playing: false } as any;
     jest.spyOn(expoVideo, 'useVideoPlayer').mockReturnValue(playerMock);
