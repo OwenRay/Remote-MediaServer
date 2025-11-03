@@ -6,7 +6,6 @@ import {ThemedTextInput} from "@/src/features/shared/view/ThemedTextInput";
 import {ThemedText} from "@/src/features/shared/view/ThemedText";
 import {ThemedPicker} from "@/src/features/shared/view/ThemedPicker";
 import {Card} from "@/src/features/shared/view/Card";
-import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 export type SearchBarProps = {
@@ -91,19 +90,7 @@ export function SearchBar({
               />
             </PickerContainer>
           </Field>
-
-          <SecondaryButton
-            testID="group-toggle"
-            onPress={() => onFiltersChange({
-              ...filters,
-              distinct: filters.distinct ? undefined : 'external-id',
-            })}
-            accessibilityLabel="group-toggle"
-          >
-            <ThemedText>{filters.distinct ? 'Ungroup' : 'Group'}</ThemedText>
-          </SecondaryButton>
         </FiltersContainer>
-
         {!isWideScreen && (
           <StyledTextInput
             accessibilityLabel="search-input"
