@@ -1,27 +1,27 @@
-FROM node:16 AS build_backend
+FROM node:20 AS build_backend
 
 WORKDIR /backend
 COPY ./package* ./
 RUN npm install --production
 
 ##################################
-FROM node:16 AS build_frontend
+FROM node:20 AS build_frontend
 
-WORKDIR /frontend
-COPY ./frontend/package* ./
+WORKDIR /frontend-expo
+COPY ./frontend-expo/package* ./
 
-RUN npm install --production
-COPY frontend/ ./
+RUN npm install
+COPY frontend-expo/ ./
 
-RUN npm run build
+RUN npm run build:web
 
 
 ##################################
-FROM node:16
+FROM node:20
 
 WORKDIR /app
 
-COPY --from=build_frontend /frontend/build /app/frontend/build
+COPY --from=build_frontend /frontend-expo/dist /app/frontend-expo/dist
 COPY --from=build_backend /backend /app/
 
 COPY . backend/ /app/

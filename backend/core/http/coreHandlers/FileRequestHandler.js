@@ -14,7 +14,7 @@ const RequestHandler = require('../RequestHandler');
 class FileRequestHandler extends RequestHandler {
   handleRequest() {
     const { url } = this.context;
-    const dir = `${__dirname}/../../../frontend/dist/`;
+    const dir = `${__dirname}/../../../frontend-expo/dist/`;
     return this.serveFile(dir + url, false);
   }
 

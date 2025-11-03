@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watchAll",
-    "test:all": "yarn lint && yarn typecheck && yarn test"
+    "test:all": "yarn lint && yarn typecheck && yarn test",
+    "build:web": "expo export --platform web"
   },
   "jest": {
     "preset": "jest-expo",

@@ -55,7 +55,7 @@ class HttpServer {
       }
       return next();
     });
-    server.use(new Static(`${__dirname}/../../../frontend/build`));
+    server.use(new Static(`${__dirname}/../../../frontend-expo/dist`));
 
     // Lets start our server
     serverInstance = server.listen(Settings.getValue('port'), Settings.getValue('bind'), HttpServer.onConnected);
