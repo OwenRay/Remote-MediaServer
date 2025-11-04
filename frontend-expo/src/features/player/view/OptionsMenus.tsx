@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Platform } from 'react-native';
+import {Modal, Platform, TouchableOpacity} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import { ThemedText } from '@/src/features/shared/view/ThemedText';
@@ -7,59 +7,99 @@ import {default as styled} from 'styled-components/native';
 import {CastButtonControl} from "@/src/features/player/view/CastButtonControl";
 import {PlayerController} from "@/src/features/player/domain/usePlayerController";
 import {CastingController} from "@/src/features/player/domain/useGoogleCast";
+import {useGetMediaContentQuery} from "@/src/features/player/model/mediaContent";
+import {Card} from "@/src/features/shared/view/Card";
 
 export type OptionsMenusProps = { controller: PlayerController, castingController: CastingController };
 
 export function OptionsMenus({ controller, castingController }: OptionsMenusProps) {
-  const [openMenu, setOpenMenu] = useState<null | 'audio' | 'video' | 'subtitles'>(
-    null,
-  );
+  const [openMenu, setOpenMenu] = useState<null | 'audio' | 'video' | 'subtitles'>(null);
+  const id = controller.item?.id ? String(controller.item.id) : undefined;
+  const { data: mediaContent } = useGetMediaContentQuery(id ?? '', { skip: !id });
+
+  const hasAudio = (mediaContent?.audio?.length ?? 0) > 1;
+  const hasVideo = (mediaContent?.video?.length ?? 0) > 1;
+
+  const onSelectAudio = (v: number) => {
+    controller.setAudioChannel(v);
+    setOpenMenu(null);
+  };
+  const onSelectVideo = (v: number) => {
+    controller.setVideoChannel(v);
+    setOpenMenu(null);
+  };
+
+  const renderModalContent = () => {
+    if (!openMenu) return null;
+    const isAudio = openMenu === 'audio';
+    const isVideo = openMenu === 'video';
+    const title = isAudio ? 'Audio tracks' : isVideo ? 'Video tracks' : 'Subtitles';
+    const subtitleOptions = [{ label: 'None', value: '' }, ...((mediaContent?.subtitles ?? []) as any[])];
+    const options = isAudio ? (mediaContent?.audio ?? []) : isVideo ? (mediaContent?.video ?? []) : subtitleOptions;
+    const onSelect = isAudio ? onSelectAudio : isVideo ? onSelectVideo : (v?: string | number) => {
+      const val = String(v || '');
+      controller.setSubtitle(val || null);
+      setOpenMenu(null);
+    };
+
+    return (
+      <Modal backdropColor={'#00000088'} statusBarTranslucent={true}>
+        <ModalOverlay>
+          <ModalCard>
+            <ModalTitle>{title}</ModalTitle>
+            <ModalList>
+              {options.map((opt) => {
+                const value = (isAudio || isVideo) ? Number(opt.value) : String(opt.value ?? '');
+                const isSelected = isAudio
+                  ? value === (controller.audioChannel || 1)
+                  : isVideo
+                    ? value === (controller.videoChannel || 1)
+                    : String(controller.subtitle || '') === String(value);
+                const handlePress = () => onSelect(value as any);
+                return (
+                  <ModalBtn key={`${openMenu}-${opt.value}`} onPress={handlePress}
+                            accessibilityRole="button">
+                    <ModalItem
+                      style={{
+                        backgroundColor: isSelected ? '#333' : undefined}}>
+                      {opt.label}
+                    </ModalItem>
+                  </ModalBtn>
+                );
+              })}
+            </ModalList>
+            <Divider />
+            <CancelBtn onPress={() => setOpenMenu(null)} accessibilityRole="button">
+              <CancelText>Cancel</CancelText>
+            </CancelBtn>
+          </ModalCard>
+        </ModalOverlay>
+      </Modal>
+    );
+  };
+
   return (
-    <Right onMouseLeave={() => setOpenMenu(null)}>
-      <MenuAnchor
-        onMouseEnter={() => Platform.OS === 'web' && setOpenMenu('audio')}
-        onPress={() => setOpenMenu(openMenu === 'audio' ? null : 'audio')}
-        accessibilityRole="button"
-      >
-        <IconBtn>
-          <MaterialIcons name="audiotrack" size={20} color="#fff" />
-        </IconBtn>
-        {openMenu === 'audio' && (
-          <Popover>
-            <PopoverItem>Default</PopoverItem>
-          </Popover>
-        )}
-      </MenuAnchor>
+    <Right>
+      {hasAudio && (
+        <MenuAnchor accessibilityRole="button">
+          <IconBtn onPress={() => setOpenMenu('audio')}>
+            <MaterialIcons name="audiotrack" size={20} color="#fff" />
+          </IconBtn>
+        </MenuAnchor>
+      )}
 
-      <MenuAnchor
-        onMouseEnter={() => Platform.OS === 'web' && setOpenMenu('video')}
-        onPress={() => setOpenMenu(openMenu === 'video' ? null : 'video')}
-        accessibilityRole="button"
-      >
-        <IconBtn>
-          <MaterialIcons name="video-settings" size={20} color="#fff" />
-        </IconBtn>
-        {openMenu === 'video' && (
-          <Popover>
-            <PopoverItem>Default</PopoverItem>
-          </Popover>
-        )}
-      </MenuAnchor>
+      {hasVideo && (
+        <MenuAnchor accessibilityRole="button">
+          <IconBtn onPress={() => setOpenMenu('video')}>
+            <MaterialIcons name="video-settings" size={20} color="#fff" />
+          </IconBtn>
+        </MenuAnchor>
+      )}
 
-      <MenuAnchor
-        onMouseEnter={() => Platform.OS === 'web' && setOpenMenu('subtitles')}
-        onPress={() => setOpenMenu(openMenu === 'subtitles' ? null : 'subtitles')}
-        accessibilityRole="button"
-      >
-        <IconBtn>
+      <MenuAnchor accessibilityRole="button">
+        <IconBtn onPress={() => setOpenMenu('subtitles')}>
           <MaterialIcons name="subtitles" size={20} color="#fff" />
         </IconBtn>
-        {openMenu === 'subtitles' && (
-          <Popover>
-            <PopoverItem>Off</PopoverItem>
-            <PopoverItem>Default</PopoverItem>
-          </Popover>
-        )}
       </MenuAnchor>
 
       {Platform.OS === 'web' && (
@@ -69,6 +109,8 @@ export function OptionsMenus({ controller, castingController }: OptionsMenusProp
         </IconBtn>
       )}
       <CastButtonControl controller={castingController} />
+
+      {renderModalContent()}
     </Right>
   );
 }
@@ -104,20 +146,59 @@ const MenuAnchor = styled.View`
   position: relative;
 `;
 
-const Popover = styled.View`
+const ModalOverlay = styled.View`
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
   position: absolute;
-  bottom: 34px;
-  right: 0;
-  background-color: #222;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding-vertical: 4px;
-  min-width: 120px;
-  z-index: 9999;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
 `;
 
-const PopoverItem = styled(ThemedText)`
+const ModalCard = styled(Card)`
+  background-color: #222;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 8px;
+  min-width: 240px;
+  max-width: 90%;
+  max-height: 80%;
+`;
+
+const ModalTitle = styled(ThemedText)`
   color: #fff;
-  padding-vertical: 6px;
-  padding-horizontal: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 8px 10px;
+`;
+
+const ModalList = styled.ScrollView`
+  padding-vertical: 4px;
+`;
+
+const ModalItem = styled(ThemedText)`
+  color: #fff;
+  padding-vertical: 10px;
+  padding-horizontal: 12px;
+  border-radius: 6px;
+`;
+
+const ModalBtn = styled(TouchableOpacity)`
+  padding-vertical: 0;
+`;
+
+const Divider = styled.View`
+  height: 1px;
+  background-color: #333;
+  margin: 6px 0;
+`;
+
+const CancelBtn = styled(SecondaryButton)`
+  align-self: flex-end;
+`;
+
+const CancelText = styled(ThemedText)`
+  color: #fff;
 `;

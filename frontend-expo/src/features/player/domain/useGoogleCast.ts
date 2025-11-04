@@ -55,8 +55,10 @@ export function useGoogleCast(controller:PlayerController): CastingController {
 
   }, [castState, controller, isCasting, loaded, progress, progressOffset])
 
+
   const loadMediaForItem = useCallback(async (item: MediaItem, position: number, startPaused:boolean) => {
     if (!client) return;
+
     const mediaInfo = {
       contentUrl: `${getBaseUrl()}/ply/${item.id}/${Math.floor(position)}`,
       contentType: 'video/mp4',

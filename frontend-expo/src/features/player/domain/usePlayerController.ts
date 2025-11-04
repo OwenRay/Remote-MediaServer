@@ -24,6 +24,12 @@ export type PlayerController = {
   item?:MediaItem;
   isCasting: boolean;
   player: ReturnType<typeof useVideoPlayer>;
+  audioChannel?: number;
+  videoChannel?: number;
+  subtitle?: string | null;
+  setAudioChannel: (n: number) => void;
+  setVideoChannel: (n: number) => void;
+  setSubtitle: (s: string | null) => void;
 };
 
 export function usePlayerController({id}: PlayerControllerOptions): PlayerController {
@@ -35,9 +41,13 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
   const [writePos] = useWritePlayPositionMutation();
   const lastPositionSave = useRef(0);
 
+  const [audioChannel, setAudioChannel] = useState<number | undefined>(undefined);
+  const [videoChannel, setVideoChannel] = useState<number | undefined>(undefined);
+  const [subtitle, setSubtitle] = useState<string | null>(null);
+
   // Resolve offline availability for this id and build the source
   const offlineUri = useOfflineUri(id);
-  const source = usePlayerSource(id, position, offlineUri);
+  const source = usePlayerSource(id, position, offlineUri, audioChannel, videoChannel);
 
   const player = useVideoPlayer(source, (p) => {
     console.log('player done', paused);
@@ -102,5 +112,20 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
     position: position + player.currentTime || 0,
     isCasting: false,
     player,
+    audioChannel,
+    videoChannel,
+    subtitle,
+    setAudioChannel: (channel:number) => {
+      onSeek(position + player.currentTime);
+      setAudioChannel(channel);
+    },
+    setVideoChannel: (channel:number) => {
+      onSeek(position + player.currentTime);
+      setVideoChannel(channel);
+    },
+    setSubtitle: (s: string | null) => {
+      onSeek(position + player.currentTime);
+      setSubtitle(s);
+    },
   };
 }

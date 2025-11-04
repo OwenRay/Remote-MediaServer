@@ -5,6 +5,7 @@ import {ThemedText} from '@/src/features/shared/view/ThemedText';
 import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import type {PlayerController} from '@/src/features/player/domain/usePlayerController';
 import {ImageBackground, Pressable} from "react-native";
+import { SubtitleOverlay } from '@/src/features/player/view/SubtitleOverlay';
 
 export type VideoSurfaceProps = {
   controller: PlayerController;
@@ -25,6 +26,7 @@ export function VideoSurface({controller, onTogglePlay}: VideoSurfaceProps) {
       ) : (
         <StyledVideoView nativeControls={false} player={controller.player} />
       )}
+      <SubtitleOverlay controller={controller} />
       {error && !isCasting && (
         <OverlayCenter>
           <ErrorBox>
