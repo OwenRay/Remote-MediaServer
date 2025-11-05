@@ -2,6 +2,7 @@ import React from 'react';
 import { Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useGetItemQuery, useGetEpisodesByExternalIdQuery, MediaItem } from '@/src/features/library/model/media';
+import { usePlayQueue } from '@/src/features/playqueue/domain/usePlayQueue';
 import { useWritePlayPositionMutation } from '@/src/features/player/model/playback';
 
 export type GroupedEpisodes = Record<string, MediaItem[]>;
@@ -29,6 +30,7 @@ export type DetailsViewModel = {
 
 export function useDetailsViewModel(id: string): DetailsViewModel {
   const router = useRouter();
+  const { actions: queueActions } = usePlayQueue();
   const { data: item, isLoading, isError } = useGetItemQuery(String(id));
   const [writePos] = useWritePlayPositionMutation();
   const [watched, setWatched] = React.useState<boolean>(false);
@@ -79,6 +81,8 @@ export function useDetailsViewModel(id: string): DetailsViewModel {
 
   const onPlay = () => {
     if (!item) return;
+    // put current item at the current offset and navigate to player
+    queueActions.insertAtCurrentOffset(item);
     router.push(`/player/${item.id}`);
   };
 

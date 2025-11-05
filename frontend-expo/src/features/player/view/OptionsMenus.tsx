@@ -43,7 +43,7 @@ export function OptionsMenus({ controller, castingController }: OptionsMenusProp
     };
 
     return (
-      <Modal backdropColor={'#00000088'} statusBarTranslucent={true}>
+      <Modal transparent={true} statusBarTranslucent={true}>
         <ModalOverlay>
           <ModalCard>
             <ModalTitle>{title}</ModalTitle>
@@ -155,6 +155,7 @@ const ModalOverlay = styled.View`
   left:0;
   right:0;
   bottom:0;
+  background-color: #00000088;
 `;
 
 const ModalCard = styled(Card)`

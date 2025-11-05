@@ -123,9 +123,6 @@ export function usePlayerController({id}: PlayerControllerOptions): PlayerContro
       onSeek(position + player.currentTime);
       setVideoChannel(channel);
     },
-    setSubtitle: (s: string | null) => {
-      onSeek(position + player.currentTime);
-      setSubtitle(s);
-    },
+    setSubtitle
   };
 }

@@ -2,19 +2,26 @@ import React from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import {default as styled} from 'styled-components/native';
+import type { PlayerController } from '@/src/features/player/domain/usePlayerController';
+import { usePlayQueue } from '@/src/features/playqueue/domain/usePlayQueue';
 
-export type TransportControlsProps = { paused: boolean; onTogglePlay: () => void };
+export type TransportControlsProps = {
+  controller: PlayerController;
+};
 
-export function TransportControls({ paused, onTogglePlay }: TransportControlsProps) {
+export function TransportControls({ controller }: TransportControlsProps) {
+  const { state: queue, actions: queueActions } = usePlayQueue();
+  const { paused, togglePlay } = controller;
+
   return (
     <CenterControls>
-      <IconBtn disabled>
+      <IconBtn onPress={() => queueActions.skip(-1)} disabled={!queue.hasPrev} accessibilityLabel={'previous'} accessibilityRole="button">
         <MaterialIcons name="skip-previous" size={20} color="#fff" />
       </IconBtn>
-      <IconBtn onPress={onTogglePlay} accessibilityLabel={'play'} accessibilityRole="button">
+      <IconBtn onPress={togglePlay} accessibilityLabel={'play'} accessibilityRole="button">
         <MaterialIcons name={paused ? 'play-arrow' : 'pause'} size={40} color="#fff" />
       </IconBtn>
-      <IconBtn disabled>
+      <IconBtn onPress={() => queueActions.skip(1)} disabled={!queue.hasNext} accessibilityLabel={'next'} accessibilityRole="button">
         <MaterialIcons name="skip-next" size={20} color="#fff" />
       </IconBtn>
     </CenterControls>

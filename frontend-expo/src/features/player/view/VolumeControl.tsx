@@ -4,10 +4,12 @@ import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SeekBar } from '@/src/features/player/view/SeekBar';
+import type { PlayerController } from '@/src/features/player/domain/usePlayerController';
 
-export type VolumeControlProps = { volume: number; setVolume: (v: number) => void };
+export type VolumeControlProps = { controller: PlayerController };
 
-export function VolumeControl({ volume, setVolume }: VolumeControlProps) {
+export function VolumeControl({ controller }: VolumeControlProps) {
+  const { volume, setVolume } = controller;
   return (
     <Container>
       <IconBtn onPress={() => setVolume(volume > 0 ? 0 : 1)} accessibilityRole="button">

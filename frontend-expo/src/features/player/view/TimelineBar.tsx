@@ -4,16 +4,18 @@ import {default as styled} from 'styled-components/native';
 import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import { SeekBar } from '@/src/features/player/view/SeekBar';
 import { formatTime } from '@/src/features/shared/utils/time';
+import type { PlayerController } from '@/src/features/player/domain/usePlayerController';
 
 export type TimelineBarProps = {
-  itemPosterUrl?: string;
-  currentPosition: number;
-  duration: number;
-  onSeek: (v: number) => void;
+  controller: PlayerController;
   children?: React.ReactNode;
 };
 
-export function TimelineBar({ itemPosterUrl, currentPosition, duration, onSeek, children }: TimelineBarProps) {
+export function TimelineBar({ controller, children }: TimelineBarProps) {
+  const itemPosterUrl = controller.item?.posterUrl;
+  const currentPosition = controller.position;
+  const duration = controller.item?.fileduration || 0;
+  const onSeek = controller.onSeek;
   return (
     <Row>
       {itemPosterUrl ? (

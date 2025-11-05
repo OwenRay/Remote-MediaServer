@@ -41,20 +41,28 @@ export const MediaItemSchema = z.object({
     'episode-title': z.string().nullish(),
 
   })
-}).transform((obj) => ({
-  id: obj.id,
-  ...obj.attributes,
-  thumbnailUrl: `${getBaseUrl()}/img/${obj.id}_postersmall.jpg`,
-  posterUrl: `${getBaseUrl()}/img/${obj.id}_poster.jpg`,
-  posterLargeUrl: `${getBaseUrl()}/img/${obj.id}_posterlarge.jpg`,
-  backdropUrl: `${getBaseUrl()}/img/${obj.id}_backdrop.jpg`,
-  imdbUrl: obj.attributes['external-id'] ? `${getBaseUrl()}/api/redirectToIMDB/${obj.id}` : undefined,
-  externalId: obj.attributes['external-id'],
-  dateAdded: obj.attributes.date_added,
-  releaseDate: obj.attributes.release_date,
-  episodeTitle: obj.attributes['episode-title'],
-  title: obj.attributes.title + (obj.attributes['episode-title'] ? ` • ${obj.attributes['episode-title']}` : ''),
-}));
+}).transform((obj) => {
+  const season = typeof obj.attributes.season === 'number' ? obj.attributes.season : undefined;
+  const episode = typeof obj.attributes.episode === 'number' ? obj.attributes.episode : undefined;
+  const seasonEpisodeTag = season != null && episode != null
+    ? `s${String(season).padStart(2, '0')}e${String(episode).padStart(2, '0')}`
+    : undefined;
+  return ({
+    id: obj.id,
+    ...obj.attributes,
+    thumbnailUrl: `${getBaseUrl()}/img/${obj.id}_postersmall.jpg`,
+    posterUrl: `${getBaseUrl()}/img/${obj.id}_poster.jpg`,
+    posterLargeUrl: `${getBaseUrl()}/img/${obj.id}_posterlarge.jpg`,
+    backdropUrl: `${getBaseUrl()}/img/${obj.id}_backdrop.jpg`,
+    imdbUrl: obj.attributes['external-id'] ? `${getBaseUrl()}/api/redirectToIMDB/${obj.id}` : undefined,
+    externalId: obj.attributes['external-id'],
+    dateAdded: obj.attributes.date_added,
+    releaseDate: obj.attributes.release_date,
+    episodeTitle: obj.attributes['episode-title'],
+    title: obj.attributes.title + (obj.attributes['episode-title'] ? ` • ${obj.attributes['episode-title']}` : ''),
+    seasonEpisodeTag,
+  });
+});
 
 
 export type MediaItem = z.infer<typeof MediaItemSchema> & { playPosition?: PlayPosition };
@@ -192,3 +200,13 @@ const mediaApi = api.injectEndpoints({
 });
 
 export const {useGetLibrariesQuery, useGetItemQuery, useLazyGetItemsPagedQuery, useGetEpisodesByExternalIdQuery, endpoints} = mediaApi;
+
+// Centralized formatter for season/episode tags
+export function getSeasonEpisodeTag(input: { season?: number | null | undefined; episode?: number | null | undefined } | Pick<MediaItem, 'season' | 'episode'>): string | undefined {
+  const season = typeof (input as any)?.season === 'number' ? (input as any).season : undefined;
+  const episode = typeof (input as any)?.episode === 'number' ? (input as any).episode : undefined;
+  if (season == null || episode == null) return undefined;
+  const s = String(season).padStart(2, '0');
+  const e = String(episode).padStart(2, '0');
+  return `s${s}e${e}`;
+}

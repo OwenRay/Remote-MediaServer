@@ -37,7 +37,7 @@ describe('DetailsScreen', () => {
 
   it('sets header title from item title', async () => {
     jest.spyOn(mediaApi, 'useGetItemQuery').mockReturnValue({
-      data: mockItem({ title: 'Detail Title' }),
+      data: mockItem({ title: 'Detail Title',  seasonEpisodeTag: 'S01E02'}),
       isLoading: false,
       isError: false,
     } as any);
@@ -48,7 +48,7 @@ describe('DetailsScreen', () => {
     renderWithProviders(<DetailsScreen />);
 
     await waitFor(() => expect(useNavigation().setOptions).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Detail Title',
+      title: 'S01E02 • Detail Title',
       headerTransparent: true,
       headerBackground: expect.any(Function),
     })));

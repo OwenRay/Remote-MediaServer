@@ -18,20 +18,14 @@ export type ControlsBarProps = {
 
 export function ControlsBar({controller, visible = true, castingController}: ControlsBarProps) {
   const {bottom} = useSafeAreaInsets();
-  const {paused, togglePlay, onSeek, setVolume, volume, item} = controller;
 
   return (
     <Controls style={{paddingBottom:bottom + 8}} visible={visible}>
-      <TransportControls paused={paused} onTogglePlay={togglePlay} />
+      <TransportControls controller={controller} />
       <OptionsMenus castingController={castingController} controller={controller} />
-      <TimelineBar
-        itemPosterUrl={item?.posterUrl}
-        currentPosition={controller.position}
-        duration={item?.fileduration || 0}
-        onSeek={onSeek}
-      >
+      <TimelineBar controller={controller}>
         {Platform.OS==='web' ? (
-          <VolumeControl volume={volume} setVolume={setVolume} />
+          <VolumeControl controller={controller} />
         ) : undefined}
       </TimelineBar>
     </Controls>

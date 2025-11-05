@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import {getApiBaseUrl, getBaseUrl} from '@/src/features/shared/model/api/base';
+import {getApiBaseUrl} from '@/src/features/shared/model/api/base';
 
 export type VttCue = {
   start: number;

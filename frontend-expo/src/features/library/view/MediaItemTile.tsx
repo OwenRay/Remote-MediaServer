@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Platform } from 'react-native';
 import { ThemedText } from '@/src/features/shared/view/ThemedText';
 import type { MediaItem } from '@/src/features/library/model/media';
+import { getSeasonEpisodeTag } from '@/src/features/library/model/media';
 import { BlurView } from 'expo-blur';
 import {default as styled} from 'styled-components/native';
 import { useRouter } from 'expo-router';
+import { usePlayQueue } from '@/src/features/playqueue/domain/usePlayQueue';
 
 import { SecondaryButton } from '@/src/features/shared/view/SecondaryButton';
 import { ProgressBar as SharedProgressBar } from '@/src/features/shared/view/ProgressBar';
@@ -18,12 +20,9 @@ export type MediaItemTileProps = {
 
 export function MediaItemTile({ item, width = 150, height = 218 }: MediaItemTileProps) {
   const router = useRouter();
+  const { actions: queueActions } = usePlayQueue();
   const hasThumb = !!item.thumbnailUrl;
-  const season = typeof item.season === 'number' ? item.season : undefined;
-  const episode = typeof item.episode === 'number' ? item.episode : undefined;
-  const seasonEpisode = season !== undefined && episode !== undefined
-    ? `s${String(season).padStart(2, '0')}e${String(episode).padStart(2, '0')}`
-    : undefined;
+  const seasonEpisode = getSeasonEpisodeTag(item);
 
   const fileduration = item.fileduration ?? 0;
   const playPos = (item.playPosition?.position ?? item.playPos ?? 0) as number;
@@ -48,6 +47,7 @@ export function MediaItemTile({ item, width = 150, height = 218 }: MediaItemTile
   const handlePlay = (e?: any) => {
     // prevent accidental parent navigation on web
     e?.stopPropagation?.();
+    queueActions.insertAtCurrentOffset(item as any);
     router.push(`/player/${item.id}`);
   };
 

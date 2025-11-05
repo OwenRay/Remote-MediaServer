@@ -11,7 +11,10 @@ export default function DetailsScreen() {
 
   React.useEffect(() => {
     navigation.setOptions?.({
-      title: viewModel.item?.title ?? 'Details',
+      title: [
+        viewModel.item?.seasonEpisodeTag,
+        viewModel.item?.title
+      ].join(' • ') || 'Details',
       headerTransparent: true,
       headerBackground: () => (
         <BlurView
@@ -22,7 +25,7 @@ export default function DetailsScreen() {
         />
       ),
     });
-  }, [navigation, viewModel.item?.title]);
+  }, [navigation, viewModel.item?.seasonEpisodeTag, viewModel.item?.title]);
 
   return <DetailsScreenView {...viewModel} />;
 }

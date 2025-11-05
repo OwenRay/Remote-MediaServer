@@ -15,6 +15,7 @@ const mockNavigation = { setOptions: jest.fn() };
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ id: 'itm1' }),
   useNavigation: () => mockNavigation,
+  useRouter: () => ({ replace: jest.fn(), push: jest.fn() }),
 }));
 
 // Do not render the full PlayerScreenView tree in this test; focus on title logic only
@@ -30,11 +31,11 @@ describe('PlayerScreen', () => {
 
   it('sets header title with the media title', async () => {
     jest.spyOn(mediaApi, 'useGetItemQuery').mockReturnValue({
-      data: { id: 'itm1', title: 'My Movie', fileduration: 120 } as any,
+      data: { id: 'itm1', title: 'My Movie', fileduration: 120, seasonEpisodeTag: 'S01E02' } as any,
     } as any);
 
     renderWithProviders(<PlayerScreen />);
 
-    await waitFor(() => expect(mockNavigation.setOptions).toHaveBeenCalledWith(expect.objectContaining({ title: 'My Movie', headerTransparent: true })));
+    await waitFor(() => expect(mockNavigation.setOptions).toHaveBeenCalledWith(expect.objectContaining({ title: 'S01E02 • My Movie', headerTransparent: true })));
   });
 });

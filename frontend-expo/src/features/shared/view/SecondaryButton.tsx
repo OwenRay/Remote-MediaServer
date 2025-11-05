@@ -15,9 +15,10 @@ export const SecondaryButton: React.FC<SecondaryButtonProps> = ({ children, ...r
   );
 };
 
-const BaseButton = styled(Pressable)`
+const BaseButton: typeof Pressable = styled(Pressable)`
   padding-horizontal: 16px;
   padding-vertical: 10px;
   border-radius: 8px;
-  background-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.primary};
+  background-color: ${({theme, disabled}: { theme: DefaultTheme; disabled?: boolean }) =>
+    disabled ? '#909090' : theme.colors.primary};
 `;

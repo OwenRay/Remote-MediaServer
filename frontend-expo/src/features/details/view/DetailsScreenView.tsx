@@ -106,7 +106,7 @@ export function DetailsScreenView(props: DetailsScreenViewProps) {
                         key={String(ep.id)}
                         onPress={() => onEpisodePress(ep.id)}
                         isCurrent={ep.id === item.id}>
-                        <EpisodeTitle>{`S${ep.season ?? 0}E${ep.episode ?? 0}${ep.episodeTitle ? ` - ${ep.episodeTitle}` : ''}`}</EpisodeTitle>
+                        <EpisodeTitle>{`${ep.seasonEpisodeTag ?? ''}${ep.episodeTitle ? ` - ${ep.episodeTitle}` : ''}`}</EpisodeTitle>
                         <EpisodeMeta>
                           {ep.playPosition?.watched ? 'Watched' : ep.fileduration ? `${Math.round(((ep.playPosition?.position ?? 0) / (ep.fileduration || 1)) * 100)}%` : ''}
                         </EpisodeMeta>
